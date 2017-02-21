@@ -1,3 +1,5 @@
 *.pb.o
 *.pb.h
 *.pb.cc
+*.a
+*.ps1
