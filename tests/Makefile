@@ -22,7 +22,7 @@ LIBS              = -static -static-libgcc $(MARKET_PROTO_LIB) $(PROTOBUF_LIB) $
 
 default: market_tests
 
-market_tests:	$(patsubst %test.cc,%test.o,$(wildcard *test.cc)) gtest-all.o
+market_tests:	$(patsubst %test.cc,%test.o,$(wildcard *test.cc)) gtest_main.a
 		$(LINKER) $^ C:/Users/Rolf/protobuf/src-3.2.0/cmake/build/release/libprotobuf.a -o $@ $(LIBS)
 
 gtest-all.o:	$(GTEST_SRCS_)
@@ -31,11 +31,11 @@ gtest-all.o:	$(GTEST_SRCS_)
 %test.o:	%test.cc
 		$(CXX) $(CXXFLAGS) $(INCPATH) -c -o $@ $<
 
-#gtest_main.a:	gtest-all.o gtest_main.o
-#		ar rcs $@ $^
+gtest_main.a:	gtest-all.o gtest_main.o
+		ar rcs $@ $^
 
-#gtest_main.o:	$(GTEST_SRCS_)
-#		$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $(GTEST_DIR)/src/gtest_main.cc
+gtest_main.o:	$(GTEST_SRCS_)
+		$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $(GTEST_DIR)/src/gtest_main.cc
 
 clean:
 		rm -f market_tests.exe
