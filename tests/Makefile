@@ -9,7 +9,7 @@ DEFINES       = -DUNICODE -DWINVER=0x0500
 GTEST_DIR     = C:/Users/Rolf/googletest/googletest
 GTEST_HEADERS = $(wildcard $(GTEST_DIR)/include/gtest/*.h) $(wildcard $(GTEST_DIR)/include/gtest/internal/*.h)
 GTEST_SRCS_   = $(wildcard $(GTEST_DIR)/src/*.cc) $(wildcard $(GTEST_DIR)/src/*.h) $(GTEST_HEADERS)
-CPPFLAGS     += -isystem $(GTEST_DIR)/include
+
 
 PROTOBUF_INC      = "c:/Users/Rolf/protobuf/src-3.2.0/src/"
 CXXFLAGS          = -pipe -fno-keep-inline-dllexport -Wno-unused-local-typedefs -std=gnu++0x -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
@@ -18,7 +18,8 @@ PROTOBUF_LIB      = -L"C:/Users/Rolf/protobuf/src-3.2.0/cmake/build/release/" -l
 MARKET_PROTO_LIB  = -L"C:/Users/Rolf/market/proto/" -lmarket_proto
 MARKET_LIB        = -L"C:/Users/Rolf/market/" -lmarket
 LIBS              = -static -static-libgcc $(MARKET_PROTO_LIB) $(PROTOBUF_LIB) $(MARKET_LIB)
-
+CXXFLAGS         += -isystem $(GTEST_DIR)/include
+CXXFLAGS         += -isystem $(PROTOBUF_INC)
 
 default: market_tests
 
