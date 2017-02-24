@@ -3,9 +3,32 @@
 
 namespace market {
 
-// Adds dis into dat. Does not check for equality of goods, nor empty dis.
-void combine(const Quantity &dis, Quantity *dat) {
-  dat->set_amount(dis.amount() + dat->amount());
+bool Contains(const Container& con, const std::string name) {
+  return con.quantities().find(name) != con.quantities().end();
+}
+
+bool Contains(const Container& con, const Quantity& qua) {
+  return Contains(con, qua.kind());
+}
+
+double GetAmount(const Container& con, const std::string name) {
+  if (!Contains(con, name)) {
+    return 0;
+  }
+  return con.quantities().at(name).amount();
+}
+
+double GetAmount(const Container& con, const Quantity& qua) {
+  return GetAmount(con, qua.kind());
+}
+
+Container& operator<<(Container& con, std::string name) {
+  if (Contains(con, name)) {
+    return con;
+  }
+  auto& quantities = *con.mutable_quantities();
+  quantities[name].set_amount(0);
+  return con;
 }
 
 Quantity &operator+=(Quantity &lhs, const double rhs) {

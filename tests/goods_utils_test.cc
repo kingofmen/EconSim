@@ -7,10 +7,42 @@
 
 namespace market {
 
+namespace {
+
+constexpr char kTestGood1[] = "TestGood1";
+constexpr char kTestGood2[] = "TestGood2";
+}
+
+TEST(GoodsUtilsTest, HelperFunctions) {
+  Container container;
+  Quantity quantity;
+  quantity.set_kind(kTestGood1);
+  container += quantity;
+
+  EXPECT_TRUE(Contains(container, kTestGood1));
+  EXPECT_TRUE(Contains(container, quantity));
+  EXPECT_FALSE(Contains(container, kTestGood2));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 0);
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2), 0);
+
+  quantity += 1;
+  container += quantity;
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 1);
+  EXPECT_DOUBLE_EQ(GetAmount(container, quantity), 1);
+}
+
+TEST(GoodsUtilsTest, StreamOperators) {
+  Container container;
+  container << kTestGood1;
+  EXPECT_TRUE(Contains(container, kTestGood1));
+  EXPECT_FALSE(Contains(container, kTestGood2));
+  container << kTestGood1;
+  EXPECT_TRUE(Contains(container, kTestGood1));
+  EXPECT_FALSE(Contains(container, kTestGood2));
+}
+
 TEST(GoodsUtilsTest, PlusAndMinus) {
   Quantity quantity;
-  const std::string kTestGood1("TestGood1");
-  const std::string kTestGood2("TestGood2");
   quantity.set_kind(kTestGood1);
   quantity += 1;
   EXPECT_DOUBLE_EQ(1.0, quantity.amount());
@@ -63,5 +95,3 @@ TEST(GoodsUtilsTest, PlusAndMinus) {
 }
 
 } // namespace market
-
-

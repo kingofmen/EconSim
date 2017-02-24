@@ -10,7 +10,7 @@ INCPATH       = -I. -I$(PROTOBUF_INCLUDES)
 default: libmarket.a
 
 libmarket.a:	$(patsubst %.cc,%.o,$(wildcard *.cc))
-		ar rcs $@ $< 
+		ar rcs $@ $^
 
 %.o:	%.cc
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<
