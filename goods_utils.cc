@@ -22,6 +22,26 @@ double GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
+void Clear(Container& con) {
+  auto& quantities = *con.mutable_quantities();
+  for (auto& quantity : quantities) {
+    quantity.second.set_amount(0);
+  }
+}
+
+Container& operator<<(Container& con, Quantity& qua) {
+  con += qua;
+  qua.set_amount(0);
+  return con;
+}
+
+Container& operator>>(Container& con, Quantity& qua) {
+  qua.set_amount(qua.amount() + GetAmount(con, qua.kind()));
+  auto& quantities = *con.mutable_quantities();
+  quantities[qua.kind()].set_amount(0);
+  return con;
+}
+
 Container& operator<<(Container& con, std::string name) {
   if (Contains(con, name)) {
     return con;

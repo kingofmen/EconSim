@@ -29,6 +29,10 @@ TEST(GoodsUtilsTest, HelperFunctions) {
   container += quantity;
   EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 1);
   EXPECT_DOUBLE_EQ(GetAmount(container, quantity), 1);
+
+  Clear(container);
+  EXPECT_TRUE(Contains(container, kTestGood1));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 0);
 }
 
 TEST(GoodsUtilsTest, StreamOperators) {
@@ -39,6 +43,17 @@ TEST(GoodsUtilsTest, StreamOperators) {
   container << kTestGood1;
   EXPECT_TRUE(Contains(container, kTestGood1));
   EXPECT_FALSE(Contains(container, kTestGood2));
+
+  Quantity quantity;
+  quantity.set_kind(kTestGood2);
+  quantity += 1;
+  container << quantity;
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2), 1);
+  EXPECT_DOUBLE_EQ(quantity.amount(), 0);
+
+  container >> quantity;
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2), 0);
+  EXPECT_DOUBLE_EQ(quantity.amount(), 1);
 }
 
 TEST(GoodsUtilsTest, PlusAndMinus) {
