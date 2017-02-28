@@ -8,10 +8,12 @@
 namespace market {
 
 namespace {
-
 constexpr char kTestGood1[] = "TestGood1";
 constexpr char kTestGood2[] = "TestGood2";
 }
+
+using proto::Quantity;
+using proto::Container;
 
 TEST(GoodsUtilsTest, HelperFunctions) {
   Container container;

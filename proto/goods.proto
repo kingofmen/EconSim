@@ -1,5 +1,5 @@
 syntax = "proto3";
-package market;
+package market.proto;
 
 message Quantity {
   string kind = 1;

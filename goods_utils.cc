@@ -3,6 +3,9 @@
 
 namespace market {
 
+using market::proto::Quantity;
+using market::proto::Container;
+
 bool Contains(const Container& con, const std::string name) {
   return con.quantities().find(name) != con.quantities().end();
 }

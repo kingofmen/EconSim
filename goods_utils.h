@@ -4,36 +4,51 @@
 
 namespace market {
 
-// Returns true if con has an entry for the good name, even if the amount is zero.
-bool Contains(const Container& con, const std::string name);
+// Returns true if con has an entry for the good name, even if the amount is
+// zero.
+bool Contains(const market::proto::Container &con, const std::string name);
 // Returns true if con has an entry for the good in qua. The amount is ignored.
-bool Contains(const Container& con, const Quantity& qua);
+bool Contains(const market::proto::Container &con,
+              const market::proto::Quantity &qua);
 
 // Returns the amount of name in con; zero if not set.
-double GetAmount(const Container& con, const std::string name);
+double GetAmount(const market::proto::Container &con, const std::string name);
 // Returns the amount of qua.kind() in con; zero if not set.
-double GetAmount(const Container& con, const Quantity& qua);
+double GetAmount(const market::proto::Container &con,
+                 const market::proto::Quantity &qua);
 
 // Sets all amounts in the container to 0.
-void Clear(Container& con);
+void Clear(market::proto::Container &con);
 
-// Create an entry for the good name in con. No effect if the entry exists already.
-Container& operator<<(Container& con, std::string name);
+// Create an entry for the good name in con. No effect if the entry exists
+// already.
+market::proto::Container &operator<<(market::proto::Container &con,
+                                     std::string name);
 
 // Adds qua to con, setting the amount in qua to zero.
-Container& operator<<(Container& con, Quantity& qua);
+market::proto::Container &operator<<(market::proto::Container &con,
+                                     market::proto::Quantity &qua);
 
 // Moves any qua.kind() in con into qua.
-Container& operator>>(Container& con, Quantity& qua);
+market::proto::Container &operator>>(market::proto::Container &con,
+                                     market::proto::Quantity &qua);
 
-Quantity &operator+=(Quantity &lhs, const double rhs);
-Quantity &operator-=(Quantity &lhs, const double rhs);
+market::proto::Quantity &operator+=(market::proto::Quantity &lhs,
+                                    const double rhs);
+market::proto::Quantity &operator-=(market::proto::Quantity &lhs,
+                                    const double rhs);
 
-Container &operator+=(Container &lhs, const Container &rhs);
-Container &operator+=(Container &lhs, const Quantity &rhs);
-Container &operator-=(Container &lhs, const Container &rhs);
-Container &operator-=(Container &lhs, const Quantity &rhs);
-Container operator+(Container lhs, const Container &rhs);
-Container operator-(Container lhs, const Container &rhs);
+market::proto::Container &operator+=(market::proto::Container &lhs,
+                                     const market::proto::Container &rhs);
+market::proto::Container &operator+=(market::proto::Container &lhs,
+                                     const market::proto::Quantity &rhs);
+market::proto::Container &operator-=(market::proto::Container &lhs,
+                                     const market::proto::Container &rhs);
+market::proto::Container &operator-=(market::proto::Container &lhs,
+                                     const market::proto::Quantity &rhs);
+market::proto::Container operator+(market::proto::Container lhs,
+                                   const market::proto::Container &rhs);
+market::proto::Container operator-(market::proto::Container lhs,
+                                   const market::proto::Container &rhs);
 
 } // namespace market

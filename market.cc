@@ -4,6 +4,9 @@
 
 namespace market {
 
+using market::proto::Quantity;
+using market::proto::Container;
+
 void Market::registerGood(const std::string &name) {
   if (Contains(goods_, name)) {
     return;
