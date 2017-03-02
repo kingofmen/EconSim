@@ -1,6 +1,8 @@
-#include "market.h"
+#include "market/market.h"
 
-#include "proto/goods.pb.h"
+#include "market/goods_utils.h"
+#include "market/proto/goods.pb.h"
+#include "market/proto/market.pb.h"
 #include "gtest/gtest.h"
 
 namespace market {
@@ -14,7 +16,8 @@ using proto::Quantity;
 using proto::Container;
 
 TEST(MarketTest, FindPrices) {
-  Market market;
+  proto::MarketProto proto;
+  Market market(proto);
   EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood1));
   market.registerGood(kTestGood1);
   EXPECT_DOUBLE_EQ(1, market.getPrice(kTestGood1));
@@ -45,6 +48,24 @@ TEST(MarketTest, FindPrices) {
   market.findPrices();
   EXPECT_DOUBLE_EQ(1.25 * 0.75, market.getPrice(kTestGood1));
   EXPECT_DOUBLE_EQ(2, market.getVolume(kTestGood1));
+}
+
+TEST(MarketTest, Protos) {
+  proto::MarketProto proto;
+  *proto.mutable_goods() << kTestGood1;
+  Market market(proto);
+  Quantity bid;
+  bid.set_kind(kTestGood1);
+  bid.set_amount(1);
+  market.registerBid(bid);
+
+  bid.set_kind(kTestGood2);
+  market.registerBid(bid);
+
+  market.ToProto(&proto);
+  EXPECT_EQ(1, proto.goods().quantities().size());
+  EXPECT_DOUBLE_EQ(1, GetAmount(proto.bids(), kTestGood1));
+  EXPECT_FALSE(Contains(proto.bids(), kTestGood2));
 }
 
 } // namespace market

@@ -7,6 +7,14 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
+Market::Market(const market::proto::MarketProto& proto) {
+  goods_ = proto.goods();
+  volume_ = proto.volume();
+  prices_ = proto.prices();
+  bids_ = proto.bids();
+  offers_ = proto.offers();
+}
+
 void Market::registerGood(const std::string &name) {
   if (Contains(goods_, name)) {
     return;
@@ -65,6 +73,14 @@ double Market::getVolume(const std::string &name) const {
   }
 
   return volume_.quantities().at(name).amount();
+}
+
+void Market::ToProto(market::proto::MarketProto* proto) const {
+  *proto->mutable_goods() = goods_;
+  *proto->mutable_volume() = volume_;
+  *proto->mutable_prices() = prices_;
+  *proto->mutable_bids() = bids_;
+  *proto->mutable_offers() = offers_;
 }
 
 } // namespace market
