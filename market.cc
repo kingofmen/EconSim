@@ -7,34 +7,34 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
-Market::Market(const market::proto::MarketProto& proto) {
-  goods_ = proto.goods();
-  volume_ = proto.volume();
-  prices_ = proto.prices();
-  bids_ = proto.bids();
-  offers_ = proto.offers();
+Market::Market(const market::proto::MarketProto &proto) {
+  *mutable_prices() = proto.goods();
+  *mutable_bids() = proto.bids();
+  *mutable_offers() = proto.offers();
+  *mutable_goods() = proto.goods();
+  *mutable_volume() = proto.volume();
 }
 
 void Market::registerGood(const std::string &name) {
-  if (Contains(goods_, name)) {
+  if (Contains(goods(), name)) {
     return;
   }
-  goods_ << name;
-  volume_ << name;
-  prices_ << name;
-  bids_ << name;
-  offers_ << name;
+  *mutable_goods() << name;
+  *mutable_volume() << name;
+  *mutable_prices() << name;
+  *mutable_bids() << name;
+  *mutable_offers() << name;
 
-  prices_.mutable_quantities()->at(name).set_amount(1);
+  mutable_prices()->mutable_quantities()->at(name).set_amount(1);
 }
 
 void Market::findPrices() {
-  auto &volume = *volume_.mutable_quantities();
-  auto &prices = *prices_.mutable_quantities();
-  for (const auto &good : goods_.quantities()) {
+  auto &volume = *mutable_volume()->mutable_quantities();
+  auto &prices = *mutable_prices()->mutable_quantities();
+  for (const auto &good : goods().quantities()) {
     const std::string &name = good.first;
-    double bid = bids_.quantities().at(name).amount();
-    double offer = offers_.quantities().at(name).amount();
+    double bid = bids().quantities().at(name).amount();
+    double offer = offers().quantities().at(name).amount();
     volume[name].set_amount(std::min(bid, offer));
     double ratio = bid / std::max(offer, 0.01);
     ratio = std::min(ratio, 1.25);
@@ -46,41 +46,33 @@ void Market::findPrices() {
 }
 
 void Market::registerBid(const Quantity &bid) {
-  if (!Contains(goods_, bid)) {
+  if (!Contains(goods(), bid)) {
     return;
   }
-  bids_ += bid;
+  *mutable_bids() += bid;
 }
 
 void Market::registerOffer(const Quantity &offer) {
-  if (!Contains(goods_, offer)) {
+  if (!Contains(goods(), offer)) {
     return;
   }
-  offers_ += offer;
+  *mutable_offers() += offer;
 }
 
 double Market::getPrice(const std::string &name) const {
-  if (!Contains(goods_, name)) {
+  if (!Contains(goods(), name)) {
     return -1;
   }
 
-  return prices_.quantities().at(name).amount();
+  return prices().quantities().at(name).amount();
 }
 
 double Market::getVolume(const std::string &name) const {
-  if (!Contains(goods_, name)) {
+  if (!Contains(goods(), name)) {
     return -1;
   }
 
-  return volume_.quantities().at(name).amount();
-}
-
-void Market::ToProto(market::proto::MarketProto* proto) const {
-  *proto->mutable_goods() = goods_;
-  *proto->mutable_volume() = volume_;
-  *proto->mutable_prices() = prices_;
-  *proto->mutable_bids() = bids_;
-  *proto->mutable_offers() = offers_;
+  return volume().quantities().at(name).amount();
 }
 
 } // namespace market

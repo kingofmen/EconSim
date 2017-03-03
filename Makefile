@@ -13,7 +13,7 @@ default: libmarket.a
 libmarket.a:	$(patsubst %.cc,%.o,$(wildcard *.cc))
 		ar rcs $@ $^
 
-%.o:	%.cc
+%.o:	%.cc %.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<
 
 clean:

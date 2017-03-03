@@ -11,8 +11,9 @@
 
 namespace market {
 
-class Market {
+class Market : public market::proto::MarketProto {
 public:
+  Market() = default;
   Market(const market::proto::MarketProto& proto);
   ~Market() = default;
 
@@ -32,25 +33,6 @@ public:
 
   // Returns the amount of the named good that was traded.
   double getVolume(const std::string &name) const;
-
-  // Copies the information into the provided protobuf.
-  void ToProto(market::proto::MarketProto* proto) const;
-
- private:
-  // Current prices.
-  market::proto::Container prices_;
-
-  // Bid amounts at current prices.
-  market::proto::Container bids_;
-
-  // Offers at current prices.
-  market::proto::Container offers_;
-
-  // Goods that this market trades in.
-  market::proto::Container goods_;
-
-  // Amount of each good traded.
-  market::proto::Container volume_;
 };
 
 } // namespace market
