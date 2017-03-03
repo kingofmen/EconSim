@@ -13,11 +13,11 @@ GTEST_SRCS_   = $(wildcard $(GTEST_DIR)/src/*.cc) $(wildcard $(GTEST_DIR)/src/*.
 
 PROTOBUF_INC      = "c:/Users/Rolf/protobuf/src-3.2.0/src/"
 CXXFLAGS          = -pipe -fno-keep-inline-dllexport -Wno-unused-local-typedefs -std=gnu++0x -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
-BASE              = "C:/Users/Rolf/"
+BASE              = "C:/Users/Rolf/codebase"
 INCPATH           = -I. -I$(BASE) -I$(GTEST_DIR)/include -I$(PROTOBUF_INC)
 PROTOBUF_LIB      = -L"C:/Users/Rolf/protobuf/src-3.2.0/cmake/build/release/" -lprotobuf
-MARKET_PROTO_LIB  = -L"C:/Users/Rolf/market/proto/" -lmarket_proto
-MARKET_LIB        = -L"C:/Users/Rolf/market/" -lmarket
+MARKET_PROTO_LIB  = -L$(BASE)/market/proto/ -lmarket_proto
+MARKET_LIB        = -L$(BASE)/market/ -lmarket
 LIBS              = -static -static-libgcc $(MARKET_PROTO_LIB) $(PROTOBUF_LIB) $(MARKET_LIB)
 CXXFLAGS         += -isystem $(GTEST_DIR)/include
 CXXFLAGS         += -isystem $(PROTOBUF_INC)
