@@ -51,4 +51,23 @@ market::proto::Container operator+(market::proto::Container lhs,
 market::proto::Container operator-(market::proto::Container lhs,
                                    const market::proto::Container &rhs);
 
+// Note that these are not stable - it is possible for (a < b) and (b < a) to be
+// both true.
+bool operator<(const market::proto::Container &lhs,
+               const market::proto::Container &rhs);
+bool operator>(const market::proto::Container &lhs,
+               const market::proto::Container &rhs);
+bool operator<=(const market::proto::Container &lhs,
+                const market::proto::Container &rhs);
+bool operator>=(const market::proto::Container &lhs,
+                const market::proto::Container &rhs);
+bool operator<(const market::proto::Container &lhs,
+               const market::proto::Quantity &rhs);
+bool operator>(const market::proto::Container &lhs,
+               const market::proto::Quantity &rhs);
+bool operator<=(const market::proto::Container &lhs,
+                const market::proto::Quantity &rhs);
+bool operator>=(const market::proto::Container &lhs,
+                const market::proto::Quantity &rhs);
+
 } // namespace market

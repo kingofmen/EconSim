@@ -75,7 +75,11 @@ Container &operator+=(Container &lhs, const Container &rhs) {
 
 Container &operator+=(Container &lhs, const Quantity &rhs) {
   auto &quantities = *lhs.mutable_quantities();
-  quantities[rhs.kind()] += rhs.amount();
+  if (Contains(lhs, rhs)) {
+    quantities[rhs.kind()] += rhs.amount();
+  } else {
+    quantities[rhs.kind()] = rhs;
+  }
   return lhs;
 }
 
@@ -90,6 +94,9 @@ Container &operator-=(Container &lhs, const Container &rhs) {
 
 Container &operator-=(Container &lhs, const Quantity &rhs) {
   auto &quantities = *lhs.mutable_quantities();
+  if (!Contains(lhs, rhs)) {
+    lhs << rhs.kind();
+  }
   quantities[rhs.kind()] -= rhs.amount();
   return lhs;
 }
@@ -102,6 +109,58 @@ Container operator+(Container lhs, const Container &rhs) {
 Container operator-(Container lhs, const Container &rhs) {
   lhs -= rhs;
   return lhs;
+}
+
+bool operator<(const Container &lhs, const Container &rhs) {
+  for (const auto &quantity : rhs.quantities()) {
+    if (lhs >= quantity.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool operator>(const Container &lhs, const Container &rhs) {
+  for (const auto &quantity : rhs.quantities()) {
+    if (lhs <= quantity.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool operator<=(const Container &lhs, const Container &rhs) {
+  for (const auto &quantity : rhs.quantities()) {
+    if (lhs > quantity.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool operator>=(const Container &lhs, const Container &rhs) {
+  for (const auto &quantity : rhs.quantities()) {
+    if (lhs < quantity.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool operator<(const Container &lhs, const Quantity &rhs) {
+  return GetAmount(lhs, rhs) < rhs.amount();
+}
+
+bool operator<=(const Container &lhs, const Quantity &rhs) {
+  return GetAmount(lhs, rhs) <= rhs.amount();
+}
+
+bool operator>(const Container &lhs, const Quantity &rhs) {
+  return GetAmount(lhs, rhs) > rhs.amount();
+}
+
+bool operator>=(const Container &lhs, const Quantity &rhs) {
+  return GetAmount(lhs, rhs) >= rhs.amount();
 }
 
 } // namespace market

@@ -1,8 +1,8 @@
-#include "goods_utils.h"
+#include "market/goods_utils.h"
 
 #include <string>
 
-#include "proto/goods.pb.h"
+#include "market/proto/goods.pb.h"
 #include "gtest/gtest.h"
 
 namespace market {
@@ -109,6 +109,94 @@ TEST(GoodsUtilsTest, PlusAndMinus) {
   EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood2).amount() -
                        barrel.quantities().at(kTestGood2).amount(),
                    jar.quantities().at(kTestGood2).amount());
+}
+
+TEST(GoodsUtilsTest, Iterator) {
+  Quantity gold;
+  gold.set_kind(kTestGood1);
+  gold.set_amount(1);
+
+  Container chest;
+  chest << gold;
+  EXPECT_DOUBLE_EQ(gold.amount(), 0);
+  EXPECT_DOUBLE_EQ(GetAmount(chest, gold), 1.0);
+  EXPECT_DOUBLE_EQ(GetAmount(chest, kTestGood1), 1.0);
+
+  for (const auto& quantity : chest.quantities()) {
+    EXPECT_EQ(kTestGood1, quantity.first);
+    EXPECT_EQ(kTestGood1, quantity.second.kind());
+    EXPECT_DOUBLE_EQ(1, quantity.second.amount());
+  }
+}
+
+TEST(GoodsUtilsTest, Relational) {
+  Quantity gold;
+  gold.set_kind(kTestGood1);
+  gold.set_amount(1);
+  Quantity salt;
+  salt.set_kind(kTestGood2);
+  salt.set_amount(1);
+
+  Container chest;
+  chest << gold;
+
+  Container shaker;
+  shaker << salt;
+
+  EXPECT_TRUE(shaker < chest); // Contains less gold.
+  EXPECT_TRUE(shaker <= chest);
+  EXPECT_TRUE(chest < shaker); // Contains less salt.
+  EXPECT_TRUE(chest <= shaker);
+
+  EXPECT_FALSE(shaker > chest); // Does not have more gold.
+  EXPECT_FALSE(shaker >= chest);
+
+  EXPECT_FALSE(chest > shaker); // Does not have more salt.
+  EXPECT_FALSE(chest >= shaker);
+
+  Container bag;
+  gold += 0.5;
+  bag << gold;
+  EXPECT_TRUE(chest > bag);
+  EXPECT_TRUE(chest >= bag);
+  EXPECT_FALSE(chest < bag);
+  EXPECT_FALSE(chest <= bag);
+
+  EXPECT_FALSE(bag > chest);
+  EXPECT_FALSE(bag >= chest);
+  EXPECT_TRUE(bag < chest);
+  EXPECT_TRUE(bag <= chest);
+
+  salt += 1.5;
+  bag << salt;
+  EXPECT_TRUE(bag > shaker);
+  EXPECT_TRUE(bag >= shaker);
+  EXPECT_FALSE(bag < shaker);
+  EXPECT_FALSE(bag <= shaker);
+
+  EXPECT_FALSE(shaker > bag);
+  EXPECT_FALSE(shaker >= bag);
+  EXPECT_TRUE(shaker < bag);
+  EXPECT_TRUE(shaker <= bag);
+
+  // The bag has less gold, but more salt, than the chest. So neither is larger
+  // than the other.
+  EXPECT_TRUE(bag < chest);  // Less gold.
+  EXPECT_FALSE(chest < bag); // More gold, less salt.
+  EXPECT_FALSE(bag > chest); // Less gold.
+  EXPECT_FALSE(chest > bag); // Less salt.
+
+  gold += 0.75;
+  salt += 1.25;
+  EXPECT_TRUE(bag < gold);
+  EXPECT_FALSE(bag > gold);
+  EXPECT_FALSE(bag < salt);
+  EXPECT_TRUE(bag > salt);
+
+  EXPECT_TRUE(chest < salt);
+  EXPECT_TRUE(chest > gold);
+  EXPECT_TRUE(shaker < gold);
+  EXPECT_TRUE(shaker < salt);
 }
 
 } // namespace market
