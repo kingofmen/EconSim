@@ -39,6 +39,9 @@ Container& operator<<(Container& con, Quantity& qua) {
 }
 
 Container& operator>>(Container& con, Quantity& qua) {
+  if (!Contains(con, qua)) {
+    return con;
+  }
   qua.set_amount(qua.amount() + GetAmount(con, qua.kind()));
   auto& quantities = *con.mutable_quantities();
   quantities[qua.kind()].set_amount(0);
@@ -65,10 +68,8 @@ Quantity &operator-=(Quantity &lhs, const double rhs) {
 }
 
 Container &operator+=(Container &lhs, const Container &rhs) {
-  auto &quantities = *lhs.mutable_quantities();
-  for (const auto &rhs_quantity : rhs.quantities()) {
-    auto &lhs_quantity = quantities[rhs_quantity.first];
-    lhs_quantity += rhs_quantity.second.amount();
+  for (const auto &quantity : rhs.quantities()) {
+    lhs += quantity.second;
   }
   return lhs;
 }
@@ -84,10 +85,8 @@ Container &operator+=(Container &lhs, const Quantity &rhs) {
 }
 
 Container &operator-=(Container &lhs, const Container &rhs) {
-  auto &quantities = *lhs.mutable_quantities();
-  for (const auto &rhs_quantity : rhs.quantities()) {
-    auto &lhs_quantity = quantities[rhs_quantity.first];
-    lhs_quantity -= rhs_quantity.second.amount();
+  for (const auto &quantity : rhs.quantities()) {
+    lhs -= quantity.second;
   }
   return lhs;
 }
