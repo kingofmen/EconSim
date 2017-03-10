@@ -20,6 +20,8 @@ double GetAmount(const market::proto::Container &con,
 // Sets all amounts in the container to 0.
 void Clear(market::proto::Container &con);
 
+namespace proto {
+
 // Create an entry for the good name in con. No effect if the entry exists
 // already.
 market::proto::Container &operator<<(market::proto::Container &con,
@@ -70,4 +72,5 @@ bool operator<=(const market::proto::Container &lhs,
 bool operator>=(const market::proto::Container &lhs,
                 const market::proto::Quantity &rhs);
 
+} // namespace proto
 } // namespace market

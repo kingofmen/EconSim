@@ -32,6 +32,8 @@ void Clear(Container& con) {
   }
 }
 
+namespace proto {
+
 Container& operator<<(Container& con, Quantity& qua) {
   con += qua;
   qua.set_amount(0);
@@ -162,4 +164,5 @@ bool operator>=(const Container &lhs, const Quantity &rhs) {
   return GetAmount(lhs, rhs) >= rhs.amount();
 }
 
+} // namespace proto
 } // namespace market
