@@ -11,15 +11,16 @@ GTEST_HEADERS = $(wildcard $(GTEST_DIR)/include/gtest/*.h) $(wildcard $(GTEST_DI
 GTEST_SRCS_   = $(wildcard $(GTEST_DIR)/src/*.cc) $(wildcard $(GTEST_DIR)/src/*.h) $(GTEST_HEADERS)
 
 
-PROTOBUF_INC      = "c:/Users/Rolf/protobuf/src-3.2.0/src/"
-CXXFLAGS          = -pipe -fno-keep-inline-dllexport -Wno-unused-local-typedefs -std=gnu++0x -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
-BASE              = "C:/Users/Rolf/codebase"
-INCPATH           = -I. -I$(BASE) -I$(GTEST_DIR)/include -I$(PROTOBUF_INC)
-PROTOBUF_LIB      = -L"C:/Users/Rolf/protobuf/src-3.2.0/cmake/build/release/" -lprotobuf
+PROTOBUF_INC        = "c:/Users/Rolf/protobuf/src-3.2.0/src/"
+CXXFLAGS            = -pipe -fno-keep-inline-dllexport -Wno-unused-local-typedefs -std=gnu++0x -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
+BASE                = "C:/Users/Rolf/codebase"
+INCPATH             = -I. -I$(BASE) -I$(GTEST_DIR)/include -I$(PROTOBUF_INC)
+PROTOBUF_LIB        = -L"C:/Users/Rolf/protobuf/src-3.2.0/cmake/build/release/" -lprotobuf
 INDUSTRY_PROTO_LIB  = -L$(BASE)/industry/proto/ -lindustry_proto
-MARKET_PROTO_LIB  = -L$(BASE)/market/proto/ -lmarket_proto
+MARKET_LIB          = -L$(BASE)/market/ -lmarket
+MARKET_PROTO_LIB    = -L$(BASE)/market/proto/ -lmarket_proto
 INDUSTRY_LIB        = -L$(BASE)/industry/ -lindustry
-LIBS              = -static -static-libgcc $(INDUSTRY_PROTO_LIB) $(MARKET_PROTO_LIB) $(PROTOBUF_LIB) $(INDUSTRY_LIB)
+LIBS                = -static -static-libgcc $(INDUSTRY_PROTO_LIB) $(MARKET_PROTO_LIB) $(PROTOBUF_LIB) $(INDUSTRY_LIB) $(MARKET_LIB)
 CXXFLAGS         += -isystem $(GTEST_DIR)/include
 CXXFLAGS         += -isystem $(PROTOBUF_INC)
 

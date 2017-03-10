@@ -5,13 +5,13 @@
 
 namespace industry {
 
-class Production : proto::Production {
+class Production : public proto::Production {
  public:
   Production() : current_step_(0) {}
   ~Production() = default;
 
   void PerformStep(market::proto::Container *inputs,
-                   market::proto::Container *outputs);
+                   market::proto::Container *outputs, int variant_index = 0);
 
   bool Complete() const;
 

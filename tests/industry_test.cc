@@ -6,15 +6,148 @@
 #include "gtest/gtest.h"
 
 namespace industry {
+namespace {
+constexpr char kTestGood1[] = "TestGood1";
+constexpr char kTestGood2[] = "TestGood2";
+}
 
 using market::proto::Container;
+using market::proto::Quantity;
 
-TEST(IndustryTest, OneStep) {
-  Production production;
-  Container inputs;
-  Container outputs;
-  production.PerformStep(&inputs, &outputs);
-  EXPECT_TRUE(production.Complete());
+class IndustryTest : public testing::Test {
+ protected:
+  void SetUp() override {
+    wool_.set_kind(kTestGood1);
+    cloth_.set_kind(kTestGood2);
+  }
+
+  Production production_;
+  Container inputs_;
+  Container outputs_;
+  Quantity wool_;
+  Quantity cloth_;
+};
+
+TEST_F(IndustryTest, EmptyIsComplete) {
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(production_.Complete());
+}
+
+TEST_F(IndustryTest, OneStep) {
+  auto* step = production_.add_steps();
+  EXPECT_FALSE(production_.Complete());
+
+  auto* input = step->add_variants();
+  auto& consumables = *input->mutable_consumables();
+  auto& output = *production_.mutable_outputs();
+
+  wool_ += 1;
+  consumables << wool_;
+
+  cloth_ += 1;
+  output << cloth_;
+
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_FALSE(production_.Complete());
+  EXPECT_FALSE(market::Contains(outputs_, wool_));
+  EXPECT_FALSE(market::Contains(outputs_, cloth_));
+
+  wool_ += 1;
+  inputs_ << wool_;
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(production_.Complete());
+  EXPECT_TRUE(market::Contains(outputs_, cloth_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
+                   market::GetAmount(output, cloth_));
+  EXPECT_FALSE(market::Contains(outputs_, wool_));
+}
+
+TEST_F(IndustryTest, TwoSteps) {
+  auto* step = production_.add_steps();
+  auto* input = step->add_variants();
+  auto* consumables = input->mutable_consumables();
+  wool_ += 1;
+  *consumables << wool_;
+
+  step = production_.add_steps();
+  input = step->add_variants();
+  consumables = input->mutable_consumables();
+  wool_ += 1;
+  *consumables << wool_;
+
+  auto& output = *production_.mutable_outputs();
+  cloth_ += 1;
+  output << cloth_;
+
+  wool_ += 1;
+  inputs_ << wool_;
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_FALSE(production_.Complete());
+  EXPECT_FALSE(market::Contains(outputs_, cloth_));
+  EXPECT_FALSE(market::Contains(outputs_, wool_));
+
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_FALSE(production_.Complete());
+  EXPECT_FALSE(market::Contains(outputs_, cloth_));
+  EXPECT_FALSE(market::Contains(outputs_, wool_));
+
+  wool_ += 1;
+  inputs_ << wool_;
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(production_.Complete());
+  EXPECT_TRUE(market::Contains(outputs_, cloth_));
+  EXPECT_FALSE(market::Contains(outputs_, wool_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
+                   market::GetAmount(output, cloth_));
+}
+
+TEST_F(IndustryTest, MovableCapital) {
+  auto* step = production_.add_steps();
+  auto* input = step->add_variants();
+  auto* consumables = input->mutable_consumables();
+  auto* capital = input->mutable_movable_capital();
+  wool_ += 1;
+  *consumables << wool_;
+  Quantity dogs;
+  dogs.set_kind("dogs");
+  dogs += 1;
+  *capital << dogs;
+  dogs += 1;
+  wool_ += 1;
+  inputs_ << wool_ << dogs;
+
+  auto& output = *production_.mutable_outputs();
+  cloth_ += 1;
+  output << cloth_;
+
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(production_.Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, dogs), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1);
+}
+
+TEST_F(IndustryTest, MovableCapitalSameAsInput) {
+  auto* step = production_.add_steps();
+  auto* input = step->add_variants();
+  auto* consumables = input->mutable_consumables();
+  auto* capital = input->mutable_movable_capital();
+  wool_ += 1;
+  *consumables << wool_;
+  wool_ += 1;
+  *capital << wool_;
+  wool_ += 2;
+  inputs_ << wool_;
+
+  auto& output = *production_.mutable_outputs();
+  cloth_ += 1;
+  output << cloth_;
+
+  production_.PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(production_.Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1);
 }
 
 } // namespace industry
