@@ -5,18 +5,19 @@
 
 namespace industry {
 
-class Production : public proto::Production {
- public:
-  Production() : current_step_(0) {}
-  ~Production() = default;
+class Progress : public proto::Progress {
+public:
+  // Does not take ownership of the production proto.
+  explicit Progress(const proto::Production *prod) : production_(prod) {}
+  ~Progress() = default;
 
   void PerformStep(market::proto::Container *inputs,
                    market::proto::Container *outputs, int variant_index = 0);
 
   bool Complete() const;
 
- private:
-  int current_step_;
+private:
+  const proto::Production *production_;
 };
 
 } // namespace industry

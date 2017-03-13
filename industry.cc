@@ -6,13 +6,13 @@
 namespace industry {
 using market::proto::Container;
 
-void Production::PerformStep(Container *inputs, Container *output,
+void Progress::PerformStep(Container *inputs, Container *output,
                              int variant_index) {
   if (Complete()) {
     return;
   }
 
-  const auto& needed = steps(current_step_).variants(variant_index);
+  const auto& needed = production_->steps(step()).variants(variant_index);
   if (*inputs < needed.consumables() + needed.movable_capital()) {
     return;
   }
@@ -20,14 +20,14 @@ void Production::PerformStep(Container *inputs, Container *output,
   // TODO: Check fixed_capital.
 
   *inputs -= needed.consumables();
-  ++current_step_;
+  set_step(1 + step());
   if (Complete()) {
-    *output += outputs();
+    *output += production_->outputs();
   }
 }
 
-bool Production::Complete() const {
-  return current_step_ >= steps_size();
+bool Progress::Complete() const {
+  return step() >= production_->steps_size();
 }
 
 } // namespace industry

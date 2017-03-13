@@ -12,6 +12,8 @@ enum LandType {
   LT_ORCHARDS = 5;
 }
 
+// Inputs to a production step, both consumed (eg labour, raw materials) and not
+// (capital, machinery).
 message Input {
   // Inputs consumed by the process.
   market.proto.Container consumables = 1;
@@ -21,6 +23,7 @@ message Input {
   market.proto.Container fixed_capital = 3;
 }
 
+// A step in a production chain, for example sowing or reaping.
 message ProductionStep {
   // Input options for the step, allowing substitutions (eg wool or linen) and
   // different amounts of capital.
@@ -29,6 +32,7 @@ message ProductionStep {
   double weather_effect = 2;
 }
 
+// A production chain, possibly of multiple steps, from input to outputs.
 message Production {
   // The series of steps that make up this production chain.
   repeated ProductionStep steps = 1;
@@ -36,5 +40,16 @@ message Production {
   market.proto.Container outputs = 2;
   // The type of land in which this production chain can start.
   LandType land_type = 3;
+  // Name of the process.
+  string name = 4;
 }
 
+// A specific case of a production chain.
+message Progress {
+  // The name of the process.
+  string name = 1;
+  // The current progress.
+  int32 step = 2;
+  // The effect of weather or other adverse events so far.
+  double output = 3;
+}
