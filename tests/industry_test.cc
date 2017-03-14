@@ -26,6 +26,20 @@ class IndustryTest : public testing::Test {
         new Progress(production_.get()));
   }
 
+  void AddWoolStep() {
+    auto* step = production_->add_steps();
+    auto* input = step->add_variants();
+    auto& consumables = *input->mutable_consumables();
+    wool_ += 1;
+    consumables << wool_;
+  }
+
+  void AddClothOutput() {
+    auto& output = *production_->mutable_outputs();
+    cloth_ += 1;
+    output << cloth_;
+  }
+
   std::unique_ptr<Progress> progress_;
   std::unique_ptr<proto::Production> production_;
   Container inputs_;
@@ -40,18 +54,9 @@ TEST_F(IndustryTest, EmptyIsComplete) {
 }
 
 TEST_F(IndustryTest, OneStep) {
-  auto* step = production_->add_steps();
+  AddWoolStep();
   EXPECT_FALSE(progress_->Complete());
-
-  auto* input = step->add_variants();
-  auto& consumables = *input->mutable_consumables();
-  auto& output = *production_->mutable_outputs();
-
-  wool_ += 1;
-  consumables << wool_;
-
-  cloth_ += 1;
-  output << cloth_;
+  AddClothOutput();
 
   progress_->PerformStep(&inputs_, &outputs_);
   EXPECT_FALSE(progress_->Complete());
@@ -64,26 +69,14 @@ TEST_F(IndustryTest, OneStep) {
   EXPECT_TRUE(progress_->Complete());
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
-                   market::GetAmount(output, cloth_));
+                   market::GetAmount(production_->outputs(), cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
 }
 
 TEST_F(IndustryTest, TwoSteps) {
-  auto* step = production_->add_steps();
-  auto* input = step->add_variants();
-  auto* consumables = input->mutable_consumables();
-  wool_ += 1;
-  *consumables << wool_;
-
-  step = production_->add_steps();
-  input = step->add_variants();
-  consumables = input->mutable_consumables();
-  wool_ += 1;
-  *consumables << wool_;
-
-  auto& output = *production_->mutable_outputs();
-  cloth_ += 1;
-  output << cloth_;
+  AddWoolStep();
+  AddWoolStep();
+  AddClothOutput();
 
   wool_ += 1;
   inputs_ << wool_;
@@ -105,16 +98,17 @@ TEST_F(IndustryTest, TwoSteps) {
   EXPECT_FALSE(market::Contains(outputs_, wool_));
   EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
-                   market::GetAmount(output, cloth_));
+                   market::GetAmount(production_->outputs(), cloth_));
 }
 
 TEST_F(IndustryTest, MovableCapital) {
-  auto* step = production_->add_steps();
-  auto* input = step->add_variants();
-  auto* consumables = input->mutable_consumables();
+  AddWoolStep();
+  AddClothOutput();
+
+  auto* step = production_->mutable_steps(0);
+  auto* input = step->mutable_variants(0);
   auto* capital = input->mutable_movable_capital();
-  wool_ += 1;
-  *consumables << wool_;
+
   Quantity dogs;
   dogs.set_kind("dogs");
   dogs += 1;
@@ -122,10 +116,6 @@ TEST_F(IndustryTest, MovableCapital) {
   dogs += 1;
   wool_ += 1;
   inputs_ << wool_ << dogs;
-
-  auto& output = *production_->mutable_outputs();
-  cloth_ += 1;
-  output << cloth_;
 
   progress_->PerformStep(&inputs_, &outputs_);
   EXPECT_TRUE(progress_->Complete());
@@ -135,20 +125,16 @@ TEST_F(IndustryTest, MovableCapital) {
 }
 
 TEST_F(IndustryTest, MovableCapitalSameAsInput) {
-  auto* step = production_->add_steps();
-  auto* input = step->add_variants();
-  auto* consumables = input->mutable_consumables();
+  AddWoolStep();
+  AddClothOutput();
+
+  auto* step = production_->mutable_steps(0);
+  auto* input = step->mutable_variants(0);
   auto* capital = input->mutable_movable_capital();
-  wool_ += 1;
-  *consumables << wool_;
   wool_ += 1;
   *capital << wool_;
   wool_ += 2;
   inputs_ << wool_;
-
-  auto& output = *production_->mutable_outputs();
-  cloth_ += 1;
-  output << cloth_;
 
   progress_->PerformStep(&inputs_, &outputs_);
   EXPECT_TRUE(progress_->Complete());
@@ -157,19 +143,12 @@ TEST_F(IndustryTest, MovableCapitalSameAsInput) {
 }
 
 TEST_F(IndustryTest, ScalingEffects) {
-  auto* step = production_->add_steps();
-  auto* input = step->add_variants();
-  auto* consumables = input->mutable_consumables();
+  AddWoolStep();
+  AddClothOutput();
   production_->add_scaling_effects(1.0);
   production_->add_scaling_effects(1.9);
   wool_ += 1;
-  *consumables << wool_;
-  wool_ += 1;
   inputs_ << wool_;
-
-  auto& output = *production_->mutable_outputs();
-  cloth_ += 1;
-  output << cloth_;
 
   progress_->set_scaling(2);
   progress_->PerformStep(&inputs_, &outputs_);
@@ -179,14 +158,13 @@ TEST_F(IndustryTest, ScalingEffects) {
 }
 
 TEST_F(IndustryTest, SkippingEffects) {
-  auto* step = production_->add_steps();
-  auto* input = step->add_variants();
-  step->set_skip_effect(0.5);
-  step = production_->add_steps();
-  input = step->add_variants();
-  auto& output = *production_->mutable_outputs();
-  cloth_ += 1;
-  output << cloth_;
+  AddWoolStep();
+  AddWoolStep();
+  AddClothOutput();
+  production_->mutable_steps(0)->set_skip_effect(0.5);
+
+  wool_ += 1;
+  inputs_ << wool_;
 
   progress_->Skip();
   progress_->PerformStep(&inputs_, &outputs_);
