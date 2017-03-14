@@ -8,7 +8,7 @@ namespace industry {
 class Progress : public proto::Progress {
 public:
   // Does not take ownership of the production proto.
-  explicit Progress(const proto::Production *prod) : production_(prod) {}
+  explicit Progress(const proto::Production *prod);
   ~Progress() = default;
 
   void PerformStep(market::proto::Container *inputs,

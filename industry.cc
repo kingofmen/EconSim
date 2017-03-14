@@ -6,6 +6,12 @@
 namespace industry {
 using market::proto::Container;
 
+Progress::Progress(const proto::Production *prod) : production_(prod) {
+  set_name(prod->name());
+  set_step(0);
+  set_efficiency(1.0);
+}
+
 void Progress::PerformStep(Container *inputs, Container *output,
                              int variant_index) {
   if (Complete()) {
@@ -18,11 +24,12 @@ void Progress::PerformStep(Container *inputs, Container *output,
   }
 
   // TODO: Check fixed_capital.
+  // TODO: Weather and other adverse effects.
 
   *inputs -= needed.consumables();
   set_step(1 + step());
   if (Complete()) {
-    *output += production_->outputs();
+    *output += production_->outputs() * efficiency();
   }
 }
 

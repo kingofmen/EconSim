@@ -30,6 +30,8 @@ message ProductionStep {
   repeated Input variants = 1;
   // The maximum penalty to output size from bad weather in this step.
   double weather_effect = 2;
+  // Penalty to output from skipping this step.
+  double skip_effect = 3;
 }
 
 // A production chain, possibly of multiple steps, from input to outputs.
@@ -51,5 +53,5 @@ message Progress {
   // The current progress.
   int32 step = 2;
   // The effect of weather or other adverse events so far.
-  double output = 3;
+  double efficiency = 3;
 }
