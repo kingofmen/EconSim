@@ -21,14 +21,16 @@ void Progress::PerformStep(Container *inputs, Container *output,
   }
 
   const auto &needed = production_->steps(step()).variants(variant_index);
-  if (*inputs < needed.consumables() + needed.movable_capital()) {
+  auto required = needed.consumables() + needed.movable_capital();
+  required *= scaling();
+  if (*inputs < required) {
     return;
   }
 
   // TODO: Check fixed_capital.
   // TODO: Weather and other adverse effects.
 
-  *inputs -= needed.consumables();
+  *inputs -= needed.consumables() * scaling();
   set_step(1 + step());
   if (Complete()) {
     *output += production_->outputs() * Efficiency();

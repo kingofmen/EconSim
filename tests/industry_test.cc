@@ -152,6 +152,12 @@ TEST_F(IndustryTest, ScalingEffects) {
 
   progress_->set_scaling(2);
   progress_->PerformStep(&inputs_, &outputs_);
+  EXPECT_FALSE(progress_->Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 1);
+
+  wool_ += 1;
+  inputs_ << wool_;
+  progress_->PerformStep(&inputs_, &outputs_);
   EXPECT_TRUE(progress_->Complete());
   EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1.9);
