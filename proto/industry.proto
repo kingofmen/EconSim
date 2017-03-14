@@ -44,6 +44,8 @@ message Production {
   LandType land_type = 3;
   // Name of the process.
   string name = 4;
+  // Effects of scaling up the process.
+  repeated double scaling_effects = 5;
 }
 
 // A specific case of a production chain.
@@ -54,4 +56,6 @@ message Progress {
   int32 step = 2;
   // The effect of weather or other adverse events so far.
   double efficiency = 3;
+  // Scaling number.
+  int32 scaling = 4;
 }

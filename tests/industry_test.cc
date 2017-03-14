@@ -156,4 +156,26 @@ TEST_F(IndustryTest, MovableCapitalSameAsInput) {
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1);
 }
 
+TEST_F(IndustryTest, ScalingEffects) {
+  auto* step = production_->add_steps();
+  auto* input = step->add_variants();
+  auto* consumables = input->mutable_consumables();
+  production_->add_scaling_effects(1.0);
+  production_->add_scaling_effects(1.9);
+  wool_ += 1;
+  *consumables << wool_;
+  wool_ += 1;
+  inputs_ << wool_;
+
+  auto& output = *production_->mutable_outputs();
+  cloth_ += 1;
+  output << cloth_;
+
+  progress_->set_scaling(2);
+  progress_->PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(progress_->Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1.9);
+}
+
 } // namespace industry
