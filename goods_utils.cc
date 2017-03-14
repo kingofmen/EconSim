@@ -64,6 +64,16 @@ Quantity &operator+=(Quantity &lhs, const double rhs) {
   return lhs;
 }
 
+Quantity &operator*=(Quantity &lhs, const double rhs) {
+  lhs.set_amount(lhs.amount() * rhs);
+  return lhs;
+}
+
+Quantity operator*(Quantity lhs, const double rhs) {
+  lhs *= rhs;
+  return lhs;
+}
+
 Quantity &operator-=(Quantity &lhs, const double rhs) {
   lhs.set_amount(lhs.amount() - rhs);
   return lhs;
@@ -72,6 +82,13 @@ Quantity &operator-=(Quantity &lhs, const double rhs) {
 Container &operator+=(Container &lhs, const Container &rhs) {
   for (const auto &quantity : rhs.quantities()) {
     lhs += quantity.second;
+  }
+  return lhs;
+}
+
+Container &operator*=(Container &lhs, const double rhs) {
+  for (auto &quantity : *lhs.mutable_quantities()) {
+    quantity.second *= rhs;
   }
   return lhs;
 }
@@ -104,6 +121,11 @@ Container &operator-=(Container &lhs, const Quantity &rhs) {
 
 Container operator+(Container lhs, const Container &rhs) {
   lhs += rhs;
+  return lhs;
+}
+
+Container operator*(Container lhs, const double rhs) {
+  lhs *= rhs;
   return lhs;
 }
 

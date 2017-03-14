@@ -111,6 +111,26 @@ TEST(GoodsUtilsTest, PlusAndMinus) {
                    jar.quantities().at(kTestGood2).amount());
 }
 
+TEST(GoodsUtilsTest, Multiply) {
+  Quantity quantity;
+  quantity.set_kind(kTestGood1);
+  quantity += 1;
+  EXPECT_DOUBLE_EQ(1.0, quantity.amount());
+  quantity *= 2;
+  EXPECT_DOUBLE_EQ(2.0, quantity.amount());
+
+  Container container;
+  container += quantity;
+  container *= 2;
+  EXPECT_DOUBLE_EQ(4.0, GetAmount(container, quantity));
+
+  auto new_container = container * 2;
+  EXPECT_DOUBLE_EQ(8.0, GetAmount(new_container, quantity));
+
+  auto new_quantity = quantity * 2;
+  EXPECT_DOUBLE_EQ(4.0, new_quantity.amount());
+}
+
 TEST(GoodsUtilsTest, Iterator) {
   Quantity gold;
   gold.set_kind(kTestGood1);

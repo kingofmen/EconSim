@@ -40,6 +40,12 @@ market::proto::Quantity &operator+=(market::proto::Quantity &lhs,
 market::proto::Quantity &operator-=(market::proto::Quantity &lhs,
                                     const double rhs);
 
+market::proto::Quantity &operator*=(market::proto::Quantity &lhs,
+                                    const double rhs);
+
+market::proto::Quantity operator*(market::proto::Quantity lhs,
+                                  const double rhs);
+
 market::proto::Container &operator+=(market::proto::Container &lhs,
                                      const market::proto::Container &rhs);
 market::proto::Container &operator+=(market::proto::Container &lhs,
@@ -48,10 +54,14 @@ market::proto::Container &operator-=(market::proto::Container &lhs,
                                      const market::proto::Container &rhs);
 market::proto::Container &operator-=(market::proto::Container &lhs,
                                      const market::proto::Quantity &rhs);
+market::proto::Container &operator*=(market::proto::Container &lhs,
+                                     const double rhs);
 market::proto::Container operator+(market::proto::Container lhs,
                                    const market::proto::Container &rhs);
 market::proto::Container operator-(market::proto::Container lhs,
                                    const market::proto::Container &rhs);
+market::proto::Container operator*(market::proto::Container lhs,
+                                   const double rhs);
 
 // Note that these are not stable - it is possible for (a < b) and (b < a) to be
 // both true.
