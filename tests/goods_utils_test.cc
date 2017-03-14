@@ -219,4 +219,17 @@ TEST(GoodsUtilsTest, Relational) {
   EXPECT_TRUE(shaker < salt);
 }
 
+TEST(GoodsUtilsTest, EmptyRelational) {
+  Container empty1;
+  Container empty2;
+  EXPECT_FALSE(empty1 < empty2);
+  EXPECT_FALSE(empty2 < empty1);
+  EXPECT_FALSE(empty1 > empty2);
+  EXPECT_FALSE(empty2 > empty1);
+  EXPECT_TRUE(empty1 <= empty2);
+  EXPECT_TRUE(empty2 <= empty1);
+  EXPECT_TRUE(empty1 >= empty2);
+  EXPECT_TRUE(empty2 >= empty1);
+}
+
 } // namespace market

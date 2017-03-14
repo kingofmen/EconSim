@@ -135,6 +135,10 @@ Container operator-(Container lhs, const Container &rhs) {
 }
 
 bool operator<(const Container &lhs, const Container &rhs) {
+  if (rhs.quantities().empty()) {
+    // Cannot be less than an empty container.
+    return false;
+  }
   for (const auto &quantity : rhs.quantities()) {
     if (lhs >= quantity.second) {
       return false;
@@ -144,6 +148,10 @@ bool operator<(const Container &lhs, const Container &rhs) {
 }
 
 bool operator>(const Container &lhs, const Container &rhs) {
+  if (lhs.quantities().empty()) {
+    // Empty container is greater than nothing.
+    return false;
+  }
   for (const auto &quantity : rhs.quantities()) {
     if (lhs <= quantity.second) {
       return false;
