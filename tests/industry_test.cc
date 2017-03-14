@@ -178,4 +178,20 @@ TEST_F(IndustryTest, ScalingEffects) {
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1.9);
 }
 
+TEST_F(IndustryTest, SkippingEffects) {
+  auto* step = production_->add_steps();
+  auto* input = step->add_variants();
+  step->set_skip_effect(0.5);
+  step = production_->add_steps();
+  input = step->add_variants();
+  auto& output = *production_->mutable_outputs();
+  cloth_ += 1;
+  output << cloth_;
+
+  progress_->Skip();
+  progress_->PerformStep(&inputs_, &outputs_);
+  EXPECT_TRUE(progress_->Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 0.5);
+}
+
 } // namespace industry

@@ -35,6 +35,14 @@ void Progress::PerformStep(Container *inputs, Container *output,
   }
 }
 
+void Progress::Skip() {
+  if (Complete()) {
+    return;
+  }
+  set_efficiency(efficiency() * production_->steps(step()).skip_effect());
+  set_step(1 + step());
+}
+
 double Progress::Efficiency() const {
   double effect = efficiency();
   if (production_->scaling_effects_size() > 0) {

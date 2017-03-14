@@ -21,6 +21,9 @@ public:
   void PerformStep(market::proto::Container *inputs,
                    market::proto::Container *outputs, int variant_index = 0);
 
+  // Skips the current step, at a price in efficiency.
+  void Skip();
+
 private:
   const proto::Production *production_;
 };
