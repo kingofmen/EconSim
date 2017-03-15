@@ -14,20 +14,24 @@ Progress::Progress(const proto::Production *prod, const int scale)
   set_scaling(scale);
 }
 
-void Progress::PerformStep(Container *inputs, Container *output,
-                           int variant_index) {
+void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
+                           Container *output,
+                           const double institutional_capital,
+                           const int variant_index) {
   if (Complete()) {
     return;
   }
 
   const auto &needed = production_->steps(step()).variants(variant_index);
+  if (fixed_capital < needed.fixed_capital()) {
+    return;
+  }
   auto required = needed.consumables() + needed.movable_capital();
   required *= scaling();
   if (*inputs < required) {
     return;
   }
 
-  // TODO: Check fixed_capital.
   // TODO: Weather and other adverse effects.
 
   *inputs -= needed.consumables() * scaling();

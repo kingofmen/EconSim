@@ -17,9 +17,13 @@ public:
   // Returns the current output multiplier for this process.
   double Efficiency() const;
 
-  // Increments the step if inputs contains sufficient consumables and capital.
-  void PerformStep(market::proto::Container *inputs,
-                   market::proto::Container *outputs, int variant_index = 0);
+  // Increments the step if inputs and fixed_capital contains sufficient
+  // consumables and capital to run variant_index.
+  void PerformStep(const market::proto::Container &fixed_capital,
+                   market::proto::Container *inputs,
+                   market::proto::Container *outputs,
+                   const double institutional_capital = 0,
+                   const int variant_index = 0);
 
   // Skips the current step, at a price in efficiency.
   void Skip();
