@@ -171,6 +171,20 @@ TEST_F(IndustryTest, FixedCapital) {
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1);
 }
 
+TEST_F(IndustryTest, InstitutionalCapital) {
+  AddWoolStep();
+  AddClothOutput();
+
+  production_->set_experience_effect(0.5);
+
+  wool_ += 0.5;
+  inputs_ << wool_;
+  progress_->PerformStep(capital_, &inputs_, &outputs_, 1.0);
+  EXPECT_TRUE(progress_->Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1);
+}
+
 TEST_F(IndustryTest, ScalingEffects) {
   AddWoolStep();
   AddClothOutput();

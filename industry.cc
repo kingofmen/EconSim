@@ -14,6 +14,10 @@ Progress::Progress(const proto::Production *prod, const int scale)
   set_scaling(scale);
 }
 
+double Progress::ExperienceEffect(const double institutional_capital) const {
+  return 1.0 - institutional_capital * production_->experience_effect();
+}
+
 void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
                            Container *output,
                            const double institutional_capital,
@@ -28,13 +32,15 @@ void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
   }
   auto required = needed.consumables() + needed.movable_capital();
   required *= scaling();
+  double experience = ExperienceEffect(institutional_capital);
+  required *= experience;
   if (*inputs < required) {
     return;
   }
 
   // TODO: Weather and other adverse effects.
 
-  *inputs -= needed.consumables() * scaling();
+  *inputs -= needed.consumables() * scaling() * experience;
   set_step(1 + step());
   if (Complete()) {
     *output += production_->outputs() * Efficiency();

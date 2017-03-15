@@ -17,6 +17,9 @@ public:
   // Returns the current output multiplier for this process.
   double Efficiency() const;
 
+  // Returns the input multiplier for the given amount of institutional capital.
+  double ExperienceEffect(const double institutional_capital) const;
+
   // Increments the step if inputs and fixed_capital contains sufficient
   // consumables and capital to run variant_index.
   void PerformStep(const market::proto::Container &fixed_capital,

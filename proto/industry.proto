@@ -46,6 +46,8 @@ message Production {
   string name = 4;
   // Effects of scaling up the process.
   repeated double scaling_effects = 5;
+  // Maximum effect of experience.
+  double experience_effect = 6;
 }
 
 // A specific case of a production chain.
