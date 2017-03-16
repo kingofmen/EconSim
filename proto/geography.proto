@@ -1,0 +1,23 @@
+syntax = "proto3";
+package geography.proto;
+
+import "market/proto/goods.proto";
+import "industry/proto/industry.proto";
+
+// A unit area, able to hold one production chain.
+message Field {
+  // The production currently underway.
+  industry.proto.Progress production = 1;
+  // Fixed equipment for this field.
+  market.proto.Container fixed_capital = 2;
+  // Terrain type.
+  industry.proto.LandType land_type = 3;
+  // Raw materials, for example ores.
+  market.proto.Container resources = 4;
+}
+
+// A collection of fields close enough together to be treated as a unit, for
+// example, to have a single market.
+message Area {
+  repeated Field fields = 1;
+}
