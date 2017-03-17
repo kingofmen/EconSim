@@ -21,3 +21,25 @@ message Field {
 message Area {
   repeated Field fields = 1;
 }
+
+// A series of steps by which a Field can be converted from one LandType to
+// another.
+message Transition {
+  industry.proto.LandType source = 1;
+  industry.proto.LandType target = 2;
+
+  // The fixed capital the target will end up with, for example houses.
+  market.proto.Container final_fixed_capital = 3;
+
+  // Useful byproducts, e.g. timber from converting a forest.
+  market.proto.Container resources_harvested = 4;
+
+  // The amount of fixed capital that requires one additional removal step.
+  market.proto.Container step_fixed_capital = 5;
+
+  // Resources required for one step.
+  market.proto.Container step_input = 6;
+
+  // Number of steps in the absence of fixed capital.
+  int32 steps = 7;
+}
