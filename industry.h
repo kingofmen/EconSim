@@ -24,6 +24,7 @@ public:
   // consumables and capital to run variant_index.
   void PerformStep(const market::proto::Container &fixed_capital,
                    market::proto::Container *inputs,
+                   market::proto::Container *raw_materials,
                    market::proto::Container *outputs,
                    const double institutional_capital = 0,
                    const int variant_index = 0);

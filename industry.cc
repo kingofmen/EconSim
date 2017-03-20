@@ -19,7 +19,7 @@ double Progress::ExperienceEffect(const double institutional_capital) const {
 }
 
 void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
-                           Container *output,
+                           Container *raw_materials, Container *output,
                            const double institutional_capital,
                            const int variant_index) {
   if (Complete()) {
@@ -30,9 +30,15 @@ void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
   if (fixed_capital < needed.fixed_capital()) {
     return;
   }
+
+  double experience = ExperienceEffect(institutional_capital);
+  auto needed_raw_material = needed.raw_materials() * scaling() * experience;
+  if (*raw_materials < needed_raw_material) {
+    return;
+  }
+
   auto required = needed.consumables() + needed.movable_capital();
   required *= scaling();
-  double experience = ExperienceEffect(institutional_capital);
   required *= experience;
   if (*inputs < required) {
     return;
@@ -40,6 +46,7 @@ void Progress::PerformStep(const Container &fixed_capital, Container *inputs,
 
   // TODO: Weather and other adverse effects.
 
+  *raw_materials -= needed_raw_material;
   *inputs -= needed.consumables() * scaling() * experience;
   set_step(1 + step());
   if (Complete()) {

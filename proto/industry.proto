@@ -21,6 +21,8 @@ message Input {
   market.proto.Container movable_capital = 2;
   // Inputs not consumed, but retained by the process or its land-patch.
   market.proto.Container fixed_capital = 3;
+  // Inputs consumed, but from the land-patch, not the owner input.
+  market.proto.Container raw_materials = 4;
 }
 
 // A step in a production chain, for example sowing or reaping.
