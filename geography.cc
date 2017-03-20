@@ -7,34 +7,44 @@
 
 namespace geography {
 
-void Field::PossibleProductionChains(
-    const std::vector<const industry::proto::Production *> &candidates,
-    std::vector<const industry::proto::Production *> *possible) const {
-  for (const auto *candidate : candidates) {
-    if (candidate->land_type() != land_type()) {
-      continue;
-    }
-    bool can_do_all_steps = true;
-    for (const auto& step : candidate->steps()) {
-      bool can_do_step = false;
-      for (const auto& variant : step.variants()) {
-        if (fixed_capital() < variant.fixed_capital()) {
-          continue;
-        }
-        can_do_step = true;
-        break;
-      }
-      if (can_do_step) {
+bool Field::HasFixedCapital(
+    const industry::proto::Production &production) const {
+  for (const auto &step : production.steps()) {
+    bool can_do_step = false;
+    for (const auto &variant : step.variants()) {
+      if (fixed_capital() < variant.fixed_capital()) {
         continue;
       }
-      can_do_all_steps = false;
+      can_do_step = true;
       break;
     }
-    if (!can_do_all_steps) {
-      continue;
+    if (!can_do_step) {
+      return false;
     }
-    possible->push_back(candidate);
   }
+  return true;
+}
+
+bool Field::HasLandType(const industry::proto::Production &production) const {
+  return land_type() == production.land_type();
+}
+
+bool Field::HasRawMaterials(
+    const industry::proto::Production &production) const {
+  for (const auto &step : production.steps()) {
+    bool can_do_step = false;
+    for (const auto &variant : step.variants()) {
+      if (resources() < variant.raw_materials()) {
+        continue;
+      }
+      can_do_step = true;
+      break;
+    }
+    if (!can_do_step) {
+      return false;
+    }
+  }
+  return true;
 }
 
 } // namespace geography

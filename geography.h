@@ -6,9 +6,11 @@ namespace geography {
 
 class Field : public proto::Field {
 public:
-  void PossibleProductionChains(
-      const std::vector<const industry::proto::Production *> &candidates,
-      std::vector<const industry::proto::Production *> *possible) const;
+  // Filters which return true if this Field has the requirements for at least
+  // one variant in each step of the given production chain.
+  bool HasFixedCapital(const industry::proto::Production &production) const;
+  bool HasLandType(const industry::proto::Production &production) const;
+  bool HasRawMaterials(const industry::proto::Production &production) const;
 };
 
 } // namespace geography
