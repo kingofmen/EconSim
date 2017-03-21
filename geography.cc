@@ -4,15 +4,16 @@
 
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
+#include "market/proto/goods.pb.h"
 
 namespace geography {
 
-bool Field::HasFixedCapital(
-    const industry::proto::Production &production) const {
+bool HasFixedCapital(const proto::Field& field,
+    const industry::proto::Production &production) {
   for (const auto &step : production.steps()) {
     bool can_do_step = false;
     for (const auto &variant : step.variants()) {
-      if (fixed_capital() < variant.fixed_capital()) {
+      if (field.fixed_capital() < variant.fixed_capital()) {
         continue;
       }
       can_do_step = true;
@@ -25,16 +26,16 @@ bool Field::HasFixedCapital(
   return true;
 }
 
-bool Field::HasLandType(const industry::proto::Production &production) const {
-  return land_type() == production.land_type();
+bool HasLandType(const proto::Field& field, const industry::proto::Production &production) {
+  return field.land_type() == production.land_type();
 }
 
-bool Field::HasRawMaterials(
-    const industry::proto::Production &production) const {
+bool HasRawMaterials(const proto::Field& field, 
+    const industry::proto::Production &production) {
   for (const auto &step : production.steps()) {
     bool can_do_step = false;
     for (const auto &variant : step.variants()) {
-      if (resources() < variant.raw_materials()) {
+      if (field.resources() < variant.raw_materials()) {
         continue;
       }
       can_do_step = true;
@@ -45,6 +46,25 @@ bool Field::HasRawMaterials(
     }
   }
   return true;
+}
+
+void UpdateArea(proto::Area* area) {
+  market::proto::Quantity temp;
+  for (auto& field : *(area->mutable_fields())) {
+    const auto &recovery = field.has_production()
+                               ? area->limits().recovery()
+                               : area->limits().fallow_recovery();
+    auto& resources = *field.mutable_resources();
+    for (const auto &quantity : recovery.quantities()) {
+      //std::cout << "Recovering " << quantity.first << " " << quantity.second;
+      temp.set_kind(quantity.first);
+      resources >> temp;
+      temp += quantity.second.amount();
+      temp.set_amount(std::min(
+          temp.amount(), market::GetAmount(area->limits().maximum(), temp)));
+      resources << temp;
+    }
+  }
 }
 
 } // namespace geography

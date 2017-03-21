@@ -18,7 +18,7 @@ message Field {
 
 message ResourceLimits {
   // The maximum amount of each raw material in fields in this area.
-  market.proto.Container limits = 1;
+  market.proto.Container maximum = 1;
   // Recovery speed while a production chain is in progress.
   market.proto.Container recovery = 2;
   // Same while there is no production.
