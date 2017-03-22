@@ -13,6 +13,10 @@ bool HasLandType(const proto::Field &field,
 bool HasRawMaterials(const proto::Field &field,
                      const industry::proto::Production &production);
 
-void UpdateArea(proto::Area* area);
+class Area : public proto::Area {
+ public:
+  Area() = default;
+  void Update();
+};
 
 } // namespace geography

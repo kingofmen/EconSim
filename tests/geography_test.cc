@@ -30,7 +30,7 @@ class GeographyTest : public testing::Test {
 
   std::unique_ptr<industry::Progress> progress_;
   std::unique_ptr<industry::proto::Production> production_;
-  proto::Area area_;
+  Area area_;
   proto::Field* field_;
   market::proto::Quantity stuff_;
 };
@@ -80,9 +80,9 @@ TEST_F(GeographyTest, Recovery) {
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);
-  UpdateArea(&area_);
+  area_.Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
-  UpdateArea(&area_);
+  area_.Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
 }
 
@@ -98,9 +98,9 @@ TEST_F(GeographyTest, FallowRecovery) {
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);
-  UpdateArea(&area_);
+  area_.Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
-  UpdateArea(&area_);
+  area_.Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
 }
 

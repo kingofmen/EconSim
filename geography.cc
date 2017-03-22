@@ -48,12 +48,12 @@ bool HasRawMaterials(const proto::Field& field,
   return true;
 }
 
-void UpdateArea(proto::Area* area) {
+void Area::Update() {
   market::proto::Quantity temp;
-  for (auto& field : *(area->mutable_fields())) {
+  for (auto& field : *(mutable_fields())) {
     const auto &recovery = field.has_production()
-                               ? area->limits().recovery()
-                               : area->limits().fallow_recovery();
+                               ? limits().recovery()
+                               : limits().fallow_recovery();
     auto& resources = *field.mutable_resources();
     for (const auto &quantity : recovery.quantities()) {
       //std::cout << "Recovering " << quantity.first << " " << quantity.second;
@@ -61,7 +61,7 @@ void UpdateArea(proto::Area* area) {
       resources >> temp;
       temp += quantity.second.amount();
       temp.set_amount(std::min(
-          temp.amount(), market::GetAmount(area->limits().maximum(), temp)));
+          temp.amount(), market::GetAmount(limits().maximum(), temp)));
       resources << temp;
     }
   }
