@@ -23,7 +23,9 @@ public:
 
   bool ok() const { return code_ == OK; }
   const std::string &error_message() const { return message_; }
-
+  Code error_code() const {return code_;}
+  static const std::string& code_string(const Code code);
+  
 private:
   Code code_;
   std::string message_;
@@ -33,6 +35,7 @@ const Status& OkStatus();
 
 Status InvalidArgumentError(const std::string& msg);
 
+std::ostream& operator<<(std::ostream& os, const Status& status);
 } // namespace util
 
 #endif // UTIL_STATUS_H
