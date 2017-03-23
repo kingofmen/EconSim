@@ -1,5 +1,6 @@
 #include "geography/geography.h"
 
+#include <cmath>
 #include <vector>
 
 #include "industry/proto/industry.pb.h"
@@ -46,6 +47,32 @@ bool HasRawMaterials(const proto::Field& field,
     }
   }
   return true;
+}
+
+util::Status
+GenerateTransitionProcess(const proto::Field &field,
+                          const proto::Transition &transition,
+                          industry::proto::Production *production) {
+  if (field.land_type() != transition.source()) {
+    return util::InvalidArgumentError("Invalid land type");
+  }
+  int total_steps = transition.steps();
+  int max_fixed_cap_steps = 0;
+  for (const auto& fix_cap : transition.step_fixed_capital().quantities()) {
+    const auto& resource = fix_cap.first;
+    auto field_amount = market::GetAmount(field.fixed_capital(), resource);
+    auto step_amount = fix_cap.second.amount();
+    int curr_steps = (int) ceil(field_amount / step_amount);
+    max_fixed_cap_steps = std::max(curr_steps, max_fixed_cap_steps);
+  }
+  total_steps += max_fixed_cap_steps;
+  for (int i = 0; i < total_steps; ++i) {
+    auto* step = production->add_steps();
+    auto* variant = step->add_variants();
+    auto& input = *variant->mutable_consumables();
+    input += transition.step_input();
+  }
+  return util::OkStatus();
 }
 
 void Area::Update() {

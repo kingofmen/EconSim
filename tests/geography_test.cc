@@ -3,11 +3,12 @@
 #include <memory>
 
 #include "geography/proto/geography.pb.h"
+#include "gtest/gtest.h"
 #include "industry/proto/industry.pb.h"
 #include "industry/industry.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
-#include "gtest/gtest.h"
+#include "util/status/macros.h"
 
 namespace geography {
 namespace {
@@ -102,6 +103,47 @@ TEST_F(GeographyTest, FallowRecovery) {
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
   area_.Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
+}
+
+TEST_F(GeographyTest, Transition) {
+  proto::Transition transition;
+  transition.set_source(industry::proto::LT_ORCHARDS);
+  transition.set_target(industry::proto::LT_BUILT);
+  transition.set_steps(1);
+  stuff_ += 10;
+  *transition.mutable_final_fixed_capital() << stuff_;
+
+  market::proto::Quantity fences;
+  fences.set_kind("fences");
+  fences += 1;
+  *transition.mutable_step_fixed_capital() << fences;
+
+  market::proto::Quantity labour;
+  labour.set_kind("labour");
+  labour += 1;
+  *transition.mutable_step_input() << labour;
+
+  industry::proto::Production production;
+  EXPECT_FALSE(
+      GenerateTransitionProcess(*field_, transition, &production).ok());
+  field_->set_land_type(industry::proto::LT_ORCHARDS);
+  EXPECT_OK(GenerateTransitionProcess(*field_, transition, &production));
+  EXPECT_EQ(1, production.steps_size());
+  EXPECT_DOUBLE_EQ(
+      market::GetAmount(production.steps(0).variants(0).consumables(), labour),
+      1.0);
+
+  fences += 1;
+  *field_->mutable_fixed_capital() << fences;
+  production.Clear();
+  EXPECT_OK(GenerateTransitionProcess(*field_, transition, &production));
+  EXPECT_DOUBLE_EQ(
+      market::GetAmount(production.steps(0).variants(0).consumables(), labour),
+      1.0);
+  EXPECT_DOUBLE_EQ(
+      market::GetAmount(production.steps(1).variants(0).consumables(), labour),
+      1.0);
+  EXPECT_EQ(2, production.steps_size());
 }
 
 }  // namespace geography
