@@ -242,7 +242,7 @@ TEST_F(IndustryTest, RawMaterials) {
   raw_materials_ << clay;
   progress_->PerformStep(capital_, &inputs_, &raw_materials_, &outputs_);
   EXPECT_TRUE(progress_->Complete());
-  EXPECT_DOUBLE_EQ(market::GetAmount(raw_materials_, clay_), 0.0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(raw_materials_, clay), 0.0);
 }
 
 } // namespace industry
