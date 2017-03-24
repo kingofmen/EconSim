@@ -1,0 +1,55 @@
+syntax = "proto3";
+package geography.proto;
+
+import "market/proto/goods.proto";
+import "industry/proto/industry.proto";
+
+// A unit area, able to hold one production chain.
+message Field {
+  // The production currently underway.
+  industry.proto.Progress production = 1;
+  // Fixed equipment for this field.
+  market.proto.Container fixed_capital = 2;
+  // Terrain type.
+  industry.proto.LandType land_type = 3;
+  // Raw materials, for example ores.
+  market.proto.Container resources = 4;
+}
+
+message ResourceLimits {
+  // The maximum amount of each raw material in fields in this area.
+  market.proto.Container maximum = 1;
+  // Recovery speed while a production chain is in progress.
+  market.proto.Container recovery = 2;
+  // Same while there is no production.
+  market.proto.Container fallow_recovery = 3;
+}
+
+// A collection of fields close enough together to be treated as a unit, for
+// example, to have a single market.
+message Area {
+  repeated Field fields = 1;
+  ResourceLimits limits = 2;
+}
+
+// A series of steps by which a Field can be converted from one LandType to
+// another.
+message Transition {
+  industry.proto.LandType source = 1;
+  industry.proto.LandType target = 2;
+
+  // The fixed capital the target will end up with, for example houses.
+  market.proto.Container final_fixed_capital = 3;
+
+  // Useful byproducts, e.g. timber from converting a forest.
+  market.proto.Container resources_harvested = 4;
+
+  // The amount of fixed capital that requires one additional removal step.
+  market.proto.Container step_fixed_capital = 5;
+
+  // Resources required for one step.
+  market.proto.Container step_input = 6;
+
+  // Number of steps in the absence of fixed capital.
+  int32 steps = 7;
+}
