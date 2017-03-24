@@ -1,0 +1,65 @@
+syntax = "proto3";
+package industry.proto;
+
+import "market/proto/goods.proto";
+
+enum LandType {
+  LT_PASTURE = 0;
+  LT_FIELDS = 1;
+  LT_BUILT = 2;
+  LT_LIGHT_INDUSTRY = 3;
+  LT_HEAVY_INDUSTRY = 4;
+  LT_ORCHARDS = 5;
+}
+
+// Inputs to a production step, both consumed (eg labour, raw materials) and not
+// (capital, machinery).
+message Input {
+  // Inputs consumed by the process.
+  market.proto.Container consumables = 1;
+  // Inputs not consumed, but returned to the user.
+  market.proto.Container movable_capital = 2;
+  // Inputs not consumed, but retained by the process or its land-patch.
+  market.proto.Container fixed_capital = 3;
+  // Inputs consumed, but from the land-patch, not the owner input.
+  market.proto.Container raw_materials = 4;
+}
+
+// A step in a production chain, for example sowing or reaping.
+message ProductionStep {
+  // Input options for the step, allowing substitutions (eg wool or linen) and
+  // different amounts of capital.
+  repeated Input variants = 1;
+  // The maximum penalty to output size from bad weather in this step.
+  double weather_effect = 2;
+  // Penalty to output from skipping this step.
+  double skip_effect = 3;
+}
+
+// A production chain, possibly of multiple steps, from input to outputs.
+message Production {
+  // The series of steps that make up this production chain.
+  repeated ProductionStep steps = 1;
+  // The goods produced.
+  market.proto.Container outputs = 2;
+  // The type of land in which this production chain can start.
+  LandType land_type = 3;
+  // Name of the process.
+  string name = 4;
+  // Effects of scaling up the process.
+  repeated double scaling_effects = 5;
+  // Maximum effect of experience.
+  double experience_effect = 6;
+}
+
+// A specific case of a production chain.
+message Progress {
+  // The name of the process.
+  string name = 1;
+  // The current progress.
+  int32 step = 2;
+  // The effect of weather or other adverse events so far.
+  double efficiency = 3;
+  // Scaling number.
+  int32 scaling = 4;
+}
