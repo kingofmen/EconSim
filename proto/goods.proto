@@ -1,0 +1,16 @@
+syntax = "proto3";
+package market.proto;
+
+message Quantity {
+  string kind = 1;
+  double amount = 2;
+}
+
+message Container {
+  map<string, Quantity> quantities = 1;
+}
+
+message TradeGood {
+  string name = 1;  // required
+}
+
