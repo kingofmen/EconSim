@@ -3,7 +3,7 @@
 CXX           = g++
 LINKER        = g++
 DEFINES       = -DUNICODE
-BASE          = "C:/Users/Rolf/codebase"
+BASE          = "C:/Users/Rolf/base"
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -std=c++14 -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
 INCPATH       = -I. -I$(BASE)
 
