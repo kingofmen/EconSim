@@ -1,0 +1,12 @@
+syntax = "proto3";
+package population.proto;
+
+import "market/proto/goods.proto";
+
+message PopUnit {
+  uint64 pop_id = 1;
+  repeated int32 males = 2;
+  repeated int32 women = 3;
+  market.proto.Container wealth = 4;
+}
+
