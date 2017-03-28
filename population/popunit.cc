@@ -12,6 +12,7 @@ PopUnit::PopUnit() {
     add_males(0);
     add_women(0);
   }
+  id_to_pop_map[pop_id()] = this;
 }
 
 void PopUnit::BirthAndDeath() {}
