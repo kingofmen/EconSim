@@ -63,6 +63,10 @@ market::proto::Container operator-(market::proto::Container lhs,
 market::proto::Container operator*(market::proto::Container lhs,
                                    const double rhs);
 
+// Dot product - for example, multiply a basket of goods by their prices.
+double operator*(const market::proto::Container &lhs,
+                 const market::proto::Container &rhs);
+
 // Note that these are not stable - it is possible for (a < b) and (b < a) to be
 // both true.
 bool operator<(const market::proto::Container &lhs,

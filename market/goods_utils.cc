@@ -129,6 +129,15 @@ Container operator*(Container lhs, const double rhs) {
   return lhs;
 }
 
+double operator*(const market::proto::Container &lhs,
+                 const market::proto::Container &rhs) {
+  double ret = 0;
+  for (const auto& quantity : rhs.quantities()) {
+    ret += quantity.second.amount() * GetAmount(lhs, quantity.first);
+  }
+  return ret;
+}
+
 Container operator-(Container lhs, const Container &rhs) {
   lhs -= rhs;
   return lhs;

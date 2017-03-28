@@ -232,4 +232,33 @@ TEST(GoodsUtilsTest, EmptyRelational) {
   EXPECT_TRUE(empty2 >= empty1);
 }
 
+TEST(GoodsUtilsTest, DotProduct) {
+  Quantity gold;
+  gold.set_kind(kTestGood1);
+  gold.set_amount(1);
+  Quantity salt;
+  salt.set_kind(kTestGood2);
+  salt.set_amount(1);
+
+  Container chest;
+  chest << gold;
+
+  Container shaker;
+  shaker << salt;
+
+  EXPECT_EQ(0, chest * shaker);
+
+  gold += 2;
+  shaker << gold;
+  EXPECT_DOUBLE_EQ(2, chest * shaker);
+
+  salt += 2;
+  chest << salt;
+  EXPECT_DOUBLE_EQ(4, chest * shaker);
+
+  salt += 2;
+  shaker << salt;
+  EXPECT_DOUBLE_EQ(8, chest * shaker);
+}
+
 } // namespace market
