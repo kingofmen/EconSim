@@ -46,8 +46,30 @@ TEST_F(PopulationTest, CheapestPackage) {
   house_ += 1;
   *package2->mutable_food()->mutable_consumed() << house_;
 
+  // Pop has no resources, can afford nothing.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), nullptr);
 
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_;
+  // Pop can now eat fish.
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package1);
+
+  house_ += 1;
+  *pop_.mutable_wealth() << house_;
+  fish_ += 1;
+  prices_ << fish_;
+  // Fish is now more expensive than house.
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package2);
+
+  package2->mutable_allowed_cultures()->clear();
+  package2->mutable_allowed_cultures()->insert({kTestCulture2, true});
+  // House is now forbidden.
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package1);
+
+  package1->mutable_allowed_cultures()->clear();
+  package2->mutable_allowed_cultures()->clear();
+  // Both packages are allowed again, so it'll be house.
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package2);
 }
 
 } // namespace population
