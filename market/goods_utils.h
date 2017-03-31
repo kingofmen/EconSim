@@ -1,4 +1,6 @@
 // Utility functions for manipulating goods.
+#ifndef MARKET_GOODS_UTILS_H
+#define MARKET_GOODS_UTILS_H
 
 #include "proto/goods.pb.h"
 
@@ -67,16 +69,29 @@ market::proto::Container operator*(market::proto::Container lhs,
 double operator*(const market::proto::Container &lhs,
                  const market::proto::Container &rhs);
 
-// Note that these are not stable - it is possible for (a < b) and (b < a) to be
-// both true.
-bool operator<(const market::proto::Container &lhs,
-               const market::proto::Container &rhs);
+// Note that these are counterintuitive; they cannot be used for sorting. The
+// intended meaning of a > b is that b may safely be subtracted from a, that is,
+// there will be no negative entries after the subtraction. Likewise if a < b
+// then (b - a) is safe. So we have the intuitive relation
+// a < b  <=>  b > a,
+// but it is not true that
+// !(a < b) => b <= a.
+// It is possible for both subtractions, a - b and b - a, to be unsafe; for
+// example if the two vectors are orthogonal this is trivially true.
+bool operator<(const market::proto::Container& lhs,
+               const market::proto::Container& rhs);
 bool operator>(const market::proto::Container &lhs,
                const market::proto::Container &rhs);
-bool operator<=(const market::proto::Container &lhs,
-                const market::proto::Container &rhs);
-bool operator>=(const market::proto::Container &lhs,
-                const market::proto::Container &rhs);
+// The <= and >= operators are aliases for the < and > operators, as they all
+// express safe subtraction rather than sizes per se.
+inline bool operator<=(const market::proto::Container &lhs,
+                const market::proto::Container &rhs) {
+  return lhs < rhs;
+}
+inline bool operator>=(const market::proto::Container &lhs,
+                const market::proto::Container &rhs) {
+  return lhs > rhs;
+}
 bool operator<(const market::proto::Container &lhs,
                const market::proto::Quantity &rhs);
 bool operator>(const market::proto::Container &lhs,
@@ -88,3 +103,5 @@ bool operator>=(const market::proto::Container &lhs,
 
 } // namespace proto
 } // namespace market
+
+#endif

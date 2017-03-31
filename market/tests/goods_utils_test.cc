@@ -163,10 +163,10 @@ TEST(GoodsUtilsTest, Relational) {
   Container shaker;
   shaker << salt;
 
-  EXPECT_TRUE(shaker < chest); // Contains less gold.
-  EXPECT_TRUE(shaker <= chest);
-  EXPECT_TRUE(chest < shaker); // Contains less salt.
-  EXPECT_TRUE(chest <= shaker);
+  EXPECT_FALSE(shaker < chest); // chest - shaker has negative salt.
+  EXPECT_FALSE(shaker <= chest);
+  EXPECT_FALSE(chest < shaker); // shaker - chest has negative gold.
+  EXPECT_FALSE(chest <= shaker);
 
   EXPECT_FALSE(shaker > chest); // Does not have more gold.
   EXPECT_FALSE(shaker >= chest);
@@ -199,10 +199,10 @@ TEST(GoodsUtilsTest, Relational) {
   EXPECT_TRUE(shaker < bag);
   EXPECT_TRUE(shaker <= bag);
 
-  // The bag has less gold, but more salt, than the chest. So neither is larger
-  // than the other.
-  EXPECT_TRUE(bag < chest);  // Less gold.
-  EXPECT_FALSE(chest < bag); // More gold, less salt.
+  // The bag has less gold, but more salt, than the chest. So neither can be
+  // safely subtracted from the other.
+  EXPECT_FALSE(bag < chest); // chest - bag has negative salt.
+  EXPECT_FALSE(chest < bag); // Negative gold.
   EXPECT_FALSE(bag > chest); // Less gold.
   EXPECT_FALSE(chest > bag); // Less salt.
 
@@ -226,10 +226,10 @@ TEST(GoodsUtilsTest, EmptyRelational) {
   EXPECT_FALSE(empty2 < empty1);
   EXPECT_FALSE(empty1 > empty2);
   EXPECT_FALSE(empty2 > empty1);
-  EXPECT_TRUE(empty1 <= empty2);
-  EXPECT_TRUE(empty2 <= empty1);
-  EXPECT_TRUE(empty1 >= empty2);
-  EXPECT_TRUE(empty2 >= empty1);
+  EXPECT_FALSE(empty1 <= empty2);
+  EXPECT_FALSE(empty2 <= empty1);
+  EXPECT_FALSE(empty1 >= empty2);
+  EXPECT_FALSE(empty2 >= empty1);
 }
 
 TEST(GoodsUtilsTest, DotProduct) {
@@ -259,6 +259,29 @@ TEST(GoodsUtilsTest, DotProduct) {
   salt += 2;
   shaker << salt;
   EXPECT_DOUBLE_EQ(8, chest * shaker);
+}
+
+TEST(GoodsUtilsTest, TwoGoodsRelations) {
+  Quantity gold;
+  gold.set_kind(kTestGood1);
+  gold.set_amount(1);
+  Quantity salt;
+  salt.set_kind(kTestGood2);
+  salt.set_amount(1);
+  Quantity fish;
+  fish.set_kind("fish");
+  fish.set_amount(1);
+
+  Container chest;
+  chest << gold;
+  chest << salt;
+
+  salt += 1;
+  Container shaker;
+  shaker << salt;
+  shaker << fish;
+
+  EXPECT_FALSE(chest < shaker);
 }
 
 } // namespace market
