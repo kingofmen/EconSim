@@ -26,9 +26,19 @@ protected:
     prices_ << fish_;
     prices_ << house_;
     prices_ << youtube_;
+
+    fish_package_ = level_.add_packages();
+    house_package_ = level_.add_packages();
+    fish_ += 1;
+    *fish_package_->mutable_food()->mutable_consumed() << fish_;
+    house_ += 1;
+    *house_package_->mutable_food()->mutable_consumed() << house_;
   }
 
   PopUnit pop_;
+  proto::ConsumptionLevel level_;
+  proto::ConsumptionPackage* fish_package_;
+  proto::ConsumptionPackage* house_package_;
   market::proto::Quantity fish_;
   market::proto::Quantity house_;
   market::proto::Quantity youtube_;
@@ -36,15 +46,8 @@ protected:
 };
 
 TEST_F(PopulationTest, CheapestPackage) {
-  proto::ConsumptionLevel level_;
-  auto* package1 = level_.add_packages();
-  package1->mutable_allowed_cultures()->insert({kTestCulture1, true});
-  auto* package2 = level_.add_packages();
-  package2->mutable_allowed_cultures()->insert({kTestCulture1, true});
-  fish_ += 1;
-  *package1->mutable_food()->mutable_consumed() << fish_;
-  house_ += 1;
-  *package2->mutable_food()->mutable_consumed() << house_;
+  fish_package_->mutable_allowed_cultures()->insert({kTestCulture1, true});
+  house_package_->mutable_allowed_cultures()->insert({kTestCulture1, true});
 
   // Pop has no resources, can afford nothing.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), nullptr);
@@ -52,24 +55,64 @@ TEST_F(PopulationTest, CheapestPackage) {
   fish_ += 1;
   *pop_.mutable_wealth() << fish_;
   // Pop can now eat fish.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package1);
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), fish_package_);
 
   house_ += 1;
   *pop_.mutable_wealth() << house_;
   fish_ += 1;
   prices_ << fish_;
   // Fish is now more expensive than house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package2);
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
 
-  package2->mutable_allowed_cultures()->clear();
-  package2->mutable_allowed_cultures()->insert({kTestCulture2, true});
+  house_package_->mutable_allowed_cultures()->clear();
+  house_package_->mutable_allowed_cultures()->insert({kTestCulture2, true});
   // House is now forbidden.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package1);
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), fish_package_);
 
-  package1->mutable_allowed_cultures()->clear();
-  package2->mutable_allowed_cultures()->clear();
+  fish_package_->mutable_allowed_cultures()->clear();
+  house_package_->mutable_allowed_cultures()->clear();
   // Both packages are allowed again, so it'll be house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), package2);
+  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
+}
+
+TEST_F(PopulationTest, Consume) {
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_;
+  // Pop can now eat fish.
+  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
+
+  house_ += 1;
+  *pop_.mutable_wealth() << house_;
+  fish_ += 1;
+  prices_ << fish_;
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_;
+  // Fish is now more expensive than house.
+  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), house_), 0);
+
+  market::proto::Quantity tools;
+  tools.set_kind("tools");
+  tools += 1;
+  *house_package_->mutable_shelter()->mutable_capital() << tools;
+  house_ += 1;
+  *pop_.mutable_wealth() << house_;
+
+  // No tools, eat the fish.
+  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), house_), 1);
+
+  // With tools available, use them.
+  tools += 1;
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_ << tools;
+  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), house_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), tools), 1);
 }
 
 } // namespace population

@@ -54,16 +54,14 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
       }
     }
 
-    if (wealth() < TotalNeeded(package, size)) {
-      continue;
-    }
-
-    double curr_price = prices * package.food().consumed();
-    curr_price += prices * package.shelter().consumed();
-    curr_price += prices * package.culture().consumed();
-    if (curr_price < best_price) {
-      best_package = &package;
-      best_price = curr_price;
+    if (wealth() > TotalNeeded(package, size)) {
+      double curr_price = prices * package.food().consumed();
+      curr_price += prices * package.shelter().consumed();
+      curr_price += prices * package.culture().consumed();
+      if (curr_price < best_price) {
+        best_package = &package;
+        best_price = curr_price;
+      }
     }
   }
   return best_package;
