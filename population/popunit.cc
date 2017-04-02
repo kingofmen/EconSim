@@ -81,6 +81,7 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
   resources -= best_package->culture().consumed() * size;
 
   *mutable_tags() += best_package->tags();
+  *mutable_tags() += level.tags();
   return true;
 }
 

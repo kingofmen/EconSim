@@ -122,11 +122,17 @@ TEST_F(PopulationTest, ConsumptionTags) {
   bad_breath += 1;
   fish_tags << bad_breath;
 
+  market::proto::Quantity satiation;
+  satiation.set_kind("wellfedness");
+  satiation += 1;
+  *level_.mutable_tags() << satiation;
+
   fish_ += 1;
   *pop_.mutable_wealth() << fish_;
   EXPECT_TRUE(pop_.Consume(level_, prices_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.tags(), bad_breath), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.tags(), satiation), 1);
 }
 
 } // namespace population
