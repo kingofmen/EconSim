@@ -15,6 +15,9 @@ message ConsumptionPackage {
 
   // Empty indicates the package is usable by all cultures.
   map<string, bool> allowed_cultures = 4;
+
+  // Tags acquired by consuming this package.
+  market.proto.Container tags = 5;
 }
 
 message ConsumptionLevel {
@@ -27,5 +30,6 @@ message PopUnit {
   repeated int32 women = 3;
   market.proto.Container wealth = 4;
   string culture = 5;
+  market.proto.Container tags = 6;
 }
 

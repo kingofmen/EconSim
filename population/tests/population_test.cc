@@ -115,4 +115,18 @@ TEST_F(PopulationTest, Consume) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), tools), 1);
 }
 
+TEST_F(PopulationTest, ConsumptionTags) {
+  auto& fish_tags = *fish_package_->mutable_tags();
+  market::proto::Quantity bad_breath;
+  bad_breath.set_kind("halitosis");
+  bad_breath += 1;
+  fish_tags << bad_breath;
+
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_;
+  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.tags(), bad_breath), 1);
+}
+
 } // namespace population
