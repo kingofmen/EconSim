@@ -76,7 +76,7 @@ TEST_F(PopulationTest, CheapestPackage) {
   culture.set_kind(kTestCulture1);
   culture += 0.1;
   *fish_package_->mutable_required_tags() << culture;
-  house_package_->mutable_required_tags()->mutable_quantities()->clear();
+  market::Clear(*house_package_->mutable_required_tags());
   culture += 0.1;
   *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
