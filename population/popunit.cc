@@ -44,14 +44,15 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   double best_price = std::numeric_limits<double>::max();
   int size = GetSize();
   for (const auto& package : level.packages()) {
-    if (!package.allowed_cultures().empty()) {
-      auto it = package.allowed_cultures().find(culture());
-      if (it == package.allowed_cultures().end()) {
-        continue;
+    bool has_tags = true;
+    for (const auto& required_tag : package.required_tags().quantities()) {
+      if (tags() < required_tag.second) {
+        has_tags = false;
+        break;
       }
-      if (!it->second) {
-        continue;
-      }
+    }
+    if (!has_tags) {
+      continue;
     }
 
     if (wealth() > TotalNeeded(package, size)) {

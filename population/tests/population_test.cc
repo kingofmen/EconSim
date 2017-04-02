@@ -15,7 +15,11 @@ class PopulationTest : public testing::Test {
 protected:
   void SetUp() override {
     pop_.add_males(1);
-    pop_.set_culture(kTestCulture1);
+    market::proto::Quantity culture;
+    culture.set_kind(kTestCulture1);
+    culture += 1;
+    *pop_.mutable_tags() << culture;
+
     fish_.set_kind("fish");
     house_.set_kind("house");
     youtube_.set_kind("youtube");
@@ -46,9 +50,6 @@ protected:
 };
 
 TEST_F(PopulationTest, CheapestPackage) {
-  fish_package_->mutable_allowed_cultures()->insert({kTestCulture1, true});
-  house_package_->mutable_allowed_cultures()->insert({kTestCulture1, true});
-
   // Pop has no resources, can afford nothing.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), nullptr);
 
@@ -64,13 +65,20 @@ TEST_F(PopulationTest, CheapestPackage) {
   // Fish is now more expensive than house.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
 
-  house_package_->mutable_allowed_cultures()->clear();
-  house_package_->mutable_allowed_cultures()->insert({kTestCulture2, true});
+  market::proto::Quantity scots;
+  scots.set_kind(kTestCulture2);
+  scots += 0.1;
+  *house_package_->mutable_required_tags() << scots;
   // House is now forbidden.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), fish_package_);
 
-  fish_package_->mutable_allowed_cultures()->clear();
-  house_package_->mutable_allowed_cultures()->clear();
+  market::proto::Quantity culture;
+  culture.set_kind(kTestCulture1);
+  culture += 0.1;
+  *fish_package_->mutable_required_tags() << culture;
+  house_package_->mutable_required_tags()->mutable_quantities()->clear();
+  culture += 0.1;
+  *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
   EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
 }
