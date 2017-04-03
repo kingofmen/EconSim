@@ -143,4 +143,47 @@ TEST_F(PopulationTest, ConsumptionTags) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.tags(), satiation), 1);
 }
 
+TEST_F(PopulationTest, AutoProduction) {
+  proto::AutoProduction labour;
+  market::proto::Quantity work;
+  work.set_kind("labour");
+  work += 1;
+  *labour.mutable_output() << work;
+
+  proto::AutoProduction prayer;
+  market::proto::Quantity words;
+  words.set_kind("kneeling");
+  words += 1;
+  *prayer.mutable_output() << words;
+
+  work += 2;
+  words += 1;
+  market::proto::Container prices;
+  prices << work;
+  prices << words;
+
+  // Prayer is cheaper, so the pop should choose to work.
+  std::vector<proto::AutoProduction*> production = {&labour, &prayer};
+  pop_.AutoProduce(production, prices);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), work), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), words), 0);
+
+  market::proto::Quantity culture;
+  culture.set_kind(kTestCulture2);
+  culture += 1;
+  *labour.mutable_required_tags() << culture;
+
+  // Pop can no longer work, so now it should pray.
+  pop_.AutoProduce(production, prices);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), work), 1);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), words), 1);  
+
+  culture += 1.1;
+  *pop_.mutable_tags() << culture;
+  // With ability to work restored, pop should work again.
+  pop_.AutoProduce(production, prices);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), work), 2);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), words), 1);  
+}
+
 } // namespace population

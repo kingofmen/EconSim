@@ -27,6 +27,11 @@ message ConsumptionLevel {
   market.proto.Container tags = 2;
 }
 
+message AutoProduction {
+  market.proto.Container output = 1;
+  market.proto.Container required_tags = 2;
+}
+
 message PopUnit {
   uint64 pop_id = 1;
   repeated int32 males = 2;

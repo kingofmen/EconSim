@@ -3,7 +3,7 @@
 #include <limits>
 
 #include "market/goods_utils.h"
-
+#include <iostream>
 namespace population {
 
 namespace {
@@ -33,6 +33,27 @@ PopUnit::PopUnit() {
     add_women(0);
   }
   id_to_pop_map_[pop_id()] = this;
+}
+
+void PopUnit::AutoProduce(const std::vector<proto::AutoProduction*> production,
+                          const market::proto::Container& prices) {
+  const proto::AutoProduction* best_prod = nullptr;
+  double best_price = 0;
+  for (const auto* p : production) {
+    if (!(tags() > p->required_tags())) {
+      continue;
+    }
+    double curr_price = p->output() * prices;
+    if (curr_price < best_price) {
+      continue;
+    }
+    best_price = curr_price;
+    best_prod = p;
+  }
+  if (best_prod == nullptr) {
+    return;
+  }
+  *mutable_wealth() += best_prod->output();
 }
 
 void PopUnit::BirthAndDeath() {}
