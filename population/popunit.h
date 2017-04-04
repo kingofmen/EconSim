@@ -19,7 +19,7 @@ public:
   // Add to lowest age group and subtract from oldest.
   void BirthAndDeath();
 
-  void AutoProduce(const std::vector<proto::AutoProduction*> production,
+  void AutoProduce(const std::vector<proto::AutoProduction*>& production,
                    const market::proto::Container& prices);
 
   const proto::ConsumptionPackage*
