@@ -1,0 +1,6 @@
+areas {
+  fields {
+    land_type:LT_BUILT
+  }
+}
+

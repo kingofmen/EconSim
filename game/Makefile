@@ -1,15 +1,14 @@
 # Makefile for game executable
-TARGET_NAME = game
-
+include common.mk
 include libs.mk
 
+LIBS += -L$(BASE)/game/proto/ -lgame_world_proto
 LIBS += $(POPULATION_LIB)
-LIBS += $(MARKET_LIB)
-LIBS += $(PROTOBUF_LIB)
-LIBS += $(INDUSTRY_LIB)
 LIBS += $(STATUS_LIB)
-
-include common.mk
+LIBS += $(GEOGRAPHY_LIB)
+LIBS += $(MARKET_LIB)
+LIBS += $(INDUSTRY_LIB)
+LIBS += $(PROTOBUF_LIB)
 
 default: sinews
 
