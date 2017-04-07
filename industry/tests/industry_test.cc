@@ -189,8 +189,7 @@ TEST_F(IndustryTest, InstitutionalCapital) {
 TEST_F(IndustryTest, ScalingEffects) {
   AddWoolStep();
   AddClothOutput();
-  production_->add_scaling_effects(1.0);
-  production_->add_scaling_effects(1.9);
+  production_->add_scaling_effects(0.9);
   wool_ += 1;
   inputs_ << wool_;
 
@@ -205,6 +204,23 @@ TEST_F(IndustryTest, ScalingEffects) {
   EXPECT_TRUE(progress_->Complete());
   EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1.9);
+
+  production_->add_scaling_effects(0.8);
+  progress_->set_scaling(2.5);
+  wool_ += 2;
+  inputs_ << wool_;
+  outputs_ >> cloth_;
+  progress_->set_step(0);
+  progress_->PerformStep(capital_, &inputs_, &raw_materials_, &outputs_);
+  EXPECT_FALSE(progress_->Complete());
+
+  wool_ += 0.5;
+  inputs_ << wool_;
+  progress_->PerformStep(capital_, &inputs_, &raw_materials_, &outputs_);
+  EXPECT_TRUE(progress_->Complete());
+  EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
+                   1.0 + 0.9 + sqrt(0.5) * 0.8);
 }
 
 TEST_F(IndustryTest, SkippingEffects) {

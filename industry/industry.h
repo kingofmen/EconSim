@@ -8,7 +8,7 @@ namespace industry {
 class Progress : public proto::Progress {
 public:
   // Does not take ownership of the production proto.
-  explicit Progress(const proto::Production *prod, int scale = 1);
+  explicit Progress(const proto::Production *prod, double scale = 1);
   ~Progress() = default;
 
   // Returns true if this process has completed all steps.
