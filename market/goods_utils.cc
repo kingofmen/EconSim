@@ -144,6 +144,10 @@ Container operator-(Container lhs, const Container &rhs) {
 }
 
 bool operator<(const Container &lhs, const Container &rhs) {
+  // Always safe to subtract zero.
+  if (lhs.quantities().empty()) {
+    return true;
+  }
   // Nothing can be subtracted from an empty container.
   if (rhs.quantities().empty()) {
     return false;
