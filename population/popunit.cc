@@ -65,14 +65,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   double best_price = std::numeric_limits<double>::max();
   int size = GetSize();
   for (const auto& package : level.packages()) {
-    bool has_tags = true;
-    for (const auto& required_tag : package.required_tags().quantities()) {
-      if (tags() < required_tag.second) {
-        has_tags = false;
-        break;
-      }
-    }
-    if (!has_tags) {
+    if (!(tags() > package.required_tags())) {
       continue;
     }
 
