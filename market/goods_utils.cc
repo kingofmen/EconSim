@@ -18,7 +18,7 @@ double GetAmount(const Container& con, const std::string name) {
   if (!Contains(con, name)) {
     return 0;
   }
-  return con.quantities().at(name).amount();
+  return con.quantities().at(name);
 }
 
 double GetAmount(const Container& con, const Quantity& qua) {
@@ -26,10 +26,7 @@ double GetAmount(const Container& con, const Quantity& qua) {
 }
 
 void Clear(Container& con) {
-  auto& quantities = *con.mutable_quantities();
-  for (auto& quantity : quantities) {
-    quantity.second.set_amount(0);
-  }
+  con.clear_quantities();
 }
 
 namespace proto {
@@ -45,8 +42,7 @@ Container& operator>>(Container& con, Quantity& qua) {
     return con;
   }
   qua.set_amount(qua.amount() + GetAmount(con, qua.kind()));
-  auto& quantities = *con.mutable_quantities();
-  quantities[qua.kind()].set_amount(0);
+  con.mutable_quantities()->erase(qua.kind());
   return con;
 }
 
@@ -55,7 +51,7 @@ Container& operator<<(Container& con, std::string name) {
     return con;
   }
   auto& quantities = *con.mutable_quantities();
-  quantities[name].set_amount(0);
+  quantities[name] = 0;
   return con;
 }
 
@@ -81,7 +77,7 @@ Quantity &operator-=(Quantity &lhs, const double rhs) {
 
 Container &operator+=(Container &lhs, const Container &rhs) {
   for (const auto &quantity : rhs.quantities()) {
-    lhs += quantity.second;
+    (*lhs.mutable_quantities())[quantity.first] += quantity.second;
   }
   return lhs;
 }
@@ -95,17 +91,13 @@ Container &operator*=(Container &lhs, const double rhs) {
 
 Container &operator+=(Container &lhs, const Quantity &rhs) {
   auto &quantities = *lhs.mutable_quantities();
-  if (Contains(lhs, rhs)) {
-    quantities[rhs.kind()] += rhs.amount();
-  } else {
-    quantities[rhs.kind()] = rhs;
-  }
+  quantities[rhs.kind()] += rhs.amount();
   return lhs;
 }
 
 Container &operator-=(Container &lhs, const Container &rhs) {
   for (const auto &quantity : rhs.quantities()) {
-    lhs -= quantity.second;
+    (*lhs.mutable_quantities())[quantity.first] -= quantity.second;
   }
   return lhs;
 }
@@ -133,7 +125,7 @@ double operator*(const market::proto::Container &lhs,
                  const market::proto::Container &rhs) {
   double ret = 0;
   for (const auto& quantity : rhs.quantities()) {
-    ret += quantity.second.amount() * GetAmount(lhs, quantity.first);
+    ret += quantity.second * GetAmount(lhs, quantity.first);
   }
   return ret;
 }
@@ -153,7 +145,7 @@ bool operator<(const Container &lhs, const Container &rhs) {
     return false;
   }
   for (const auto &quantity : lhs.quantities()) {
-    if (rhs < quantity.second) {
+    if (GetAmount(rhs, quantity.first) < quantity.second) {
       return false;
     }
   }

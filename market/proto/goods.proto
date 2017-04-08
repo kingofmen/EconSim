@@ -7,7 +7,7 @@ message Quantity {
 }
 
 message Container {
-  map<string, Quantity> quantities = 1;
+  map<string, double> quantities = 1;
 }
 
 message TradeGood {

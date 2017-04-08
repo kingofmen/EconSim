@@ -50,6 +50,7 @@ market::proto::Quantity operator*(market::proto::Quantity lhs,
 
 market::proto::Container &operator+=(market::proto::Container &lhs,
                                      const market::proto::Container &rhs);
+
 market::proto::Container &operator+=(market::proto::Container &lhs,
                                      const market::proto::Quantity &rhs);
 market::proto::Container &operator-=(market::proto::Container &lhs,

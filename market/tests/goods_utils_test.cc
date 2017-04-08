@@ -33,7 +33,7 @@ TEST(GoodsUtilsTest, HelperFunctions) {
   EXPECT_DOUBLE_EQ(GetAmount(container, quantity), 1);
 
   Clear(container);
-  EXPECT_TRUE(Contains(container, kTestGood1));
+  EXPECT_FALSE(Contains(container, kTestGood1));
   EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 0);
 }
 
@@ -70,45 +70,45 @@ TEST(GoodsUtilsTest, PlusAndMinus) {
   Container container;
   container += quantity;
   container += quantity;
-  EXPECT_DOUBLE_EQ(1.0, container.quantities().at(quantity.kind()).amount());
+  EXPECT_DOUBLE_EQ(1.0, GetAmount(container, quantity));
   container -= quantity;
-  EXPECT_DOUBLE_EQ(0.5, container.quantities().at(quantity.kind()).amount());
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(container, quantity));
 
   Quantity another;
   another.set_kind(kTestGood2);
   another += 1;
   container += another;
-  EXPECT_DOUBLE_EQ(0.5, container.quantities().at(quantity.kind()).amount());
-  EXPECT_DOUBLE_EQ(another.amount(),
-                   container.quantities().at(another.kind()).amount());
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(container, quantity));
+  EXPECT_DOUBLE_EQ(another.amount(), GetAmount(container, another));
 
   Container barrel;
   barrel += container;
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood1).amount(),
-                   barrel.quantities().at(kTestGood1).amount());
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood2).amount(),
-                   barrel.quantities().at(kTestGood2).amount());
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1),
+                   GetAmount(barrel, kTestGood1));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2),
+                   GetAmount(barrel, kTestGood2));
 
   Container box = barrel + container;
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood1).amount() +
-                       barrel.quantities().at(kTestGood1).amount(),
-                   box.quantities().at(kTestGood1).amount());
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood2).amount() +
-                       barrel.quantities().at(kTestGood2).amount(),
-                   box.quantities().at(kTestGood2).amount());
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1) +
+                       GetAmount(barrel, kTestGood1),
+                   GetAmount(box, kTestGood1));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2) +
+                       GetAmount(barrel, kTestGood2),
+                   GetAmount(box, kTestGood2));
+
   box -= barrel;
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood1).amount(),
-                   box.quantities().at(kTestGood1).amount());
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood2).amount(),
-                   box.quantities().at(kTestGood2).amount());
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1),
+                   GetAmount(box, kTestGood1));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2),
+                   GetAmount(box, kTestGood2));
 
   Container jar = barrel - container;
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood1).amount() -
-                       barrel.quantities().at(kTestGood1).amount(),
-                   jar.quantities().at(kTestGood1).amount());
-  EXPECT_DOUBLE_EQ(container.quantities().at(kTestGood2).amount() -
-                       barrel.quantities().at(kTestGood2).amount(),
-                   jar.quantities().at(kTestGood2).amount());
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1) -
+                       GetAmount(barrel, kTestGood1),
+                   GetAmount(jar, kTestGood1));
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood2) -
+                       GetAmount(barrel, kTestGood2),
+                   GetAmount(jar, kTestGood2));
 }
 
 TEST(GoodsUtilsTest, Multiply) {
@@ -144,8 +144,7 @@ TEST(GoodsUtilsTest, Iterator) {
 
   for (const auto& quantity : chest.quantities()) {
     EXPECT_EQ(kTestGood1, quantity.first);
-    EXPECT_EQ(kTestGood1, quantity.second.kind());
-    EXPECT_DOUBLE_EQ(1, quantity.second.amount());
+    EXPECT_DOUBLE_EQ(1, quantity.second);
   }
 }
 

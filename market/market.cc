@@ -25,7 +25,7 @@ void Market::registerGood(const std::string &name) {
   *mutable_bids() << name;
   *mutable_offers() << name;
 
-  mutable_prices()->mutable_quantities()->at(name).set_amount(1);
+  (*mutable_prices()->mutable_quantities())[name] = 1;
 }
 
 void Market::findPrices() {
@@ -33,15 +33,15 @@ void Market::findPrices() {
   auto &prices = *mutable_prices()->mutable_quantities();
   for (const auto &good : goods().quantities()) {
     const std::string &name = good.first;
-    double bid = bids().quantities().at(name).amount();
-    double offer = offers().quantities().at(name).amount();
-    volume[name].set_amount(std::min(bid, offer));
+    double bid = bids().quantities().at(name);
+    double offer = offers().quantities().at(name);
+    volume[name] = std::min(bid, offer);
     double ratio = bid / std::max(offer, 0.01);
     ratio = std::min(ratio, 1.25);
     ratio = std::max(ratio, 0.75);
-    double price = prices[name].amount();
+    double price = prices[name];
     price *= ratio;
-    prices[name].set_amount(price);
+    prices[name] = price;
   }
 }
 
@@ -64,7 +64,7 @@ double Market::getPrice(const std::string &name) const {
     return -1;
   }
 
-  return prices().quantities().at(name).amount();
+  return prices().quantities().at(name);
 }
 
 double Market::getVolume(const std::string &name) const {
@@ -72,7 +72,7 @@ double Market::getVolume(const std::string &name) const {
     return -1;
   }
 
-  return volume().quantities().at(name).amount();
+  return volume().quantities().at(name);
 }
 
 } // namespace market

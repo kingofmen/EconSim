@@ -18,6 +18,7 @@ using proto::Container;
 TEST(MarketTest, FindPrices) {
   Market market;
   EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood1));
+
   market.registerGood(kTestGood1);
   EXPECT_DOUBLE_EQ(1, market.getPrice(kTestGood1));
   EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood2));
@@ -35,7 +36,7 @@ TEST(MarketTest, FindPrices) {
   market.findPrices();
   EXPECT_DOUBLE_EQ(1, market.getPrice(kTestGood1));
   EXPECT_DOUBLE_EQ(1, market.getVolume(kTestGood1));
-  
+
   market.registerBid(bid);
   market.findPrices();
   EXPECT_DOUBLE_EQ(1.25, market.getPrice(kTestGood1));
