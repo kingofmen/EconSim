@@ -14,7 +14,7 @@ bool HasFixedCapital(const proto::Field& field,
   for (const auto &step : production.steps()) {
     bool can_do_step = false;
     for (const auto &variant : step.variants()) {
-      if (field.fixed_capital() < variant.fixed_capital()) {
+      if (!(field.fixed_capital() > variant.fixed_capital())) {
         continue;
       }
       can_do_step = true;
@@ -36,7 +36,7 @@ bool HasRawMaterials(const proto::Field& field,
   for (const auto &step : production.steps()) {
     bool can_do_step = false;
     for (const auto &variant : step.variants()) {
-      if (field.resources() < variant.raw_materials()) {
+      if (!(field.resources() > variant.raw_materials())) {
         continue;
       }
       can_do_step = true;
@@ -61,7 +61,7 @@ GenerateTransitionProcess(const proto::Field &field,
   for (const auto& fix_cap : transition.step_fixed_capital().quantities()) {
     const auto& resource = fix_cap.first;
     auto field_amount = market::GetAmount(field.fixed_capital(), resource);
-    auto step_amount = fix_cap.second.amount();
+    auto step_amount = fix_cap.second;
     int curr_steps = (int) ceil(field_amount / step_amount);
     max_fixed_cap_steps = std::max(curr_steps, max_fixed_cap_steps);
   }
@@ -83,10 +83,9 @@ void Area::Update() {
                                : limits().fallow_recovery();
     auto& resources = *field.mutable_resources();
     for (const auto &quantity : recovery.quantities()) {
-      //std::cout << "Recovering " << quantity.first << " " << quantity.second;
       temp.set_kind(quantity.first);
       resources >> temp;
-      temp += quantity.second.amount();
+      temp += quantity.second;
       temp.set_amount(std::min(
           temp.amount(), market::GetAmount(limits().maximum(), temp)));
       resources << temp;
