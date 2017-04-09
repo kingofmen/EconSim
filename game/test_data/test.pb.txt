@@ -1,6 +1,72 @@
 areas {
   fields {
-    land_type:LT_BUILT
+    land_type: LT_BUILT
+    fixed_capital {
+      quantities {
+        key: "house"
+	value: 1
+      }
+    }
+  }
+  fields {
+    land_type: LT_FIELDS
   }
 }
 
+production_chains {
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "grain"
+      value: 1
+    }
+  }
+  land_type: LT_FIELDS
+  name: "wheat"
+  scaling_effects: 0.9
+  scaling_effects: 0.8
+  experience_effect: 0.1
+}
+
+production_chains {
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+	  key: "house"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "shelter"
+      value: 1
+    }
+  }
+  land_type: LT_BUILT
+  name: "shelter"
+}
+
+auto_production {
+  output {
+    quantities {
+      key: "labour"
+      value: 1
+    }
+  }
+}

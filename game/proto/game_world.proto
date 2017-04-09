@@ -3,8 +3,10 @@ package game.proto;
 
 import "geography/proto/geography.proto";
 import "industry/proto/industry.proto";
+import "population/proto/population.proto";
 
 message GameWorld {
   repeated geography.proto.Area areas = 1;
   repeated industry.proto.Production production_chains = 2;
+  repeated population.proto.AutoProduction auto_production = 3;
 }

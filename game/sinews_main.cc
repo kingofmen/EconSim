@@ -10,7 +10,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 int main(int /*argc*/, char** /*argv*/) {
-  std::ifstream game_reader("test_data\\test.pb.txt");
+  std::ifstream game_reader(".\\test_data\\test.pb.txt");
   if (!game_reader.good()) {
     std::cout << "Error opening file\n";
     return 1;
@@ -26,7 +26,7 @@ int main(int /*argc*/, char** /*argv*/) {
   game_reader.close();
 
   std::cout << game_world.DebugString() << "\n";
-  
+
   return 0;
 }
 
