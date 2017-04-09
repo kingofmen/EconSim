@@ -2,6 +2,8 @@
 
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
+#include "market/market.h"
+#include "market/proto/market.pb.h"
 #include "util/status/status.h"
 
 namespace geography {
@@ -21,9 +23,13 @@ util::Status GenerateTransitionProcess(const proto::Field &field,
                                        industry::proto::Production *production);
 
 class Area : public proto::Area {
- public:
+public:
   Area() = default;
+  Area(const market::proto::MarketProto& market) : market_(market) {}
   void Update();
+
+private:
+  market::Market market_;
 };
 
 } // namespace geography

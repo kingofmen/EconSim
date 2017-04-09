@@ -6,6 +6,7 @@
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
+#include "population/popunit.h"
 
 namespace geography {
 
@@ -77,6 +78,7 @@ GenerateTransitionProcess(const proto::Field &field,
 
 void Area::Update() {
   market::proto::Quantity temp;
+  // Recovery of raw materials in the fields, eg topsoil.
   for (auto& field : *(mutable_fields())) {
     const auto &recovery = field.has_production()
                                ? limits().recovery()
@@ -90,6 +92,12 @@ void Area::Update() {
           temp.amount(), market::GetAmount(limits().maximum(), temp)));
       resources << temp;
     }
+  }
+
+  // Population updates.
+  for (const auto& pop_id : pop_ids()) {
+    auto* pop = population::PopUnit::GetPopId(pop_id);
+    pop->AutoProduce({}, market_.prices());
   }
 }
 
