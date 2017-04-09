@@ -3,6 +3,7 @@ package geography.proto;
 
 import "market/proto/goods.proto";
 import "industry/proto/industry.proto";
+import "population/proto/population.proto";
 
 // A unit area, able to hold one production chain.
 message Field {
@@ -30,6 +31,7 @@ message ResourceLimits {
 message Area {
   repeated Field fields = 1;
   ResourceLimits limits = 2;
+  repeated population.proto.PopUnit population = 3;
 }
 
 // A series of steps by which a Field can be converted from one LandType to
