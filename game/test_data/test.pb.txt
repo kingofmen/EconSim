@@ -11,6 +11,7 @@ areas {
   fields {
     land_type: LT_FIELDS
   }
+  pop_ids: 0
 }
 
 production_chains {
@@ -69,4 +70,14 @@ auto_production {
       value: 1
     }
   }
+}
+
+pops {
+  pop_id: 0
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 1
 }
