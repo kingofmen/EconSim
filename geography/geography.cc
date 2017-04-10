@@ -94,11 +94,6 @@ void Area::Update() {
     }
   }
 
-  // Population updates.
-  for (const auto& pop_id : pop_ids()) {
-    auto* pop = population::PopUnit::GetPopId(pop_id);
-    pop->AutoProduce({}, market_.prices());
-  }
 }
 
 } // namespace geography

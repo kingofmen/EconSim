@@ -26,6 +26,9 @@ class Area : public proto::Area {
 public:
   Area() = default;
   Area(const market::proto::MarketProto& market) : market_(market) {}
+  Area(const proto::Area& area) : proto::Area(area), market_(area.market()) {}
+
+  const market::proto::Container& GetPrices() const { return market_.prices(); }
   void Update();
 
 private:
