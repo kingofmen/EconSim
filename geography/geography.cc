@@ -11,10 +11,10 @@
 namespace geography {
 
 bool HasFixedCapital(const proto::Field& field,
-    const industry::proto::Production &production) {
-  for (const auto &step : production.steps()) {
+                     const industry::proto::Production& production) {
+  for (const auto& step : production.steps()) {
     bool can_do_step = false;
-    for (const auto &variant : step.variants()) {
+    for (const auto& variant : step.variants()) {
       if (!(field.fixed_capital() > variant.fixed_capital())) {
         continue;
       }
@@ -28,15 +28,16 @@ bool HasFixedCapital(const proto::Field& field,
   return true;
 }
 
-bool HasLandType(const proto::Field& field, const industry::proto::Production &production) {
+bool HasLandType(const proto::Field& field,
+                 const industry::proto::Production& production) {
   return field.land_type() == production.land_type();
 }
 
-bool HasRawMaterials(const proto::Field& field, 
-    const industry::proto::Production &production) {
-  for (const auto &step : production.steps()) {
+bool HasRawMaterials(const proto::Field& field,
+                     const industry::proto::Production& production) {
+  for (const auto& step : production.steps()) {
     bool can_do_step = false;
-    for (const auto &variant : step.variants()) {
+    for (const auto& variant : step.variants()) {
       if (!(field.resources() > variant.raw_materials())) {
         continue;
       }
@@ -51,9 +52,9 @@ bool HasRawMaterials(const proto::Field& field,
 }
 
 util::Status
-GenerateTransitionProcess(const proto::Field &field,
-                          const proto::Transition &transition,
-                          industry::proto::Production *production) {
+GenerateTransitionProcess(const proto::Field& field,
+                          const proto::Transition& transition,
+                          industry::proto::Production* production) {
   if (field.land_type() != transition.source()) {
     return util::InvalidArgumentError("Invalid land type");
   }
@@ -63,7 +64,7 @@ GenerateTransitionProcess(const proto::Field &field,
     const auto& resource = fix_cap.first;
     auto field_amount = market::GetAmount(field.fixed_capital(), resource);
     auto step_amount = fix_cap.second;
-    int curr_steps = (int) ceil(field_amount / step_amount);
+    int curr_steps = (int)ceil(field_amount / step_amount);
     max_fixed_cap_steps = std::max(curr_steps, max_fixed_cap_steps);
   }
   total_steps += max_fixed_cap_steps;
@@ -80,20 +81,18 @@ void Area::Update() {
   market::proto::Quantity temp;
   // Recovery of raw materials in the fields, eg topsoil.
   for (auto& field : *(mutable_fields())) {
-    const auto &recovery = field.has_production()
-                               ? limits().recovery()
-                               : limits().fallow_recovery();
+    const auto& recovery = field.has_production() ? limits().recovery()
+                                                  : limits().fallow_recovery();
     auto& resources = *field.mutable_resources();
-    for (const auto &quantity : recovery.quantities()) {
+    for (const auto& quantity : recovery.quantities()) {
       temp.set_kind(quantity.first);
       resources >> temp;
       temp += quantity.second;
-      temp.set_amount(std::min(
-          temp.amount(), market::GetAmount(limits().maximum(), temp)));
+      temp.set_amount(
+          std::min(temp.amount(), market::GetAmount(limits().maximum(), temp)));
       resources << temp;
     }
   }
-
 }
 
 } // namespace geography
