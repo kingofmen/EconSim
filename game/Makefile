@@ -10,6 +10,8 @@ LIBS += $(INDUSTRY_LIB)
 LIBS += $(MARKET_LIB)
 LIBS += $(PROTOBUF_LIB)
 
+CXXFLAGS += -g 
+
 default: sinews
 
 sinews:	$(patsubst %.cc,%.o,$(wildcard *.cc))
