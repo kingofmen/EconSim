@@ -15,11 +15,12 @@ namespace population {
 class PopUnit : public proto::PopUnit {
 public:
   PopUnit();
+  PopUnit(const proto::PopUnit& proto);
 
   // Add to lowest age group and subtract from oldest.
   void BirthAndDeath();
 
-  void AutoProduce(const std::vector<proto::AutoProduction*>& production,
+  void AutoProduce(const std::vector<const proto::AutoProduction*>& production,
                    const market::proto::Container& prices);
 
   const proto::ConsumptionPackage*

@@ -163,7 +163,7 @@ TEST_F(PopulationTest, AutoProduction) {
   prices << words;
 
   // Prayer is cheaper, so the pop should choose to work.
-  std::vector<proto::AutoProduction*> production = {&labour, &prayer};
+  std::vector<const proto::AutoProduction*> production = {&labour, &prayer};
   pop_.AutoProduce(production, prices);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), work), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), words), 0);

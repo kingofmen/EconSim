@@ -35,8 +35,16 @@ PopUnit::PopUnit() {
   id_to_pop_map_[pop_id()] = this;
 }
 
-void PopUnit::AutoProduce(const std::vector<proto::AutoProduction*>& production,
-                          const market::proto::Container& prices) {
+PopUnit::PopUnit(const proto::PopUnit& proto) : proto::PopUnit(proto) {
+  if (id_to_pop_map_[pop_id()] != nullptr) {
+    // TODO: Error here.
+  }
+  id_to_pop_map_[pop_id()] = this;
+}
+
+void PopUnit::AutoProduce(
+    const std::vector<const proto::AutoProduction*>& production,
+    const market::proto::Container& prices) {
   const proto::AutoProduction* best_prod = nullptr;
   double best_price = 0;
   for (const auto* p : production) {
