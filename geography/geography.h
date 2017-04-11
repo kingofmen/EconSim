@@ -1,4 +1,6 @@
 // Class to represent geographic locations.
+#ifndef BASE_GEOGRAPHY_H
+#define BASE_GEOGRAPHY_H
 
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
@@ -36,3 +38,5 @@ private:
 };
 
 } // namespace geography
+
+#endif
