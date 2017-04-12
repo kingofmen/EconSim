@@ -201,6 +201,7 @@ TEST_F(PopulationTest, DecayWealth) {
   
   pop_.DecayWealth(prices_);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
+  EXPECT_FALSE(market::Contains(pop_.wealth(), fish_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), youtube_), 1);
 }
 
