@@ -29,6 +29,19 @@ void Clear(Container& con) {
   con.clear_quantities();
 }
 
+void CleanContainer(market::proto::Container* con, double tolerance) {
+  std::vector<std::string> to_erase;
+  for (const auto& quantity : con->quantities()) {
+    if (quantity.second >= tolerance) {
+      continue;
+    }
+    to_erase.emplace_back(quantity.first);
+  }
+  for (const auto& kind : to_erase) {
+    con->mutable_quantities()->erase(kind);
+  }
+}
+
 namespace proto {
 
 Container& operator<<(Container& con, Quantity& qua) {

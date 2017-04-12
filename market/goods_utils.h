@@ -22,6 +22,9 @@ double GetAmount(const market::proto::Container &con,
 // Sets all amounts in the container to 0.
 void Clear(market::proto::Container &con);
 
+// Removes goods with less than tolerance amount from con.
+void CleanContainer(market::proto::Container* con, double tolerance = 0.000001);
+
 namespace proto {
 
 // Create an entry for the good name in con. No effect if the entry exists

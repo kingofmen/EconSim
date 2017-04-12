@@ -92,6 +92,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
 void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
   *mutable_wealth() *= decay_rates;
+  market::CleanContainer(mutable_wealth());
 }
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
