@@ -89,6 +89,15 @@ Container &operator*=(Container &lhs, const double rhs) {
   return lhs;
 }
 
+market::proto::Container& operator*=(market::proto::Container& lhs,
+                                     const market::proto::Container& rhs) {
+  auto& quantities = *lhs.mutable_quantities();
+  for (auto& quantity : quantities) {
+    quantity.second *= GetAmount(rhs, quantity.first);
+  }
+  return lhs;
+}
+
 Container &operator+=(Container &lhs, const Quantity &rhs) {
   auto &quantities = *lhs.mutable_quantities();
   quantities[rhs.kind()] += rhs.amount();

@@ -131,6 +131,32 @@ TEST(GoodsUtilsTest, Multiply) {
   EXPECT_DOUBLE_EQ(4.0, new_quantity.amount());
 }
 
+TEST(GoodsUtilsTest, MatrixMultiply) {
+  Quantity quantity1;
+  quantity1.set_kind(kTestGood1);
+  quantity1 += 1;
+
+  Quantity quantity2;
+  quantity2.set_kind(kTestGood2);
+  quantity2 += 1;
+
+  Container container1;
+  container1 << quantity1;
+  container1 << quantity2;
+
+  Container container2;
+  quantity1 += 0.5;
+  container2 << quantity1;
+  quantity2 += 1.5;
+  container2 << quantity2;
+ 
+  container1 *= container2;
+  EXPECT_DOUBLE_EQ(GetAmount(container1, quantity1),
+                   GetAmount(container2, quantity1));
+  EXPECT_DOUBLE_EQ(GetAmount(container1, quantity2),
+                   GetAmount(container2, quantity2));
+}
+
 TEST(GoodsUtilsTest, Iterator) {
   Quantity gold;
   gold.set_kind(kTestGood1);

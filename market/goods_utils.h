@@ -66,6 +66,12 @@ market::proto::Container operator-(market::proto::Container lhs,
 market::proto::Container operator*(market::proto::Container lhs,
                                    const double rhs);
 
+// Matrix-vector product; the amount of each good in lhs is multiplied by the
+// corresponding amount in rhs. Note that this is not the same as the
+// dot-product operator*.
+market::proto::Container& operator*=(market::proto::Container& lhs,
+                                     const market::proto::Container& rhs);
+
 // Dot product - for example, multiply a basket of goods by their prices.
 double operator*(const market::proto::Container &lhs,
                  const market::proto::Container &rhs);
