@@ -27,6 +27,9 @@ public:
   CheapestPackage(const proto::ConsumptionLevel& level,
                   const market::proto::Container& prices) const;
 
+  // Reduce wealth due to entropy.
+  void DecayWealth(const market::proto::Container& decay_rates);
+
   // Turn resources into consumption levels. Returns true if the POP can
   // consume at this level.
   bool Consume(const proto::ConsumptionLevel& level,

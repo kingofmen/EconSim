@@ -186,4 +186,22 @@ TEST_F(PopulationTest, AutoProduction) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), words), 1);  
 }
 
+TEST_F(PopulationTest, DecayWealth) {
+  fish_ += 1;
+  *pop_.mutable_wealth() << fish_;
+  youtube_ += 1;
+  *pop_.mutable_wealth() << youtube_;
+
+  prices_.Clear();
+  // Fish and guests stink after three days.
+  prices_ << fish_;
+  // A good cat video is a thing of joy forever.
+  youtube_ += 1;
+  prices_ << youtube_;
+  
+  pop_.DecayWealth(prices_);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), youtube_), 1);
+}
+
 } // namespace population

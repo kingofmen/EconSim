@@ -90,6 +90,10 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   return best_package;
 }
 
+void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
+  *mutable_wealth() *= decay_rates;
+}
+
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       const market::proto::Container& prices) {
   const proto::ConsumptionPackage* best_package = CheapestPackage(level, prices);
