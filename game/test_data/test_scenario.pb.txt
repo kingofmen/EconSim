@@ -55,3 +55,10 @@ auto_production {
     }
   }
 }
+
+decay_rates {
+  quantities {
+    key: "labour"
+    value: 1
+  }
+}

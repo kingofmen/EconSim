@@ -3,11 +3,13 @@ package game.proto;
 
 import "geography/proto/geography.proto";
 import "industry/proto/industry.proto";
+import "market/proto/goods.proto";
 import "population/proto/population.proto";
 
 message Scenario {
   repeated population.proto.AutoProduction auto_production = 1;
   repeated industry.proto.Production production_chains = 2;
+  market.proto.Container decay_rates = 3;
 }
 
 message GameWorld {

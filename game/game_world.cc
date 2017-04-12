@@ -10,6 +10,9 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   production_chains_.insert(production_chains_.end(),
                             proto_.production_chains().pointer_begin(),
                             proto_.production_chains().pointer_end());
+  for (auto& decay_rate : *proto_.mutable_decay_rates()->mutable_quantities()) {
+    decay_rate.second = 1 - decay_rate.second;
+  }
 }
 
 GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
@@ -29,6 +32,12 @@ void GameWorld::TimeStep() {
     for (const auto pop_id : area->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
+    }
+
+
+    for (const auto pop_id : area->pop_ids()) {
+      auto* pop = population::PopUnit::GetPopId(pop_id);
+      pop->DecayWealth(scenario_.proto_.decay_rates());
     }
   }
 }
