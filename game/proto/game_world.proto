@@ -5,9 +5,12 @@ import "geography/proto/geography.proto";
 import "industry/proto/industry.proto";
 import "population/proto/population.proto";
 
+message Scenario {
+  repeated population.proto.AutoProduction auto_production = 1;
+  repeated industry.proto.Production production_chains = 2;
+}
+
 message GameWorld {
   repeated geography.proto.Area areas = 1;
-  repeated industry.proto.Production production_chains = 2;
-  repeated population.proto.AutoProduction auto_production = 3;
-  repeated population.proto.PopUnit pops = 4;
+  repeated population.proto.PopUnit pops = 2;
 }
