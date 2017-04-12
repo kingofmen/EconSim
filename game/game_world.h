@@ -21,6 +21,7 @@ public:
   struct Scenario {
     Scenario(proto::Scenario* scenario);
     std::vector<const population::proto::AutoProduction*> auto_production_;
+    std::vector<const industry::proto::Production*> production_chains_;
     proto::Scenario proto_;
   };
 

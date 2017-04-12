@@ -7,6 +7,9 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   auto_production_.insert(auto_production_.end(),
                           proto_.auto_production().pointer_begin(),
                           proto_.auto_production().pointer_end());
+  production_chains_.insert(production_chains_.end(),
+                            proto_.production_chains().pointer_begin(),
+                            proto_.production_chains().pointer_end());
 }
 
 GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
