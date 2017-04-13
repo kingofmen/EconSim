@@ -7,9 +7,11 @@ areas {
 	value: 1
       }
     }
+    owner_id: 0
   }
   fields {
     land_type: LT_FIELDS
+    owner_id: 0
   }
   pop_ids: 0
 }
