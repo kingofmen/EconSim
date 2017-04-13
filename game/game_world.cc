@@ -33,12 +33,10 @@ void GameWorld::TimeStep() {
       auto* pop = population::PopUnit::GetPopId(pop_id);
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
     }
+  }
 
-
-    for (const auto pop_id : area->pop_ids()) {
-      auto* pop = population::PopUnit::GetPopId(pop_id);
-      pop->DecayWealth(scenario_.proto_.decay_rates());
-    }
+  for (auto& pop : pops_) {
+    pop->DecayWealth(scenario_.proto_.decay_rates());
   }
 }
 
