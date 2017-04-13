@@ -7,7 +7,7 @@
 namespace population {
 
 namespace {
-uint64 unused_pop_id = 0;
+uint64 unused_pop_id = 1;
 constexpr int kNumAgeGroups = 7;
 
 market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
