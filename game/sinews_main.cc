@@ -39,7 +39,6 @@ int main(int /*argc*/, char** /*argv*/) {
     std::cout << status.error_message() << "\n";
     return 1;
   }
-  std::cout << scenario.DebugString() << "\n";
 
   game::GameWorld game_world(world_proto, &scenario);
 
