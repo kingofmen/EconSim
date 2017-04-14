@@ -5,35 +5,36 @@
 
 namespace industry {
 
-class Progress : public proto::Progress {
+class Production : public proto::Production {
 public:
-  // Does not take ownership of the production proto.
-  explicit Progress(const proto::Production *prod, double scale = 1);
-  ~Progress() = default;
+  Production() = default;
+  explicit Production(const proto::Production& prod) : proto::Production(prod) {}
+  ~Production() = default;
 
-  // Returns true if this process has completed all steps.
-  bool Complete() const;
+  // Returns true if this progress has completed all steps.
+  bool Complete(const proto::Progress& progress) const;
 
-  // Returns the current output multiplier for this process.
-  double Efficiency() const;
+  // Returns the current output multiplier for this progress.
+  double Efficiency(const proto::Progress& progress) const;
 
   // Returns the input multiplier for the given amount of institutional capital.
   double ExperienceEffect(const double institutional_capital) const;
 
+  // Initialises a Progress proto with this production chain.
+  proto::Progress MakeProgress(double scale);
+
   // Increments the step if inputs and fixed_capital contains sufficient
   // consumables and capital to run variant_index.
   void PerformStep(const market::proto::Container &fixed_capital,
+                   const double institutional_capital,
+                   const int variant_index,
                    market::proto::Container *inputs,
                    market::proto::Container *raw_materials,
                    market::proto::Container *outputs,
-                   const double institutional_capital = 0,
-                   const int variant_index = 0);
+                   proto::Progress* progress);
 
   // Skips the current step, at a price in efficiency.
-  void Skip();
-
-private:
-  const proto::Production *production_;
+  void Skip(proto::Progress* progress);
 };
 
 } // namespace industry
