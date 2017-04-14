@@ -1,4 +1,6 @@
 // Class to organise production chains.
+#ifndef BASE_INDUSTRY_INDUSTRY_H
+#define BASE_INDUSTRY_INDUSTRY_H
 
 #include "industry/proto/industry.pb.h"
 #include "market/proto/goods.pb.h"
@@ -38,3 +40,5 @@ public:
 };
 
 } // namespace industry
+
+#endif
