@@ -6,6 +6,12 @@
 
 namespace market {
 
+// Sets all amounts in the container to 0.
+void Clear(market::proto::Container* con);
+
+// Removes goods with less than tolerance amount from con.
+void CleanContainer(market::proto::Container* con, double tolerance = 0.000001);
+
 // Returns true if con has an entry for the good name, even if the amount is
 // zero.
 bool Contains(const market::proto::Container &con, const std::string name);
@@ -14,16 +20,16 @@ bool Contains(const market::proto::Container &con,
               const market::proto::Quantity &qua);
 
 // Returns the amount of name in con; zero if not set.
-double GetAmount(const market::proto::Container &con, const std::string name);
+double GetAmount(const market::proto::Container& con, const std::string name);
 // Returns the amount of qua.kind() in con; zero if not set.
-double GetAmount(const market::proto::Container &con,
-                 const market::proto::Quantity &qua);
+double GetAmount(const market::proto::Container& con,
+                 const market::proto::Quantity& qua);
 
-// Sets all amounts in the container to 0.
-void Clear(market::proto::Container &con);
-
-// Removes goods with less than tolerance amount from con.
-void CleanContainer(market::proto::Container* con, double tolerance = 0.000001);
+// Sets the amount of name in con.
+void SetAmount(const std::string name, const double amount,
+               market::proto::Container* con);
+void SetAmount(const market::proto::Quantity& qua,
+               market::proto::Container* con);
 
 namespace proto {
 

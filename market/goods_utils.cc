@@ -6,6 +6,23 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
+void Clear(Container* con) {
+  con->clear_quantities();
+}
+
+void CleanContainer(market::proto::Container* con, double tolerance) {
+  std::vector<std::string> to_erase;
+  for (const auto& quantity : con->quantities()) {
+    if (quantity.second >= tolerance) {
+      continue;
+    }
+    to_erase.emplace_back(quantity.first);
+  }
+  for (const auto& kind : to_erase) {
+    con->mutable_quantities()->erase(kind);
+  }
+}
+
 bool Contains(const Container& con, const std::string name) {
   return con.quantities().find(name) != con.quantities().end();
 }
@@ -25,21 +42,15 @@ double GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
-void Clear(Container& con) {
-  con.clear_quantities();
+void SetAmount(const std::string name, const double amount,
+               market::proto::Container* con) {
+  auto& quantities = *con->mutable_quantities();
+  quantities[name] = amount;
 }
 
-void CleanContainer(market::proto::Container* con, double tolerance) {
-  std::vector<std::string> to_erase;
-  for (const auto& quantity : con->quantities()) {
-    if (quantity.second >= tolerance) {
-      continue;
-    }
-    to_erase.emplace_back(quantity.first);
-  }
-  for (const auto& kind : to_erase) {
-    con->mutable_quantities()->erase(kind);
-  }
+void SetAmount(const market::proto::Quantity& qua,
+                 market::proto::Container* con) {
+  SetAmount(qua.kind(), qua.amount(), con);
 }
 
 namespace proto {
