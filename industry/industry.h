@@ -28,7 +28,7 @@ public:
   double ExperienceEffect(const double institutional_capital) const;
 
   // Initialises a Progress proto with this production chain.
-  proto::Progress MakeProgress(double scale);
+  proto::Progress MakeProgress(double scale) const;
 
   // Increments the step if inputs and fixed_capital contains sufficient
   // consumables and capital to run variant_index.

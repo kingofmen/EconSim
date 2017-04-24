@@ -10,7 +10,7 @@
 namespace industry {
 using market::proto::Container;
 
-proto::Progress Production::MakeProgress(double scale) {
+proto::Progress Production::MakeProgress(double scale) const {
   proto::Progress progress;
   progress.set_name(name());
   progress.set_step(0);
