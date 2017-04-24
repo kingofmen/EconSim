@@ -1,14 +1,23 @@
 #include "population/popunit.h"
 
 #include <limits>
+#include <list>
 
+#include "geography/geography.h"
+#include "industry/industry.h"
 #include "market/goods_utils.h"
-#include <iostream>
+
 namespace population {
+
+using industry::proto::Production;
 
 namespace {
 uint64 unused_pop_id = 1;
 constexpr int kNumAgeGroups = 7;
+constexpr char kExpectedProfit[] = "expected_profit";
+constexpr char kStandardDeviation[] = "standard_deviation";
+constexpr char kCorrelation[] = "correlation";
+constexpr char kSubsistence[] = "subsistence";
 
 market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
                                      int size) {
@@ -90,11 +99,6 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   return best_package;
 }
 
-void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
-  *mutable_wealth() *= decay_rates;
-  market::CleanContainer(mutable_wealth());
-}
-
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       const market::proto::Container& prices) {
   const proto::ConsumptionPackage* best_package = CheapestPackage(level, prices);
@@ -113,6 +117,11 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
   return true;
 }
 
+void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
+  *mutable_wealth() *= decay_rates;
+  market::CleanContainer(mutable_wealth());
+}
+
 int PopUnit::GetSize() const {
   int size = 0;
   for (const auto men : males()) {
@@ -122,6 +131,70 @@ int PopUnit::GetSize() const {
     size += females;
   }
   return size;
+}
+
+void PopUnit::CalculateCandidateHeuristics(
+    const market::proto::Container& prices,
+    const std::unordered_map<std::string,
+                             const industry::Production*>& /*chains*/,
+    const std::vector<ProductionCandidate>& /*selected*/,
+    ProductionCandidate* candidate) const {
+  market::SetAmount(
+      kExpectedProfit,
+      candidate->process->ExpectedProfit(prices, candidate->progress),
+      &candidate->heuristics);
+}
+
+void PopUnit::Produce(
+    const market::proto::Container& prices,
+    const std::unordered_map<std::string, const industry::Production*>& chains,
+    const std::vector<geography::proto::Field*>& fields) {
+  std::list<ProductionCandidate> candidates;
+  for (auto* field : fields) {
+    if (field->has_production()) {
+      const industry::Production* production =
+          chains.at(field->production().name());
+      candidates.emplace_back(field, production, field->mutable_production());
+      continue;
+    }
+    for (const auto& chain : chains) {
+      const industry::Production* production = chain.second;
+      if (!geography::HasLandType(*field, *production)) {
+        continue;
+      }
+      if (!geography::HasRawMaterials(*field, *production)) {
+        continue;
+      }
+      if (!geography::HasFixedCapital(*field, *production)) {
+        continue;
+      }
+      candidates.emplace_back(field, production, nullptr);
+    }
+  }
+  std::vector<ProductionCandidate> selected;
+  static market::proto::Container weights;
+  if (!market::Contains(weights, kExpectedProfit)) {
+    market::SetAmount(kExpectedProfit, 1, &weights);
+    market::SetAmount(kStandardDeviation, 1, &weights);
+    market::SetAmount(kCorrelation, 1, &weights);
+    market::SetAmount(kSubsistence, 1, &weights);
+  }
+  std::set<geography::proto::Field*> fields_used;
+  while (!candidates.empty()) {
+    for (auto& candidate : candidates) {
+      CalculateCandidateHeuristics(prices, chains, selected, &candidate);
+    }
+    candidates.sort(
+        [](const ProductionCandidate& a, const ProductionCandidate& b) {
+          return a.heuristics * weights < b.heuristics * weights;
+        });
+    selected.push_back(candidates.back());
+    fields_used.insert(candidates.back().target);
+    candidates.pop_back();
+    candidates.remove_if([&fields_used](const ProductionCandidate& cand) {
+      return fields_used.count(cand.target);
+    });
+  }
 }
 
 uint64 PopUnit::NewPopId() { return ++unused_pop_id; }
