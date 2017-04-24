@@ -1,6 +1,6 @@
 // Class to represent geographic locations.
-#ifndef BASE_GEOGRAPHY_H
-#define BASE_GEOGRAPHY_H
+#ifndef BASE_GEOGRAPHY_GEOGRAPHY_H
+#define BASE_GEOGRAPHY_GEOGRAPHY_H
 
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
@@ -33,7 +33,7 @@ public:
   const market::proto::Container& GetPrices() const { return market_.prices(); }
   void Update();
 
-private:
+ private:
   market::Market market_;
 };
 
