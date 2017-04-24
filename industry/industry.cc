@@ -47,7 +47,7 @@ double Production::Efficiency(const proto::Progress& progress) const {
 }
 
 double Production::ExpectedProfit(const market::proto::Container prices,
-                                  const proto::Progress* progress) {
+                                  const proto::Progress* progress) const {
   double expense = 0;
   int step = 0;
   double efficiency = 1;
