@@ -269,4 +269,22 @@ TEST_F(IndustryTest, RawMaterials) {
   EXPECT_DOUBLE_EQ(market::GetAmount(raw_materials_, clay), 0.0);
 }
 
+TEST_F(IndustryTest, ExpectedProfit) {
+  AddWoolStep();
+  AddWoolStep();
+  AddClothOutput();
+
+  market::proto::Container prices;
+  wool_ += 1;
+  cloth_ += 10;
+  prices << wool_ << cloth_;
+  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, nullptr), 8);
+  progress_ = production_->MakeProgress(1.0);
+  wool_ += 1;
+  inputs_ << wool_;
+  production_->PerformStep(capital_, 0.0, 0, &inputs_, &raw_materials_, &outputs_, &progress_);
+  EXPECT_EQ(progress_.step(), 1);
+  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, &progress_), 9);
+}
+
 } // namespace industry

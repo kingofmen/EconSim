@@ -19,6 +19,11 @@ public:
   // Returns the current output multiplier for this progress.
   double Efficiency(const proto::Progress& progress) const;
 
+  // Calculates the expected profit of completing the process, given the prices.
+  // Progress may be null.
+  double ExpectedProfit(const market::proto::Container prices,
+                        const proto::Progress* progress);
+
   // Returns the input multiplier for the given amount of institutional capital.
   double ExperienceEffect(const double institutional_capital) const;
 

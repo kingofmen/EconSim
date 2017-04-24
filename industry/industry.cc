@@ -46,6 +46,34 @@ double Production::Efficiency(const proto::Progress& progress) const {
   return effect;
 }
 
+double Production::ExpectedProfit(const market::proto::Container prices,
+                                  const proto::Progress* progress) {
+  double expense = 0;
+  int step = 0;
+  double efficiency = 1;
+  double scaling = 1;
+  double experience = 1;
+  if (progress != nullptr) {
+    step = progress->step();
+    scaling = progress->scaling();
+    efficiency = Efficiency(*progress);
+  }
+  for (; step < steps_size(); ++step) {
+    double least_expense = std::numeric_limits<double>::max();
+    for (const auto& variant : steps(step).variants()) {
+      double variant_expense = variant.consumables() * prices;
+      if (variant_expense < least_expense) {
+        least_expense = variant_expense;
+      }
+    }
+    expense += least_expense;
+  }
+  expense *= scaling;
+  expense *= experience;
+  double revenue = outputs() * prices * efficiency;
+  return revenue - expense;
+}
+
 double Production::ExperienceEffect(const double institutional_capital) const {
   return 1.0 - institutional_capital * experience_effect();
 }
