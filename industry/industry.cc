@@ -82,7 +82,7 @@ void Production::PerformStep(const Container& fixed_capital,
                              const double institutional_capital,
                              const int variant_index, Container* inputs,
                              Container* raw_materials, Container* output,
-                             proto::Progress* progress) {
+                             proto::Progress* progress) const {
   if (name() != progress->name()) {
     return;
   }
@@ -120,7 +120,7 @@ void Production::PerformStep(const Container& fixed_capital,
   }
 }
 
-void Production::Skip(proto::Progress* progress) {
+void Production::Skip(proto::Progress* progress) const {
   if (Complete(*progress)) {
     return;
   }

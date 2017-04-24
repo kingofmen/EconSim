@@ -38,10 +38,10 @@ public:
                    market::proto::Container *inputs,
                    market::proto::Container *raw_materials,
                    market::proto::Container *outputs,
-                   proto::Progress* progress);
+                   proto::Progress* progress) const;
 
   // Skips the current step, at a price in efficiency.
-  void Skip(proto::Progress* progress);
+  void Skip(proto::Progress* progress) const;
 };
 
 } // namespace industry
