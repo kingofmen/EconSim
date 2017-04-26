@@ -186,6 +186,9 @@ void PopUnit::SelectProduction(const market::proto::Container& prices,
     for (auto& candidate : *candidates) {
       CandidateHeuristics(prices, chains, *selected, &candidate);
     }
+    candidates->remove_if([](const ProductionCandidate& cand) {
+      return market::GetAmount(cand.heuristics, kExpectedProfit) <= 0;
+    });
     candidates->sort(
         [](const ProductionCandidate& a, const ProductionCandidate& b) {
           return a.heuristics * weights < b.heuristics * weights;

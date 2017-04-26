@@ -233,18 +233,25 @@ TEST_F(PopulationTest, PossibleProduction) {
   AddInputStep(work, &grow_corn);
   market::SetAmount("corn", 1, grow_corn.mutable_outputs());
 
+  industry::Production bad_corn;
+  bad_corn.set_name("bad_corn");
+  bad_corn.set_land_type(industry::proto::LT_FIELDS);
+  market::SetAmount("labour", 5, &work);
+  AddInputStep(work, &bad_corn);
+  market::SetAmount("corn", 1, bad_corn.mutable_outputs());
+
   geography::proto::Field pasture;
   pasture.set_land_type(industry::proto::LT_PASTURE);
   geography::proto::Field corn_land;
   corn_land.set_land_type(industry::proto::LT_FIELDS);
 
   PopUnit::ProductionMap chains;
-  for (const auto* ind : {&wool_to_cloth, &grow_corn}) {
+  for (const auto* ind : {&wool_to_cloth, &grow_corn, &bad_corn}) {
     chains[ind->name()] = ind;
   }
   std::list<PopUnit::ProductionCandidate> candidates;
   PopUnit::PossibleProduction(chains, {&pasture, &corn_land}, &candidates);
-  EXPECT_EQ(candidates.size(), 2);
+  EXPECT_EQ(candidates.size(), 3);
 
   market::proto::Container prices;
   market::SetAmount("labour", 1, &prices);
