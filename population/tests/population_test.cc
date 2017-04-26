@@ -2,6 +2,8 @@
 #include "population/popunit.h"
 
 #include "gtest/gtest.h"
+#include "geography/proto/geography.pb.h"
+#include "industry/industry.h"
 #include "population/proto/population.pb.h"
 
 
@@ -76,7 +78,7 @@ TEST_F(PopulationTest, CheapestPackage) {
   culture.set_kind(kTestCulture1);
   culture += 0.1;
   *fish_package_->mutable_required_tags() << culture;
-  market::Clear(*house_package_->mutable_required_tags());
+  market::Clear(house_package_->mutable_required_tags());
   culture += 0.1;
   *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
@@ -203,6 +205,61 @@ TEST_F(PopulationTest, DecayWealth) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
   EXPECT_FALSE(market::Contains(pop_.wealth(), fish_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), youtube_), 1);
+}
+
+void AddInputStep(const market::proto::Container& materials, industry::Production* target) {
+  auto* step = target->add_steps();
+  auto* input = step->add_variants();
+  auto& consumables = *input->mutable_consumables();
+  consumables += materials;
+}
+
+TEST_F(PopulationTest, PossibleProduction) {
+  industry::Production wool_to_cloth;
+  wool_to_cloth.set_name("wool_to_cloth");
+  wool_to_cloth.set_land_type(industry::proto::LT_PASTURE);
+  market::proto::Container three_bags;
+  market::SetAmount("wool", 1, &three_bags);
+  AddInputStep(three_bags, &wool_to_cloth);
+  AddInputStep(three_bags, &wool_to_cloth);
+  market::SetAmount("cloth", 1, wool_to_cloth.mutable_outputs());
+
+  industry::Production grow_corn;
+  grow_corn.set_name("grow_corn");
+  grow_corn.set_land_type(industry::proto::LT_FIELDS);
+  market::proto::Container work;
+  market::SetAmount("labour", 1, &work);
+  AddInputStep(work, &grow_corn);
+  AddInputStep(work, &grow_corn);
+  market::SetAmount("corn", 1, grow_corn.mutable_outputs());
+
+  geography::proto::Field pasture;
+  pasture.set_land_type(industry::proto::LT_PASTURE);
+  geography::proto::Field corn_land;
+  corn_land.set_land_type(industry::proto::LT_FIELDS);
+
+  PopUnit::ProductionMap chains;
+  for (const auto* ind : {&wool_to_cloth, &grow_corn}) {
+    chains[ind->name()] = ind;
+  }
+  std::list<PopUnit::ProductionCandidate> candidates;
+  PopUnit::PossibleProduction(chains, {&pasture, &corn_land}, &candidates);
+  EXPECT_EQ(candidates.size(), 2);
+
+  market::proto::Container prices;
+  market::SetAmount("labour", 1, &prices);
+  market::SetAmount("wool", 1, &prices);
+  market::SetAmount("corn", 3, &prices);
+  market::SetAmount("cloth", 4, &prices);
+
+  std::vector<PopUnit::ProductionCandidate> selected;
+  PopUnit::SelectProduction(prices, chains, &candidates, &selected);
+  EXPECT_EQ(0, candidates.size());
+  EXPECT_EQ(2, selected.size());
+  EXPECT_EQ(&pasture, selected[0].target);
+  EXPECT_EQ("wool_to_cloth", selected[0].process->name());
+  EXPECT_EQ(&corn_land, selected[1].target);
+  EXPECT_EQ("grow_corn", selected[1].process->name());
 }
 
 } // namespace population

@@ -133,28 +133,25 @@ int PopUnit::GetSize() const {
   return size;
 }
 
-void PopUnit::CalculateCandidateHeuristics(
-    const market::proto::Container& prices,
-    const std::unordered_map<std::string,
-                             const industry::Production*>& /*chains*/,
+void PopUnit::CandidateHeuristics(
+    const market::proto::Container& prices, const ProductionMap& /*chains*/,
     const std::vector<ProductionCandidate>& /*selected*/,
-    ProductionCandidate* candidate) const {
+    ProductionCandidate* candidate) {
   market::SetAmount(
       kExpectedProfit,
       candidate->process->ExpectedProfit(prices, candidate->progress),
       &candidate->heuristics);
 }
 
-void PopUnit::Produce(
-    const market::proto::Container& prices,
-    const std::unordered_map<std::string, const industry::Production*>& chains,
-    const std::vector<geography::proto::Field*>& fields) {
-  std::list<ProductionCandidate> candidates;
+void PopUnit::PossibleProduction(
+    const ProductionMap& chains,
+    const std::vector<geography::proto::Field*>& fields,
+    std::list<ProductionCandidate>* candidates) {
   for (auto* field : fields) {
     if (field->has_production()) {
       const industry::Production* production =
           chains.at(field->production().name());
-      candidates.emplace_back(field, production, field->mutable_production());
+      candidates->emplace_back(field, production, field->mutable_production());
       continue;
     }
     for (const auto& chain : chains) {
@@ -168,32 +165,61 @@ void PopUnit::Produce(
       if (!geography::HasFixedCapital(*field, *production)) {
         continue;
       }
-      candidates.emplace_back(field, production, nullptr);
+      candidates->emplace_back(field, production, nullptr);
     }
   }
-  std::vector<ProductionCandidate> selected;
+}
+
+void PopUnit::SelectProduction(const market::proto::Container& prices,
+                               const ProductionMap& chains,
+                               std::list<ProductionCandidate>* candidates,
+                               std::vector<ProductionCandidate>* selected) {
   static market::proto::Container weights;
   if (!market::Contains(weights, kExpectedProfit)) {
     market::SetAmount(kExpectedProfit, 1, &weights);
-    market::SetAmount(kStandardDeviation, 1, &weights);
-    market::SetAmount(kCorrelation, 1, &weights);
+    market::SetAmount(kStandardDeviation, -1, &weights);
+    market::SetAmount(kCorrelation, -1, &weights);
     market::SetAmount(kSubsistence, 1, &weights);
   }
-  std::set<geography::proto::Field*> fields_used;
-  while (!candidates.empty()) {
-    for (auto& candidate : candidates) {
-      CalculateCandidateHeuristics(prices, chains, selected, &candidate);
+  std::unordered_set<geography::proto::Field*> fields_used;
+  while (!candidates->empty()) {
+    for (auto& candidate : *candidates) {
+      CandidateHeuristics(prices, chains, *selected, &candidate);
     }
-    candidates.sort(
+    candidates->sort(
         [](const ProductionCandidate& a, const ProductionCandidate& b) {
           return a.heuristics * weights < b.heuristics * weights;
         });
-    selected.push_back(candidates.back());
-    fields_used.insert(candidates.back().target);
-    candidates.pop_back();
-    candidates.remove_if([&fields_used](const ProductionCandidate& cand) {
+    selected->push_back(candidates->back());
+    fields_used.insert(candidates->back().target);
+    candidates->pop_back();
+    candidates->remove_if([&fields_used](const ProductionCandidate& cand) {
       return fields_used.count(cand.target);
     });
+  }
+}
+
+void PopUnit::Produce(const market::proto::Container& prices,
+                      const ProductionMap& chains,
+                      const std::vector<geography::proto::Field*>& fields) {
+  std::list<ProductionCandidate> candidates;
+  PossibleProduction(chains, fields, &candidates);
+  std::vector<ProductionCandidate> selected;
+  SelectProduction(prices, chains, &candidates, &selected);
+
+  for (auto& candidate : selected) {
+    if (candidate.progress == nullptr) {
+      *candidate.target->mutable_production() =
+          candidate.process->MakeProgress(1.0);
+      candidate.progress = candidate.target->mutable_production();
+    }
+    candidate.process->PerformStep(candidate.target->fixed_capital(), 0.0, 0,
+                                   mutable_wealth(),
+                                   candidate.target->mutable_resources(),
+                                   mutable_wealth(), candidate.progress);
+    if (candidate.process->Complete(*candidate.progress)) {
+      candidate.target->clear_production();
+    }
   }
 }
 
