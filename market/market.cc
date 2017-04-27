@@ -7,7 +7,7 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
-Market::Market(const market::proto::MarketProto &proto) {
+Market::Market(const market::proto::MarketProto& proto) {
   *mutable_prices() = proto.goods();
   *mutable_bids() = proto.bids();
   *mutable_offers() = proto.offers();
@@ -15,7 +15,7 @@ Market::Market(const market::proto::MarketProto &proto) {
   *mutable_volume() = proto.volume();
 }
 
-void Market::registerGood(const std::string &name) {
+void Market::RegisterGood(const std::string& name) {
   if (Contains(goods(), name)) {
     return;
   }
@@ -28,11 +28,11 @@ void Market::registerGood(const std::string &name) {
   (*mutable_prices()->mutable_quantities())[name] = 1;
 }
 
-void Market::findPrices() {
-  auto &volume = *mutable_volume()->mutable_quantities();
-  auto &prices = *mutable_prices()->mutable_quantities();
-  for (const auto &good : goods().quantities()) {
-    const std::string &name = good.first;
+void Market::FindPrices() {
+  auto& volume = *mutable_volume()->mutable_quantities();
+  auto& prices = *mutable_prices()->mutable_quantities();
+  for (const auto& good : goods().quantities()) {
+    const std::string& name = good.first;
     double bid = bids().quantities().at(name);
     double offer = offers().quantities().at(name);
     volume[name] = std::min(bid, offer);
@@ -45,21 +45,21 @@ void Market::findPrices() {
   }
 }
 
-void Market::registerBid(const Quantity &bid) {
+void Market::RegisterBid(const Quantity& bid) {
   if (!Contains(goods(), bid)) {
     return;
   }
   *mutable_bids() += bid;
 }
 
-void Market::registerOffer(const Quantity &offer) {
+void Market::RegisterOffer(const Quantity& offer) {
   if (!Contains(goods(), offer)) {
     return;
   }
   *mutable_offers() += offer;
 }
 
-double Market::getPrice(const std::string &name) const {
+double Market::GetPrice(const std::string& name) const {
   if (!Contains(goods(), name)) {
     return -1;
   }
@@ -67,7 +67,7 @@ double Market::getPrice(const std::string &name) const {
   return prices().quantities().at(name);
 }
 
-double Market::getVolume(const std::string &name) const {
+double Market::GetVolume(const std::string& name) const {
   if (!Contains(goods(), name)) {
     return -1;
   }

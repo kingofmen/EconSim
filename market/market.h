@@ -19,20 +19,20 @@ public:
 
   // Balances current bids and offers to find new prices. Surplus offers cause
   // the price to go down, unmatched bids cause it to go up.
-  void findPrices();
+  void FindPrices();
 
   // Register a bid or offer at the current price.
-  void registerBid(const market::proto::Quantity &bid);
-  void registerOffer(const market::proto::Quantity &offer);
+  void RegisterBid(const market::proto::Quantity& bid);
+  void RegisterOffer(const market::proto::Quantity& offer);
 
   // Register a trade good to be traded in this market.
-  void registerGood(const std::string &name);
+  void RegisterGood(const std::string& name);
 
   // Returns the price of the named good.
-  double getPrice(const std::string &name) const;
+  double GetPrice(const std::string& name) const;
 
   // Returns the amount of the named good that was traded.
-  double getVolume(const std::string &name) const;
+  double GetVolume(const std::string& name) const;
 };
 
 } // namespace market

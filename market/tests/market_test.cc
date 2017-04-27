@@ -17,37 +17,37 @@ using proto::Container;
 
 TEST(MarketTest, FindPrices) {
   Market market;
-  EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(-1, market.GetPrice(kTestGood1));
 
-  market.registerGood(kTestGood1);
-  EXPECT_DOUBLE_EQ(1, market.getPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood2));
+  market.RegisterGood(kTestGood1);
+  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(-1, market.GetPrice(kTestGood2));
 
   Quantity bid;
   bid.set_kind(kTestGood1);
   bid.set_amount(1);
-  market.registerBid(bid);
+  market.RegisterBid(bid);
 
   Quantity offer;
   offer.set_kind(kTestGood1);
   offer.set_amount(1);
-  market.registerOffer(offer);
+  market.RegisterOffer(offer);
 
-  market.findPrices();
-  EXPECT_DOUBLE_EQ(1, market.getPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(1, market.getVolume(kTestGood1));
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
 
-  market.registerBid(bid);
-  market.findPrices();
-  EXPECT_DOUBLE_EQ(1.25, market.getPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(1, market.getVolume(kTestGood1));
-  EXPECT_DOUBLE_EQ(-1, market.getPrice(kTestGood2));
+  market.RegisterBid(bid);
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(1.25, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
+  EXPECT_DOUBLE_EQ(-1, market.GetPrice(kTestGood2));
 
-  market.registerOffer(offer);
-  market.registerOffer(offer);
-  market.findPrices();
-  EXPECT_DOUBLE_EQ(1.25 * 0.75, market.getPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(2, market.getVolume(kTestGood1));
+  market.RegisterOffer(offer);
+  market.RegisterOffer(offer);
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(1.25 * 0.75, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(2, market.GetVolume(kTestGood1));
 }
 
 TEST(MarketTest, Protos) {
@@ -57,10 +57,10 @@ TEST(MarketTest, Protos) {
   Quantity bid;
   bid.set_kind(kTestGood1);
   bid.set_amount(1);
-  market.registerBid(bid);
+  market.RegisterBid(bid);
 
   bid.set_kind(kTestGood2);
-  market.registerBid(bid);
+  market.RegisterBid(bid);
 
   proto = market;
   EXPECT_EQ(1, proto.goods().quantities().size());
