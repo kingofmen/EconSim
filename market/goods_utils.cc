@@ -6,11 +6,16 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
-void Clear(Container* con) {
-  con->clear_quantities();
+void Add(const std::string& name, const double amount, Container* con) {
+  Quantity qua;
+  qua.set_kind(name);
+  qua.set_amount(amount);
+  *con += qua;
 }
 
-void CleanContainer(market::proto::Container* con, double tolerance) {
+void Clear(Container* con) { con->clear_quantities(); }
+
+void CleanContainer(Container* con, double tolerance) {
   std::vector<std::string> to_erase;
   for (const auto& quantity : con->quantities()) {
     if (quantity.second >= tolerance) {
@@ -42,14 +47,25 @@ double GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
-void SetAmount(const std::string name, const double amount,
-               market::proto::Container* con) {
+void Move(const std::string& name, const double amount, Container* from,
+          Container* to) {
+  Quantity transfer;
+  transfer.set_kind(name);
+  transfer.set_amount(amount);
+  Move(transfer, from, to);
+}
+
+void Move(const Quantity& qua, Container* from, Container* to) {
+  *from -= qua;
+  *to += qua;
+}
+
+void SetAmount(const std::string& name, const double amount, Container* con) {
   auto& quantities = *con->mutable_quantities();
   quantities[name] = amount;
 }
 
-void SetAmount(const market::proto::Quantity& qua,
-                 market::proto::Container* con) {
+void SetAmount(const Quantity& qua, Container* con) {
   SetAmount(qua.kind(), qua.amount(), con);
 }
 
@@ -79,12 +95,12 @@ Container& operator<<(Container& con, std::string name) {
   return con;
 }
 
-Quantity &operator+=(Quantity &lhs, const double rhs) {
+Quantity& operator+=(Quantity& lhs, const double rhs) {
   lhs.set_amount(lhs.amount() + rhs);
   return lhs;
 }
 
-Quantity &operator*=(Quantity &lhs, const double rhs) {
+Quantity& operator*=(Quantity& lhs, const double rhs) {
   lhs.set_amount(lhs.amount() * rhs);
   return lhs;
 }
@@ -94,27 +110,26 @@ Quantity operator*(Quantity lhs, const double rhs) {
   return lhs;
 }
 
-Quantity &operator-=(Quantity &lhs, const double rhs) {
+Quantity& operator-=(Quantity& lhs, const double rhs) {
   lhs.set_amount(lhs.amount() - rhs);
   return lhs;
 }
 
-Container &operator+=(Container &lhs, const Container &rhs) {
-  for (const auto &quantity : rhs.quantities()) {
+Container& operator+=(Container& lhs, const Container& rhs) {
+  for (const auto& quantity : rhs.quantities()) {
     (*lhs.mutable_quantities())[quantity.first] += quantity.second;
   }
   return lhs;
 }
 
-Container &operator*=(Container &lhs, const double rhs) {
-  for (auto &quantity : *lhs.mutable_quantities()) {
+Container& operator*=(Container& lhs, const double rhs) {
+  for (auto& quantity : *lhs.mutable_quantities()) {
     quantity.second *= rhs;
   }
   return lhs;
 }
 
-market::proto::Container& operator*=(market::proto::Container& lhs,
-                                     const market::proto::Container& rhs) {
+Container& operator*=(Container& lhs, const Container& rhs) {
   auto& quantities = *lhs.mutable_quantities();
   for (auto& quantity : quantities) {
     quantity.second *= GetAmount(rhs, quantity.first);
@@ -122,21 +137,21 @@ market::proto::Container& operator*=(market::proto::Container& lhs,
   return lhs;
 }
 
-Container &operator+=(Container &lhs, const Quantity &rhs) {
-  auto &quantities = *lhs.mutable_quantities();
+Container& operator+=(Container& lhs, const Quantity& rhs) {
+  auto& quantities = *lhs.mutable_quantities();
   quantities[rhs.kind()] += rhs.amount();
   return lhs;
 }
 
-Container &operator-=(Container &lhs, const Container &rhs) {
-  for (const auto &quantity : rhs.quantities()) {
+Container& operator-=(Container& lhs, const Container& rhs) {
+  for (const auto& quantity : rhs.quantities()) {
     (*lhs.mutable_quantities())[quantity.first] -= quantity.second;
   }
   return lhs;
 }
 
-Container &operator-=(Container &lhs, const Quantity &rhs) {
-  auto &quantities = *lhs.mutable_quantities();
+Container& operator-=(Container& lhs, const Quantity& rhs) {
+  auto& quantities = *lhs.mutable_quantities();
   if (!Contains(lhs, rhs)) {
     lhs << rhs.kind();
   }
@@ -144,7 +159,7 @@ Container &operator-=(Container &lhs, const Quantity &rhs) {
   return lhs;
 }
 
-Container operator+(Container lhs, const Container &rhs) {
+Container operator+(Container lhs, const Container& rhs) {
   lhs += rhs;
   return lhs;
 }
@@ -154,8 +169,7 @@ Container operator*(Container lhs, const double rhs) {
   return lhs;
 }
 
-double operator*(const market::proto::Container &lhs,
-                 const market::proto::Container &rhs) {
+double operator*(const Container& lhs, const Container& rhs) {
   double ret = 0;
   for (const auto& quantity : rhs.quantities()) {
     ret += quantity.second * GetAmount(lhs, quantity.first);
@@ -163,12 +177,12 @@ double operator*(const market::proto::Container &lhs,
   return ret;
 }
 
-Container operator-(Container lhs, const Container &rhs) {
+Container operator-(Container lhs, const Container& rhs) {
   lhs -= rhs;
   return lhs;
 }
 
-bool operator<(const Container &lhs, const Container &rhs) {
+bool operator<(const Container& lhs, const Container& rhs) {
   // Always safe to subtract zero.
   if (lhs.quantities().empty()) {
     return true;
@@ -177,7 +191,7 @@ bool operator<(const Container &lhs, const Container &rhs) {
   if (rhs.quantities().empty()) {
     return false;
   }
-  for (const auto &quantity : lhs.quantities()) {
+  for (const auto& quantity : lhs.quantities()) {
     if (GetAmount(rhs, quantity.first) < quantity.second) {
       return false;
     }
@@ -185,23 +199,21 @@ bool operator<(const Container &lhs, const Container &rhs) {
   return true;
 }
 
-bool operator>(const Container &lhs, const Container &rhs) {
-  return rhs < lhs;
-}
+bool operator>(const Container& lhs, const Container& rhs) { return rhs < lhs; }
 
-bool operator<(const Container &lhs, const Quantity &rhs) {
+bool operator<(const Container& lhs, const Quantity& rhs) {
   return GetAmount(lhs, rhs) < rhs.amount();
 }
 
-bool operator<=(const Container &lhs, const Quantity &rhs) {
+bool operator<=(const Container& lhs, const Quantity& rhs) {
   return GetAmount(lhs, rhs) <= rhs.amount();
 }
 
-bool operator>(const Container &lhs, const Quantity &rhs) {
+bool operator>(const Container& lhs, const Quantity& rhs) {
   return GetAmount(lhs, rhs) > rhs.amount();
 }
 
-bool operator>=(const Container &lhs, const Quantity &rhs) {
+bool operator>=(const Container& lhs, const Quantity& rhs) {
   return GetAmount(lhs, rhs) >= rhs.amount();
 }
 

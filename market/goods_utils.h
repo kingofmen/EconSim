@@ -6,6 +6,10 @@
 
 namespace market {
 
+// Adds amount of name to con.
+void Add(const std::string& name, const double amount,
+         market::proto::Container* con);
+
 // Sets all amounts in the container to 0.
 void Clear(market::proto::Container* con);
 
@@ -25,8 +29,14 @@ double GetAmount(const market::proto::Container& con, const std::string name);
 double GetAmount(const market::proto::Container& con,
                  const market::proto::Quantity& qua);
 
+// Moves amount of name from from to to.
+void Move(const std::string& name, const double amount,
+          market::proto::Container* from, market::proto::Container* to);
+void Move(const market::proto::Quantity& qua, market::proto::Container* from,
+          market::proto::Container* to);
+
 // Sets the amount of name in con.
-void SetAmount(const std::string name, const double amount,
+void SetAmount(const std::string& name, const double amount,
                market::proto::Container* con);
 void SetAmount(const market::proto::Quantity& qua,
                market::proto::Container* con);

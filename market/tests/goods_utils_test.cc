@@ -42,6 +42,14 @@ TEST(GoodsUtilsTest, HelperFunctions) {
   quantity.set_amount(3);
   SetAmount(quantity, &container);
   EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 3);
+
+  Add(kTestGood1, 1, &container);
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 4);
+
+  Container container2;
+  Move(kTestGood1, 1, &container, &container2);
+  EXPECT_DOUBLE_EQ(GetAmount(container, kTestGood1), 3);
+  EXPECT_DOUBLE_EQ(GetAmount(container2, kTestGood1), 1);
 }
 
 TEST(GoodsUtilsTest, StreamOperators) {
