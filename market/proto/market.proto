@@ -6,12 +6,14 @@ import "market/proto/goods.proto";
 message MarketProto {
   // Current prices.
   Container prices = 1;
-  // Bid amounts at current prices.
-  Container bids = 2;
-  // Offers at current prices.
-  Container offers = 3;
   // Goods that this market trades in.
-  Container goods = 4;
+  Container goods = 2;
   // Amount of each good traded.
-  Container volume = 5;
+  Container volume = 3;
+  // Name for generating tokens. Must be unique.
+  string name = 4;
+  // The good that is considered "real money".
+  string legal_tender = 5;
+  // Maximum amount of short-term credit.
+  double credit_limit = 6;
 }
