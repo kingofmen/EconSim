@@ -21,28 +21,24 @@ void Market::FindPrices() {
   for (const auto& good : goods().quantities()) {
     const std::string& name = good.first;
     double matched = GetAmount(volume(), name);
-    if (matched < 0.001) {
-      continue;
-    }
     double bid = 0;
     for (const auto& buy : buy_offers_[name]) {
-      bid += buy.good.amount();
+      // Effectual demand, ie demand backed up by money or credit.
+      bid += std::min(buy.good.amount(),
+                      GetAmount(*buy.target, legal_tender()) +
+                          MaxCredit(*buy.target));
     }
     double offer = 0;
     for (const auto& sell : sell_offers_[name]) {
-      offer += sell.good.amount();
-    }
-    // Ignore bids and offers that should have been matched but didn't, on the
-    // grounds that no money was put where these offers were.
-    if (offer > bid) {
-      offer -= bid;
-      bid = 0;
-    } else {
-      bid -= offer;
-      offer = 0;
+      // Use the effectual supply, that is, goods offered for sale that actually
+      // exist.
+      offer += std::min(sell.good.amount(), GetAmount(*sell.target, name));
     }
     offer += matched;
     bid += matched;
+    if (std::min(offer, bid) < 0.001) {
+      continue;
+    }
     double ratio = bid / std::max(offer, 0.01);
     ratio = std::min(ratio, 1.25);
     ratio = std::max(ratio, 0.75);
