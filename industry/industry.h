@@ -20,6 +20,10 @@ public:
   // its consumables in price, which may not be null.
   int CheapestVariant(const market::proto::Container& prices, const int step,
                       double* price) const;
+  int CheapestVariant(const market::proto::Container& prices,
+                      const proto::Progress& progress, double* price) const {
+    return CheapestVariant(prices, progress.step(), price);
+  }
 
   // Returns the current output multiplier for this progress.
   double Efficiency(const proto::Progress& progress) const;
