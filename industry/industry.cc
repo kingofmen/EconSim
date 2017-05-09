@@ -46,6 +46,24 @@ double Production::Efficiency(const proto::Progress& progress) const {
   return effect;
 }
 
+
+int Production::CheapestVariant(const market::proto::Container& prices,
+                                const int step,
+                                double* price) const {
+  double least_expense = std::numeric_limits<double>::max();
+  int cheapest_variant = 0;
+  for (int variant = 0; variant < steps(step).variants_size(); ++variant) {
+    double variant_expense =
+        steps(step).variants(variant).consumables() * prices;
+    if (variant_expense < least_expense) {
+      cheapest_variant = variant;
+      least_expense = variant_expense;
+    }
+  }
+  *price = least_expense;
+  return cheapest_variant;
+}
+
 double Production::ExpectedProfit(const market::proto::Container& prices,
                                   const proto::Progress* progress) const {
   double expense = 0;
@@ -58,14 +76,9 @@ double Production::ExpectedProfit(const market::proto::Container& prices,
     scaling = progress->scaling();
     efficiency = Efficiency(*progress);
   }
+  double least_expense = 0;
   for (; step < steps_size(); ++step) {
-    double least_expense = std::numeric_limits<double>::max();
-    for (const auto& variant : steps(step).variants()) {
-      double variant_expense = variant.consumables() * prices;
-      if (variant_expense < least_expense) {
-        least_expense = variant_expense;
-      }
-    }
+    CheapestVariant(prices, step, &least_expense);
     expense += least_expense;
   }
   expense *= scaling;

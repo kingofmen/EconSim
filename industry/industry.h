@@ -16,6 +16,11 @@ public:
   // Returns true if this progress has completed all steps.
   bool Complete(const proto::Progress& progress) const;
 
+  // Returns the index of the cheapest variant of step, and stores the cost of
+  // its consumables in price, which may not be null.
+  int CheapestVariant(const market::proto::Container& prices, const int step,
+                      double* price) const;
+
   // Returns the current output multiplier for this progress.
   double Efficiency(const proto::Progress& progress) const;
 
