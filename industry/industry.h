@@ -21,7 +21,7 @@ public:
 
   // Calculates the expected profit of completing the process, given the prices.
   // Progress may be null.
-  double ExpectedProfit(const market::proto::Container prices,
+  double ExpectedProfit(const market::proto::Container& prices,
                         const proto::Progress* progress) const;
 
   // Returns the input multiplier for the given amount of institutional capital.
