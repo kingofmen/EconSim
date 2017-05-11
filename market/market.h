@@ -18,6 +18,9 @@ public:
   Market(const market::proto::MarketProto& proto) : MarketProto(proto) {}
   ~Market() = default;
 
+  // Returns the amount of name being offered.
+  double AvailableToBuy(const std::string& name) const;
+
   // Balances current bids and offers to find new prices. Surplus offers cause
   // the price to go down, unmatched bids cause it to go up. Also clears
   // existing buy and sell offers since the prices change.

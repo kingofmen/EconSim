@@ -51,11 +51,14 @@ TEST(MarketTest, FindPrices) {
   EXPECT_DOUBLE_EQ(0, market.GetVolume(kTestGood1));
 
   market.RegisterBid(bid, &bidder);
+  EXPECT_DOUBLE_EQ(0, market.AvailableToBuy(kTestGood1));
   market.RegisterOffer(offer, &seller);
+  EXPECT_DOUBLE_EQ(1, market.AvailableToBuy(kTestGood1));
   Add(kTestGood1, 1, &seller);
   Add(kSilver, 1, &bidder);
   market.TryToBuy(bid, &bidder);
   EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
+  EXPECT_DOUBLE_EQ(0, market.AvailableToBuy(kTestGood1));
   market.FindPrices();
   // Bids match offers and are effectual. No change.
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));

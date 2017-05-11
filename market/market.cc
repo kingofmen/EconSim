@@ -7,6 +7,18 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
+double Market::AvailableToBuy(const std::string& name) const {
+  const auto pos = sell_offers_.find(name);
+  if (pos == sell_offers_.end()) {
+    return 0;
+  }
+  double ret = 0;
+  for (const auto& offer : pos->second) {
+    ret += offer.good.amount();
+  }
+  return ret;
+}
+
 void Market::RegisterGood(const std::string& name) {
   if (Contains(goods(), name)) {
     return;
