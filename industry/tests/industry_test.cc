@@ -278,13 +278,14 @@ TEST_F(IndustryTest, ExpectedProfit) {
   wool_ += 1;
   cloth_ += 10;
   prices << wool_ << cloth_;
-  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, nullptr), 8);
+  market::proto::Container capital;
+  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, capital, nullptr), 8);
   progress_ = production_->MakeProgress(1.0);
   wool_ += 1;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0.0, 0, &inputs_, &raw_materials_, &outputs_, &progress_);
   EXPECT_EQ(progress_.step(), 1);
-  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, &progress_), 9);
+  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, capital, &progress_), 9);
 }
 
 } // namespace industry

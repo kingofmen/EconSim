@@ -18,19 +18,22 @@ public:
 
   // Returns the index of the cheapest variant of step, and stores the cost of
   // its consumables in price, which may not be null.
-  int CheapestVariant(const market::proto::Container& prices, const int step,
+  int CheapestVariant(const market::proto::Container& prices,
+                      const market::proto::Container& capital, const int step,
                       double* price) const;
   int CheapestVariant(const market::proto::Container& prices,
+                      const market::proto::Container& capital,
                       const proto::Progress& progress, double* price) const {
-    return CheapestVariant(prices, progress.step(), price);
+    return CheapestVariant(prices, capital, progress.step(), price);
   }
 
   // Returns the current output multiplier for this progress.
   double Efficiency(const proto::Progress& progress) const;
 
-  // Calculates the expected profit of completing the process, given the prices.
-  // Progress may be null.
+  // Calculates the expected profit of completing the process, given the prices
+  // and capital. Progress may be null.
   double ExpectedProfit(const market::proto::Container& prices,
+                        const market::proto::Container& capital,
                         const proto::Progress* progress) const;
 
   // Returns the input multiplier for the given amount of institutional capital.
