@@ -52,6 +52,11 @@ public:
                    market::proto::Container *outputs,
                    proto::Progress* progress) const;
 
+  // Returns the consumables needed for the next step in the process assuming
+  // variant is used.
+  market::proto::Container RequiredConsumables(const proto::Progress& progress,
+                                               int variant) const;
+
   // Skips the current step, at a price in efficiency.
   void Skip(proto::Progress* progress) const;
 };

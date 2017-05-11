@@ -138,6 +138,22 @@ void Production::PerformStep(const Container& fixed_capital,
   }
 }
 
+market::proto::Container
+Production::RequiredConsumables(const proto::Progress& progress,
+                                int variant) const {
+  market::proto::Container consumables;
+  if (name() != progress.name()) {
+    return consumables;
+  }
+  if (Complete(progress)) {
+    return consumables;
+  }
+  const auto& input = steps(progress.step()).variants(variant);
+  consumables += input.consumables();
+  consumables += input.movable_capital();
+  return consumables;
+}
+
 void Production::Skip(proto::Progress* progress) const {
   if (Complete(*progress)) {
     return;
