@@ -74,6 +74,11 @@ double Market::MaxCredit(const Container& borrower) const {
   return credit_limit() - GetAmount(borrower, debt_token());
 }
 
+double Market::MaxMoney(const Container& buyer) const {
+  return GetAmount(buyer, credit_token()) + GetAmount(buyer, legal_tender()) +
+         MaxCredit(buyer);
+}
+
 void Market::RegisterBid(const Quantity& bid, Container* buyer) {
   if (!Contains(goods(), bid)) {
     return;
@@ -208,9 +213,7 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
     auto& buyer = buyers.back();
     Quantity transfer = buyer.good;
     transfer.set_amount(std::min(transfer.amount(), offer.amount() - amount_found));
-    double max_money = GetAmount(*buyer.target, credit_token()) +
-                       GetAmount(*buyer.target, legal_tender()) +
-                       MaxCredit(*buyer.target);
+    double max_money = MaxMoney(*buyer.target);
     transfer.set_amount(std::min(transfer.amount(), max_money / price));
 
     Move(transfer, source, buyer.target);

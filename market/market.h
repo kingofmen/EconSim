@@ -32,6 +32,9 @@ public:
   // Returns the maximum amount the supplicant can borrow.
   double MaxCredit(const market::proto::Container& borrower) const;
 
+  // Returns the maximum the buyer can spend, including credit.
+  double MaxMoney(const market::proto::Container& buyer) const;
+
   // Register a bid or offer at the current price. This does not cause any goods
   // to change hands, it only registers the existence of a buyer or seller.
   void RegisterBid(const market::proto::Quantity& bid,
