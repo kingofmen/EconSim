@@ -197,4 +197,33 @@ TEST(MarketTest, TransferMoney) {
   EXPECT_DOUBLE_EQ(GetAmount(poor, kDebt), 0);
 }
 
+TEST(MarketTest, Available) {
+  Market market;
+  market.RegisterGood(kTestGood1);
+  market.RegisterGood(kTestGood2);
+  Container seller;
+  SetAmount(kTestGood1, 1, &seller);
+  Quantity offer;
+  offer.set_kind(kTestGood1);
+  offer.set_amount(1);
+  market.RegisterOffer(offer, &seller);
+
+  EXPECT_DOUBLE_EQ(1, market.AvailableToBuy(kTestGood1));
+  Container basket;
+  SetAmount(kTestGood1, 1, &basket);
+  EXPECT_TRUE(market.AvailableToBuy(basket));
+  SetAmount(kTestGood1, 2, &basket);
+  EXPECT_FALSE(market.AvailableToBuy(basket));
+
+  market.RegisterOffer(offer, &seller);
+  EXPECT_TRUE(market.AvailableToBuy(basket));
+
+  SetAmount(kTestGood2, 1, &basket);
+  EXPECT_FALSE(market.AvailableToBuy(basket));
+
+  offer.set_kind(kTestGood2);
+  market.RegisterOffer(offer, &seller);
+  EXPECT_TRUE(market.AvailableToBuy(basket));
+}
+
 } // namespace market

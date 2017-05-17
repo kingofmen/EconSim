@@ -21,6 +21,9 @@ public:
   // Returns the amount of name being offered.
   double AvailableToBuy(const std::string& name) const;
 
+  // Returns true if the given goods are available.
+  bool AvailableToBuy(const market::proto::Container& basket) const;
+
   // Balances current bids and offers to find new prices. Surplus offers cause
   // the price to go down, unmatched bids cause it to go up. Also clears
   // existing buy and sell offers since the prices change.

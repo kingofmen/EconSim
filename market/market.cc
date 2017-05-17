@@ -19,6 +19,15 @@ double Market::AvailableToBuy(const std::string& name) const {
   return ret;
 }
 
+bool Market::AvailableToBuy(const Container& basket) const {
+  for (const auto& good : basket.quantities()) {
+    if (AvailableToBuy(good.first) < good.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void Market::RegisterGood(const std::string& name) {
   if (Contains(goods(), name)) {
     return;
