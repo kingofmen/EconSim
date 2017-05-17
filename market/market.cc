@@ -165,8 +165,11 @@ void Market::TransferMoney(double amount, Container* from,
 }
 
 double Market::TryToBuy(const Quantity& bid, Container* recipient) {
+  return TryToBuy(bid.kind(), bid.amount(), recipient);
+}
+
+double Market::TryToBuy(const std::string name, const double amount, Container* recipient) {
   double amount_found = 0;
-  const std::string name = bid.kind();
   auto& sellers = sell_offers_[name];
   double price = GetPrice(name);
   double max_money = GetAmount(*recipient, credit_token()) +
@@ -176,7 +179,7 @@ double Market::TryToBuy(const Quantity& bid, Container* recipient) {
     auto& seller = sellers.back();
     Quantity transfer = seller.good;
     transfer.set_amount(
-        std::min(seller.good.amount(), bid.amount() - amount_found));
+        std::min(seller.good.amount(), amount - amount_found));
     transfer.set_amount(std::min(transfer.amount(), max_money / price));
 
     seller.good -= transfer.amount();
@@ -189,7 +192,7 @@ double Market::TryToBuy(const Quantity& bid, Container* recipient) {
     max_money -= money_amount;
 
     amount_found += transfer.amount();
-    if (amount_found >= bid.amount() || max_money < 1e-6) {
+    if (amount_found >= amount || max_money < 1e-6) {
       break;
     }
   }

@@ -53,6 +53,8 @@ public:
   // the amount bought or sold.
   double TryToBuy(const market::proto::Quantity& bid,
                   market::proto::Container* recipient);
+  double TryToBuy(const std::string name, const double amount,
+                  market::proto::Container* recipient);
   double TryToSell(const market::proto::Quantity& offer,
                    market::proto::Container* source);
 
