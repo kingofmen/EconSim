@@ -25,12 +25,13 @@ class IndustryTest : public testing::Test {
     production_->set_name("spinning_wool");
   }
 
-  void AddWoolStep() {
+  proto::ProductionStep* AddWoolStep() {
     auto* step = production_->add_steps();
     auto* input = step->add_variants();
     auto& consumables = *input->mutable_consumables();
     wool_ += 1;
     consumables << wool_;
+    return step;
   }
 
   void AddClothOutput() {
@@ -286,6 +287,34 @@ TEST_F(IndustryTest, ExpectedProfit) {
   production_->PerformStep(capital_, 0.0, 0, &inputs_, &raw_materials_, &outputs_, &progress_);
   EXPECT_EQ(progress_.step(), 1);
   EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, capital, &progress_), 9);
+}
+
+TEST_F(IndustryTest, CheapestVariant) {
+  auto* step = AddWoolStep();
+
+  auto* variant = step->add_variants();
+  auto& consumables = *variant->mutable_consumables();
+  wool_ += 0.5;
+  consumables << wool_;
+  auto& fixed_capital = *variant->mutable_fixed_capital();
+  cloth_ += 1;
+  fixed_capital += cloth_;
+
+  // With no capital, the resource-intensive step is cheapest.
+  market::proto::Container prices;
+  wool_ += 1;
+  prices += wool_;
+  prices += cloth_;
+
+  market::proto::Container capital;
+  double price = 0;
+  EXPECT_EQ(0, production_->CheapestVariant(prices, capital, 0, &price));
+  EXPECT_DOUBLE_EQ(price, 1);
+
+  // Add some capital and you can do it the cheap way.
+  capital += cloth_;
+  EXPECT_EQ(1, production_->CheapestVariant(prices, capital, 0, &price));
+  EXPECT_DOUBLE_EQ(price, 0.5);
 }
 
 } // namespace industry
