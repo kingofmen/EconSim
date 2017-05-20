@@ -4,6 +4,7 @@
 
 #include "industry/proto/industry.pb.h"
 #include "market/proto/goods.pb.h"
+#include "market/market.h"
 
 namespace industry {
 
@@ -39,6 +40,12 @@ public:
   // Returns the input multiplier for the given amount of institutional capital.
   double ExperienceEffect(const double institutional_capital) const;
 
+  // Returns true if the goods required for variant, given that existing are
+  // available, can be bought in market.
+  bool GoodsForVariantAvailable(const market::Market& market,
+                                const market::proto::Container& existing,
+                                const int step, const int variant_index) const;
+
   // Initialises a Progress proto with this production chain.
   proto::Progress MakeProgress(double scale) const;
 
@@ -55,7 +62,9 @@ public:
   // Returns the consumables needed for the next step in the process assuming
   // variant is used.
   market::proto::Container RequiredConsumables(const proto::Progress& progress,
-                                               int variant) const;
+                                               const int variant) const;
+  market::proto::Container RequiredConsumables(const int step,
+                                               const int variant) const;
 
   // Skips the current step, at a price in efficiency.
   void Skip(proto::Progress* progress) const;

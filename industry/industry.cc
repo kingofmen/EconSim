@@ -96,6 +96,29 @@ double Production::ExperienceEffect(const double institutional_capital) const {
   return 1.0 - institutional_capital * experience_effect();
 }
 
+bool Production::GoodsForVariantAvailable(
+    const market::Market& market, const market::proto::Container& existing,
+    const int step, const int variant_index) const {
+  if (step >= steps_size()) {
+    return false;
+  }
+  if (variant_index >= steps(step).variants_size()) {
+    return false;
+  }
+  const auto needed = RequiredConsumables(step, variant_index);
+  if (existing > needed) {
+    return true;
+  }
+  for (const auto& good : needed.quantities()) {
+    double amount = good.second;
+    amount -= market::GetAmount(existing, good.first);
+    if (market.AvailableToBuy(good.first) < amount) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void Production::PerformStep(const Container& fixed_capital,
                              const double institutional_capital,
                              const int variant_index, Container* inputs,
@@ -139,19 +162,24 @@ void Production::PerformStep(const Container& fixed_capital,
 }
 
 market::proto::Container
-Production::RequiredConsumables(const proto::Progress& progress,
-                                int variant) const {
+Production::RequiredConsumables(const int step, const int variant) const {
   market::proto::Container consumables;
-  if (name() != progress.name()) {
-    return consumables;
-  }
-  if (Complete(progress)) {
-    return consumables;
-  }
-  const auto& input = steps(progress.step()).variants(variant);
+  const auto& input = steps(step).variants(variant);
   consumables += input.consumables();
   consumables += input.movable_capital();
   return consumables;
+}
+
+market::proto::Container
+Production::RequiredConsumables(const proto::Progress& progress,
+                                const int variant) const {
+  if (name() != progress.name()) {
+    return market::proto::Container();
+  }
+  if (Complete(progress)) {
+    return market::proto::Container();
+  }
+  return RequiredConsumables(progress.step(), variant);
 }
 
 void Production::Skip(proto::Progress* progress) const {

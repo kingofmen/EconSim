@@ -11,6 +11,7 @@ namespace industry {
 namespace {
 constexpr char kTestGood1[] = "TestGood1";
 constexpr char kTestGood2[] = "TestGood2";
+constexpr char kTestGood3[] = "TestGood3";
 }
 
 using market::proto::Container;
@@ -21,6 +22,7 @@ class IndustryTest : public testing::Test {
   void SetUp() override {
     wool_.set_kind(kTestGood1);
     cloth_.set_kind(kTestGood2);
+    mules_.set_kind(kTestGood3);
     production_ = std::unique_ptr<Production>(new Production());
     production_->set_name("spinning_wool");
   }
@@ -32,6 +34,15 @@ class IndustryTest : public testing::Test {
     wool_ += 1;
     consumables << wool_;
     return step;
+  }
+  void AddCapitalVariant(proto::ProductionStep* step) {
+    auto* variant = step->add_variants();
+    auto& consumables = *variant->mutable_consumables();
+    wool_ += 0.5;
+    consumables << wool_;
+    auto& fixed_capital = *variant->mutable_fixed_capital();
+    mules_ += 1;
+    fixed_capital << mules_;
   }
 
   void AddClothOutput() {
@@ -48,6 +59,7 @@ class IndustryTest : public testing::Test {
   Container raw_materials_;
   Quantity wool_;
   Quantity cloth_;
+  Quantity mules_;
 };
 
 TEST_F(IndustryTest, EmptyIsComplete) {
@@ -291,20 +303,14 @@ TEST_F(IndustryTest, ExpectedProfit) {
 
 TEST_F(IndustryTest, CheapestVariant) {
   auto* step = AddWoolStep();
-
-  auto* variant = step->add_variants();
-  auto& consumables = *variant->mutable_consumables();
-  wool_ += 0.5;
-  consumables << wool_;
-  auto& fixed_capital = *variant->mutable_fixed_capital();
-  cloth_ += 1;
-  fixed_capital += cloth_;
+  AddCapitalVariant(step);
 
   // With no capital, the resource-intensive step is cheapest.
   market::proto::Container prices;
   wool_ += 1;
+  mules_ += 1;
   prices += wool_;
-  prices += cloth_;
+  prices += mules_;
 
   market::proto::Container capital;
   double price = 0;
@@ -312,9 +318,28 @@ TEST_F(IndustryTest, CheapestVariant) {
   EXPECT_DOUBLE_EQ(price, 1);
 
   // Add some capital and you can do it the cheap way.
-  capital += cloth_;
+  capital += mules_;
   EXPECT_EQ(1, production_->CheapestVariant(prices, capital, 0, &price));
   EXPECT_DOUBLE_EQ(price, 0.5);
+}
+
+TEST_F(IndustryTest, GoodsAvailable) {
+  auto* step = AddWoolStep();
+  AddCapitalVariant(step);
+  market::Market market;
+  wool_ += 0.75;
+  market::proto::Container seller;
+  market::SetAmount(wool_, &seller);
+  market.RegisterGood(wool_.kind());
+  market.RegisterOffer(wool_, &seller);
+
+  market::proto::Container spinner;
+  EXPECT_FALSE(production_->GoodsForVariantAvailable(market, spinner, 0, 0));
+  EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 1));
+
+  market.RegisterOffer(wool_, &seller);
+  EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 0));
+  EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 1));
 }
 
 } // namespace industry
