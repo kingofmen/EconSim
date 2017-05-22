@@ -57,6 +57,7 @@ class IndustryTest : public testing::Test {
   Container outputs_;
   Container capital_;
   Container raw_materials_;
+  Container existing_;
   Quantity wool_;
   Quantity cloth_;
   Quantity mules_;
@@ -287,18 +288,28 @@ TEST_F(IndustryTest, ExpectedProfit) {
   AddWoolStep();
   AddClothOutput();
 
-  market::proto::Container prices;
+  market::Market market;
   wool_ += 1;
   cloth_ += 10;
-  prices << wool_ << cloth_;
+  market.RegisterGood(wool_.kind());
+  market.RegisterGood(cloth_.kind());
+  market::SetAmount(wool_, market.mutable_prices());
+  market::SetAmount(cloth_, market.mutable_prices());
+  market::proto::Container seller;
+  market::SetAmount(wool_, &seller);
+  market.RegisterOffer(wool_, &seller);
+
   market::proto::Container capital;
-  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, capital, nullptr), 8);
+  EXPECT_DOUBLE_EQ(
+      production_->ExpectedProfit(market, existing_, capital, nullptr), 8);
   progress_ = production_->MakeProgress(1.0);
   wool_ += 1;
   inputs_ << wool_;
-  production_->PerformStep(capital_, 0.0, 0, &inputs_, &raw_materials_, &outputs_, &progress_);
+  production_->PerformStep(capital_, 0.0, 0, &inputs_, &raw_materials_,
+                           &outputs_, &progress_);
   EXPECT_EQ(progress_.step(), 1);
-  EXPECT_DOUBLE_EQ(production_->ExpectedProfit(prices, capital, &progress_), 9);
+  EXPECT_DOUBLE_EQ(
+      production_->ExpectedProfit(market, existing_, capital, &progress_), 9);
 }
 
 TEST_F(IndustryTest, CheapestVariant) {
@@ -306,20 +317,26 @@ TEST_F(IndustryTest, CheapestVariant) {
   AddCapitalVariant(step);
 
   // With no capital, the resource-intensive step is cheapest.
-  market::proto::Container prices;
+  market::Market market;
+  market.RegisterGood(wool_.kind());
+  market.RegisterGood(mules_.kind());
   wool_ += 1;
   mules_ += 1;
-  prices += wool_;
-  prices += mules_;
+  market::SetAmount(wool_, market.mutable_prices());
+  market::SetAmount(mules_, market.mutable_prices());
+
+  market::proto::Container seller;
+  market::SetAmount(wool_, &seller);
+  market.RegisterOffer(wool_, &seller);
 
   market::proto::Container capital;
   double price = 0;
-  EXPECT_EQ(0, production_->CheapestVariant(prices, capital, 0, &price));
+  EXPECT_EQ(0, production_->CheapestVariant(market, existing_, capital, 0, &price));
   EXPECT_DOUBLE_EQ(price, 1);
 
   // Add some capital and you can do it the cheap way.
   capital += mules_;
-  EXPECT_EQ(1, production_->CheapestVariant(prices, capital, 0, &price));
+  EXPECT_EQ(1, production_->CheapestVariant(market, existing_, capital, 0, &price));
   EXPECT_DOUBLE_EQ(price, 0.5);
 }
 

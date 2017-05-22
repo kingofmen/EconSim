@@ -47,18 +47,33 @@ double Production::Efficiency(const proto::Progress& progress) const {
 }
 
 
-int Production::CheapestVariant(const market::proto::Container& prices,
+int Production::CheapestVariant(const market::Market& market,
+                                const market::proto::Container& existing,
                                 const market::proto::Container& capital,
                                 const int step,
                                 double* price) const {
   double least_expense = std::numeric_limits<double>::max();
   int cheapest_variant = -1;
   for (int index = 0; index < steps(step).variants_size(); ++index) {
+    auto consumables = RequiredConsumables(step, index);
+    bool allAvailable = true;
+    if (!(existing > consumables)) {
+      for (const auto& consumable : consumables.quantities()) {
+        if (market.AvailableToBuy(consumable.first) <
+            consumable.second - market::GetAmount(existing, consumable.first)) {
+          allAvailable = false;
+          break;
+        }
+      }
+    }
+    if (!allAvailable) {
+      continue;
+    }
     const auto& variant = steps(step).variants(index);
     if (!(capital > variant.fixed_capital())) {
       continue;
     }
-    double variant_expense = variant.consumables() * prices;
+    double variant_expense = consumables * market.prices();
     if (variant_expense < least_expense) {
       cheapest_variant = index;
       least_expense = variant_expense;
@@ -68,7 +83,8 @@ int Production::CheapestVariant(const market::proto::Container& prices,
   return cheapest_variant;
 }
 
-double Production::ExpectedProfit(const market::proto::Container& prices,
+double Production::ExpectedProfit(const market::Market& market,
+                                  const market::proto::Container& existing,
                                   const market::proto::Container& capital,
                                   const proto::Progress* progress) const {
   double expense = 0;
@@ -83,12 +99,15 @@ double Production::ExpectedProfit(const market::proto::Container& prices,
   }
   double least_expense = 0;
   for (; step < steps_size(); ++step) {
-    CheapestVariant(prices, capital, step, &least_expense);
+    int index = CheapestVariant(market, existing, capital, step, &least_expense);
+    if (index == -1) {
+      return -1;
+    }
     expense += least_expense;
   }
   expense *= scaling;
   expense *= experience;
-  double revenue = outputs() * prices * efficiency;
+  double revenue = outputs() * market.prices() * efficiency;
   return revenue - expense;
 }
 
