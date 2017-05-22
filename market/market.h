@@ -18,6 +18,12 @@ public:
   Market(const market::proto::MarketProto& proto) : MarketProto(proto) {}
   ~Market() = default;
 
+  // Returns the amount of name immediately available.
+  double AvailableImmediately(const std::string& name) const;
+
+  // True if the basket can be bought right away.
+  bool AvailableImmediately(const market::proto::Container& basket) const;
+
   // Returns the amount of name being offered.
   double AvailableToBuy(const std::string& name) const;
 

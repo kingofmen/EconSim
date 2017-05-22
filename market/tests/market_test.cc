@@ -202,21 +202,26 @@ TEST(MarketTest, Available) {
   market.RegisterGood(kTestGood1);
   market.RegisterGood(kTestGood2);
   Container seller;
-  SetAmount(kTestGood1, 1, &seller);
+  SetAmount(kTestGood1, 0.5, &seller);
   Quantity offer;
   offer.set_kind(kTestGood1);
-  offer.set_amount(1);
+  offer.set_amount(0.5);
+  market.RegisterOffer(offer, &seller);
   market.RegisterOffer(offer, &seller);
 
   EXPECT_DOUBLE_EQ(1, market.AvailableToBuy(kTestGood1));
+  EXPECT_DOUBLE_EQ(0.5, market.AvailableImmediately(kTestGood1));
+
   Container basket;
   SetAmount(kTestGood1, 1, &basket);
   EXPECT_TRUE(market.AvailableToBuy(basket));
   SetAmount(kTestGood1, 2, &basket);
   EXPECT_FALSE(market.AvailableToBuy(basket));
 
+  offer.set_amount(1);
   market.RegisterOffer(offer, &seller);
   EXPECT_TRUE(market.AvailableToBuy(basket));
+  EXPECT_FALSE(market.AvailableImmediately(basket));
 
   SetAmount(kTestGood2, 1, &basket);
   EXPECT_FALSE(market.AvailableToBuy(basket));

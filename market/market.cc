@@ -7,6 +7,27 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
+double Market::AvailableImmediately(const std::string& name) const {
+  const auto pos = sell_offers_.find(name);
+  if (pos == sell_offers_.end()) {
+    return 0;
+  }
+  double ret = 0;
+  for (const auto& offer : pos->second) {
+    ret += GetAmount(*offer.target, name);
+  }
+  return ret;
+}
+
+bool Market::AvailableImmediately(const Container& basket) const {
+  for (const auto& good : basket.quantities()) {
+    if (AvailableImmediately(good.first) < good.second) {
+      return false;
+    }
+  }
+  return true;
+}
+
 double Market::AvailableToBuy(const std::string& name) const {
   const auto pos = sell_offers_.find(name);
   if (pos == sell_offers_.end()) {
