@@ -28,7 +28,7 @@ void CleanContainer(Container* con, double tolerance) {
   }
 }
 
-bool Contains(const Container& con, const std::string name) {
+bool Contains(const Container& con, const std::string& name) {
   return con.quantities().find(name) != con.quantities().end();
 }
 
@@ -36,7 +36,7 @@ bool Contains(const Container& con, const Quantity& qua) {
   return Contains(con, qua.kind());
 }
 
-double GetAmount(const Container& con, const std::string name) {
+double GetAmount(const Container& con, const std::string& name) {
   if (!Contains(con, name)) {
     return 0;
   }
@@ -45,6 +45,13 @@ double GetAmount(const Container& con, const std::string name) {
 
 double GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
+}
+
+Quantity MakeQuantity(const std::string& name, const double amount) {
+  Quantity ret;
+  ret.set_kind(name);
+  ret.set_amount(amount);
+  return ret;
 }
 
 void Move(const std::string& name, const double amount, Container* from,
@@ -86,7 +93,7 @@ Container& operator>>(Container& con, Quantity& qua) {
   return con;
 }
 
-Container& operator<<(Container& con, std::string name) {
+Container& operator<<(Container& con, const std::string& name) {
   if (Contains(con, name)) {
     return con;
   }
