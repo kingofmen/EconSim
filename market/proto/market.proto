@@ -16,4 +16,10 @@ message MarketProto {
   string legal_tender = 5;
   // Maximum amount of short-term credit.
   double credit_limit = 6;
+  // Amount currently stored and available to buy.
+  Container warehouse = 7;
+  // The market's debt to vendors.
+  Container market_debt = 8;
+  // Amounts planned for future turns.
+  repeated Container planned = 9;
 }

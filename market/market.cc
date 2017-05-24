@@ -1,5 +1,7 @@
 #include "market.h"
 
+#include <algorithm>
+
 #include "goods_utils.h"
 
 namespace market {
@@ -8,45 +10,11 @@ using market::proto::Quantity;
 using market::proto::Container;
 
 double Market::AvailableImmediately(const std::string& name) const {
-  const auto pos = sell_offers_.find(name);
-  if (pos == sell_offers_.end()) {
-    return 0;
-  }
-  double ret = 0;
-  for (const auto& offer : pos->second) {
-    ret += GetAmount(*offer.target, name);
-  }
-  return ret;
+  return GetAmount(warehouse(), name);
 }
 
 bool Market::AvailableImmediately(const Container& basket) const {
-  for (const auto& good : basket.quantities()) {
-    if (AvailableImmediately(good.first) < good.second) {
-      return false;
-    }
-  }
-  return true;
-}
-
-double Market::AvailableToBuy(const std::string& name) const {
-  const auto pos = sell_offers_.find(name);
-  if (pos == sell_offers_.end()) {
-    return 0;
-  }
-  double ret = 0;
-  for (const auto& offer : pos->second) {
-    ret += offer.good.amount();
-  }
-  return ret;
-}
-
-bool Market::AvailableToBuy(const Container& basket) const {
-  for (const auto& good : basket.quantities()) {
-    if (AvailableToBuy(good.first) < good.second) {
-      return false;
-    }
-  }
-  return true;
+  return warehouse() > basket;
 }
 
 void Market::RegisterGood(const std::string& name) {
@@ -63,21 +31,14 @@ void Market::FindPrices() {
   for (const auto& good : goods().quantities()) {
     const std::string& name = good.first;
     double matched = GetAmount(volume(), name);
-    double bid = 0;
+    double bid = matched;
     for (const auto& buy : buy_offers_[name]) {
       // Effectual demand, ie demand backed up by money or credit.
-      bid += std::min(buy.good.amount(),
+      bid += std::min(buy.amount,
                       GetAmount(*buy.target, legal_tender()) +
                           MaxCredit(*buy.target));
     }
-    double offer = 0;
-    for (const auto& sell : sell_offers_[name]) {
-      // Use the effectual supply, that is, goods offered for sale that actually
-      // exist.
-      offer += std::min(sell.good.amount(), GetAmount(*sell.target, name));
-    }
-    offer += matched;
-    bid += matched;
+    double offer = GetAmount(warehouse(), name) + matched;
     if (std::min(offer, bid) < 0.001) {
       continue;
     }
@@ -88,7 +49,6 @@ void Market::FindPrices() {
     SetAmount(name, 0, mutable_volume());
   }
   buy_offers_.clear();
-  sell_offers_.clear();
 }
 
 double Market::MaxCredit(const Container& borrower) const {
@@ -98,42 +58,6 @@ double Market::MaxCredit(const Container& borrower) const {
 double Market::MaxMoney(const Container& buyer) const {
   return GetAmount(buyer, credit_token()) + GetAmount(buyer, legal_tender()) +
          MaxCredit(buyer);
-}
-
-void Market::RegisterBid(const Quantity& bid, Container* buyer) {
-  if (!Contains(goods(), bid)) {
-    return;
-  }
-  bool found = false;
-  for (auto& offer : buy_offers_[bid.kind()]) {
-    if (offer.target != buyer) {
-      continue;
-    }
-    offer.good += bid.amount();
-    found = true;
-    break;
-  }
-  if (!found) {
-    buy_offers_[bid.kind()].emplace_back(bid, buyer);
-  }
-}
-
-void Market::RegisterOffer(const Quantity& bid, Container* seller) {
-  if (!Contains(goods(), bid)) {
-    return;
-  }
-  bool found = false;
-  for (auto& offer : sell_offers_[bid.kind()]) {
-    if (offer.target != seller) {
-      continue;
-    }
-    offer.good += bid.amount();
-    found = true;
-    break;
-  }
-  if (!found) {
-    sell_offers_[bid.kind()].emplace_back(bid, seller);
-  }
 }
 
 void CancelDebt(const std::string& credit_token, const std::string& debt_token,
@@ -171,6 +95,8 @@ void Market::TransferMoney(double amount, Container* from,
     amount -= credit;
   }
 
+  // TODO: Transfers that require exceeding the debt limit should be an error
+  // status, or otherwise not silently ignored.
   amount = std::min(MaxCredit(*from), amount);
   credit = GetAmount(*to, debt_token());
   if (credit >= amount) {
@@ -189,77 +115,94 @@ double Market::TryToBuy(const Quantity& bid, Container* recipient) {
   return TryToBuy(bid.kind(), bid.amount(), recipient);
 }
 
-double Market::TryToBuy(const std::string name, const double amount, Container* recipient) {
-  double amount_found = 0;
-  auto& sellers = sell_offers_[name];
+double Market::TryToBuy(const std::string& name, const double amount, Container* recipient) {
+  double amount_bought = std::min(amount, GetAmount(warehouse(), name));
   double price = GetPrice(name);
-  double max_money = GetAmount(*recipient, credit_token()) +
-                     GetAmount(*recipient, legal_tender()) +
-                     MaxCredit(*recipient);
-  while (!sellers.empty()) {
-    auto& seller = sellers.back();
-    Quantity transfer = seller.good;
-    transfer.set_amount(
-        std::min(seller.good.amount(), amount - amount_found));
-    transfer.set_amount(std::min(transfer.amount(), max_money / price));
+  double max_money = MaxMoney(*recipient);
+  if (price * amount_bought > max_money) {
+    amount_bought = max_money / price;
+  }
+  if (amount_bought > 0) {
+    SetAmount(debt_token(), GetAmount(market_debt(), name), mutable_warehouse());
+    SetAmount(name, 0, mutable_market_debt());
 
-    seller.good -= transfer.amount();
-    Move(transfer, seller.target, recipient);
-    if (seller.good.amount() < 1e-6) {
-      sellers.pop_back();
-    }
-    double money_amount = transfer.amount() * price;
-    TransferMoney(money_amount, recipient, seller.target);
-    max_money -= money_amount;
+    Quantity transfer;
+    transfer.set_kind(name);
+    transfer.set_amount(amount_bought);
+    Move(transfer, mutable_warehouse(), recipient);
+    TransferMoney(GetPrice(transfer), recipient, mutable_warehouse());
+    *mutable_volume() += transfer;
 
-    amount_found += transfer.amount();
-    if (amount_found >= amount || max_money < 1e-6) {
-      break;
+    SetAmount(name, GetAmount(warehouse(), debt_token()), mutable_market_debt());
+    SetAmount(debt_token(), 0, mutable_warehouse());
+  }
+
+  double amount_to_request = amount - amount_bought;
+  if (amount_to_request > 0) {
+    auto& offers = buy_offers_[name];
+    auto buy_offer = std::find_if(
+        offers.begin(), offers.end(),
+        [recipient](const Offer& offer) { return offer.target == recipient; });
+
+    if (buy_offer == offers.end()) {
+      offers.emplace_back(amount_to_request, recipient);
+    } else {
+      buy_offer->amount = amount_to_request;
     }
   }
-  Add(name, amount_found, mutable_volume());
-  for (auto& buyer : buy_offers_[name]) {
-    if (buyer.target != recipient) {
-      continue;
-    }
-    buyer.good -= amount_found;
-    break;
-  }
-  return amount_found;
+
+  return amount_bought;
 }
 
 double Market::TryToSell(const Quantity& offer, Container* source) {
-  double amount_found = 0;
+  if (!Contains(goods(), offer)) {
+    return 0;
+  }
+
+  double amount_to_sell = std::min(offer.amount(), GetAmount(*source, offer));
+  double amount_sold = 0;
   const std::string name = offer.kind();
   auto& buyers = buy_offers_[name];
-  double price = GetPrice(name);
+  double unit_price = GetPrice(name);
   while (!buyers.empty()) {
     auto& buyer = buyers.back();
-    Quantity transfer = buyer.good;
-    transfer.set_amount(std::min(transfer.amount(), offer.amount() - amount_found));
+    Quantity transfer = MakeQuantity(name, std::min(buyer.amount, amount_to_sell - amount_sold));
     double max_money = MaxMoney(*buyer.target);
-    transfer.set_amount(std::min(transfer.amount(), max_money / price));
+    transfer.set_amount(std::min(transfer.amount(), max_money / unit_price));
 
     Move(transfer, source, buyer.target);
-    buyer.good -= transfer.amount();
-    if (buyer.good.amount() < 1e-6) {
+    buyer.amount -= transfer.amount();
+    TransferMoney(transfer.amount() * unit_price, buyer.target, source);
+    amount_sold += transfer.amount();
+    *mutable_volume() += transfer;
+
+    if (buyer.amount < 1e-6) {
       buyers.pop_back();
     }
-    TransferMoney(transfer.amount() * price, buyer.target, source);
-    amount_found += transfer.amount();
-    if (amount_found >= offer.amount()) {
-      break;
+
+    if (amount_sold >= amount_to_sell) {
+      return amount_sold;
     }
   }
-  Add(name, amount_found, mutable_volume());
-  for (auto& seller : sell_offers_[name]) {
-    if (seller.target != source) {
-      continue;
-    }
-    seller.good -= amount_found;
-    break;
+  Quantity warehoused = MakeQuantity(name, amount_to_sell - amount_sold);
+  double price = unit_price * warehoused.amount();
+  double available = credit_limit() - GetAmount(market_debt(), warehoused);
+  if (available < price) {
+    price = available;
+    double unit_price = GetPrice(offer.kind());
+    warehoused.set_amount(price / unit_price);
   }
-  return amount_found;
+
+  *source -= warehoused;
+  *mutable_warehouse() += warehoused;
+
+  TransferMoney(price, mutable_warehouse(), source);
+  Quantity debt;
+  debt.set_kind(debt_token());
+  *mutable_warehouse() >> debt;
+  Add(offer.kind(), debt.amount(), mutable_market_debt());
+
+  return warehoused.amount() + amount_sold;
 }
 
 double Market::GetPrice(const std::string& name) const {
@@ -267,6 +210,13 @@ double Market::GetPrice(const std::string& name) const {
     return -1;
   }
   return GetAmount(prices(), name);
+}
+
+double Market::GetPrice(const Quantity& quantity) const {
+  if (!Contains(goods(), quantity)) {
+    return -1;
+  }
+  return GetAmount(prices(), quantity) * quantity.amount();
 }
 
 double Market::GetVolume(const std::string& name) const {

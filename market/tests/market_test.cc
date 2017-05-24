@@ -23,6 +23,7 @@ TEST(MarketTest, FindPrices) {
   Market market;
   market.set_legal_tender(kSilver);
   market.set_name(kMarketName);
+  market.set_credit_limit(100);
   EXPECT_DOUBLE_EQ(-1, market.GetPrice(kTestGood1));
 
   market.RegisterGood(kTestGood1);
@@ -33,115 +34,118 @@ TEST(MarketTest, FindPrices) {
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
 
-  Quantity bid;
+  Quantity bid = MakeQuantity(kTestGood1, 1);
   Container bidder;
-  bid.set_kind(kTestGood1);
-  bid.set_amount(1);
-  market.RegisterBid(bid, &bidder);
+  EXPECT_DOUBLE_EQ(0, market.TryToBuy(bid, &bidder));
 
-  Quantity offer;
+  Quantity offer = MakeQuantity(kTestGood1, 1);
   Container seller;
-  offer.set_kind(kTestGood1);
-  offer.set_amount(1);
-  market.RegisterOffer(offer, &seller);
+  EXPECT_DOUBLE_EQ(0, market.TryToSell(offer, &seller));
 
   // Bids exactly match offers, but are not effectual. No change.
-  market.FindPrices();
-  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
   EXPECT_DOUBLE_EQ(0, market.GetVolume(kTestGood1));
-
-  market.RegisterBid(bid, &bidder);
-  EXPECT_DOUBLE_EQ(0, market.AvailableToBuy(kTestGood1));
-  market.RegisterOffer(offer, &seller);
-  EXPECT_DOUBLE_EQ(1, market.AvailableToBuy(kTestGood1));
-  Add(kTestGood1, 1, &seller);
-  Add(kSilver, 1, &bidder);
-  market.TryToBuy(bid, &bidder);
-  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
-  EXPECT_DOUBLE_EQ(0, market.AvailableToBuy(kTestGood1));
   market.FindPrices();
-  // Bids match offers and are effectual. No change.
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(1, GetAmount(seller, kSilver));
-  EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kTestGood1));
+
+
+  seller += offer;
+  // Seller's goods go into the warehouse in exchange for credit.
+  EXPECT_DOUBLE_EQ(1, market.TryToSell(offer, &seller));
+  EXPECT_DOUBLE_EQ(1, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
 
-  market.RegisterBid(bid, &bidder);
-  market.RegisterBid(bid, &bidder);
-  market.RegisterOffer(offer, &seller);
-  Add(kTestGood1, 1, &seller);
-  Add(kSilver, 1, &bidder);
-  market.TryToBuy(bid, &bidder);
+  // Buyer can buy the goods, going into debt.
+  EXPECT_DOUBLE_EQ(1, market.TryToBuy(bid, &bidder));
+  EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kDebt));
+  EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  
+  // Bids match offers and went through. No change.
   EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
-  // More bids than offers, but bids are not effectual. No change.
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
+
+
+  // Try to buy twice.
+  Add(kTestGood1, 1, &seller);
+  Add(kSilver, 1, &bidder);
+  EXPECT_DOUBLE_EQ(1, market.TryToSell(offer, &seller));
+  EXPECT_DOUBLE_EQ(1, market.TryToBuy(bid, &bidder));
+  EXPECT_DOUBLE_EQ(0, market.TryToBuy(bid, &bidder));
+  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(2, GetAmount(seller, kSilver));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kSilver));
+  EXPECT_DOUBLE_EQ(2, GetAmount(seller, kCredit));
   EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-
-  SetAmount(kTestGood1, 1, market.mutable_prices());
-  market.RegisterBid(bid, &bidder);
-  market.RegisterOffer(offer, &seller);
-  market.RegisterOffer(offer, &seller);
-  Add(kTestGood1, 1, &seller);
-  Add(kSilver, 1, &bidder);
-  market.TryToBuy(bid, &bidder);
-  // More offers than bids, but not effectual. No change.
-  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
-  market.FindPrices();
-  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(3, GetAmount(seller, kSilver));
-  EXPECT_DOUBLE_EQ(3, GetAmount(bidder, kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-
-  SetAmount(kTestGood1, 1, market.mutable_prices());
-  market.RegisterBid(bid, &bidder);
-  market.RegisterOffer(offer, &seller);
-  Add(kTestGood1, 1, &seller);
-  Add(kSilver, 1, &bidder);
-  market.TryToSell(bid, &seller);
-  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
-  market.FindPrices();
-  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(4, GetAmount(seller, kSilver));
-  EXPECT_DOUBLE_EQ(4, GetAmount(bidder, kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-
-  SetAmount(kTestGood1, 1, market.mutable_prices());
-  market.RegisterBid(bid, &bidder);
-  market.RegisterBid(bid, &bidder);
-  market.RegisterOffer(offer, &seller);
-  Add(kTestGood1, 1, &seller);
-  Add(kSilver, 2, &bidder);
-  market.TryToSell(bid, &seller);
-  // More bids than offers, and they are effectual. Price should rise.
-  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  // More bids than offers, but bids are not effectual. No change.
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1.25, market.GetPrice(kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(5, GetAmount(seller, kSilver));
-  EXPECT_DOUBLE_EQ(5, GetAmount(bidder, kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
 
+
+  // Sell twice.
   SetAmount(kTestGood1, 1, market.mutable_prices());
-  market.RegisterBid(bid, &bidder);
-  market.RegisterOffer(offer, &seller);
-  market.RegisterOffer(offer, &seller);
-  Add(kTestGood1, 2, &seller);
-  market.TryToSell(bid, &seller);
+  SetAmount(kTestGood1, 1, &seller);
+  EXPECT_EQ(0, market.TryToBuy(bid, &bidder));
+  EXPECT_EQ(1, market.TryToSell(offer, &seller));
+  EXPECT_EQ(0, market.TryToSell(offer, &seller));
+  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
+  // More offers than bids, but not effectual. No change.
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(3, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(3, GetAmount(bidder, kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
+
+  // Buy twice, now with money.
+  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 1, &seller);
+  SetAmount(kSilver, 2, &bidder);
+  EXPECT_EQ(0, market.TryToBuy(bid, &bidder));
+  EXPECT_EQ(1, market.TryToSell(offer, &seller));
+  EXPECT_EQ(0, market.TryToBuy(bid, &bidder));
+  EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
+  // More bids than offers, and they are effectual. Price should rise.
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(1.25, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(3, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(1, GetAmount(seller, kSilver));
+  EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kSilver));
+  EXPECT_DOUBLE_EQ(4, GetAmount(bidder, kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
+
+
+  // Sell twice, now with goods.
+  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 2, &seller);
+  market.TryToSell(offer, &seller);
+  market.TryToBuy(bid, &bidder);
+  market.TryToSell(offer, &seller);
+
   // More offers than bids, and they are effectual. Price should fall.
   EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
   market.FindPrices();
   EXPECT_DOUBLE_EQ(0.75, market.GetPrice(kTestGood1));
+  EXPECT_DOUBLE_EQ(3, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(3, GetAmount(seller, kSilver));
   EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(6, GetAmount(seller, kSilver));
-  EXPECT_DOUBLE_EQ(6, GetAmount(bidder, kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(seller, kTestGood1));
+  EXPECT_DOUBLE_EQ(5, GetAmount(bidder, kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kSilver));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
 }
 
 TEST(MarketTest, TransferMoney) {
@@ -199,36 +203,25 @@ TEST(MarketTest, TransferMoney) {
 
 TEST(MarketTest, Available) {
   Market market;
+  market.set_legal_tender(kSilver);
+  market.set_name(kMarketName);
+  market.set_credit_limit(100);
   market.RegisterGood(kTestGood1);
   market.RegisterGood(kTestGood2);
   Container seller;
   SetAmount(kTestGood1, 0.5, &seller);
-  Quantity offer;
-  offer.set_kind(kTestGood1);
-  offer.set_amount(0.5);
-  market.RegisterOffer(offer, &seller);
-  market.RegisterOffer(offer, &seller);
+  SetAmount(kTestGood1, 1, market.mutable_prices());
 
-  EXPECT_DOUBLE_EQ(1, market.AvailableToBuy(kTestGood1));
+  Quantity offer = MakeQuantity(kTestGood1, 0.5);
+  EXPECT_DOUBLE_EQ(0.5, market.TryToSell(offer, &seller));
   EXPECT_DOUBLE_EQ(0.5, market.AvailableImmediately(kTestGood1));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.market_debt(), kTestGood1));
 
-  Container basket;
-  SetAmount(kTestGood1, 1, &basket);
-  EXPECT_TRUE(market.AvailableToBuy(basket));
-  SetAmount(kTestGood1, 2, &basket);
-  EXPECT_FALSE(market.AvailableToBuy(basket));
-
-  offer.set_amount(1);
-  market.RegisterOffer(offer, &seller);
-  EXPECT_TRUE(market.AvailableToBuy(basket));
-  EXPECT_FALSE(market.AvailableImmediately(basket));
-
-  SetAmount(kTestGood2, 1, &basket);
-  EXPECT_FALSE(market.AvailableToBuy(basket));
-
-  offer.set_kind(kTestGood2);
-  market.RegisterOffer(offer, &seller);
-  EXPECT_TRUE(market.AvailableToBuy(basket));
+  EXPECT_DOUBLE_EQ(0, market.TryToSell(offer, &seller));
+  EXPECT_DOUBLE_EQ(0.5, market.AvailableImmediately(kTestGood1));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(seller, kCredit));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.market_debt(), kTestGood1));
 }
 
 } // namespace market

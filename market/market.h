@@ -24,12 +24,6 @@ public:
   // True if the basket can be bought right away.
   bool AvailableImmediately(const market::proto::Container& basket) const;
 
-  // Returns the amount of name being offered.
-  double AvailableToBuy(const std::string& name) const;
-
-  // Returns true if the given goods are available.
-  bool AvailableToBuy(const market::proto::Container& basket) const;
-
   // Balances current bids and offers to find new prices. Surplus offers cause
   // the price to go down, unmatched bids cause it to go up. Also clears
   // existing buy and sell offers since the prices change.
@@ -41,13 +35,6 @@ public:
   // Returns the maximum the buyer can spend, including credit.
   double MaxMoney(const market::proto::Container& buyer) const;
 
-  // Register a bid or offer at the current price. This does not cause any goods
-  // to change hands, it only registers the existence of a buyer or seller.
-  void RegisterBid(const market::proto::Quantity& bid,
-                   market::proto::Container* target);
-  void RegisterOffer(const market::proto::Quantity& offer,
-                     market::proto::Container* target);
-
   // Register a trade good to be traded in this market.
   void RegisterGood(const std::string& name);
 
@@ -55,26 +42,34 @@ public:
   void TransferMoney(double amount, market::proto::Container* from,
                      market::proto::Container* to) const;
 
-  // Attempt to find a seller or buyer and actually make an exchange. Returns
-  // the amount bought or sold.
+  // Buys goods from the warehouse if there are enough; otherwise registers a
+  // request to buy. Returns the amount bought.
   double TryToBuy(const market::proto::Quantity& bid,
                   market::proto::Container* recipient);
-  double TryToBuy(const std::string name, const double amount,
+  double TryToBuy(const std::string& name, const double amount,
                   market::proto::Container* recipient);
+
+  // Finds a buyer and sells it the goods at the current price, if possible.
+  // Otherwise places the offered goods in the warehouse if the market can pay
+  // for them, in credit, legal tender, or newly-issued debt. Returns the amount
+  // accepted.
   double TryToSell(const market::proto::Quantity& offer,
                    market::proto::Container* source);
 
   // Returns the price of the named good.
   double GetPrice(const std::string& name) const;
 
+  // Returns the price of the given amount of the given good.
+  double GetPrice(const market::proto::Quantity& quantity) const;
+
   // Returns the amount of the named good that was traded.
   double GetVolume(const std::string& name) const;
 
  private:
   struct Offer {
-    Offer(const market::proto::Quantity& offer, market::proto::Container* t)
-        : good(offer), target(t) {}
-    market::proto::Quantity good;
+    Offer(const double a, market::proto::Container* t)
+        : amount(a), target(t) {}
+    double amount;
     market::proto::Container* target;
   };
 
@@ -84,7 +79,6 @@ public:
   }
 
   std::unordered_map<std::string, std::vector<Offer>> buy_offers_;
-  std::unordered_map<std::string, std::vector<Offer>> sell_offers_;
 };
 
 } // namespace market
