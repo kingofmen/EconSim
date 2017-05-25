@@ -30,9 +30,6 @@ bool HasFixedCapital(const proto::Field& field,
 
 bool HasLandType(const proto::Field& field,
                  const industry::proto::Production& production) {
-  if (!production.has_land_type()) {
-    return true;
-  }
   return field.land_type() == production.land_type();
 }
 

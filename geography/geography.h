@@ -33,7 +33,9 @@ public:
   const market::proto::Container& GetPrices() const { return market_.prices(); }
   void Update();
 
- private:
+  market::Market* mutable_market() { return &market_; }
+
+private:
   market::Market market_;
 };
 
