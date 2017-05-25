@@ -59,7 +59,7 @@ int Production::CheapestVariant(const market::Market& market,
     bool allAvailable = true;
     if (!(existing > consumables)) {
       for (const auto& consumable : consumables.quantities()) {
-        if (market.AvailableToBuy(consumable.first) <
+        if (market.AvailableImmediately(consumable.first) <
             consumable.second - market::GetAmount(existing, consumable.first)) {
           allAvailable = false;
           break;
@@ -131,7 +131,7 @@ bool Production::GoodsForVariantAvailable(
   for (const auto& good : needed.quantities()) {
     double amount = good.second;
     amount -= market::GetAmount(existing, good.first);
-    if (market.AvailableToBuy(good.first) < amount) {
+    if (market.AvailableImmediately(good.first) < amount) {
       return false;
     }
   }

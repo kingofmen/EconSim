@@ -289,6 +289,7 @@ TEST_F(IndustryTest, ExpectedProfit) {
   AddClothOutput();
 
   market::Market market;
+  market.set_credit_limit(100);
   wool_ += 1;
   cloth_ += 10;
   market.RegisterGood(wool_.kind());
@@ -296,8 +297,9 @@ TEST_F(IndustryTest, ExpectedProfit) {
   market::SetAmount(wool_, market.mutable_prices());
   market::SetAmount(cloth_, market.mutable_prices());
   market::proto::Container seller;
-  market::SetAmount(wool_, &seller);
-  market.RegisterOffer(wool_, &seller);
+  wool_ += 1;
+  seller += wool_;
+  market.TryToSell(wool_, &seller);
 
   market::proto::Container capital;
   EXPECT_DOUBLE_EQ(
@@ -318,6 +320,7 @@ TEST_F(IndustryTest, CheapestVariant) {
 
   // With no capital, the resource-intensive step is cheapest.
   market::Market market;
+  market.set_credit_limit(100);
   market.RegisterGood(wool_.kind());
   market.RegisterGood(mules_.kind());
   wool_ += 1;
@@ -326,8 +329,8 @@ TEST_F(IndustryTest, CheapestVariant) {
   market::SetAmount(mules_, market.mutable_prices());
 
   market::proto::Container seller;
-  market::SetAmount(wool_, &seller);
-  market.RegisterOffer(wool_, &seller);
+  seller += wool_;
+  market.TryToSell(wool_, &seller);
 
   market::proto::Container capital;
   double price = 0;
@@ -344,17 +347,19 @@ TEST_F(IndustryTest, GoodsAvailable) {
   auto* step = AddWoolStep();
   AddCapitalVariant(step);
   market::Market market;
+  market.set_credit_limit(100);
   wool_ += 0.75;
   market::proto::Container seller;
   market::SetAmount(wool_, &seller);
   market.RegisterGood(wool_.kind());
-  market.RegisterOffer(wool_, &seller);
+  market.TryToSell(wool_, &seller);
 
   market::proto::Container spinner;
   EXPECT_FALSE(production_->GoodsForVariantAvailable(market, spinner, 0, 0));
   EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 1));
 
-  market.RegisterOffer(wool_, &seller);
+  market::SetAmount(wool_, &seller);
+  market.TryToSell(wool_, &seller);
   EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 0));
   EXPECT_TRUE(production_->GoodsForVariantAvailable(market, spinner, 0, 1));
 }
