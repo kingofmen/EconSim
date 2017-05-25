@@ -1,11 +1,11 @@
 #include "population/popunit.h"
 
+#include <cmath>
 #include <limits>
 #include <list>
 
 #include "geography/geography.h"
 #include "industry/industry.h"
-#include "market/goods_utils.h"
 
 namespace population {
 
@@ -101,7 +101,8 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       const market::proto::Container& prices) {
-  const proto::ConsumptionPackage* best_package = CheapestPackage(level, prices);
+  const proto::ConsumptionPackage* best_package =
+      CheapestPackage(level, prices);
   if (best_package == nullptr) {
     return false;
   }
@@ -133,97 +134,90 @@ int PopUnit::GetSize() const {
   return size;
 }
 
-void PopUnit::CandidateHeuristics(
-    const market::proto::Container& prices, const ProductionMap& /*chains*/,
-    const std::vector<ProductionCandidate>& /*selected*/,
-    ProductionCandidate* candidate) {
-  market::SetAmount(
-      kExpectedProfit,
-      candidate->process->ExpectedProfit(prices, candidate->progress),
-      &candidate->heuristics);
-}
+bool PopUnit::TryProductionStep(const industry::Production& production,
+                                geography::proto::Field* field,
+                                industry::proto::Progress* progress,
+                                market::Market* market) {
+  if (progressed_.count(progress) > 0) {
+    return false;
+  }
 
-void PopUnit::PossibleProduction(
-    const ProductionMap& chains,
-    const std::vector<geography::proto::Field*>& fields,
-    std::list<ProductionCandidate>* candidates) {
-  for (auto* field : fields) {
-    if (field->has_production()) {
-      const industry::Production* production =
-          chains.at(field->production().name());
-      candidates->emplace_back(field, production, field->mutable_production());
+  const auto& step = production.steps(progress->step());
+  int variant_index = -1;
+  double least_cost = std::numeric_limits<double>::max();
+  for (int index = 0; index < step.variants_size(); ++index) {
+    const auto& input = step.variants(index);
+    if (!(field->fixed_capital() > input.fixed_capital())) {
       continue;
     }
-    for (const auto& chain : chains) {
-      const industry::Production* production = chain.second;
-      if (!geography::HasLandType(*field, *production)) {
-        continue;
+    if (!(field->resources() > input.raw_materials())) {
+      continue;
+    }
+
+    double cost = 0;
+    bool possible = true;
+    auto required = input.consumables() + input.movable_capital();
+    for (const auto& good : required.quantities()) {
+      cost += market->GetPrice(good.first) * good.second;
+      if (market->AvailableImmediately(good.first) <
+          good.second - market::GetAmount(wealth(), good.first)) {
+        possible = false;
+        break;
       }
-      if (!geography::HasRawMaterials(*field, *production)) {
-        continue;
-      }
-      if (!geography::HasFixedCapital(*field, *production)) {
-        continue;
-      }
-      candidates->emplace_back(field, production, nullptr);
+    }
+    if (!possible) {
+      continue;
+    }
+    if (cost < least_cost) {
+      variant_index = index;
+      least_cost = cost;
     }
   }
+
+  if (variant_index == -1) {
+    return false;
+  }
+
+  if (least_cost > market->MaxMoney(wealth())) {
+    return false;
+  }
+
+  const auto& input = step.variants(variant_index);
+  auto required = input.consumables() + input.movable_capital();
+  for (const auto& good : required.quantities()) {
+    double amount_to_buy =
+        good.second - market::GetAmount(wealth(), good.first);
+    if (amount_to_buy > 0) {
+      market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
+    }
+  }
+
+  production.PerformStep(field->fixed_capital(), 0.0, variant_index,
+                         mutable_wealth(), field->mutable_resources(),
+                         mutable_wealth(), progress);
+  return true;
 }
 
-void PopUnit::SelectProduction(const market::proto::Container& prices,
-                               const ProductionMap& chains,
-                               std::list<ProductionCandidate>* candidates,
-                               std::vector<ProductionCandidate>* selected) {
-  static market::proto::Container weights;
-  if (!market::Contains(weights, kExpectedProfit)) {
-    market::SetAmount(kExpectedProfit, 1, &weights);
-    market::SetAmount(kStandardDeviation, -1, &weights);
-    market::SetAmount(kCorrelation, -1, &weights);
-    market::SetAmount(kSubsistence, 1, &weights);
-  }
-  std::unordered_set<geography::proto::Field*> fields_used;
-  while (!candidates->empty()) {
-    for (auto& candidate : *candidates) {
-      CandidateHeuristics(prices, chains, *selected, &candidate);
-    }
-    candidates->remove_if([](const ProductionCandidate& cand) {
-      return market::GetAmount(cand.heuristics, kExpectedProfit) <= 0;
-    });
-    candidates->sort(
-        [](const ProductionCandidate& a, const ProductionCandidate& b) {
-          return a.heuristics * weights < b.heuristics * weights;
-        });
-    selected->push_back(candidates->back());
-    fields_used.insert(candidates->back().target);
-    candidates->pop_back();
-    candidates->remove_if([&fields_used](const ProductionCandidate& cand) {
-      return fields_used.count(cand.target);
-    });
-  }
-}
-
-void PopUnit::Produce(const market::proto::Container& prices,
-                      const ProductionMap& chains,
-                      const std::vector<geography::proto::Field*>& fields) {
-  std::list<ProductionCandidate> candidates;
-  PossibleProduction(chains, fields, &candidates);
-  std::vector<ProductionCandidate> selected;
-  SelectProduction(prices, chains, &candidates, &selected);
-
-  for (auto& candidate : selected) {
-    if (candidate.progress == nullptr) {
-      *candidate.target->mutable_production() =
-          candidate.process->MakeProgress(1.0);
-      candidate.progress = candidate.target->mutable_production();
-    }
-    candidate.process->PerformStep(candidate.target->fixed_capital(), 0.0, 0,
-                                   mutable_wealth(),
-                                   candidate.target->mutable_resources(),
-                                   mutable_wealth(), candidate.progress);
-    if (candidate.process->Complete(*candidate.progress)) {
-      candidate.target->clear_production();
+bool PopUnit::Produce(const ProductionMap& chains,
+                      const std::vector<geography::proto::Field*>& fields,
+                      market::Market* market) {
+  bool any_progress = false;
+  for (auto* field : fields) {
+    if (field->has_production()) {
+      auto* progress = field->mutable_production();
+      const auto production = chains.find(progress->name());
+      if (production == chains.end()) {
+        // TODO: Error here!
+        continue;
+      }
+      if (TryProductionStep(*production->second, field, progress, market)) {
+        any_progress = true;
+      }
+    } else {
+      // Do something else.
     }
   }
+  return any_progress;
 }
 
 uint64 PopUnit::NewPopId() { return ++unused_pop_id; }
