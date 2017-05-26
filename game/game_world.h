@@ -38,6 +38,7 @@ private:
   // World-state information.
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
+  population::PopUnit::ProductionMap production_map_;
 };
 
 } // namespace game

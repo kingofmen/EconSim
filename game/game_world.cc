@@ -1,5 +1,7 @@
 #include "game/game_world.h"
 
+#include <iostream>
+
 namespace game {
 
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
@@ -25,13 +27,32 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   for (const auto& area : world.areas()) {
     areas_.emplace_back(new geography::Area(area));
   }
+
+  for (const auto* prod_proto : scenario_.production_chains_) {
+    production_map_.emplace(prod_proto->name(), new industry::Production(*prod_proto));
+  }
 }
 
 void GameWorld::TimeStep() {
   for (auto& area: areas_) {
     for (const auto pop_id : area->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
+      if (pop == nullptr) {
+        continue;
+      }
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
+    }
+    std::unordered_map<population::PopUnit*, std::vector<geography::proto::Field*>> fields;
+    for (auto& field : *area->mutable_fields()) {
+      auto* pop = population::PopUnit::GetPopId(field.owner_id());
+      if (pop == nullptr) {
+        continue;
+      }
+      fields[pop].emplace_back(&field);
+    }
+    for (auto& pop_field : fields) {
+      pop_field.first->Produce(production_map_, pop_field.second,
+                               area->mutable_market());
     }
   }
 
