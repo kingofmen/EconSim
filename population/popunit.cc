@@ -134,6 +134,41 @@ int PopUnit::GetSize() const {
   return size;
 }
 
+void PopUnit::GetStepInfo(const industry::Production& production,
+                          const market::Market& market,
+                          const geography::proto::Field& field,
+                          const industry::proto::Progress& progress,
+                          PopUnit::ProductionStepInfo* step_info) const {
+  const auto& step = production.steps(progress.step());
+  for (int index = 0; index < step.variants_size(); ++index) {
+    step_info->variants.emplace_back();
+    auto& variant_info = step_info->variants.back();
+    const auto& input = step.variants(index);
+    if (!(field.fixed_capital() > input.fixed_capital())) {
+      continue;
+    }
+    variant_info.possible_scale = progress.scaling();
+    for (const auto& good : input.raw_materials().quantities()) {
+      double ratio = market::GetAmount(field.resources(), good.first);
+      ratio /= good.second;
+      if (ratio < variant_info.possible_scale) {
+        variant_info.possible_scale = ratio;
+      }
+    }
+
+    auto required = input.consumables() + input.movable_capital();
+    for (const auto& good : required.quantities()) {
+      variant_info.unit_cost += market.GetPrice(good.first) * good.second;
+      double ratio = market.AvailableImmediately(good.first) +
+                     market::GetAmount(wealth(), good.first);
+      ratio /= good.second;
+      if (ratio < variant_info.possible_scale) {
+        variant_info.possible_scale = ratio;
+      }
+    }
+  }
+}
+
 bool PopUnit::TryProductionStep(const industry::Production& production,
                                 geography::proto::Field* field,
                                 industry::proto::Progress* progress,
@@ -142,35 +177,15 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
     return false;
   }
 
-  const auto& step = production.steps(progress->step());
-  int variant_index = -1;
-  double least_cost = std::numeric_limits<double>::max();
-  for (int index = 0; index < step.variants_size(); ++index) {
-    const auto& input = step.variants(index);
-    if (!(field->fixed_capital() > input.fixed_capital())) {
-      continue;
-    }
-    if (!(field->resources() > input.raw_materials())) {
-      continue;
-    }
+  ProductionStepInfo step_info;
+  GetStepInfo(production, *market, *field, *progress, &step_info);
 
-    double cost = 0;
-    bool possible = true;
-    auto required = input.consumables() + input.movable_capital();
-    for (const auto& good : required.quantities()) {
-      cost += market->GetPrice(good.first) * good.second;
-      if (market->AvailableImmediately(good.first) <
-          good.second - market::GetAmount(wealth(), good.first)) {
-        possible = false;
-        break;
-      }
-    }
-    if (!possible) {
+  int variant_index = -1;
+  //double least_cost = std::numeric_limits<double>::max();
+  //double max_money = market->MaxMoney(wealth());
+  for (const auto& variant_info : step_info.variants) {
+    if (variant_info.possible_scale < 1e-4) {
       continue;
-    }
-    if (cost < least_cost) {
-      variant_index = index;
-      least_cost = cost;
     }
   }
 
@@ -178,10 +193,7 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
     return false;
   }
 
-  if (least_cost > market->MaxMoney(wealth())) {
-    return false;
-  }
-
+  const auto& step = production.steps(progress->step());
   const auto& input = step.variants(variant_index);
   auto required = input.consumables() + input.movable_capital();
   for (const auto& good : required.quantities()) {

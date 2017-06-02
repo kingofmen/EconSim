@@ -3,6 +3,7 @@
 
 #include "gtest/gtest.h"
 #include "geography/proto/geography.pb.h"
+#include "market/market.h"
 #include "industry/industry.h"
 #include "population/proto/population.pb.h"
 
@@ -205,6 +206,63 @@ TEST_F(PopulationTest, DecayWealth) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), fish_), 0);
   EXPECT_FALSE(market::Contains(pop_.wealth(), fish_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.wealth(), youtube_), 1);
+}
+
+TEST_F(PopulationTest, GetStepInfo) {
+  industry::Production production;
+  production.set_name("production");
+  production.add_scaling_effects(1);
+  production.add_scaling_effects(0.8);
+  production.add_scaling_effects(0.5);
+  auto* step = production.add_steps();
+  auto* variant1 = step->add_variants();
+  auto* variant2 = step->add_variants();
+  auto* variant3 = step->add_variants();
+
+  house_ += 1;
+  fish_ += 1;
+  *variant1->mutable_fixed_capital() << house_;
+  *variant1->mutable_consumables() << fish_;
+
+  fish_ += 2;
+  *variant2->mutable_consumables() << fish_;
+
+  youtube_ += 1;
+  *variant3->mutable_consumables() << youtube_;
+
+  market::Market market;
+  fish_ += 1;
+  youtube_ += 2;
+  market.RegisterGood(fish_.kind());
+  market.RegisterGood(youtube_.kind());
+  market.set_credit_limit(100);
+  market.set_name("market");
+  market::SetAmount(fish_, market.mutable_prices());
+  market::SetAmount(youtube_, market.mutable_prices());
+
+  fish_.set_amount(0.5);
+  youtube_.set_amount(5);
+  prices_ += fish_;
+  prices_ += youtube_;
+  market.TryToSell(fish_, &prices_);
+  market.TryToSell(youtube_, &prices_);
+
+  geography::proto::Field field;
+  PopUnit::ProductionStepInfo step_info;
+  auto progress = production.MakeProgress(3);
+
+  pop_.GetStepInfo(production, market, field, progress, &step_info);
+
+  EXPECT_EQ(step_info.variants.size(), 3);
+  EXPECT_DOUBLE_EQ(step_info.variants[0].unit_cost, 0);
+  EXPECT_DOUBLE_EQ(step_info.variants[0].possible_scale, 0);
+
+  EXPECT_DOUBLE_EQ(step_info.variants[1].unit_cost, 2);
+  EXPECT_DOUBLE_EQ(step_info.variants[1].possible_scale, 0.25);
+
+  EXPECT_DOUBLE_EQ(step_info.variants[2].unit_cost, 2);
+  EXPECT_DOUBLE_EQ(step_info.variants[2].possible_scale, 3);
+
 }
 
 } // namespace population

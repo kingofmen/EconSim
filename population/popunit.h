@@ -23,6 +23,16 @@ public:
   typedef std::unordered_map<std::string, const industry::Production*>
       ProductionMap;
 
+  struct VariantInfo {
+    double unit_cost = 0;
+    double possible_scale = 0;
+  };
+
+  struct ProductionStepInfo {
+    int attempts_this_turn = 0;
+    std::vector<VariantInfo> variants;
+  };
+
   PopUnit();
   PopUnit(const proto::PopUnit& proto);
 
@@ -45,6 +55,14 @@ public:
   void DecayWealth(const market::proto::Container& decay_rates);
 
   int GetSize() const;
+
+  // Calculates cost and possibility information for each variant of the current
+  // step in progress, and stores it in step_info, which may not be null.
+  void GetStepInfo(const industry::Production& production,
+                   const market::Market& market,
+                   const geography::proto::Field& field,
+                   const industry::proto::Progress& progress,
+                   ProductionStepInfo* step_info) const;
 
   // Attemp to continue existing production chains and start new ones. Returns
   // true if any chain makes progress.
