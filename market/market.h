@@ -62,6 +62,9 @@ public:
   // Returns the price of the given amount of the given good.
   double GetPrice(const market::proto::Quantity& quantity) const;
 
+  // Returns the price of the goods in the basket.
+  double GetPrice(const market::proto::Container& basket) const;
+
   // Returns the amount of the named good that was traded.
   double GetVolume(const std::string& name) const;
 

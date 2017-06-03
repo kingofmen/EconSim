@@ -219,6 +219,17 @@ double Market::GetPrice(const Quantity& quantity) const {
   return GetAmount(prices(), quantity) * quantity.amount();
 }
 
+double Market::GetPrice(const market::proto::Container& basket) const {
+  double ret = 0;
+  for (const auto& good : basket.quantities()) {
+    double price = GetPrice(good.first) * good.second;
+    if (price >= 0) {
+      ret += price;
+    }
+  }
+  return ret;
+}
+
 double Market::GetVolume(const std::string& name) const {
   if (!Contains(goods(), name)) {
     return -1;
