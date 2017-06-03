@@ -163,8 +163,7 @@ void Production::PerformStep(const Container& fixed_capital,
     return;
   }
 
-  auto required = needed.consumables() + needed.movable_capital();
-  required *= scaling;
+  auto required = RequiredConsumables(*progress, variant_index);
   required *= experience;
   if (!(*inputs > required)) {
     return;
@@ -198,7 +197,7 @@ Production::RequiredConsumables(const proto::Progress& progress,
   if (Complete(progress)) {
     return market::proto::Container();
   }
-  return RequiredConsumables(progress.step(), variant);
+  return RequiredConsumables(progress.step(), variant) * progress.scaling();
 }
 
 void Production::Skip(proto::Progress* progress) const {
