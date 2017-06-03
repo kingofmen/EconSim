@@ -83,6 +83,11 @@ int Production::CheapestVariant(const market::Market& market,
   return cheapest_variant;
 }
 
+market::proto::Container
+Production::ExpectedOutput(const proto::Progress& progress) const {
+  return outputs() * Efficiency(progress);
+}
+
 double Production::ExpectedProfit(const market::Market& market,
                                   const market::proto::Container& existing,
                                   const market::proto::Container& capital,
@@ -175,7 +180,7 @@ void Production::PerformStep(const Container& fixed_capital,
   *inputs -= needed.consumables() * scaling * experience;
   progress->set_step(1 + step);
   if (Complete(*progress)) {
-    *output += outputs() * Efficiency(*progress);
+    *output += ExpectedOutput(*progress);
   }
 }
 

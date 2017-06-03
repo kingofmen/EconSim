@@ -33,6 +33,10 @@ public:
   // Returns the current output multiplier for this progress.
   double Efficiency(const proto::Progress& progress) const;
 
+  // Returns the output given the current scale and efficiency.
+  market::proto::Container
+  ExpectedOutput(const proto::Progress& progress) const;
+
   // Calculates the expected profit of completing the process, given the prices
   // and capital. Progress may be null.
   double ExpectedProfit(const market::Market& market,
