@@ -156,7 +156,7 @@ void PopUnit::GetStepInfo(const industry::Production& production,
       }
     }
 
-    auto required = input.consumables() + input.movable_capital();
+    auto required = production.RequiredConsumables(progress.step(), index);
     for (const auto& good : required.quantities()) {
       variant_info.unit_cost += market.GetPrice(good.first) * good.second;
       double ratio = market.AvailableImmediately(good.first) +
@@ -172,41 +172,60 @@ void PopUnit::GetStepInfo(const industry::Production& production,
 bool PopUnit::TryProductionStep(const industry::Production& production,
                                 geography::proto::Field* field,
                                 industry::proto::Progress* progress,
-                                market::Market* market) {
+                                market::Market* market,
+                                ProductionStepInfo* step_info) {
   if (progressed_.count(progress) > 0) {
     return false;
   }
 
-  ProductionStepInfo step_info;
-  GetStepInfo(production, *market, *field, *progress, &step_info);
+  step_info->variants.clear();
+  ++step_info->attempts_this_turn;
+  GetStepInfo(production, *market, *field, *progress, step_info);
 
-  int variant_index = -1;
-  //double least_cost = std::numeric_limits<double>::max();
-  //double max_money = market->MaxMoney(wealth());
-  for (const auto& variant_info : step_info.variants) {
-    if (variant_info.possible_scale < 1e-4) {
+  unsigned int variant_index = step_info->variants.size();
+  double max_profit = 0;
+  double max_money = market->MaxMoney(wealth());
+  double scale = 0;
+  for (unsigned int idx = 0; idx < step_info->variants.size(); ++idx) {
+    auto& variant_info = step_info->variants[idx];
+    double cost_at_scale = variant_info.unit_cost * variant_info.possible_scale;
+    double max_scale =
+        std::min(variant_info.possible_scale, max_money / cost_at_scale);
+    if (max_scale < 0.1) {
       continue;
+    }
+    double profit = market->GetPrice(production.ExpectedOutput(*progress));
+    profit -= variant_info.unit_cost * max_scale;
+    if (profit > max_profit) {
+      max_profit = profit;
+      variant_index = idx;
+      scale = max_scale;
     }
   }
 
-  if (variant_index == -1) {
+  if (variant_index >= step_info->variants.size()) {
     return false;
   }
 
-  const auto& step = production.steps(progress->step());
-  const auto& input = step.variants(variant_index);
-  auto required = input.consumables() + input.movable_capital();
+  progress->set_scaling(scale);
+  auto required = production.RequiredConsumables(*progress, variant_index);
   for (const auto& good : required.quantities()) {
     double amount_to_buy =
         good.second - market::GetAmount(wealth(), good.first);
     if (amount_to_buy > 0) {
-      market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
+      double bought =
+          market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
+      if (bought < amount_to_buy) {
+        // This should never happen.
+        return false;
+      }
     }
   }
 
   production.PerformStep(field->fixed_capital(), 0.0, variant_index,
                          mutable_wealth(), field->mutable_resources(),
                          mutable_wealth(), progress);
+  progressed_.insert(progress);
   return true;
 }
 
@@ -222,7 +241,8 @@ bool PopUnit::Produce(const ProductionMap& chains,
         // TODO: Error here!
         continue;
       }
-      if (TryProductionStep(*production->second, field, progress, market)) {
+      ProductionStepInfo step_info;
+      if (TryProductionStep(*production->second, field, progress, market, &step_info)) {
         any_progress = true;
       }
     } else {

@@ -75,7 +75,7 @@ public:
   bool TryProductionStep(const industry::Production& production,
                          geography::proto::Field* field,
                          industry::proto::Progress* progress,
-                         market::Market* market);
+                         market::Market* market, ProductionStepInfo* step_info);
 
   static PopUnit* GetPopId(uint64 id) { return id_to_pop_map_[id]; }
 

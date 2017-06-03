@@ -42,10 +42,43 @@ protected:
     *house_package_->mutable_food()->mutable_consumed() << house_;
   }
 
+  void SetupProduction() {
+    production_.set_name("production");
+    production_.add_scaling_effects(1);
+    production_.add_scaling_effects(0.8);
+    production_.add_scaling_effects(0.5);
+    auto* step = production_.add_steps();
+    auto* variant1 = step->add_variants();
+    auto* variant2 = step->add_variants();
+    auto* variant3 = step->add_variants();
+
+    house_ += 1;
+    fish_ += 1;
+    *variant1->mutable_fixed_capital() << house_;
+    *variant1->mutable_consumables() << fish_;
+
+    fish_ += 2;
+    *variant2->mutable_consumables() << fish_;
+
+    youtube_ += 1;
+    *variant3->mutable_consumables() << youtube_;
+  }
+
+  void SetupMarket() {
+    market_.RegisterGood(fish_.kind());
+    market_.RegisterGood(youtube_.kind());
+    market_.set_credit_limit(100);
+    market_.set_name("market");
+    market::SetAmount(fish_.kind(), 1, market_.mutable_prices());
+    market::SetAmount(youtube_.kind(), 2, market_.mutable_prices());
+  }
+
   PopUnit pop_;
   proto::ConsumptionLevel level_;
   proto::ConsumptionPackage* fish_package_;
   proto::ConsumptionPackage* house_package_;
+  industry::Production production_;
+  market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity house_;
   market::proto::Quantity youtube_;
@@ -209,49 +242,21 @@ TEST_F(PopulationTest, DecayWealth) {
 }
 
 TEST_F(PopulationTest, GetStepInfo) {
-  industry::Production production;
-  production.set_name("production");
-  production.add_scaling_effects(1);
-  production.add_scaling_effects(0.8);
-  production.add_scaling_effects(0.5);
-  auto* step = production.add_steps();
-  auto* variant1 = step->add_variants();
-  auto* variant2 = step->add_variants();
-  auto* variant3 = step->add_variants();
-
-  house_ += 1;
-  fish_ += 1;
-  *variant1->mutable_fixed_capital() << house_;
-  *variant1->mutable_consumables() << fish_;
-
-  fish_ += 2;
-  *variant2->mutable_consumables() << fish_;
-
-  youtube_ += 1;
-  *variant3->mutable_consumables() << youtube_;
-
-  market::Market market;
-  fish_ += 1;
-  youtube_ += 2;
-  market.RegisterGood(fish_.kind());
-  market.RegisterGood(youtube_.kind());
-  market.set_credit_limit(100);
-  market.set_name("market");
-  market::SetAmount(fish_, market.mutable_prices());
-  market::SetAmount(youtube_, market.mutable_prices());
-
+  SetupProduction();
+  SetupMarket();
+  market::proto::Container stores;
   fish_.set_amount(0.5);
   youtube_.set_amount(5);
-  prices_ += fish_;
-  prices_ += youtube_;
-  market.TryToSell(fish_, &prices_);
-  market.TryToSell(youtube_, &prices_);
+  stores += fish_;
+  stores += youtube_;
+  market_.TryToSell(fish_, &stores);
+  market_.TryToSell(youtube_, &stores);
 
   geography::proto::Field field;
   PopUnit::ProductionStepInfo step_info;
-  auto progress = production.MakeProgress(3);
+  auto progress = production_.MakeProgress(3);
 
-  pop_.GetStepInfo(production, market, field, progress, &step_info);
+  pop_.GetStepInfo(production_, market_, field, progress, &step_info);
 
   EXPECT_EQ(step_info.variants.size(), 3);
   EXPECT_DOUBLE_EQ(step_info.variants[0].unit_cost, 0);
@@ -262,7 +267,45 @@ TEST_F(PopulationTest, GetStepInfo) {
 
   EXPECT_DOUBLE_EQ(step_info.variants[2].unit_cost, 2);
   EXPECT_DOUBLE_EQ(step_info.variants[2].possible_scale, 3);
+}
 
+TEST_F(PopulationTest, TryProductionStep) {
+  SetupProduction();
+  SetupMarket();
+  geography::proto::Field field;
+  PopUnit::ProductionStepInfo step_info;
+  auto progress = production_.MakeProgress(3);
+  EXPECT_DOUBLE_EQ(2.8, production_.Efficiency(progress));
+
+  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_EQ(step_info.attempts_this_turn, 1);
+
+  market::proto::Container stores;
+  fish_.set_amount(2);
+  youtube_.set_amount(5);
+  stores += fish_;
+  stores += youtube_;
+  market_.TryToSell(fish_, &stores);
+  market_.TryToSell(youtube_, &stores);
+  // Process makes no profit because it has no output.
+  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_EQ(step_info.attempts_this_turn, 2);
+
+  auto entertainment = market::MakeQuantity("entertainment", 10);
+  market_.RegisterGood(entertainment.kind());
+  market::SetAmount(entertainment, market_.mutable_prices());
+  entertainment.set_amount(1);
+  market::SetAmount(entertainment, production_.mutable_outputs());
+  EXPECT_DOUBLE_EQ(
+      production_.Efficiency(progress),
+      market::GetAmount(production_.ExpectedOutput(progress), entertainment));
+
+  EXPECT_TRUE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_EQ(step_info.attempts_this_turn, 3);
+  EXPECT_DOUBLE_EQ(1, market::GetAmount(pop_.wealth(), entertainment));
+  EXPECT_TRUE(production_.Complete(progress));
+
+  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
 }
 
 } // namespace population
