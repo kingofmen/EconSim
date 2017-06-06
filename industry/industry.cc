@@ -46,101 +46,13 @@ double Production::Efficiency(const proto::Progress& progress) const {
   return effect;
 }
 
-
-int Production::CheapestVariant(const market::Market& market,
-                                const market::proto::Container& existing,
-                                const market::proto::Container& capital,
-                                const int step,
-                                double* price) const {
-  double least_expense = std::numeric_limits<double>::max();
-  int cheapest_variant = -1;
-  for (int index = 0; index < steps(step).variants_size(); ++index) {
-    auto consumables = RequiredConsumables(step, index);
-    bool allAvailable = true;
-    if (!(existing > consumables)) {
-      for (const auto& consumable : consumables.quantities()) {
-        if (market.AvailableImmediately(consumable.first) <
-            consumable.second - market::GetAmount(existing, consumable.first)) {
-          allAvailable = false;
-          break;
-        }
-      }
-    }
-    if (!allAvailable) {
-      continue;
-    }
-    const auto& variant = steps(step).variants(index);
-    if (!(capital > variant.fixed_capital())) {
-      continue;
-    }
-    double variant_expense = consumables * market.prices();
-    if (variant_expense < least_expense) {
-      cheapest_variant = index;
-      least_expense = variant_expense;
-    }
-  }
-  *price = least_expense;
-  return cheapest_variant;
-}
-
 market::proto::Container
 Production::ExpectedOutput(const proto::Progress& progress) const {
   return outputs() * Efficiency(progress);
 }
 
-double Production::ExpectedProfit(const market::Market& market,
-                                  const market::proto::Container& existing,
-                                  const market::proto::Container& capital,
-                                  const proto::Progress* progress) const {
-  double expense = 0;
-  int step = 0;
-  double efficiency = 1;
-  double scaling = 1;
-  double experience = 1;
-  if (progress != nullptr) {
-    step = progress->step();
-    scaling = progress->scaling();
-    efficiency = Efficiency(*progress);
-  }
-  double least_expense = 0;
-  for (; step < steps_size(); ++step) {
-    int index = CheapestVariant(market, existing, capital, step, &least_expense);
-    if (index == -1) {
-      return -1;
-    }
-    expense += least_expense;
-  }
-  expense *= scaling;
-  expense *= experience;
-  double revenue = outputs() * market.prices() * efficiency;
-  return revenue - expense;
-}
-
 double Production::ExperienceEffect(const double institutional_capital) const {
   return 1.0 - institutional_capital * experience_effect();
-}
-
-bool Production::GoodsForVariantAvailable(
-    const market::Market& market, const market::proto::Container& existing,
-    const int step, const int variant_index) const {
-  if (step >= steps_size()) {
-    return false;
-  }
-  if (variant_index >= steps(step).variants_size()) {
-    return false;
-  }
-  const auto needed = RequiredConsumables(step, variant_index);
-  if (existing > needed) {
-    return true;
-  }
-  for (const auto& good : needed.quantities()) {
-    double amount = good.second;
-    amount -= market::GetAmount(existing, good.first);
-    if (market.AvailableImmediately(good.first) < amount) {
-      return false;
-    }
-  }
-  return true;
 }
 
 void Production::PerformStep(const Container& fixed_capital,
