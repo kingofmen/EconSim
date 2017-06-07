@@ -30,6 +30,10 @@ public:
   // Initialises a Progress proto with this production chain.
   proto::Progress MakeProgress(double scale) const;
 
+  // Returns the theoretical maximum scale, assuming all the necessary resources
+  // are present.
+  double MaxScale() const;
+
   // Increments the step if inputs and fixed_capital contains sufficient
   // consumables and capital to run variant_index.
   void PerformStep(const market::proto::Container &fixed_capital,

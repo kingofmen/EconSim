@@ -55,6 +55,10 @@ double Production::ExperienceEffect(const double institutional_capital) const {
   return 1.0 - institutional_capital * experience_effect();
 }
 
+double Production::MaxScale() const {
+  return 1 + scaling_effects_size();
+}
+
 void Production::PerformStep(const Container& fixed_capital,
                              const double institutional_capital,
                              const int variant_index, Container* inputs,
