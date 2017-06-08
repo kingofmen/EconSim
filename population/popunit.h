@@ -30,7 +30,14 @@ public:
 
   struct ProductionStepInfo {
     int attempts_this_turn = 0;
+    bool progress_this_turn = false;
     std::vector<VariantInfo> variants;
+  };
+
+  struct ProductionInfo {
+    double max_scale = 0;
+    double total_unit_cost = 0;
+    std::vector<ProductionStepInfo> step_info;
   };
 
   PopUnit();
@@ -56,6 +63,11 @@ public:
 
   int GetSize() const;
 
+  // Calculates cost for each step in chain.
+  ProductionInfo GetProductionInfo(const industry::Production& chain,
+                                   const market::Market& market,
+                                   const geography::proto::Field& field) const;
+
   // Calculates cost and possibility information for each variant of the current
   // step in progress, and stores it in step_info, which may not be null.
   void GetStepInfo(const industry::Production& production,
@@ -64,11 +76,16 @@ public:
                    const industry::proto::Progress& progress,
                    ProductionStepInfo* step_info) const;
 
-  // Attemp to continue existing production chains and start new ones. Returns
+  // Attempt to continue existing production chains and start new ones. Returns
   // true if any chain makes progress.
   bool Produce(const ProductionMap& chains,
                const std::vector<geography::proto::Field*>& fields,
                market::Market* market);
+
+  // Attempts to find a new production chain to run in field.
+  bool StartNewProduction(const ProductionMap& chains,
+                          const market::Market& market,
+                          geography::proto::Field* field);
 
   // Attempts to run the next step of production. Returns true if the process
   // advances.
@@ -82,10 +99,20 @@ public:
   static uint64 NewPopId();
 
 private:
+  // Returns the index of the best variant to use for the next step, and stores
+  // its highest possible scale in scale, which must not be null. If no variant
+  // is useful, returns the size of the variant vector.
+  unsigned int GetVariantIndex(const industry::Production& production,
+                               const industry::proto::Progress& progress,
+                               const market::Market& market,
+                               const ProductionStepInfo& step_info,
+                               double* scale) const;
+
   static std::unordered_map<uint64, PopUnit*> id_to_pop_map_;
 
-  // Keeps track of which processes have progressed this turn.
-  std::unordered_set<industry::proto::Progress*> progressed_;
+  // Keeps track of process information.
+  std::unordered_map<geography::proto::Field*, ProductionStepInfo>
+      progress_map_;
 };
 
 } // namespace population
