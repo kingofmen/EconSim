@@ -26,7 +26,8 @@ protected:
     fish_.set_kind("fish");
     house_.set_kind("house");
     youtube_.set_kind("youtube");
-
+    dinner_.set_kind("dinner");
+    grain_.set_kind("grain");
     fish_ += 1;
     house_ += 1;
     youtube_ += 1;
@@ -43,11 +44,11 @@ protected:
   }
 
   void SetupProduction() {
-    production_.set_name("production");
-    production_.add_scaling_effects(1);
-    production_.add_scaling_effects(0.8);
-    production_.add_scaling_effects(0.5);
-    auto* step = production_.add_steps();
+    dinner_from_fish_.set_name("dinner_from_fish");
+    dinner_from_fish_.add_scaling_effects(1);
+    dinner_from_fish_.add_scaling_effects(0.8);
+    dinner_from_fish_.add_scaling_effects(0.5);
+    auto* step = dinner_from_fish_.add_steps();
     auto* variant1 = step->add_variants();
     auto* variant2 = step->add_variants();
     auto* variant3 = step->add_variants();
@@ -56,33 +57,71 @@ protected:
     fish_ += 1;
     *variant1->mutable_fixed_capital() << house_;
     *variant1->mutable_consumables() << fish_;
-
     fish_ += 2;
     *variant2->mutable_consumables() << fish_;
-
     youtube_ += 1;
     *variant3->mutable_consumables() << youtube_;
+    dinner_ += 1;
+    *dinner_from_fish_.mutable_outputs() << dinner_;
+
+    dinner_from_grain_.set_name("dinner_from_grain");
+    dinner_from_grain_.add_scaling_effects(1);
+    dinner_from_grain_.add_scaling_effects(0.8);
+    step = dinner_from_grain_.add_steps();
+    variant1 = step->add_variants();
+    variant2 = step->add_variants();
+
+    grain_ += 2;
+    *variant1->mutable_consumables() << grain_;
+
+    grain_ += 1;
+    house_ += 1;
+    *variant2->mutable_consumables() << grain_;
+    *variant2->mutable_fixed_capital() << house_;
+    dinner_ += 1;
+    *dinner_from_grain_.mutable_outputs() << dinner_;
   }
 
   void SetupMarket() {
     market_.RegisterGood(fish_.kind());
     market_.RegisterGood(youtube_.kind());
+    market_.RegisterGood(dinner_.kind());
+    market_.RegisterGood(grain_.kind());
+    market_.RegisterGood(house_.kind());
     market_.set_credit_limit(100);
     market_.set_name("market");
     market::SetAmount(fish_.kind(), 1, market_.mutable_prices());
     market::SetAmount(youtube_.kind(), 2, market_.mutable_prices());
+    market::SetAmount(dinner_.kind(), 3, market_.mutable_prices());
+  }
+
+  void SellGoods(double fish = 0, double youtube = 0, double grain = 0) {
+    fish_.set_amount(fish);
+    youtube_.set_amount(youtube);
+    grain_.set_amount(grain);
+    seller_ += fish_;
+    seller_ += youtube_;
+    seller_ += grain_;
+    EXPECT_DOUBLE_EQ(market_.TryToSell(fish_, &seller_), fish);
+    market_.TryToSell(youtube_, &seller_);
+    market_.TryToSell(grain_, &seller_);
+    EXPECT_GE(market_.AvailableImmediately(fish_.kind()), fish);
   }
 
   PopUnit pop_;
   proto::ConsumptionLevel level_;
   proto::ConsumptionPackage* fish_package_;
   proto::ConsumptionPackage* house_package_;
-  industry::Production production_;
+  industry::Production dinner_from_fish_;
+  industry::Production dinner_from_grain_;
   market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity house_;
   market::proto::Quantity youtube_;
+  market::proto::Quantity dinner_;
+  market::proto::Quantity grain_;
   market::proto::Container prices_;
+  market::proto::Container seller_;
 };
 
 TEST_F(PopulationTest, CheapestPackage) {
@@ -254,9 +293,9 @@ TEST_F(PopulationTest, GetStepInfo) {
 
   geography::proto::Field field;
   PopUnit::ProductionStepInfo step_info;
-  auto progress = production_.MakeProgress(3);
+  auto progress = dinner_from_fish_.MakeProgress(3);
 
-  pop_.GetStepInfo(production_, market_, field, progress, &step_info);
+  pop_.GetStepInfo(dinner_from_fish_, market_, field, progress, &step_info);
 
   EXPECT_EQ(step_info.variants.size(), 3);
   EXPECT_DOUBLE_EQ(step_info.variants[0].unit_cost, 0);
@@ -274,38 +313,51 @@ TEST_F(PopulationTest, TryProductionStep) {
   SetupMarket();
   geography::proto::Field field;
   PopUnit::ProductionStepInfo step_info;
-  auto progress = production_.MakeProgress(3);
-  EXPECT_DOUBLE_EQ(2.8, production_.Efficiency(progress));
+  auto progress = dinner_from_fish_.MakeProgress(3);
+  EXPECT_DOUBLE_EQ(2.8, dinner_from_fish_.Efficiency(progress));
 
-  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
+                                      &market_, &step_info));
   EXPECT_EQ(step_info.attempts_this_turn, 1);
 
-  market::proto::Container stores;
-  fish_.set_amount(2);
-  youtube_.set_amount(5);
-  stores += fish_;
-  stores += youtube_;
-  market_.TryToSell(fish_, &stores);
-  market_.TryToSell(youtube_, &stores);
+  SellGoods(2, 5);
+
   // Process makes no profit because it has no output.
-  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  dinner_from_fish_.mutable_outputs()->Clear();
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
+                                      &market_, &step_info));
   EXPECT_EQ(step_info.attempts_this_turn, 2);
 
   auto entertainment = market::MakeQuantity("entertainment", 10);
   market_.RegisterGood(entertainment.kind());
   market::SetAmount(entertainment, market_.mutable_prices());
   entertainment.set_amount(1);
-  market::SetAmount(entertainment, production_.mutable_outputs());
-  EXPECT_DOUBLE_EQ(
-      production_.Efficiency(progress),
-      market::GetAmount(production_.ExpectedOutput(progress), entertainment));
+  market::SetAmount(entertainment, dinner_from_fish_.mutable_outputs());
+  EXPECT_DOUBLE_EQ(dinner_from_fish_.Efficiency(progress),
+                   market::GetAmount(dinner_from_fish_.ExpectedOutput(progress),
+                                     entertainment));
 
-  EXPECT_TRUE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
+                                     &market_, &step_info));
   EXPECT_EQ(step_info.attempts_this_turn, 3);
   EXPECT_DOUBLE_EQ(1, market::GetAmount(pop_.wealth(), entertainment));
-  EXPECT_TRUE(production_.Complete(progress));
+  EXPECT_TRUE(dinner_from_fish_.Complete(progress));
 
-  EXPECT_FALSE(pop_.TryProductionStep(production_, &field, &progress, &market_, &step_info));
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
+                                      &market_, &step_info));
+}
+
+TEST_F(PopulationTest, StartNewProduction) {
+  SetupProduction();
+  SetupMarket();
+  SellGoods(10, 10, 10);
+
+  PopUnit::ProductionMap chains;
+  chains[dinner_from_fish_.name()] = &dinner_from_fish_;
+  chains[dinner_from_grain_.name()] = &dinner_from_grain_;
+  geography::proto::Field field;
+  
+  EXPECT_TRUE(pop_.StartNewProduction(chains, market_, &field));
 }
 
 } // namespace population

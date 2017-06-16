@@ -186,7 +186,7 @@ unsigned int PopUnit::GetVariantIndex(const industry::Production& production,
       continue;
     }
     double profit = market.GetPrice(production.ExpectedOutput(progress));
-    profit -= variant_info.unit_cost * max_scale;
+    profit -= variant_info.unit_cost * progress.scaling();
     if (profit > max_profit) {
       max_profit = profit;
       variant_index = idx;
