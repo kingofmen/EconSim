@@ -71,7 +71,8 @@ public:
   // Returns the amount of the named good that was traded.
   double GetVolume(const std::string& name) const;
 
-  // Pointer to the underlying protobuf.
+  // The underlying protobuf.
+  const proto::MarketProto& Proto() const {return proto_;}
   proto::MarketProto* Proto() { return &proto_; }
 
 private:

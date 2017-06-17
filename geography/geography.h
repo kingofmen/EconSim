@@ -8,8 +8,6 @@
 #include "market/proto/market.pb.h"
 #include "util/status/status.h"
 
-#include <iostream>
-
 namespace geography {
 
 // Filters which return true if this Field has the requirements for at least
@@ -30,10 +28,11 @@ class Area {
 public:
   Area() = default;
   Area(const market::proto::MarketProto& market) : market_(market) {}
-  Area(const proto::Area& area) : proto_(area) {
-  }
+  Area(const proto::Area& area) : proto_(area), market_(area.market()) {}
 
-  const market::proto::Container& GetPrices() const { return market_.prices(); }
+  const market::proto::Container& GetPrices() const {
+    return market_.Proto().prices();
+  }
   void Update();
 
   proto::Area* Proto() {return &proto_;}
