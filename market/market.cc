@@ -10,54 +10,55 @@ using market::proto::Quantity;
 using market::proto::Container;
 
 double Market::AvailableImmediately(const std::string& name) const {
-  return GetAmount(warehouse(), name);
+  return GetAmount(proto_.warehouse(), name);
 }
 
 bool Market::AvailableImmediately(const Container& basket) const {
-  return warehouse() > basket;
+  return proto_.warehouse() > basket;
 }
 
 void Market::RegisterGood(const std::string& name) {
-  if (Contains(goods(), name)) {
+  if (TradesIn(name)) {
     return;
   }
-  *mutable_goods() << name;
-  *mutable_volume() << name;
-  *mutable_prices() << name;
-  SetAmount(name, 1, mutable_prices());
+  *proto_.mutable_goods() << name;
+  *proto_.mutable_volume() << name;
+  *proto_.mutable_prices() << name;
+  SetAmount(name, 1, proto_.mutable_prices());
 }
 
 void Market::FindPrices() {
-  for (const auto& good : goods().quantities()) {
+  for (const auto& good : proto_.goods().quantities()) {
     const std::string& name = good.first;
-    double matched = GetAmount(volume(), name);
+    double matched = GetAmount(proto_.volume(), name);
     double bid = matched;
     for (const auto& buy : buy_offers_[name]) {
       // Effectual demand, ie demand backed up by money or credit.
       bid += std::min(buy.amount,
-                      GetAmount(*buy.target, legal_tender()) +
+                      GetAmount(*buy.target, proto_.legal_tender()) +
                           MaxCredit(*buy.target));
     }
-    double offer = GetAmount(warehouse(), name) + matched;
+    double offer = GetAmount(proto_.warehouse(), name) + matched;
     if (std::min(offer, bid) < 0.001) {
       continue;
     }
     double ratio = bid / std::max(offer, 0.01);
     ratio = std::min(ratio, 1.25);
     ratio = std::max(ratio, 0.75);
-    SetAmount(name, GetAmount(prices(), name) * ratio, mutable_prices());
-    SetAmount(name, 0, mutable_volume());
+    SetAmount(name, GetAmount(proto_.prices(), name) * ratio,
+              proto_.mutable_prices());
+    SetAmount(name, 0, proto_.mutable_volume());
   }
   buy_offers_.clear();
 }
 
 double Market::MaxCredit(const Container& borrower) const {
-  return credit_limit() - GetAmount(borrower, debt_token());
+  return proto_.credit_limit() - GetAmount(borrower, debt_token());
 }
 
 double Market::MaxMoney(const Container& buyer) const {
-  return GetAmount(buyer, credit_token()) + GetAmount(buyer, legal_tender()) +
-         MaxCredit(buyer);
+  return GetAmount(buyer, credit_token()) +
+         GetAmount(buyer, proto_.legal_tender()) + MaxCredit(buyer);
 }
 
 void CancelDebt(const std::string& credit_token, const std::string& debt_token,
@@ -73,6 +74,10 @@ void CancelDebt(const std::string& credit_token, const std::string& debt_token,
   }
 }
 
+bool Market::TradesIn(const std::string& name) const {
+  return Contains(proto_.goods(), name);
+}
+
 void Market::TransferMoney(double amount, Container* from,
                            Container* to) const {
   double credit = GetAmount(*from, credit_token());
@@ -86,12 +91,12 @@ void Market::TransferMoney(double amount, Container* from,
     amount -= credit;
   }
 
-  credit = GetAmount(*from, legal_tender());
+  credit = GetAmount(*from, proto_.legal_tender());
   if (credit >= amount) {
-    Move(legal_tender(), amount, from, to);
+    Move(proto_.legal_tender(), amount, from, to);
     return;
   } else {
-    Move(legal_tender(), credit, from, to);
+    Move(proto_.legal_tender(), credit, from, to);
     amount -= credit;
   }
 
@@ -115,26 +120,29 @@ double Market::TryToBuy(const Quantity& bid, Container* recipient) {
   return TryToBuy(bid.kind(), bid.amount(), recipient);
 }
 
-double Market::TryToBuy(const std::string& name, const double amount, Container* recipient) {
-  double amount_bought = std::min(amount, GetAmount(warehouse(), name));
+double Market::TryToBuy(const std::string& name, const double amount,
+                        Container* recipient) {
+  double amount_bought = std::min(amount, GetAmount(proto_.warehouse(), name));
   double price = GetPrice(name);
   double max_money = MaxMoney(*recipient);
   if (price * amount_bought > max_money) {
     amount_bought = max_money / price;
   }
   if (amount_bought > 0) {
-    SetAmount(debt_token(), GetAmount(market_debt(), name), mutable_warehouse());
-    SetAmount(name, 0, mutable_market_debt());
+    SetAmount(debt_token(), GetAmount(proto_.market_debt(), name),
+              proto_.mutable_warehouse());
+    SetAmount(name, 0, proto_.mutable_market_debt());
 
     Quantity transfer;
     transfer.set_kind(name);
     transfer.set_amount(amount_bought);
-    Move(transfer, mutable_warehouse(), recipient);
-    TransferMoney(GetPrice(transfer), recipient, mutable_warehouse());
-    *mutable_volume() += transfer;
+    Move(transfer, proto_.mutable_warehouse(), recipient);
+    TransferMoney(GetPrice(transfer), recipient, proto_.mutable_warehouse());
+    *proto_.mutable_volume() += transfer;
 
-    SetAmount(name, GetAmount(warehouse(), debt_token()), mutable_market_debt());
-    SetAmount(debt_token(), 0, mutable_warehouse());
+    SetAmount(name, GetAmount(proto_.warehouse(), debt_token()),
+              proto_.mutable_market_debt());
+    SetAmount(debt_token(), 0, proto_.mutable_warehouse());
   }
 
   double amount_to_request = amount - amount_bought;
@@ -155,7 +163,7 @@ double Market::TryToBuy(const std::string& name, const double amount, Container*
 }
 
 double Market::TryToSell(const Quantity& offer, Container* source) {
-  if (!Contains(goods(), offer)) {
+  if (!TradesIn(offer.kind())) {
     return 0;
   }
 
@@ -166,7 +174,8 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
   double unit_price = GetPrice(name);
   while (!buyers.empty()) {
     auto& buyer = buyers.back();
-    Quantity transfer = MakeQuantity(name, std::min(buyer.amount, amount_to_sell - amount_sold));
+    Quantity transfer = MakeQuantity(
+        name, std::min(buyer.amount, amount_to_sell - amount_sold));
     double max_money = MaxMoney(*buyer.target);
     transfer.set_amount(std::min(transfer.amount(), max_money / unit_price));
 
@@ -174,7 +183,7 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
     buyer.amount -= transfer.amount();
     TransferMoney(transfer.amount() * unit_price, buyer.target, source);
     amount_sold += transfer.amount();
-    *mutable_volume() += transfer;
+    *proto_.mutable_volume() += transfer;
 
     if (buyer.amount < 1e-6) {
       buyers.pop_back();
@@ -186,7 +195,8 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
   }
   Quantity warehoused = MakeQuantity(name, amount_to_sell - amount_sold);
   double price = unit_price * warehoused.amount();
-  double available = credit_limit() - GetAmount(market_debt(), warehoused);
+  double available =
+      proto_.credit_limit() - GetAmount(proto_.market_debt(), warehoused);
   if (available < price) {
     price = available;
     double unit_price = GetPrice(offer.kind());
@@ -194,29 +204,29 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
   }
 
   *source -= warehoused;
-  *mutable_warehouse() += warehoused;
+  *proto_.mutable_warehouse() += warehoused;
 
-  TransferMoney(price, mutable_warehouse(), source);
+  TransferMoney(price, proto_.mutable_warehouse(), source);
   Quantity debt;
   debt.set_kind(debt_token());
-  *mutable_warehouse() >> debt;
-  Add(offer.kind(), debt.amount(), mutable_market_debt());
+  *proto_.mutable_warehouse() >> debt;
+  Add(offer.kind(), debt.amount(), proto_.mutable_market_debt());
 
   return warehoused.amount() + amount_sold;
 }
 
 double Market::GetPrice(const std::string& name) const {
-  if (!Contains(goods(), name)) {
+  if (!TradesIn(name)) {
     return -1;
   }
-  return GetAmount(prices(), name);
+  return GetAmount(proto_.prices(), name);
 }
 
 double Market::GetPrice(const Quantity& quantity) const {
-  if (!Contains(goods(), quantity)) {
+  if (!TradesIn(quantity.kind())) {
     return -1;
   }
-  return GetAmount(prices(), quantity) * quantity.amount();
+  return GetAmount(proto_.prices(), quantity) * quantity.amount();
 }
 
 double Market::GetPrice(const market::proto::Container& basket) const {
@@ -231,10 +241,10 @@ double Market::GetPrice(const market::proto::Container& basket) const {
 }
 
 double Market::GetVolume(const std::string& name) const {
-  if (!Contains(goods(), name)) {
+  if (!TradesIn(name)) {
     return -1;
   }
-  return GetAmount(volume(), name);
+  return GetAmount(proto_.volume(), name);
 }
 
 } // namespace market

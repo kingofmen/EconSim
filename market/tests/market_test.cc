@@ -21,9 +21,9 @@ using proto::Container;
 
 TEST(MarketTest, FindPrices) {
   Market market;
-  market.set_legal_tender(kSilver);
-  market.set_name(kMarketName);
-  market.set_credit_limit(100);
+  market.Proto()->set_legal_tender(kSilver);
+  market.Proto()->set_name(kMarketName);
+  market.Proto()->set_credit_limit(100);
   EXPECT_DOUBLE_EQ(-1, market.GetPrice(kTestGood1));
 
   market.RegisterGood(kTestGood1);
@@ -47,27 +47,25 @@ TEST(MarketTest, FindPrices) {
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
 
-
   seller += offer;
   // Seller's goods go into the warehouse in exchange for credit.
   EXPECT_DOUBLE_EQ(1, market.TryToSell(offer, &seller));
   EXPECT_DOUBLE_EQ(1, GetAmount(seller, kCredit));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->warehouse(), kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
 
   // Buyer can buy the goods, going into debt.
   EXPECT_DOUBLE_EQ(1, market.TryToBuy(bid, &bidder));
   EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kDebt));
   EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
-  
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->warehouse(), kTestGood1));
+
   // Bids match offers and went through. No change.
   EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1, market.GetPrice(kTestGood1));
-
 
   // Try to buy twice.
   Add(kTestGood1, 1, &seller);
@@ -77,19 +75,18 @@ TEST(MarketTest, FindPrices) {
   EXPECT_DOUBLE_EQ(0, market.TryToBuy(bid, &bidder));
   EXPECT_DOUBLE_EQ(1, market.GetVolume(kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kSilver));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->warehouse(), kSilver));
   EXPECT_DOUBLE_EQ(2, GetAmount(seller, kCredit));
   EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->warehouse(), kTestGood1));
   // More bids than offers, but bids are not effectual. No change.
   market.FindPrices();
   EXPECT_DOUBLE_EQ(1.25, market.GetPrice(kTestGood1));
 
-
   // Sell twice.
-  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 1, market.Proto()->mutable_prices());
   SetAmount(kTestGood1, 1, &seller);
   EXPECT_EQ(0, market.TryToBuy(bid, &bidder));
   EXPECT_EQ(1, market.TryToSell(offer, &seller));
@@ -101,12 +98,12 @@ TEST(MarketTest, FindPrices) {
   EXPECT_DOUBLE_EQ(3, GetAmount(seller, kCredit));
   EXPECT_DOUBLE_EQ(3, GetAmount(bidder, kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->warehouse(), kTestGood1));
   EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
 
   // Buy twice, now with money.
-  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 1, market.Proto()->mutable_prices());
   SetAmount(kTestGood1, 1, &seller);
   SetAmount(kSilver, 2, &bidder);
   EXPECT_EQ(0, market.TryToBuy(bid, &bidder));
@@ -121,13 +118,12 @@ TEST(MarketTest, FindPrices) {
   EXPECT_DOUBLE_EQ(1, GetAmount(bidder, kSilver));
   EXPECT_DOUBLE_EQ(4, GetAmount(bidder, kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->warehouse(), kTestGood1));
   EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
 
-
   // Sell twice, now with goods.
-  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 1, market.Proto()->mutable_prices());
   SetAmount(kTestGood1, 2, &seller);
   market.TryToSell(offer, &seller);
   market.TryToBuy(bid, &bidder);
@@ -142,17 +138,17 @@ TEST(MarketTest, FindPrices) {
   EXPECT_DOUBLE_EQ(0, GetAmount(bidder, kSilver));
   EXPECT_DOUBLE_EQ(5, GetAmount(bidder, kTestGood1));
   EXPECT_DOUBLE_EQ(0, GetAmount(seller, kTestGood1));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.market_debt(), kTestGood1));
-  EXPECT_DOUBLE_EQ(0, GetAmount(market.warehouse(), kSilver));
-  EXPECT_DOUBLE_EQ(1, GetAmount(market.warehouse(), kTestGood1));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0, GetAmount(market.Proto()->warehouse(), kSilver));
+  EXPECT_DOUBLE_EQ(1, GetAmount(market.Proto()->warehouse(), kTestGood1));
   EXPECT_DOUBLE_EQ(2, GetAmount(bidder, kDebt));
 }
 
 TEST(MarketTest, TransferMoney) {
   Market market;
-  market.set_name(kMarketName);
-  market.set_legal_tender(kSilver);
-  market.set_credit_limit(100);
+  market.Proto()->set_name(kMarketName);
+  market.Proto()->set_legal_tender(kSilver);
+  market.Proto()->set_credit_limit(100);
   Container rich;
   Container poor;
 
@@ -165,7 +161,7 @@ TEST(MarketTest, TransferMoney) {
   market.TransferMoney(1, &rich, &poor);
   EXPECT_DOUBLE_EQ(GetAmount(rich, kCredit), 0);
   EXPECT_DOUBLE_EQ(GetAmount(poor, kCredit), 1);
-  
+
   SetAmount(kCredit, 1, &rich);
   SetAmount(kCredit, 0, &poor);
   SetAmount(kDebt, 0.5, &poor);
@@ -203,25 +199,25 @@ TEST(MarketTest, TransferMoney) {
 
 TEST(MarketTest, Available) {
   Market market;
-  market.set_legal_tender(kSilver);
-  market.set_name(kMarketName);
-  market.set_credit_limit(100);
+  market.Proto()->set_legal_tender(kSilver);
+  market.Proto()->set_name(kMarketName);
+  market.Proto()->set_credit_limit(100);
   market.RegisterGood(kTestGood1);
   market.RegisterGood(kTestGood2);
   Container seller;
   SetAmount(kTestGood1, 0.5, &seller);
-  SetAmount(kTestGood1, 1, market.mutable_prices());
+  SetAmount(kTestGood1, 1, market.Proto()->mutable_prices());
 
   Quantity offer = MakeQuantity(kTestGood1, 0.5);
   EXPECT_DOUBLE_EQ(0.5, market.TryToSell(offer, &seller));
   EXPECT_DOUBLE_EQ(0.5, market.AvailableImmediately(kTestGood1));
   EXPECT_DOUBLE_EQ(0.5, GetAmount(seller, kCredit));
-  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.Proto()->market_debt(), kTestGood1));
 
   EXPECT_DOUBLE_EQ(0, market.TryToSell(offer, &seller));
   EXPECT_DOUBLE_EQ(0.5, market.AvailableImmediately(kTestGood1));
   EXPECT_DOUBLE_EQ(0.5, GetAmount(seller, kCredit));
-  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.market_debt(), kTestGood1));
+  EXPECT_DOUBLE_EQ(0.5, GetAmount(market.Proto()->market_debt(), kTestGood1));
 }
 
 } // namespace market

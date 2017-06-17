@@ -12,10 +12,10 @@
 
 namespace market {
 
-class Market : public market::proto::MarketProto {
+class Market {
 public:
   Market() = default;
-  Market(const market::proto::MarketProto& proto) : MarketProto(proto) {}
+  Market(const proto::MarketProto& proto) : proto_(proto) {}
   ~Market() = default;
 
   // Returns the amount of name immediately available.
@@ -37,6 +37,9 @@ public:
 
   // Register a trade good to be traded in this market.
   void RegisterGood(const std::string& name);
+
+  // Returns true if the market trades in the good.
+  bool TradesIn(const std::string& name) const;
 
   // Moves money, either legal tender or short-term credit, from from to to.
   void TransferMoney(double amount, market::proto::Container* from,
@@ -68,20 +71,26 @@ public:
   // Returns the amount of the named good that was traded.
   double GetVolume(const std::string& name) const;
 
- private:
+  // Pointer to the underlying protobuf.
+  proto::MarketProto* Proto() { return &proto_; }
+
+private:
   struct Offer {
-    Offer(const double a, market::proto::Container* t)
-        : amount(a), target(t) {}
+    Offer(const double a, market::proto::Container* t) : amount(a), target(t) {}
     double amount;
     market::proto::Container* target;
   };
 
-  const std::string debt_token() const { return name() + "_short_term_debt"; }
+  const std::string debt_token() const {
+    return proto_.name() + "_short_term_debt";
+  }
   const std::string credit_token() const {
-    return name() + "_short_term_credit";
+    return proto_.name() + "_short_term_credit";
   }
 
   std::unordered_map<std::string, std::vector<Offer>> buy_offers_;
+
+  proto::MarketProto proto_;
 };
 
 } // namespace market
