@@ -80,16 +80,17 @@ GenerateTransitionProcess(const proto::Field& field,
 void Area::Update() {
   market::proto::Quantity temp;
   // Recovery of raw materials in the fields, eg topsoil.
-  for (auto& field : *(mutable_fields())) {
-    const auto& recovery = field.has_production() ? limits().recovery()
-                                                  : limits().fallow_recovery();
+  for (auto& field : *(proto_.mutable_fields())) {
+    const auto& recovery = field.has_production()
+                               ? proto_.limits().recovery()
+                               : proto_.limits().fallow_recovery();
     auto& resources = *field.mutable_resources();
     for (const auto& quantity : recovery.quantities()) {
       temp.set_kind(quantity.first);
       resources >> temp;
       temp += quantity.second;
-      temp.set_amount(
-          std::min(temp.amount(), market::GetAmount(limits().maximum(), temp)));
+      temp.set_amount(std::min(
+          temp.amount(), market::GetAmount(proto_.limits().maximum(), temp)));
       resources << temp;
     }
   }

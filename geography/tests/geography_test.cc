@@ -21,19 +21,19 @@ using market::proto::Quantity;
 
 class GeographyTest : public testing::Test {
  protected:
-  void SetUp() override {
-    production_ = std::unique_ptr<industry::proto::Production>(new industry::proto::Production());
-    progress_ = std::unique_ptr<industry::Progress>(
-        new industry::Progress(production_.get()));
-    stuff_.set_kind("stuff");
-    field_ = area_.add_fields();
-  }
+   void SetUp() override {
+     production_ = std::unique_ptr<industry::Production>(
+         new industry::Production());
+     stuff_.set_kind("stuff");
+     area_proto_ = area_.Proto();
+     field_ = area_proto_->add_fields();
+   }
 
-  std::unique_ptr<industry::Progress> progress_;
-  std::unique_ptr<industry::proto::Production> production_;
-  Area area_;
-  proto::Field* field_;
-  market::proto::Quantity stuff_;
+   std::unique_ptr<industry::Production> production_;
+   Area area_;
+   proto::Area* area_proto_;
+   proto::Field* field_;
+   market::proto::Quantity stuff_;
 };
 
 TEST_F(GeographyTest, TestFilters) {
@@ -68,7 +68,7 @@ TEST_F(GeographyTest, TestFilters) {
 }
 
 TEST_F(GeographyTest, Recovery) {
-  auto& resource_limits = *area_.mutable_limits();
+  auto& resource_limits = *area_proto_->mutable_limits();
   auto& limits = *resource_limits.mutable_maximum();
   stuff_ += 10;
   limits << stuff_;
@@ -77,7 +77,7 @@ TEST_F(GeographyTest, Recovery) {
   stuff_ += 10;
   recovery << stuff_;
 
-  *field_->mutable_production() = *progress_;
+  *field_->mutable_production() = production_->MakeProgress(1.0);
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);
@@ -88,7 +88,7 @@ TEST_F(GeographyTest, Recovery) {
 }
 
 TEST_F(GeographyTest, FallowRecovery) {
-  auto& resource_limits = *area_.mutable_limits();
+  auto& resource_limits = *area_proto_->mutable_limits();
   auto& limits = *resource_limits.mutable_maximum();
   stuff_ += 10;
   limits << stuff_;

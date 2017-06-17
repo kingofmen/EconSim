@@ -8,6 +8,8 @@
 #include "market/proto/market.pb.h"
 #include "util/status/status.h"
 
+#include <iostream>
+
 namespace geography {
 
 // Filters which return true if this Field has the requirements for at least
@@ -24,18 +26,21 @@ util::Status GenerateTransitionProcess(const proto::Field& field,
                                        const proto::Transition& transition,
                                        industry::proto::Production* production);
 
-class Area : public proto::Area {
+class Area {
 public:
   Area() = default;
   Area(const market::proto::MarketProto& market) : market_(market) {}
-  Area(const proto::Area& area) : proto::Area(area), market_(area.market()) {}
+  Area(const proto::Area& area) : proto_(area) {
+  }
 
   const market::proto::Container& GetPrices() const { return market_.prices(); }
   void Update();
 
+  proto::Area* Proto() {return &proto_;}
   market::Market* mutable_market() { return &market_; }
 
 private:
+  proto::Area proto_;
   market::Market market_;
 };
 
