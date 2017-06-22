@@ -8,10 +8,10 @@
 
 namespace industry {
 
-class Production : public proto::Production {
+class Production {
 public:
   Production() = default;
-  explicit Production(const proto::Production& prod) : proto::Production(prod) {}
+  explicit Production(const proto::Production& prod) : proto_(prod) {}
   ~Production() = default;
 
   // Returns true if this progress has completed all steps.
@@ -53,6 +53,11 @@ public:
 
   // Skips the current step, at a price in efficiency.
   void Skip(proto::Progress* progress) const;
+
+  proto::Production* Proto() { return &proto_; }
+
+private:
+  proto::Production proto_;
 };
 
 } // namespace industry

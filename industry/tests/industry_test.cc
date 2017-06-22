@@ -24,11 +24,12 @@ class IndustryTest : public testing::Test {
     cloth_.set_kind(kTestGood2);
     mules_.set_kind(kTestGood3);
     production_ = std::unique_ptr<Production>(new Production());
-    production_->set_name("spinning_wool");
+    prod_proto_ = production_->Proto();
+    prod_proto_->set_name("spinning_wool");
   }
 
   proto::ProductionStep* AddWoolStep() {
-    auto* step = production_->add_steps();
+    auto* step = prod_proto_->add_steps();
     auto* input = step->add_variants();
     auto& consumables = *input->mutable_consumables();
     wool_ += 1;
@@ -46,13 +47,14 @@ class IndustryTest : public testing::Test {
   }
 
   void AddClothOutput() {
-    auto& output = *production_->mutable_outputs();
+    auto& output = *prod_proto_->mutable_outputs();
     cloth_ += 1;
     output << cloth_;
   }
 
   proto::Progress progress_;
   std::unique_ptr<Production> production_;
+  proto::Production* prod_proto_;
   Container inputs_;
   Container outputs_;
   Container capital_;
@@ -86,7 +88,7 @@ TEST_F(IndustryTest, OneStep) {
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
-                   market::GetAmount(production_->outputs(), cloth_));
+                   market::GetAmount(prod_proto_->outputs(), cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
 }
 
@@ -116,7 +118,7 @@ TEST_F(IndustryTest, TwoSteps) {
   EXPECT_FALSE(market::Contains(outputs_, wool_));
   EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_),
-                   market::GetAmount(production_->outputs(), cloth_));
+                   market::GetAmount(prod_proto_->outputs(), cloth_));
 }
 
 TEST_F(IndustryTest, MovableCapital) {
@@ -124,7 +126,7 @@ TEST_F(IndustryTest, MovableCapital) {
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
 
-  auto* step = production_->mutable_steps(0);
+  auto* step = prod_proto_->mutable_steps(0);
   auto* input = step->mutable_variants(0);
   auto* capital = input->mutable_movable_capital();
 
@@ -148,7 +150,7 @@ TEST_F(IndustryTest, MovableCapitalSameAsInput) {
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
 
-  auto* step = production_->mutable_steps(0);
+  auto* step = prod_proto_->mutable_steps(0);
   auto* input = step->mutable_variants(0);
   auto* capital = input->mutable_movable_capital();
   wool_ += 1;
@@ -167,7 +169,7 @@ TEST_F(IndustryTest, FixedCapital) {
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
 
-  auto* step = production_->mutable_steps(0);
+  auto* step = prod_proto_->mutable_steps(0);
   auto* input = step->mutable_variants(0);
   auto* capital = input->mutable_fixed_capital();
 
@@ -196,7 +198,7 @@ TEST_F(IndustryTest, InstitutionalCapital) {
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
 
-  production_->set_experience_effect(0.5);
+  prod_proto_->set_experience_effect(0.5);
 
   wool_ += 0.5;
   inputs_ << wool_;
@@ -209,7 +211,7 @@ TEST_F(IndustryTest, InstitutionalCapital) {
 TEST_F(IndustryTest, ScalingEffects) {
   AddWoolStep();
   AddClothOutput();
-  production_->add_scaling_effects(0.9);
+  prod_proto_->add_scaling_effects(0.9);
   progress_ = production_->MakeProgress(2.0);
   wool_ += 1;
   inputs_ << wool_;
@@ -225,7 +227,7 @@ TEST_F(IndustryTest, ScalingEffects) {
   EXPECT_DOUBLE_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(outputs_, cloth_), 1.9);
 
-  production_->add_scaling_effects(0.8);
+  prod_proto_->add_scaling_effects(0.8);
   progress_.set_scaling(2.5);
   wool_ += 2;
   inputs_ << wool_;
@@ -248,7 +250,7 @@ TEST_F(IndustryTest, SkippingEffects) {
   AddWoolStep();
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
-  production_->mutable_steps(0)->set_skip_effect(0.5);
+  prod_proto_->mutable_steps(0)->set_skip_effect(0.5);
 
   wool_ += 1;
   inputs_ << wool_;
@@ -263,7 +265,7 @@ TEST_F(IndustryTest, RawMaterials) {
   AddWoolStep();
   AddClothOutput();
   progress_ = production_->MakeProgress(1.0);
-  auto &raw_material = *production_->mutable_steps(0)
+  auto &raw_material = *prod_proto_->mutable_steps(0)
                             ->mutable_variants(0)
                             ->mutable_raw_materials();
   Quantity clay;

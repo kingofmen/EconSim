@@ -12,19 +12,19 @@ using market::proto::Container;
 
 proto::Progress Production::MakeProgress(double scale) const {
   proto::Progress progress;
-  progress.set_name(name());
+  progress.set_name(proto_.name());
   progress.set_step(0);
   progress.set_efficiency(1.0);
-  if (scale > 1 + scaling_effects_size()) {
-    scale = 1 + scaling_effects_size();
+  if (scale > 1 + proto_.scaling_effects_size()) {
+    scale = 1 + proto_.scaling_effects_size();
   }
   progress.set_scaling(scale);
   return progress;
 }
 
 bool Production::Complete(const proto::Progress& progress) const {
-  if (name() != progress.name()) return false;
-  return progress.step() >= steps_size();
+  if (proto_.name() != progress.name()) return false;
+  return progress.step() >= proto_.steps_size();
 }
 
 double Production::Efficiency(const proto::Progress& progress) const {
@@ -35,11 +35,11 @@ double Production::Efficiency(const proto::Progress& progress) const {
   } else {
     int last_full_step = 1;
     for (; last_full_step + 1 < scaling; ++last_full_step) {
-      effect += scaling_effects(last_full_step - 1);
+      effect += proto_.scaling_effects(last_full_step - 1);
     }
     if (scaling - last_full_step > 0) {
       effect += sqrt(scaling - last_full_step) *
-                scaling_effects(last_full_step - 1);
+                proto_.scaling_effects(last_full_step - 1);
     }
   }
   effect *= progress.efficiency();
@@ -48,15 +48,15 @@ double Production::Efficiency(const proto::Progress& progress) const {
 
 market::proto::Container
 Production::ExpectedOutput(const proto::Progress& progress) const {
-  return outputs() * Efficiency(progress);
+  return proto_.outputs() * Efficiency(progress);
 }
 
 double Production::ExperienceEffect(const double institutional_capital) const {
-  return 1.0 - institutional_capital * experience_effect();
+  return 1.0 - institutional_capital * proto_.experience_effect();
 }
 
 double Production::MaxScale() const {
-  return 1 + scaling_effects_size();
+  return 1 + proto_.scaling_effects_size();
 }
 
 void Production::PerformStep(const Container& fixed_capital,
@@ -64,7 +64,7 @@ void Production::PerformStep(const Container& fixed_capital,
                              const int variant_index, Container* inputs,
                              Container* raw_materials, Container* output,
                              proto::Progress* progress) const {
-  if (name() != progress->name()) {
+  if (proto_.name() != progress->name()) {
     return;
   }
   if (Complete(*progress)) {
@@ -72,7 +72,7 @@ void Production::PerformStep(const Container& fixed_capital,
   }
 
   const int step = progress->step();
-  const auto &needed = steps(step).variants(variant_index);
+  const auto &needed = proto_.steps(step).variants(variant_index);
   if (!(fixed_capital > needed.fixed_capital())) {
     return;
   }
@@ -103,7 +103,7 @@ void Production::PerformStep(const Container& fixed_capital,
 market::proto::Container
 Production::RequiredConsumables(const int step, const int variant) const {
   market::proto::Container consumables;
-  const auto& input = steps(step).variants(variant);
+  const auto& input = proto_.steps(step).variants(variant);
   consumables += input.consumables();
   consumables += input.movable_capital();
   return consumables;
@@ -112,7 +112,7 @@ Production::RequiredConsumables(const int step, const int variant) const {
 market::proto::Container
 Production::RequiredConsumables(const proto::Progress& progress,
                                 const int variant) const {
-  if (name() != progress.name()) {
+  if (proto_.name() != progress.name()) {
     return market::proto::Container();
   }
   if (Complete(progress)) {
@@ -126,7 +126,7 @@ void Production::Skip(proto::Progress* progress) const {
     return;
   }
   const int step = progress->step();
-  progress->set_efficiency(progress->efficiency() * steps(step).skip_effect());
+  progress->set_efficiency(progress->efficiency() * proto_.steps(step).skip_effect());
   progress->set_step(1 + step);
 }
 
