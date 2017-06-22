@@ -36,19 +36,19 @@ market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
 std::unordered_map<uint64, PopUnit*> PopUnit::id_to_pop_map_;
 
 PopUnit::PopUnit() {
-  set_pop_id(NewPopId());
+  proto_.set_pop_id(NewPopId());
   for (int i = 0; i < kNumAgeGroups; ++i) {
-    add_males(0);
-    add_women(0);
+    proto_.add_males(0);
+    proto_.add_women(0);
   }
-  id_to_pop_map_[pop_id()] = this;
+  id_to_pop_map_[proto_.pop_id()] = this;
 }
 
-PopUnit::PopUnit(const proto::PopUnit& proto) : proto::PopUnit(proto) {
-  if (id_to_pop_map_[pop_id()] != nullptr) {
+PopUnit::PopUnit(const proto::PopUnit& proto) : proto_(proto) {
+  if (id_to_pop_map_[proto_.pop_id()] != nullptr) {
     // TODO: Error here.
   }
-  id_to_pop_map_[pop_id()] = this;
+  id_to_pop_map_[proto_.pop_id()] = this;
 }
 
 void PopUnit::AutoProduce(
@@ -57,7 +57,7 @@ void PopUnit::AutoProduce(
   const proto::AutoProduction* best_prod = nullptr;
   double best_price = 0;
   for (const auto* p : production) {
-    if (!(tags() > p->required_tags())) {
+    if (!(proto_.tags() > p->required_tags())) {
       continue;
     }
     double curr_price = p->output() * prices;
@@ -70,7 +70,7 @@ void PopUnit::AutoProduce(
   if (best_prod == nullptr) {
     return;
   }
-  *mutable_wealth() += best_prod->output();
+  *proto_.mutable_wealth() += best_prod->output();
 }
 
 void PopUnit::BirthAndDeath() {}
@@ -82,11 +82,11 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   double best_price = std::numeric_limits<double>::max();
   int size = GetSize();
   for (const auto& package : level.packages()) {
-    if (!(tags() > package.required_tags())) {
+    if (!(proto_.tags() > package.required_tags())) {
       continue;
     }
 
-    if (wealth() > TotalNeeded(package, size)) {
+    if (proto_.wealth() > TotalNeeded(package, size)) {
       double curr_price = prices * package.food().consumed();
       curr_price += prices * package.shelter().consumed();
       curr_price += prices * package.culture().consumed();
@@ -107,28 +107,28 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
     return false;
   }
 
-  auto& resources = *mutable_wealth();
+  auto& resources = *proto_.mutable_wealth();
   int size = GetSize();
   resources -= best_package->food().consumed() * size;
   resources -= best_package->shelter().consumed() * size;
   resources -= best_package->culture().consumed() * size;
 
-  *mutable_tags() += best_package->tags();
-  *mutable_tags() += level.tags();
+  *proto_.mutable_tags() += best_package->tags();
+  *proto_.mutable_tags() += level.tags();
   return true;
 }
 
 void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
-  *mutable_wealth() *= decay_rates;
-  market::CleanContainer(mutable_wealth());
+  *proto_.mutable_wealth() *= decay_rates;
+  market::CleanContainer(proto_.mutable_wealth());
 }
 
 int PopUnit::GetSize() const {
   int size = 0;
-  for (const auto men : males()) {
+  for (const auto men : proto_.males()) {
     size += men;
   }
-  for (const auto females : women()) {
+  for (const auto females : proto_.women()) {
     size += females;
   }
   return size;
@@ -160,7 +160,7 @@ void PopUnit::GetStepInfo(const industry::Production& production,
     for (const auto& good : required.quantities()) {
       variant_info.unit_cost += market.GetPrice(good.first) * good.second;
       double ratio = market.AvailableImmediately(good.first) +
-                     market::GetAmount(wealth(), good.first);
+                     market::GetAmount(proto_.wealth(), good.first);
       ratio /= good.second;
       if (ratio < variant_info.possible_scale) {
         variant_info.possible_scale = ratio;
@@ -176,7 +176,7 @@ unsigned int PopUnit::GetVariantIndex(const industry::Production& production,
                                       double* scale) const {
   unsigned int variant_index = step_info.variants.size();
   double max_profit = 0;
-  double max_money = market.MaxMoney(wealth());
+  double max_money = market.MaxMoney(proto_.wealth());
   for (unsigned int idx = 0; idx < step_info.variants.size(); ++idx) {
     const auto& variant_info = step_info.variants[idx];
     double cost_at_scale = variant_info.unit_cost * variant_info.possible_scale;
@@ -219,10 +219,10 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
   auto required = production.RequiredConsumables(*progress, variant_index);
   for (const auto& good : required.quantities()) {
     double amount_to_buy =
-        good.second - market::GetAmount(wealth(), good.first);
+        good.second - market::GetAmount(proto_.wealth(), good.first);
     if (amount_to_buy > 0) {
       double bought =
-          market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
+          market->TryToBuy(good.first, amount_to_buy, proto_.mutable_wealth());
       if (bought < amount_to_buy) {
         // This should never happen.
         return false;
@@ -231,8 +231,8 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
   }
 
   production.PerformStep(field->fixed_capital(), 0.0, variant_index,
-                         mutable_wealth(), field->mutable_resources(),
-                         mutable_wealth(), progress);
+                         proto_.mutable_wealth(), field->mutable_resources(),
+                         proto_.mutable_wealth(), progress);
   step_info->progress_this_turn = true;
   return true;
 }

@@ -18,7 +18,7 @@ namespace population {
 
 using google::protobuf::uint64;
 
-class PopUnit : public proto::PopUnit {
+class PopUnit {
 public:
   typedef std::unordered_map<std::string, const industry::Production*>
       ProductionMap;
@@ -98,7 +98,9 @@ public:
 
   static uint64 NewPopId();
 
-private:
+  proto::PopUnit* Proto() {return &proto_;}
+
+ private:
   // Returns the index of the best variant to use for the next step, and stores
   // its highest possible scale in scale, which must not be null. If no variant
   // is useful, returns the size of the variant vector.
@@ -113,6 +115,8 @@ private:
   // Keeps track of process information.
   std::unordered_map<geography::proto::Field*, ProductionStepInfo>
       progress_map_;
+
+  proto::PopUnit proto_;
 };
 
 } // namespace population
