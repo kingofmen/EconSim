@@ -14,6 +14,19 @@ areas {
     owner_id: 1
   }
   pop_ids: 1
+  market {
+    prices {
+      quantities { key: "grain" value: 2 }
+      quantities { key: "labour" value: 1 }
+    }
+    goods {
+      quantities { key: "grain" value: 1 }
+      quantities { key: "labour" value: 1 }
+    }
+    name: "area_1_market"
+    legal_tender: "silver"
+    credit_limit: 100
+  }
 }
 
 pops {

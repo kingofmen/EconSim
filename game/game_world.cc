@@ -35,7 +35,7 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
 
 void GameWorld::TimeStep() {
   for (auto& area: areas_) {
-    for (const auto pop_id : area->pop_ids()) {
+    for (const auto pop_id : area->Proto()->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
       if (pop == nullptr) {
         continue;
@@ -43,7 +43,7 @@ void GameWorld::TimeStep() {
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
     }
     std::unordered_map<population::PopUnit*, std::vector<geography::proto::Field*>> fields;
-    for (auto& field : *area->mutable_fields()) {
+    for (auto& field : *area->Proto()->mutable_fields()) {
       auto* pop = population::PopUnit::GetPopId(field.owner_id());
       if (pop == nullptr) {
         continue;
@@ -62,11 +62,12 @@ void GameWorld::TimeStep() {
 }
 
 void GameWorld::SaveToProto(proto::GameWorld* proto) const {
+
   for (const auto& pop: pops_) {
-    *proto->add_pops() = *pop;
+    *proto->add_pops() = *pop->Proto();
   }
   for (const auto& area: areas_) {
-    *proto->add_areas() = *area;
+    *proto->add_areas() = *area->Proto();
   }
 }
 
