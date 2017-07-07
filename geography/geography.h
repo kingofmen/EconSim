@@ -3,7 +3,7 @@
 #define BASE_GEOGRAPHY_GEOGRAPHY_H
 
 #include "geography/proto/geography.pb.h"
-#include "industry/proto/industry.pb.h"
+#include "industry/industry.h"
 #include "market/market.h"
 #include "market/proto/market.pb.h"
 #include "util/status/status.h"
@@ -13,16 +13,16 @@ namespace geography {
 // Filters which return true if this Field has the requirements for at least
 // one variant in each step of the given production chain.
 bool HasFixedCapital(const proto::Field& field,
-                     const industry::proto::Production& production);
+                     const industry::Production& production);
 bool HasLandType(const proto::Field& field,
-                 const industry::proto::Production& production);
+                 const industry::Production& production);
 bool HasRawMaterials(const proto::Field& field,
-                     const industry::proto::Production& production);
+                     const industry::Production& production);
 
 // Returns a production chain to transform the field into a different land type.
 util::Status GenerateTransitionProcess(const proto::Field& field,
                                        const proto::Transition& transition,
-                                       industry::proto::Production* production);
+                                       industry::Production* production);
 
 class Area {
 public:

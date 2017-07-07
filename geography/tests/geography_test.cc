@@ -38,12 +38,12 @@ class GeographyTest : public testing::Test {
 
 TEST_F(GeographyTest, TestFilters) {
   EXPECT_TRUE(HasLandType(*field_, *production_));
-  production_->set_land_type(industry::proto::LT_ORCHARDS);
+  production_->Proto()->set_land_type(industry::proto::LT_ORCHARDS);
   EXPECT_FALSE(HasLandType(*field_, *production_));
   field_->set_land_type(industry::proto::LT_ORCHARDS);
   EXPECT_TRUE(HasLandType(*field_, *production_));
 
-  auto* step = production_->add_steps();
+  auto* step = production_->Proto()->add_steps();
   auto* variant = step->add_variants();
   EXPECT_TRUE(HasFixedCapital(*field_, *production_));
   auto& capital = *variant->mutable_fixed_capital();
@@ -123,27 +123,28 @@ TEST_F(GeographyTest, Transition) {
   labour += 1;
   *transition.mutable_step_input() << labour;
 
-  industry::proto::Production production;
   EXPECT_FALSE(
-      GenerateTransitionProcess(*field_, transition, &production).ok());
+      GenerateTransitionProcess(*field_, transition, production_.get()).ok());
   field_->set_land_type(industry::proto::LT_ORCHARDS);
-  EXPECT_OK(GenerateTransitionProcess(*field_, transition, &production));
-  EXPECT_EQ(1, production.steps_size());
+  EXPECT_OK(GenerateTransitionProcess(*field_, transition, production_.get()));
+  EXPECT_EQ(1, production_->Proto()->steps_size());
   EXPECT_DOUBLE_EQ(
-      market::GetAmount(production.steps(0).variants(0).consumables(), labour),
+      market::GetAmount(production_->Proto()->steps(0).variants(0).consumables(), labour),
       1.0);
 
   fences += 1;
   *field_->mutable_fixed_capital() << fences;
-  production.Clear();
-  EXPECT_OK(GenerateTransitionProcess(*field_, transition, &production));
+  production_->Proto()->Clear();
+  EXPECT_OK(GenerateTransitionProcess(*field_, transition, production_.get()));
   EXPECT_DOUBLE_EQ(
-      market::GetAmount(production.steps(0).variants(0).consumables(), labour),
+      market::GetAmount(
+          production_->Proto()->steps(0).variants(0).consumables(), labour),
       1.0);
   EXPECT_DOUBLE_EQ(
-      market::GetAmount(production.steps(1).variants(0).consumables(), labour),
+      market::GetAmount(
+          production_->Proto()->steps(1).variants(0).consumables(), labour),
       1.0);
-  EXPECT_EQ(2, production.steps_size());
+  EXPECT_EQ(2, production_->Proto()->steps_size());
 }
 
 }  // namespace geography

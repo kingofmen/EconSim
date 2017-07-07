@@ -271,13 +271,13 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
   std::unordered_map<std::string, ProductionInfo> possible_chains;
   for (const auto& chain : chains) {
     const auto* production = chain.second;
-    if (!geography::HasLandType(*field, *production->Proto())) {
+    if (!geography::HasLandType(*field, *production)) {
       continue;
     }
-    if (!geography::HasFixedCapital(*field, *production->Proto())) {
+    if (!geography::HasFixedCapital(*field, *production)) {
       continue;
     }
-    if (!geography::HasRawMaterials(*field, *production->Proto())) {
+    if (!geography::HasRawMaterials(*field, *production)) {
       continue;
     }
     possible_chains.emplace(chain.first,

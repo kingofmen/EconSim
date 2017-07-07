@@ -11,8 +11,9 @@
 namespace geography {
 
 bool HasFixedCapital(const proto::Field& field,
-                     const industry::proto::Production& production) {
-  for (const auto& step : production.steps()) {
+                     const industry::Production& production) {
+  const auto* proto = production.Proto();
+  for (const auto& step : proto->steps()) {
     bool can_do_step = false;
     for (const auto& variant : step.variants()) {
       if (!(field.fixed_capital() > variant.fixed_capital())) {
@@ -29,13 +30,15 @@ bool HasFixedCapital(const proto::Field& field,
 }
 
 bool HasLandType(const proto::Field& field,
-                 const industry::proto::Production& production) {
-  return field.land_type() == production.land_type();
+                 const industry::Production& production) {
+  const auto* proto = production.Proto();
+  return field.land_type() == proto->land_type();
 }
 
 bool HasRawMaterials(const proto::Field& field,
-                     const industry::proto::Production& production) {
-  for (const auto& step : production.steps()) {
+                     const industry::Production& production) {
+  const auto* proto = production.Proto();
+  for (const auto& step : proto->steps()) {
     bool can_do_step = false;
     for (const auto& variant : step.variants()) {
       if (!(field.resources() > variant.raw_materials())) {
@@ -54,7 +57,8 @@ bool HasRawMaterials(const proto::Field& field,
 util::Status
 GenerateTransitionProcess(const proto::Field& field,
                           const proto::Transition& transition,
-                          industry::proto::Production* production) {
+                          industry::Production* production) {
+  auto* proto = production->Proto();
   if (field.land_type() != transition.source()) {
     return util::InvalidArgumentError("Invalid land type");
   }
@@ -69,7 +73,7 @@ GenerateTransitionProcess(const proto::Field& field,
   }
   total_steps += max_fixed_cap_steps;
   for (int i = 0; i < total_steps; ++i) {
-    auto* step = production->add_steps();
+    auto* step = proto->add_steps();
     auto* variant = step->add_variants();
     auto& input = *variant->mutable_consumables();
     input += transition.step_input();
