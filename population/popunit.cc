@@ -118,7 +118,8 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
   return true;
 }
 
-void PopUnit::DecayWealth(const market::proto::Container& decay_rates) {
+void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
+  progress_map_.clear();
   *proto_.mutable_wealth() *= decay_rates;
   market::CleanContainer(proto_.mutable_wealth());
 }
@@ -139,7 +140,7 @@ void PopUnit::GetStepInfo(const industry::Production& production,
                           const geography::proto::Field& field,
                           const industry::proto::Progress& progress,
                           PopUnit::ProductionStepInfo* step_info) const {
-  const auto& step = production.steps(progress.step());
+  const auto& step = production.Proto()->steps(progress.step());
   for (int index = 0; index < step.variants_size(); ++index) {
     step_info->variants.emplace_back();
     auto& variant_info = step_info->variants.back();
@@ -244,7 +245,7 @@ PopUnit::GetProductionInfo(const industry::Production& chain,
   ProductionInfo ret;
   ret.max_scale = chain.MaxScale();
   auto progress = chain.MakeProgress(ret.max_scale);
-  for (int i = 0; i < chain.steps_size(); ++i) {
+  for (int i = 0; i < chain.Proto()->steps_size(); ++i) {
     progress.set_step(i);
     ret.step_info.emplace_back();
     auto& info = ret.step_info.back();
@@ -270,13 +271,13 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
   std::unordered_map<std::string, ProductionInfo> possible_chains;
   for (const auto& chain : chains) {
     const auto* production = chain.second;
-    if (!geography::HasLandType(*field, *production)) {
+    if (!geography::HasLandType(*field, *production->Proto())) {
       continue;
     }
-    if (!geography::HasFixedCapital(*field, *production)) {
+    if (!geography::HasFixedCapital(*field, *production->Proto())) {
       continue;
     }
-    if (!geography::HasRawMaterials(*field, *production)) {
+    if (!geography::HasRawMaterials(*field, *production->Proto())) {
       continue;
     }
     possible_chains.emplace(chain.first,
@@ -291,7 +292,7 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
   for (auto& possible : possible_chains) {
     const auto* chain = chains.at(possible.first);
     const auto& info = possible.second;
-    double profit = market.GetPrice(chain->outputs());
+    double profit = market.GetPrice(chain->Proto()->outputs());
     profit -= info.total_unit_cost;
     profit *= info.max_scale;
     if (profit <= max_profit) {
@@ -305,8 +306,8 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
     return false;
   }
 
-  *field->mutable_production() =
-      best_chain->MakeProgress(possible_chains.at(best_chain->name()).max_scale);
+  *field->mutable_production() = best_chain->MakeProgress(
+      possible_chains.at(best_chain->Proto()->name()).max_scale);
   return true;
 }
 

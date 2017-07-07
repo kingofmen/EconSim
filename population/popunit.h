@@ -58,8 +58,8 @@ public:
   bool Consume(const proto::ConsumptionLevel& level,
                const market::proto::Container& prices);
 
-  // Reduce wealth due to entropy.
-  void DecayWealth(const market::proto::Container& decay_rates);
+  // End-of-turn cleanup.
+  void EndTurn(const market::proto::Container& decay_rates);
 
   int GetSize() const;
 
@@ -112,7 +112,7 @@ public:
 
   static std::unordered_map<uint64, PopUnit*> id_to_pop_map_;
 
-  // Keeps track of process information.
+  // Keeps track of process information for the turn.
   std::unordered_map<geography::proto::Field*, ProductionStepInfo>
       progress_map_;
 

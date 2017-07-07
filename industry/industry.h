@@ -54,6 +54,7 @@ public:
   // Skips the current step, at a price in efficiency.
   void Skip(proto::Progress* progress) const;
 
+  const proto::Production* Proto() const { return &proto_; }
   proto::Production* Proto() { return &proto_; }
 
 private:

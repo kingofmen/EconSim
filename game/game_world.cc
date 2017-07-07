@@ -63,7 +63,7 @@ void GameWorld::TimeStep() {
   }
 
   for (auto& pop : pops_) {
-    pop->DecayWealth(scenario_.proto_.decay_rates());
+    pop->EndTurn(scenario_.proto_.decay_rates());
   }
 }
 
