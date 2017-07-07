@@ -50,9 +50,15 @@ void GameWorld::TimeStep() {
       }
       fields[pop].emplace_back(&field);
     }
-    for (auto& pop_field : fields) {
-      pop_field.first->Produce(production_map_, pop_field.second,
-                               area->mutable_market());
+    bool progress = true;
+    while (progress) {
+      progress = false;
+      for (auto& pop_field : fields) {
+        if (pop_field.first->Produce(production_map_, pop_field.second,
+                                     area->mutable_market())) {
+          progress = true;
+        }
+      }
     }
   }
 
