@@ -3,7 +3,7 @@ areas {
     land_type: LT_BUILT
     fixed_capital {
       quantities {
-        key: "house"
+        key: "timber"
 	value: 1
       }
     }
@@ -16,11 +16,11 @@ areas {
   pop_ids: 1
   market {
     prices {
-      quantities { key: "grain" value: 2 }
+      quantities { key: "food" value: 2 }
       quantities { key: "labour" value: 1 }
     }
     goods {
-      quantities { key: "grain" value: 1 }
+      quantities { key: "food" value: 1 }
       quantities { key: "labour" value: 1 }
     }
     name: "area_1_market"

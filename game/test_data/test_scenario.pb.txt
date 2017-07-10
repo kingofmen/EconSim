@@ -11,14 +11,26 @@ production_chains {
     weather_effect: 0
     skip_effect: 0
   }
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
   outputs {
     quantities {
-      key: "grain"
+      key: "food"
       value: 1
     }
   }
   land_type: LT_FIELDS
-  name: "wheat"
+  name: "wheat_fields"
   scaling_effects: 0.9
   scaling_effects: 0.8
   experience_effect: 0.1
@@ -27,9 +39,167 @@ production_chains {
 production_chains {
   steps {
     variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "sheep"
+	  value: 1
+	}
+      }
+    }
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 0.1
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "sheep"
+	  value: 1
+	}
+      }
       fixed_capital {
         quantities {
-	  key: "house"
+	  key: "timber"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "wool"
+      value: 1
+    }
+    quantities {
+      key: "sheep"
+      value: 0.02
+    }
+  }
+  land_type: LT_PASTURE
+  name: "sheep_shearing"
+  experience_effect: 0.1
+}
+
+production_chains {
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 0.2
+	}
+        quantities {
+	  key: "sheep"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "food"
+      value: 1
+    }
+  }
+  land_type: LT_PASTURE
+  name: "sheep_slaughter"
+  experience_effect: 0.1
+}
+
+production_chains {
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1
+	}
+        quantities {
+	  key: "wool"
+	  value: 1
+	}
+      }
+    }
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 0.1
+	}
+        quantities {
+	  key: "wool"
+	  value: 1
+	}
+      }
+      fixed_capital {
+        quantities {
+	  key: "timber"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "cloth"
+      value: 1
+    }
+  }
+  land_type: LT_BUILT
+  name: "weaving"
+  experience_effect: 0.1
+}
+
+production_chains {
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1
+	}
+      }
+      raw_materials {
+        quantities {
+	  key: "forest"
+	  value: 1
+	}
+      }
+    }
+    weather_effect: 0
+    skip_effect: 0
+  }
+  outputs {
+    quantities {
+      key: "timber"
+      value: 1
+    }
+  }
+  land_type: LT_ORCHARDS
+  name: "forestry"
+  experience_effect: 0.1
+}
+
+production_chains {
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+	  key: "timber"
 	  value: 1
 	}
       }
@@ -44,8 +214,9 @@ production_chains {
     }
   }
   land_type: LT_BUILT
-  name: "shelter"
+  name: "housing"
 }
+
 
 auto_production {
   output {
