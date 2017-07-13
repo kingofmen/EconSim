@@ -13,15 +13,41 @@ areas {
     land_type: LT_FIELDS
     owner_id: 1
   }
+  fields {
+    land_type: LT_ORCHARDS
+    owner_id: 2
+    resources {
+      quantities {
+        key: "forest"
+	value: 1000
+      }
+    }
+  }
+  fields {
+    land_type: LT_PASTURE
+    owner_id: 3
+  }
   pop_ids: 1
+  pop_ids: 2
+  pop_ids: 3
   market {
     prices {
       quantities { key: "food" value: 2 }
       quantities { key: "labour" value: 1 }
+      quantities { key: "timber" value: 1 }
+      quantities { key: "wool" value: 1 }
+      quantities { key: "cloth" value: 1 }
+      quantities { key: "shelter" value: 1 }
+      quantities { key: "sheep" value: 1 }
     }
     goods {
       quantities { key: "food" value: 1 }
       quantities { key: "labour" value: 1 }
+      quantities { key: "timber" value: 1 }
+      quantities { key: "wool" value: 1 }
+      quantities { key: "cloth" value: 1 }
+      quantities { key: "shelter" value: 1 }
+      quantities { key: "sheep" value: 1 }
     }
     name: "area_1_market"
     legal_tender: "silver"
@@ -37,4 +63,27 @@ pops {
   women: 0
   women: 0
   women: 1
+}
+
+pops {
+  pop_id: 2
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 1
+}
+
+pops {
+  pop_id: 3
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 1
+  wealth {
+    quantities { key: "sheep" value: 1 }
+  }
 }
