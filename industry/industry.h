@@ -57,6 +57,8 @@ public:
   const proto::Production* Proto() const { return &proto_; }
   proto::Production* Proto() { return &proto_; }
 
+  const std::string& get_name() const { return proto_.name(); }
+
 private:
   proto::Production proto_;
 };
