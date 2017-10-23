@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "proto/goods.pb.h"
-#include "proto/market.pb.h"
+#include "market/proto/goods.pb.h"
+#include "market/proto/market.pb.h"
 
 namespace market {
 

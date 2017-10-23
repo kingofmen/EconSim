@@ -6,7 +6,6 @@
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
-#include "population/popunit.h"
 
 namespace geography {
 

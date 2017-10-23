@@ -5,3 +5,5 @@
 *.ps1
 *.o
 *.exe
+bazel-*
+protobuf*

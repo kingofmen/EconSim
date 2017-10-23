@@ -2,7 +2,7 @@
 #ifndef MARKET_GOODS_UTILS_H
 #define MARKET_GOODS_UTILS_H
 
-#include "proto/goods.pb.h"
+#include "market/proto/goods.pb.h"
 
 namespace market {
 

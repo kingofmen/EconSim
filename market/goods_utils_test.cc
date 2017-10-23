@@ -3,7 +3,7 @@
 #include <string>
 
 #include "market/proto/goods.pb.h"
-#include "gtest/gtest.h"
+#include "gtest/include/gtest/gtest.h"
 
 namespace market {
 
