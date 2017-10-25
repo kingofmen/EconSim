@@ -14,3 +14,8 @@ new_local_repository(
   path = "C:\\Users\\Rolf\\base\\protobuf\\",
   build_file = "gmock.BUILD",
 )
+
+local_repository(
+  name = "com_google_absl",
+  path = "C:\\Users\\Rolf\\base\\third_party\\abseil-cpp",
+)
