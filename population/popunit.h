@@ -12,6 +12,7 @@
 #include "market/market.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
+#include "population/production_evaluator.h"
 #include "population/proto/population.pb.h"
 
 namespace population {
@@ -100,6 +101,10 @@ public:
 
   proto::PopUnit* Proto() {return &proto_;}
 
+  void set_production_evaluator(ProductionEvaluator* eval) {
+    evaluator_ = eval;
+  }
+
  private:
   // Returns the index of the best variant to use for the next step, and stores
   // its highest possible scale in scale, which must not be null. If no variant
@@ -112,11 +117,16 @@ public:
 
   static std::unordered_map<uint64, PopUnit*> id_to_pop_map_;
 
+  static ProductionEvaluator& default_evaluator_;
+
   // Keeps track of process information for the turn.
   std::unordered_map<geography::proto::Field*, ProductionStepInfo>
       progress_map_;
 
   proto::PopUnit proto_;
+
+  // For choosing new production chains. Not owned.
+  ProductionEvaluator* evaluator_;
 };
 
 } // namespace population

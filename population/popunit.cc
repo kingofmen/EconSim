@@ -11,6 +11,8 @@ namespace population {
 
 using industry::proto::Production;
 
+ProductionEvaluator& PopUnit::default_evaluator_ = LocalProfitMaximiser();
+
 namespace {
 uint64 unused_pop_id = 1;
 constexpr int kNumAgeGroups = 7;
@@ -35,7 +37,7 @@ market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
 
 std::unordered_map<uint64, PopUnit*> PopUnit::id_to_pop_map_;
 
-PopUnit::PopUnit() {
+PopUnit::PopUnit() : evaluator_(&default_evaluator_) {
   proto_.set_pop_id(NewPopId());
   for (int i = 0; i < kNumAgeGroups; ++i) {
     proto_.add_males(0);
@@ -44,7 +46,8 @@ PopUnit::PopUnit() {
   id_to_pop_map_[proto_.pop_id()] = this;
 }
 
-PopUnit::PopUnit(const proto::PopUnit& proto) : proto_(proto) {
+PopUnit::PopUnit(const proto::PopUnit& proto)
+    : proto_(proto), evaluator_(&default_evaluator_) {
   if (id_to_pop_map_[proto_.pop_id()] != nullptr) {
     // TODO: Error here.
   }

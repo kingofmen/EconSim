@@ -9,7 +9,15 @@ cc_library(
     "//industry:industry",
     "//market/proto:goods_proto",
     "//population/proto:population_proto",
+    "//population:production_evaluator",
   ],
+)
+
+cc_library(
+  name = "production_evaluator",
+  srcs = ["production_evaluator.cc"],
+  hdrs = ["production_evaluator.h"],
+  deps = [],
 )
 
 cc_test(
