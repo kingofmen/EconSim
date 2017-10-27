@@ -17,7 +17,10 @@ cc_library(
   name = "production_evaluator",
   srcs = ["production_evaluator.cc"],
   hdrs = ["production_evaluator.h"],
-  deps = [],
+  deps = [
+    "//geography/proto:geography_proto",
+    "//industry:industry",
+  ],
 )
 
 cc_test(

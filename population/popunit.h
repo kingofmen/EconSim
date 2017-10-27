@@ -21,9 +21,6 @@ using google::protobuf::uint64;
 
 class PopUnit {
 public:
-  typedef std::unordered_map<std::string, const industry::Production*>
-      ProductionMap;
-
   struct VariantInfo {
     double unit_cost = 0;
     double possible_scale = 0;
@@ -79,13 +76,10 @@ public:
 
   // Attempt to continue existing production chains and start new ones. Returns
   // true if any chain makes progress.
-  bool Produce(const ProductionMap& chains,
-               const std::vector<geography::proto::Field*>& fields,
-               market::Market* market);
+  bool Produce(const ProductionContext& context);
 
   // Attempts to find a new production chain to run in field.
-  bool StartNewProduction(const ProductionMap& chains,
-                          const market::Market& market,
+  bool StartNewProduction(const ProductionContext& context,
                           geography::proto::Field* field);
 
   // Attempts to run the next step of production. Returns true if the process

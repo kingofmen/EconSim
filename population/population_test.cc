@@ -358,12 +358,14 @@ TEST_F(PopulationTest, StartNewProduction) {
   SetupMarket();
   SellGoods(10, 10, 10);
 
-  PopUnit::ProductionMap chains;
-  chains[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
-  chains[dinner_from_grain_proto_->name()] = &dinner_from_grain_;
+  ProductionContext context;
+  context.production_map[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
+  context.production_map[dinner_from_grain_proto_->name()] = &dinner_from_grain_;
   geography::proto::Field field;
+  context.fields.push_back(&field);
+  context.market = &market_;
   
-  EXPECT_TRUE(pop_.StartNewProduction(chains, market_, &field));
+  EXPECT_TRUE(pop_.StartNewProduction(context, &field));
 }
 
 } // namespace population

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "population/production_evaluator.h"
+
 namespace game {
 
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
@@ -18,7 +20,7 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
 }
 
 GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
-    : scenario_(scenario) {
+    : scenario_(scenario), local_profit_maximiser_() {
 
   for (const auto& pop : world.pops()) {
     pops_.emplace_back(new population::PopUnit(pop));
@@ -54,8 +56,9 @@ void GameWorld::TimeStep() {
     while (progress) {
       progress = false;
       for (auto& pop_field : fields) {
-        if (pop_field.first->Produce(production_map_, pop_field.second,
-                                     area->mutable_market())) {
+        population::ProductionContext context = {
+            production_map_, pop_field.second, area->mutable_market()};
+        if (pop_field.first->Produce(context)) {
           progress = true;
         }
       }

@@ -268,11 +268,10 @@ PopUnit::GetProductionInfo(const industry::Production& chain,
   return ret;
 }
 
-bool PopUnit::StartNewProduction(const ProductionMap& chains,
-                                 const market::Market& market,
+bool PopUnit::StartNewProduction(const ProductionContext& context,
                                  geography::proto::Field* field) {
   std::unordered_map<std::string, ProductionInfo> possible_chains;
-  for (const auto& chain : chains) {
+  for (const auto& chain : context.production_map) {
     const auto* production = chain.second;
     if (!geography::HasLandType(*field, *production)) {
       continue;
@@ -284,7 +283,7 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
       continue;
     }
     possible_chains.emplace(chain.first,
-                            GetProductionInfo(*production, market, *field));
+                            GetProductionInfo(*production, *context.market, *field));
   }
   if (possible_chains.empty()) {
     return false;
@@ -293,9 +292,9 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
   double max_profit = 0;
   const industry::Production* best_chain = nullptr;
   for (auto& possible : possible_chains) {
-    const auto* chain = chains.at(possible.first);
+    const auto* chain = context.production_map.at(possible.first);
     const auto& info = possible.second;
-    double profit = market.GetPrice(chain->Proto()->outputs());
+    double profit = context.market->GetPrice(chain->Proto()->outputs());
     profit -= info.total_unit_cost;
     profit *= info.max_scale;
     if (profit <= max_profit) {
@@ -314,21 +313,19 @@ bool PopUnit::StartNewProduction(const ProductionMap& chains,
   return true;
 }
 
-bool PopUnit::Produce(const ProductionMap& chains,
-                      const std::vector<geography::proto::Field*>& fields,
-                      market::Market* market) {
+bool PopUnit::Produce(const ProductionContext& context) {
   bool any_progress = false;
 
-  for (auto* field : fields) {
+  for (auto* field : context.fields) {
     if (!field->has_production()) {
-      if (!StartNewProduction(chains, *market, field)) {
+      if (!StartNewProduction(context, field)) {
         continue;
       }
     }
 
     auto* progress = field->mutable_production();
-    const auto production = chains.find(progress->name());
-    if (production == chains.end()) {
+    const auto production = context.production_map.find(progress->name());
+    if (production == context.production_map.end()) {
       // TODO: Error here!
       continue;
     }
@@ -336,7 +333,7 @@ bool PopUnit::Produce(const ProductionMap& chains,
     if (step_info == progress_map_.end()) {
       step_info = progress_map_.emplace(field, ProductionStepInfo()).first;
     }
-    if (TryProductionStep(*production->second, field, progress, market,
+    if (TryProductionStep(*production->second, field, progress, context.market,
                           &step_info->second)) {
       any_progress = true;
     }
