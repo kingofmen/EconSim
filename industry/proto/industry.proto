@@ -62,4 +62,6 @@ message Progress {
   double efficiency = 3;
   // Current scaling.
   double scaling = 4;
+  // Best variant of the current step, if known.
+  uint32 best_variant = 5;
 }
