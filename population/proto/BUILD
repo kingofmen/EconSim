@@ -8,7 +8,9 @@ cc_proto_library(
 proto_library(
   name = "population_proto_lib",
   srcs = ["population.proto"],
-  deps = ["//market/proto:goods_proto_lib"],
+  deps = [
+    "//market/proto:goods_proto_lib",
+  ],
 )
 
 

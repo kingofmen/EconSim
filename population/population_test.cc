@@ -286,53 +286,32 @@ TEST_F(PopulationTest, EndTurn) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), youtube_), 1);
 }
 
-TEST_F(PopulationTest, GetStepInfo) {
-  SetupProduction();
-  SetupMarket();
-  market::proto::Container stores;
-  fish_.set_amount(0.5);
-  youtube_.set_amount(5);
-  stores += fish_;
-  stores += youtube_;
-  market_.TryToSell(fish_, &stores);
-  market_.TryToSell(youtube_, &stores);
-
-  geography::proto::Field field;
-  PopUnit::ProductionStepInfo step_info;
-  auto progress = dinner_from_fish_.MakeProgress(3);
-
-  pop_.GetStepInfo(dinner_from_fish_, market_, field, progress, &step_info);
-
-  EXPECT_EQ(step_info.variants.size(), 3);
-  EXPECT_DOUBLE_EQ(step_info.variants[0].unit_cost, 0);
-  EXPECT_DOUBLE_EQ(step_info.variants[0].possible_scale, 0);
-
-  EXPECT_DOUBLE_EQ(step_info.variants[1].unit_cost, 2);
-  EXPECT_DOUBLE_EQ(step_info.variants[1].possible_scale, 0.25);
-
-  EXPECT_DOUBLE_EQ(step_info.variants[2].unit_cost, 2);
-  EXPECT_DOUBLE_EQ(step_info.variants[2].possible_scale, 3);
-}
 
 TEST_F(PopulationTest, TryProductionStep) {
   SetupProduction();
   SetupMarket();
+  LocalProfitMaximiser evaluator;
   geography::proto::Field field;
-  PopUnit::ProductionStepInfo step_info;
+
   auto progress = dinner_from_fish_.MakeProgress(3);
   EXPECT_DOUBLE_EQ(2.8, dinner_from_fish_.Efficiency(progress));
+  auto fish_info = evaluator.GetProductionInfo(
+      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
 
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
-                                      &market_, &step_info));
-  EXPECT_EQ(step_info.attempts_this_turn, 1);
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
+                                      &progress, &market_))
+      << fish_info.DebugString();
 
   SellGoods(2, 5);
 
   // Process makes no profit because it has no output.
   dinner_from_fish_proto_->mutable_outputs()->Clear();
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
-                                      &market_, &step_info));
-  EXPECT_EQ(step_info.attempts_this_turn, 2);
+  fish_info = evaluator.GetProductionInfo(
+      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
+                                      &progress, &market_))
+      << fish_info.DebugString();
+
 
   auto entertainment = market::MakeQuantity("entertainment", 10);
   market_.RegisterGood(entertainment.kind());
@@ -342,15 +321,19 @@ TEST_F(PopulationTest, TryProductionStep) {
   EXPECT_DOUBLE_EQ(dinner_from_fish_.Efficiency(progress),
                    market::GetAmount(dinner_from_fish_.ExpectedOutput(progress),
                                      entertainment));
+  fish_info = evaluator.GetProductionInfo(
+      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
 
-  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
-                                     &market_, &step_info));
-  EXPECT_EQ(step_info.attempts_this_turn, 3);
+  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
+                                      &progress, &market_))
+      << fish_info.DebugString();
+
   EXPECT_DOUBLE_EQ(1, market::GetAmount(pop_.Proto()->wealth(), entertainment));
   EXPECT_TRUE(dinner_from_fish_.Complete(progress));
 
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, &field, &progress,
-                                      &market_, &step_info));
+  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
+                                      &progress, &market_))
+      << fish_info.DebugString();
 }
 
 TEST_F(PopulationTest, StartNewProduction) {
@@ -358,13 +341,17 @@ TEST_F(PopulationTest, StartNewProduction) {
   SetupMarket();
   SellGoods(10, 10, 10);
 
+  LocalProfitMaximiser evaluator;
   ProductionContext context;
+  geography::proto::Field field;
   context.production_map[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
   context.production_map[dinner_from_grain_proto_->name()] = &dinner_from_grain_;
-  geography::proto::Field field;
   context.fields.push_back(&field);
   context.market = &market_;
-  
+  auto fish_info = evaluator.Evaluate(context, pop_.Proto()->wealth(), &field);
+  EXPECT_TRUE(fish_info.has_selected()) << fish_info.DebugString();
+  EXPECT_FALSE(fish_info.selected().name().empty()) << fish_info.DebugString();
+
   EXPECT_TRUE(pop_.StartNewProduction(context, &field));
 }
 

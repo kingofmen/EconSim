@@ -84,7 +84,7 @@ void Area::Update() {
   market::proto::Quantity temp;
   // Recovery of raw materials in the fields, eg topsoil.
   for (auto& field : *(proto_.mutable_fields())) {
-    const auto& recovery = field.has_production()
+    const auto& recovery = field.has_progress()
                                ? proto_.limits().recovery()
                                : proto_.limits().fallow_recovery();
     auto& resources = *field.mutable_resources();

@@ -4,7 +4,8 @@
 #include <limits>
 #include <list>
 
-#include "geography/geography.h"
+#include "absl/algorithm/container.h"
+#include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
 
 namespace population {
@@ -122,7 +123,8 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 }
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
-  progress_map_.clear();
+  fields_worked_.clear();
+  production_info_map_.clear();
   *proto_.mutable_wealth() *= decay_rates;
   market::CleanContainer(proto_.mutable_wealth());
 }
@@ -138,88 +140,23 @@ int PopUnit::GetSize() const {
   return size;
 }
 
-void PopUnit::GetStepInfo(const industry::Production& production,
-                          const market::Market& market,
-                          const geography::proto::Field& field,
-                          const industry::proto::Progress& progress,
-                          PopUnit::ProductionStepInfo* step_info) const {
-  const auto& step = production.Proto()->steps(progress.step());
-  for (int index = 0; index < step.variants_size(); ++index) {
-    step_info->variants.emplace_back();
-    auto& variant_info = step_info->variants.back();
-    const auto& input = step.variants(index);
-    if (!(field.fixed_capital() > input.fixed_capital())) {
-      continue;
-    }
-    variant_info.possible_scale = progress.scaling();
-    for (const auto& good : input.raw_materials().quantities()) {
-      double ratio = market::GetAmount(field.resources(), good.first);
-      ratio /= good.second;
-      if (ratio < variant_info.possible_scale) {
-        variant_info.possible_scale = ratio;
-      }
-    }
-
-    auto required = production.RequiredConsumables(progress.step(), index);
-    for (const auto& good : required.quantities()) {
-      variant_info.unit_cost += market.GetPrice(good.first) * good.second;
-      double ratio = market.AvailableImmediately(good.first) +
-                     market::GetAmount(proto_.wealth(), good.first);
-      ratio /= good.second;
-      if (ratio < variant_info.possible_scale) {
-        variant_info.possible_scale = ratio;
-      }
-    }
-  }
-}
-
-unsigned int PopUnit::GetVariantIndex(const industry::Production& production,
-                                      const industry::proto::Progress& progress,
-                                      const market::Market& market,
-                                      const ProductionStepInfo& step_info,
-                                      double* scale) const {
-  unsigned int variant_index = step_info.variants.size();
-  double max_profit = 0;
-  double max_money = market.MaxMoney(proto_.wealth());
-  for (unsigned int idx = 0; idx < step_info.variants.size(); ++idx) {
-    const auto& variant_info = step_info.variants[idx];
-    double cost_at_scale = variant_info.unit_cost * variant_info.possible_scale;
-    double max_scale =
-        std::min(variant_info.possible_scale, max_money / cost_at_scale);
-    if (max_scale < 0.1) {
-      continue;
-    }
-    double profit = market.GetPrice(production.ExpectedOutput(progress));
-    profit -= variant_info.unit_cost * progress.scaling();
-    if (profit > max_profit) {
-      max_profit = profit;
-      variant_index = idx;
-      *scale = max_scale;
-    }
-  }
-  return variant_index;
-}
-
 bool PopUnit::TryProductionStep(const industry::Production& production,
+                                const proto::ProductionInfo& production_info,
                                 geography::proto::Field* field,
                                 industry::proto::Progress* progress,
-                                market::Market* market,
-                                ProductionStepInfo* step_info) {
-  if (step_info->progress_this_turn) {
+                                market::Market* market) {
+  if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
     return false;
   }
-  step_info->variants.clear();
-  ++step_info->attempts_this_turn;
-  GetStepInfo(production, *market, *field, *progress, step_info);
-
-  double scale = 0;
-  unsigned int variant_index =
-      GetVariantIndex(production, *progress, *market, *step_info, &scale);
-  if (variant_index >= step_info->variants.size()) {
+  const auto& step_info = production_info.step_info(progress->step());
+  auto variant_index = step_info.best_variant();
+  if (variant_index >= step_info.variant_size()) {
     return false;
   }
-
-  progress->set_scaling(scale);
+  const auto& variant_info = step_info.variant(variant_index);
+  if (progress->scaling() > variant_info.possible_scale()) {
+    progress->set_scaling(variant_info.possible_scale());
+  }
   auto required = production.RequiredConsumables(*progress, variant_index);
   for (const auto& good : required.quantities()) {
     double amount_to_buy =
@@ -237,79 +174,23 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
   production.PerformStep(field->fixed_capital(), 0.0, variant_index,
                          proto_.mutable_wealth(), field->mutable_resources(),
                          proto_.mutable_wealth(), progress);
-  step_info->progress_this_turn = true;
-  return true;
-}
 
-PopUnit::ProductionInfo
-PopUnit::GetProductionInfo(const industry::Production& chain,
-                           const market::Market& market,
-                           const geography::proto::Field& field) const {
-  ProductionInfo ret;
-  ret.max_scale = chain.MaxScale();
-  auto progress = chain.MakeProgress(ret.max_scale);
-  for (int i = 0; i < chain.Proto()->steps_size(); ++i) {
-    progress.set_step(i);
-    ret.step_info.emplace_back();
-    auto& info = ret.step_info.back();
-    GetStepInfo(chain, market, field, progress, &info);
-    double scale = 0;
-    unsigned int variant_index =
-        GetVariantIndex(chain, progress, market, info, &scale);
-    if (variant_index >= info.variants.size()) {
-      ret.max_scale = 0;
-      return ret;
-    }
-    if (scale < ret.max_scale) {
-      ret.max_scale = scale;
-    }
-    ret.total_unit_cost += ret.step_info[i].variants[variant_index].unit_cost;
-  }
-  return ret;
+  fields_worked_.insert(field);
+  return true;
 }
 
 bool PopUnit::StartNewProduction(const ProductionContext& context,
                                  geography::proto::Field* field) {
-  std::unordered_map<std::string, ProductionInfo> possible_chains;
-  for (const auto& chain : context.production_map) {
-    const auto* production = chain.second;
-    if (!geography::HasLandType(*field, *production)) {
-      continue;
-    }
-    if (!geography::HasFixedCapital(*field, *production)) {
-      continue;
-    }
-    if (!geography::HasRawMaterials(*field, *production)) {
-      continue;
-    }
-    possible_chains.emplace(chain.first,
-                            GetProductionInfo(*production, *context.market, *field));
-  }
-  if (possible_chains.empty()) {
+  proto::ProductionDecision decision =
+      evaluator_->Evaluate(context, proto_.wealth(), field);
+  if (!decision.has_selected()) {
     return false;
   }
 
-  double max_profit = 0;
-  const industry::Production* best_chain = nullptr;
-  for (auto& possible : possible_chains) {
-    const auto* chain = context.production_map.at(possible.first);
-    const auto& info = possible.second;
-    double profit = context.market->GetPrice(chain->Proto()->outputs());
-    profit -= info.total_unit_cost;
-    profit *= info.max_scale;
-    if (profit <= max_profit) {
-      continue;
-    }
-    max_profit = profit;
-    best_chain = chain;
-  }
-
-  if (best_chain == nullptr) {
-    return false;
-  }
-
-  *field->mutable_production() = best_chain->MakeProgress(
-      possible_chains.at(best_chain->Proto()->name()).max_scale);
+  auto* best_chain = context.production_map.at(decision.selected().name());
+  *field->mutable_progress() =
+      best_chain->MakeProgress(decision.selected().max_scale());
+  production_info_map_.emplace(field, decision.selected());
   return true;
 }
 
@@ -317,24 +198,29 @@ bool PopUnit::Produce(const ProductionContext& context) {
   bool any_progress = false;
 
   for (auto* field : context.fields) {
-    if (!field->has_production()) {
+    if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
+      continue;
+    }
+    if (!field->has_progress()) {
       if (!StartNewProduction(context, field)) {
         continue;
       }
     }
 
-    auto* progress = field->mutable_production();
-    const auto production = context.production_map.find(progress->name());
-    if (production == context.production_map.end()) {
+    auto* progress = field->mutable_progress();
+    const auto chain = context.production_map.find(progress->name());
+    if (chain == context.production_map.end()) {
       // TODO: Error here!
       continue;
     }
-    auto step_info = progress_map_.find(field);
-    if (step_info == progress_map_.end()) {
-      step_info = progress_map_.emplace(field, ProductionStepInfo()).first;
+    if (production_info_map_.find(field) == production_info_map_.end()) {
+      production_info_map_.emplace(
+          field,
+          evaluator_->GetProductionInfo(*chain->second, proto_.wealth(),
+                                        *context.market, *field));
     }
-    if (TryProductionStep(*production->second, field, progress, context.market,
-                          &step_info->second)) {
+    if (TryProductionStep(*chain->second, production_info_map_[field], field,
+                          progress, context.market)) {
       any_progress = true;
     }
   }

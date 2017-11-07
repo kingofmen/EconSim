@@ -7,8 +7,8 @@ import "industry/proto/industry.proto";
 
 // A unit area, able to hold one production chain.
 message Field {
-  // The production currently underway.
-  industry.proto.Progress production = 1;
+  // Progress of the production chain currently underway.
+  industry.proto.Progress progress = 1;
   // Fixed equipment for this field.
   market.proto.Container fixed_capital = 2;
   // Terrain type.

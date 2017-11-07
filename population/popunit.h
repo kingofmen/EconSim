@@ -21,23 +21,6 @@ using google::protobuf::uint64;
 
 class PopUnit {
 public:
-  struct VariantInfo {
-    double unit_cost = 0;
-    double possible_scale = 0;
-  };
-
-  struct ProductionStepInfo {
-    int attempts_this_turn = 0;
-    bool progress_this_turn = false;
-    std::vector<VariantInfo> variants;
-  };
-
-  struct ProductionInfo {
-    double max_scale = 0;
-    double total_unit_cost = 0;
-    std::vector<ProductionStepInfo> step_info;
-  };
-
   PopUnit();
   PopUnit(const proto::PopUnit& proto);
 
@@ -61,19 +44,6 @@ public:
 
   int GetSize() const;
 
-  // Calculates cost for each step in chain.
-  ProductionInfo GetProductionInfo(const industry::Production& chain,
-                                   const market::Market& market,
-                                   const geography::proto::Field& field) const;
-
-  // Calculates cost and possibility information for each variant of the current
-  // step in progress, and stores it in step_info, which may not be null.
-  void GetStepInfo(const industry::Production& production,
-                   const market::Market& market,
-                   const geography::proto::Field& field,
-                   const industry::proto::Progress& progress,
-                   ProductionStepInfo* step_info) const;
-
   // Attempt to continue existing production chains and start new ones. Returns
   // true if any chain makes progress.
   bool Produce(const ProductionContext& context);
@@ -85,9 +55,10 @@ public:
   // Attempts to run the next step of production. Returns true if the process
   // advances.
   bool TryProductionStep(const industry::Production& production,
+                         const proto::ProductionInfo& production_info,
                          geography::proto::Field* field,
                          industry::proto::Progress* progress,
-                         market::Market* market, ProductionStepInfo* step_info);
+                         market::Market* market);
 
   static PopUnit* GetPopId(uint64 id) { return id_to_pop_map_[id]; }
 
@@ -100,22 +71,14 @@ public:
   }
 
  private:
-  // Returns the index of the best variant to use for the next step, and stores
-  // its highest possible scale in scale, which must not be null. If no variant
-  // is useful, returns the size of the variant vector.
-  unsigned int GetVariantIndex(const industry::Production& production,
-                               const industry::proto::Progress& progress,
-                               const market::Market& market,
-                               const ProductionStepInfo& step_info,
-                               double* scale) const;
-
   static std::unordered_map<uint64, PopUnit*> id_to_pop_map_;
 
   static ProductionEvaluator& default_evaluator_;
 
   // Keeps track of process information for the turn.
-  std::unordered_map<geography::proto::Field*, ProductionStepInfo>
-      progress_map_;
+  std::unordered_set<geography::proto::Field*> fields_worked_;
+  std::unordered_map<geography::proto::Field*, proto::ProductionInfo>
+      production_info_map_;
 
   proto::PopUnit proto_;
 

@@ -77,7 +77,7 @@ TEST_F(GeographyTest, Recovery) {
   stuff_ += 10;
   recovery << stuff_;
 
-  *field_->mutable_production() = production_->MakeProgress(1.0);
+  *field_->mutable_progress() = production_->MakeProgress(1.0);
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);

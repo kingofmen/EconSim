@@ -4,6 +4,8 @@
 
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
+#include "market/proto/goods.pb.h"
+#include "population/proto/population.pb.h"
 
 namespace population {
   typedef std::unordered_map<std::string, const industry::Production*>
@@ -16,17 +18,26 @@ struct ProductionContext {
 };
 
 class ProductionEvaluator {
- public:
-   virtual double Evaluate(const ProductionContext& context,
-                           geography::proto::Field* target) const = 0;
+public:
+  // Calculates the maximum scale and unit cost of the provided chain.
+  proto::ProductionInfo GetProductionInfo(
+      const industry::Production& chain, const market::proto::Container& wealth,
+      const market::Market& market, const geography::proto::Field& field) const;
+
+  virtual proto::ProductionDecision
+  Evaluate(const ProductionContext& context,
+           const market::proto::Container& wealth,
+           geography::proto::Field* target) const = 0;
 };
 
 // Evaluates the profit the chain will make, assuming all inputs can be bought
 // and all outputs sold at the quoted market prices. Ignores the context.
 class LocalProfitMaximiser : public ProductionEvaluator {
- public:
-   double Evaluate(const ProductionContext& context,
-                   geography::proto::Field* target) const override;
+public:
+  proto::ProductionDecision
+  Evaluate(const ProductionContext& context,
+           const market::proto::Container& wealth,
+           geography::proto::Field* target) const override;
 };
 
 }  // namespace population

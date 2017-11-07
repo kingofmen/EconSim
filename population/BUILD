@@ -5,7 +5,8 @@ cc_library(
   srcs = ["popunit.cc"],
   hdrs = ["popunit.h"],
   deps = [
-    "//geography:geography",
+    "@com_google_absl//absl/algorithm:container",
+    "//geography/proto:geography_proto",
     "//industry:industry",
     "//market/proto:goods_proto",
     "//population/proto:population_proto",
@@ -18,8 +19,12 @@ cc_library(
   srcs = ["production_evaluator.cc"],
   hdrs = ["production_evaluator.h"],
   deps = [
-    "//geography/proto:geography_proto",
+    "//geography:geography",
     "//industry:industry",
+    "//market:goods_utils",
+    "//market:market",
+    "//market/proto:goods_proto",
+    "//population/proto:population_proto",
   ],
 )
 
