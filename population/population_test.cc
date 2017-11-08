@@ -336,7 +336,7 @@ TEST_F(PopulationTest, TryProductionStep) {
       << fish_info.DebugString();
 }
 
-TEST_F(PopulationTest, StartNewProduction) {
+TEST_F(PopulationTest, LocalProfitMaximiserEvaluate) {
   SetupProduction();
   SetupMarket();
   SellGoods(10, 10, 10);
@@ -351,8 +351,25 @@ TEST_F(PopulationTest, StartNewProduction) {
   auto fish_info = evaluator.Evaluate(context, pop_.Proto()->wealth(), &field);
   EXPECT_TRUE(fish_info.has_selected()) << fish_info.DebugString();
   EXPECT_FALSE(fish_info.selected().name().empty()) << fish_info.DebugString();
+}
 
-  EXPECT_TRUE(pop_.StartNewProduction(context, &field));
+TEST_F(PopulationTest, StartNewProduction) {
+  SetupProduction();
+  SetupMarket();
+  SellGoods(10, 10, 10);
+
+  LocalProfitMaximiser evaluator;
+  ProductionContext context;
+  std::unordered_map<geography::proto::Field*, proto::ProductionInfo>
+      production_info_map;
+  geography::proto::Field field;
+  context.production_map[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
+  context.production_map[dinner_from_grain_proto_->name()] = &dinner_from_grain_;
+  context.fields.push_back(&field);
+  context.market = &market_;
+  EXPECT_TRUE(pop_.StartNewProduction(context, &production_info_map, &field));
+  auto prod_info = production_info_map.find(&field);
+  EXPECT_NE(prod_info, production_info_map.end());
 }
 
 } // namespace population

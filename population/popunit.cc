@@ -124,7 +124,6 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
   fields_worked_.clear();
-  production_info_map_.clear();
   *proto_.mutable_wealth() *= decay_rates;
   market::CleanContainer(proto_.mutable_wealth());
 }
@@ -179,8 +178,11 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
   return true;
 }
 
-bool PopUnit::StartNewProduction(const ProductionContext& context,
-                                 geography::proto::Field* field) {
+bool PopUnit::StartNewProduction(
+    const ProductionContext& context,
+    std::unordered_map<geography::proto::Field*, proto::ProductionInfo>*
+        production_info_map,
+    geography::proto::Field* field) {
   proto::ProductionDecision decision =
       evaluator_->Evaluate(context, proto_.wealth(), field);
   if (!decision.has_selected()) {
@@ -190,11 +192,14 @@ bool PopUnit::StartNewProduction(const ProductionContext& context,
   auto* best_chain = context.production_map.at(decision.selected().name());
   *field->mutable_progress() =
       best_chain->MakeProgress(decision.selected().max_scale());
-  production_info_map_.emplace(field, decision.selected());
+  production_info_map->emplace(field, decision.selected());
   return true;
 }
 
-bool PopUnit::Produce(const ProductionContext& context) {
+bool PopUnit::Produce(
+    const ProductionContext& context,
+    std::unordered_map<geography::proto::Field*, proto::ProductionInfo>*
+        production_info_map) {
   bool any_progress = false;
 
   for (auto* field : context.fields) {
@@ -202,7 +207,7 @@ bool PopUnit::Produce(const ProductionContext& context) {
       continue;
     }
     if (!field->has_progress()) {
-      if (!StartNewProduction(context, field)) {
+      if (!StartNewProduction(context, production_info_map, field)) {
         continue;
       }
     }
@@ -213,13 +218,13 @@ bool PopUnit::Produce(const ProductionContext& context) {
       // TODO: Error here!
       continue;
     }
-    if (production_info_map_.find(field) == production_info_map_.end()) {
-      production_info_map_.emplace(
+    if (production_info_map->find(field) == production_info_map->end()) {
+      production_info_map->emplace(
           field,
           evaluator_->GetProductionInfo(*chain->second, proto_.wealth(),
                                         *context.market, *field));
     }
-    if (TryProductionStep(*chain->second, production_info_map_[field], field,
+    if (TryProductionStep(*chain->second, production_info_map->at(field), field,
                           progress, context.market)) {
       any_progress = true;
     }
