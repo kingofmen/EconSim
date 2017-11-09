@@ -41,32 +41,3 @@ message PopUnit {
   // Tags include education level and culture.
   market.proto.Container tags = 5;
 }
-
-message VariantInfo {
-  double unit_cost = 1;
-  double possible_scale = 2;
-}
-
-message StepInfo {
-  repeated VariantInfo variant = 1;
-  int32 best_variant = 2;
-}
-
-message ProductionInfo {
-  string name = 1;
-  double max_scale = 2;
-  double total_unit_cost = 3;
-  repeated StepInfo step_info = 4;
-  string reject_reason = 5;
-}
-
-// Holds information about which production chain was
-// selected and why.
-message ProductionDecision {
-  // The best chain, if there is one.
-  ProductionInfo selected = 1;
-  // Chains rejected as impossible.
-  map<string, string> insufficient = 2;
-  // Chains that are possible, but not as good as the selected one.
-  repeated ProductionInfo rejected = 3;
-}

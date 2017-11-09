@@ -6,9 +6,9 @@ cc_library(
     "//game/proto:game_world_proto",
     "//geography:geography",
     "//industry:industry",
+    "//industry/decisions:production_evaluator",
     "//market/proto:goods_proto",
     "//population:population",
-    "//population:production_evaluator",
     "//population/proto:population_proto",
   ],
 )

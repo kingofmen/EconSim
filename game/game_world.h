@@ -8,9 +8,9 @@
 #include "game/proto/game_world.pb.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
+#include "industry/decisions/production_evaluator.h"
 #include "industry/proto/industry.pb.h"
 #include "population/popunit.h"
-#include "population/production_evaluator.h"
 #include "population/proto/population.pb.h"
 
 namespace game {
@@ -39,8 +39,8 @@ private:
   // World-state information.
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
-  population::ProductionMap production_map_;
-  population::LocalProfitMaximiser local_profit_maximiser_;
+  industry::decisions::ProductionMap production_map_;
+  industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
 };
 
 } // namespace game

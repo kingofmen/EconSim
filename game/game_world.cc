@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "population/production_evaluator.h"
+#include "industry/decisions/production_evaluator.h"
 
 using geography::proto::Field;
 
@@ -47,7 +47,7 @@ void GameWorld::TimeStep() {
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
     }
     std::unordered_map<population::PopUnit*, std::vector<Field*>> fields;
-    std::unordered_map<Field*, population::proto::ProductionInfo> production_info;
+    std::unordered_map<Field*, industry::decisions::proto::ProductionInfo> production_info;
     for (auto& field : *area->Proto()->mutable_fields()) {
       auto* pop = population::PopUnit::GetPopId(field.owner_id());
       if (pop == nullptr) {
@@ -59,7 +59,7 @@ void GameWorld::TimeStep() {
     while (progress) {
       progress = false;
       for (auto& pop_field : fields) {
-        population::ProductionContext context = {
+        industry::decisions::ProductionContext context = {
             production_map_, pop_field.second, area->mutable_market()};
         if (pop_field.first->Produce(context, &production_info)) {
           progress = true;

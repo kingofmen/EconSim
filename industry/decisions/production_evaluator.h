@@ -4,12 +4,13 @@
 
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
+#include "industry/proto/decisions.pb.h"
 #include "market/proto/goods.pb.h"
-#include "population/proto/population.pb.h"
 
-namespace population {
-  typedef std::unordered_map<std::string, const industry::Production*>
-      ProductionMap;
+namespace industry {
+namespace decisions {
+typedef std::unordered_map<std::string, const industry::Production*>
+    ProductionMap;
 
 struct ProductionContext {
   ProductionMap production_map;
@@ -40,6 +41,7 @@ public:
            geography::proto::Field* target) const override;
 };
 
-}  // namespace population
+}  // namespace decisions
+}  // namespace industry
 
 #endif

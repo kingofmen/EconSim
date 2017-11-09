@@ -1,4 +1,4 @@
-#include "population/production_evaluator.h"
+#include "industry/decisions/production_evaluator.h"
 
 #include <string>
 
@@ -7,7 +7,8 @@
 #include "geography/geography.h"
 #include "industry/industry.h"
 
-namespace population {
+namespace industry {
+namespace decisions {
 namespace {
 
 unsigned int GetVariantIndex(const industry::Production& production,
@@ -166,4 +167,5 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
   return ret;
 }
 
-} // namespace population
+}  // namespace decisions
+}  // namespace industry

@@ -12,7 +12,8 @@ namespace population {
 
 using industry::proto::Production;
 
-ProductionEvaluator& PopUnit::default_evaluator_ = LocalProfitMaximiser();
+industry::decisions::ProductionEvaluator& PopUnit::default_evaluator_ =
+    industry::decisions::LocalProfitMaximiser();
 
 namespace {
 uint64 unused_pop_id = 1;
@@ -139,11 +140,11 @@ int PopUnit::GetSize() const {
   return size;
 }
 
-bool PopUnit::TryProductionStep(const industry::Production& production,
-                                const proto::ProductionInfo& production_info,
-                                geography::proto::Field* field,
-                                industry::proto::Progress* progress,
-                                market::Market* market) {
+bool PopUnit::TryProductionStep(
+    const industry::Production& production,
+    const industry::decisions::proto::ProductionInfo& production_info,
+    geography::proto::Field* field, industry::proto::Progress* progress,
+    market::Market* market) {
   if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
     return false;
   }
@@ -179,12 +180,12 @@ bool PopUnit::TryProductionStep(const industry::Production& production,
 }
 
 bool PopUnit::StartNewProduction(
-    const ProductionContext& context,
-    std::unordered_map<geography::proto::Field*, proto::ProductionInfo>*
+    const industry::decisions::ProductionContext& context,
+    std::unordered_map<geography::proto::Field*,
+                       industry::decisions::proto::ProductionInfo>*
         production_info_map,
     geography::proto::Field* field) {
-  proto::ProductionDecision decision =
-      evaluator_->Evaluate(context, proto_.wealth(), field);
+  auto decision = evaluator_->Evaluate(context, proto_.wealth(), field);
   if (!decision.has_selected()) {
     return false;
   }
@@ -197,8 +198,9 @@ bool PopUnit::StartNewProduction(
 }
 
 bool PopUnit::Produce(
-    const ProductionContext& context,
-    std::unordered_map<geography::proto::Field*, proto::ProductionInfo>*
+    const industry::decisions::ProductionContext& context,
+    std::unordered_map<geography::proto::Field*,
+                       industry::decisions::proto::ProductionInfo>*
         production_info_map) {
   bool any_progress = false;
 

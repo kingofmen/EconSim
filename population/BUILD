@@ -8,21 +8,7 @@ cc_library(
     "@com_google_absl//absl/algorithm:container",
     "//geography/proto:geography_proto",
     "//industry:industry",
-    "//market/proto:goods_proto",
-    "//population/proto:population_proto",
-    "//population:production_evaluator",
-  ],
-)
-
-cc_library(
-  name = "production_evaluator",
-  srcs = ["production_evaluator.cc"],
-  hdrs = ["production_evaluator.h"],
-  deps = [
-    "//geography:geography",
-    "//industry:industry",
-    "//market:goods_utils",
-    "//market:market",
+    "//industry/decisions:production_evaluator",
     "//market/proto:goods_proto",
     "//population/proto:population_proto",
   ],
