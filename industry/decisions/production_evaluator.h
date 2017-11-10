@@ -11,6 +11,8 @@ namespace industry {
 namespace decisions {
 typedef std::unordered_map<std::string, const industry::Production*>
     ProductionMap;
+typedef std::unordered_map<geography::proto::Field*, proto::ProductionDecision>
+    DecisionMap;
 
 struct ProductionContext {
   ProductionMap production_map;

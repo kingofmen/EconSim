@@ -26,7 +26,7 @@ public:
     proto::Scenario proto_;
   };
 
-  void TimeStep();
+  void TimeStep(industry::decisions::DecisionMap* production_info);
 
   // Copies the current game state (not scenario) into the proto, which must not
   // be null.

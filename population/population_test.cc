@@ -343,9 +343,7 @@ TEST_F(PopulationTest, StartNewProduction) {
 
   industry::decisions::LocalProfitMaximiser evaluator;
   industry::decisions::ProductionContext context;
-  std::unordered_map<geography::proto::Field*,
-                     industry::decisions::proto::ProductionInfo>
-      production_info_map;
+  industry::decisions::DecisionMap production_info_map;
   geography::proto::Field field;
   context.production_map[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
   context.production_map[dinner_from_grain_proto_->name()] = &dinner_from_grain_;

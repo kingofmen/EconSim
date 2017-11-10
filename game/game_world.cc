@@ -37,7 +37,7 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   }
 }
 
-void GameWorld::TimeStep() {
+void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
   for (auto& area: areas_) {
     for (const auto pop_id : area->Proto()->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
@@ -47,7 +47,6 @@ void GameWorld::TimeStep() {
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
     }
     std::unordered_map<population::PopUnit*, std::vector<Field*>> fields;
-    std::unordered_map<Field*, industry::decisions::proto::ProductionInfo> production_info;
     for (auto& field : *area->Proto()->mutable_fields()) {
       auto* pop = population::PopUnit::GetPopId(field.owner_id());
       if (pop == nullptr) {
@@ -61,7 +60,7 @@ void GameWorld::TimeStep() {
       for (auto& pop_field : fields) {
         industry::decisions::ProductionContext context = {
             production_map_, pop_field.second, area->mutable_market()};
-        if (pop_field.first->Produce(context, &production_info)) {
+        if (pop_field.first->Produce(context, production_info)) {
           progress = true;
         }
       }

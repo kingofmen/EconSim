@@ -181,11 +181,10 @@ bool PopUnit::TryProductionStep(
 
 bool PopUnit::StartNewProduction(
     const industry::decisions::ProductionContext& context,
-    std::unordered_map<geography::proto::Field*,
-                       industry::decisions::proto::ProductionInfo>*
-        production_info_map,
+    industry::decisions::DecisionMap* production_info_map,
     geography::proto::Field* field) {
   auto decision = evaluator_->Evaluate(context, proto_.wealth(), field);
+  production_info_map->emplace(field, decision);
   if (!decision.has_selected()) {
     return false;
   }
@@ -193,15 +192,11 @@ bool PopUnit::StartNewProduction(
   auto* best_chain = context.production_map.at(decision.selected().name());
   *field->mutable_progress() =
       best_chain->MakeProgress(decision.selected().max_scale());
-  production_info_map->emplace(field, decision.selected());
   return true;
 }
 
-bool PopUnit::Produce(
-    const industry::decisions::ProductionContext& context,
-    std::unordered_map<geography::proto::Field*,
-                       industry::decisions::proto::ProductionInfo>*
-        production_info_map) {
+bool PopUnit::Produce(const industry::decisions::ProductionContext& context,
+                      industry::decisions::DecisionMap* production_info_map) {
   bool any_progress = false;
 
   for (auto* field : context.fields) {
@@ -222,11 +217,10 @@ bool PopUnit::Produce(
     }
     if (production_info_map->find(field) == production_info_map->end()) {
       production_info_map->emplace(
-          field,
-          evaluator_->GetProductionInfo(*chain->second, proto_.wealth(),
-                                        *context.market, *field));
+          field, evaluator_->Evaluate(context, proto_.wealth(), field));
     }
-    if (TryProductionStep(*chain->second, production_info_map->at(field), field,
+    if (TryProductionStep(*chain->second,
+                          production_info_map->at(field).selected(), field,
                           progress, context.market)) {
       any_progress = true;
     }

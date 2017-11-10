@@ -47,18 +47,13 @@ public:
   // Attempt to continue existing production chains and start new ones. Returns
   // true if any chain makes progress.
   bool Produce(const industry::decisions::ProductionContext& context,
-               std::unordered_map<geography::proto::Field*,
-                                  industry::decisions::proto::ProductionInfo>*
-                   production_info_map);
+               industry::decisions::DecisionMap* production_info_map);
 
   // Attempts to find a new production chain to run in field. Returns true on
   // success.
-  bool StartNewProduction(
-      const industry::decisions::ProductionContext& context,
-      std::unordered_map<geography::proto::Field*,
-                         industry::decisions::proto::ProductionInfo>*
-          production_info_map,
-      geography::proto::Field* field);
+  bool StartNewProduction(const industry::decisions::ProductionContext& context,
+                          industry::decisions::DecisionMap* production_info_map,
+                          geography::proto::Field* field);
 
   // Attempts to run the next step of production. Returns true if the process
   // advances.
