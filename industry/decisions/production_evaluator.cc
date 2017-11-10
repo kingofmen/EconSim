@@ -154,6 +154,11 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
       ret.add_rejected()->Swap(&info);
       continue;
     }
+    if (info.max_scale() <= 0) {
+      info.set_reject_reason("Impractical");
+      ret.add_rejected()->Swap(&info);
+      continue;      
+    }
     profit *= info.max_scale();
     if (profit <= max_profit) {
       info.set_reject_reason(
