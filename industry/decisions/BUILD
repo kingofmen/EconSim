@@ -5,6 +5,7 @@ cc_library(
   srcs = ["production_evaluator.cc"],
   hdrs = ["production_evaluator.h"],
   deps = [
+    "@com_google_absl//absl/strings:strings",
     "//geography:geography",
     "//industry:industry",
     "//industry/proto:industry_decisions_proto",

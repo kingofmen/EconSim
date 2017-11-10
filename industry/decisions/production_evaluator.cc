@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "absl/strings/substitute.h"
 #include "market/goods_utils.h"
 #include "market/market.h"
 #include "geography/geography.h"
@@ -155,12 +156,14 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
     }
     profit *= info.max_scale();
     if (profit <= max_profit) {
-      info.set_reject_reason("Less profit");
+      info.set_reject_reason(
+          absl::Substitute("Less profit than $0", ret.selected().name()));
       ret.add_rejected()->Swap(&info);
       continue;
     }
     max_profit = profit;
-    ret.mutable_selected()->set_reject_reason("Less profit");
+    ret.mutable_selected()->set_reject_reason(
+        absl::Substitute("Less profit than $0", info.name()));
     ret.mutable_selected()->Swap(&info);
   }
 
