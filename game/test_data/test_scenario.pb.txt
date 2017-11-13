@@ -232,4 +232,32 @@ decay_rates {
     key: "labour"
     value: 1
   }
+  quantities {
+    key: "sheep"
+    value: 0.01
+  }
+  quantities {
+    key: "food"
+    value: 0.05
+  }
+  quantities {
+    key: "silver"
+    value: 0.0
+  }
+  quantities {
+    key: "cloth"
+    value: 0.03
+  }
+  quantities {
+    key: "wool"
+    value: 0.02
+  }
+  quantities {
+    key: "timber"
+    value: 0.01
+  }
+  quantities {
+    key: "shelter"
+    value: 1
+  }
 }
