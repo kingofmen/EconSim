@@ -176,6 +176,10 @@ bool PopUnit::TryProductionStep(
                          proto_.mutable_wealth(), progress);
 
   fields_worked_.insert(field);
+  if (production.Complete(*progress)) {
+    field->clear_progress();
+  }
+
   return true;
 }
 
