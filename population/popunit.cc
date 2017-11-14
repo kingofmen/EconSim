@@ -25,12 +25,8 @@ constexpr char kSubsistence[] = "subsistence";
 
 market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
                                      int size) {
-  auto needed = package.food().consumed();
-  needed += package.food().capital();
-  needed += package.shelter().consumed();
-  needed += package.shelter().capital();
-  needed += package.culture().consumed();
-  needed += package.culture().capital();
+  auto needed = package.consumed();
+  needed += package.capital();
   needed *= size;
   return needed;
 }
@@ -92,9 +88,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
     }
 
     if (proto_.wealth() > TotalNeeded(package, size)) {
-      double curr_price = prices * package.food().consumed();
-      curr_price += prices * package.shelter().consumed();
-      curr_price += prices * package.culture().consumed();
+      double curr_price = prices * package.consumed();
       if (curr_price < best_price) {
         best_package = &package;
         best_price = curr_price;
@@ -114,9 +108,7 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
   auto& resources = *proto_.mutable_wealth();
   int size = GetSize();
-  resources -= best_package->food().consumed() * size;
-  resources -= best_package->shelter().consumed() * size;
-  resources -= best_package->culture().consumed() * size;
+  resources -= best_package->consumed() * size;
 
   *proto_.mutable_tags() += best_package->tags();
   *proto_.mutable_tags() += level.tags();

@@ -39,9 +39,9 @@ protected:
     fish_package_ = level_.add_packages();
     house_package_ = level_.add_packages();
     fish_ += 1;
-    *fish_package_->mutable_food()->mutable_consumed() << fish_;
+    *fish_package_->mutable_consumed() << fish_;
     house_ += 1;
-    *house_package_->mutable_food()->mutable_consumed() << house_;
+    *house_package_->mutable_consumed() << house_;
 
     dinner_from_grain_proto_ = dinner_from_grain_.Proto();
     dinner_from_fish_proto_ = dinner_from_fish_.Proto();
@@ -185,7 +185,7 @@ TEST_F(PopulationTest, Consume) {
   market::proto::Quantity tools;
   tools.set_kind("tools");
   tools += 1;
-  *house_package_->mutable_shelter()->mutable_capital() << tools;
+  *house_package_->mutable_capital() << tools;
   house_ += 1;
   *pop_.Proto()->mutable_wealth() << house_;
 
