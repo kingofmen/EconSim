@@ -10,6 +10,7 @@ message Scenario {
   repeated population.proto.AutoProduction auto_production = 1;
   repeated industry.proto.Production production_chains = 2;
   market.proto.Container decay_rates = 3;
+  repeated population.proto.ConsumptionLevel consumption = 4;
 }
 
 message GameWorld {

@@ -261,3 +261,267 @@ decay_rates {
     value: 1
   }
 }
+
+# Consumption template. Fields may be left out if empty.
+#consumption {
+#  name: "Template"
+#  Different ways to acquire this level; may be repeated.
+#  packages {
+#    Resources used up in consumption - e.g. soup.
+#    consumed {
+#    }
+#    Resources required, but not used up - e.g. utensils.
+#    capital {
+#    }
+#    Tags required to use this package.
+#    required_tags {
+#    }
+#    Tags acquired by using the package.
+#    tags {
+#    }
+#  }
+#  Tags acquired by using the level.
+#  tags {
+#  }
+#}
+
+consumption {
+  name: "Minimal life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.10
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.05
+      }
+    }
+    capital {
+      quantities {
+        key: "shelter"
+        value: 0.05
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.05
+      }
+      quantities {
+        key: "labour"
+        value: 0.10
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 0.10
+    }
+  }
+}
+consumption {
+  name: "Reasonable life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.30
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.15
+      }
+    }
+    capital {
+      quantities {
+        key: "shelter"
+        value: 0.15
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.15
+      }
+      quantities {
+        key: "cloth"
+        value: 0.05
+      }
+    }
+    capital {
+      quantities {
+        key: "shelter"
+        value: 0.10
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.15
+      }
+      quantities {
+        key: "labour"
+        value: 0.30
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 0.30
+    }
+  }
+}
+consumption {
+  name: "Good life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.60
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.30
+      }
+    }
+    capital {
+      quantities {
+        key: "shelter"
+        value: 0.30
+      }
+    }
+  }
+  # No food + labour package at this level.
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 0.30
+      }
+    }
+    capital {
+      quantities {
+        key: "shelter"
+        value: 0.20
+      }
+      quantities {
+        key: "cloth"
+        value: 0.10
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 0.60
+    }
+  }
+}
+
+consumption {
+  name: "Minimal culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 0.1
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 0.10
+    }
+  }
+}
+consumption {
+  name: "Basic culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 0.1
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 0.10
+    }
+  }
+}
+consumption {
+  name: "Serious culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 0.3
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 0.30
+    }
+  }
+}
+consumption {
+  name: "Intricate culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 0.3
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 0.30
+    }
+  }
+}
+consumption {
+  name: "Fractal culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 0.3
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 0.30
+    }
+  }
+}

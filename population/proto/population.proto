@@ -22,6 +22,8 @@ message ConsumptionLevel {
   repeated ConsumptionPackage packages = 1;
   // Tags acquired by consuming at this level.
   market.proto.Container tags = 2;
+  // Name for easy reference.
+  string name = 3;
 }
 
 message AutoProduction {
