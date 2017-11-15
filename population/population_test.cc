@@ -168,17 +168,17 @@ TEST_F(PopulationTest, Consume) {
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
   // Pop can now eat fish.
-  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
 
   house_ += 1;
   *pop_.Proto()->mutable_wealth() << house_;
   fish_ += 1;
-  prices_ << fish_;
+  *market_.Proto()->mutable_prices() << fish_;
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
   // Fish is now more expensive than house.
-  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
 
@@ -190,7 +190,7 @@ TEST_F(PopulationTest, Consume) {
   *pop_.Proto()->mutable_wealth() << house_;
 
   // No tools, eat the fish.
-  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 1);
 
@@ -198,7 +198,7 @@ TEST_F(PopulationTest, Consume) {
   tools += 1;
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_ << tools;
-  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), 1);
@@ -218,7 +218,7 @@ TEST_F(PopulationTest, ConsumptionTags) {
 
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
-  EXPECT_TRUE(pop_.Consume(level_, prices_));
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->tags(), bad_breath), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->tags(), satiation), 1);

@@ -67,8 +67,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
     }
     for (auto& pop_field : fields) {
       for (const auto& level : scenario_.proto_.consumption()) {
-        pop_field.first->Consume(level,
-                                 area->mutable_market()->Proto()->prices());
+        pop_field.first->Consume(level, area->mutable_market());
       }
     }
   }

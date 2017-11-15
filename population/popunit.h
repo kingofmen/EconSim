@@ -34,10 +34,9 @@ public:
   CheapestPackage(const proto::ConsumptionLevel& level,
                   const market::proto::Container& prices) const;
 
-  // Turn resources into consumption levels. Returns true if the POP can
-  // consume at this level.
-  bool Consume(const proto::ConsumptionLevel& level,
-               const market::proto::Container& prices);
+  // Attempts to consume the provided level, if necessary buying resources from
+  // the market, which must not be null. Returns true on success.
+  bool Consume(const proto::ConsumptionLevel& level, market::Market* market);
 
   // End-of-turn cleanup.
   void EndTurn(const market::proto::Container& decay_rates);

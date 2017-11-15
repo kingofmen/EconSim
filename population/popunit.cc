@@ -99,9 +99,9 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 }
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
-                      const market::proto::Container& prices) {
+                      market::Market* market) {
   const proto::ConsumptionPackage* best_package =
-      CheapestPackage(level, prices);
+      CheapestPackage(level, market->Proto()->prices());
   if (best_package == nullptr) {
     return false;
   }
