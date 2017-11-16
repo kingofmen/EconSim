@@ -131,27 +131,28 @@ protected:
 };
 
 TEST_F(PopulationTest, CheapestPackage) {
+  SetupMarket();
   // Pop has no resources, can afford nothing.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), nullptr);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), nullptr);
 
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
   // Pop can now eat fish.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), fish_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), fish_package_);
 
   house_ += 1;
   *pop_.Proto()->mutable_wealth() << house_;
   fish_ += 1;
-  prices_ << fish_;
+  *market_.Proto()->mutable_prices() << fish_;
   // Fish is now more expensive than house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
 
   market::proto::Quantity scots;
   scots.set_kind(kTestCulture2);
   scots += 0.1;
   *house_package_->mutable_required_tags() << scots;
   // House is now forbidden.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), fish_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), fish_package_);
 
   market::proto::Quantity culture;
   culture.set_kind(kTestCulture1);
@@ -161,10 +162,25 @@ TEST_F(PopulationTest, CheapestPackage) {
   culture += 0.1;
   *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, prices_), house_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
+
+  auto* cheap_package = level_.add_packages();
+  youtube_ += 0.1;
+  *cheap_package->mutable_consumed() << youtube_;
+  SellGoods(0, 1, 0);
+
+  // YouTube is cheaper, but only available from the market, and the pop has no
+  // money. Without credit it won't be able to buy anything.
+  market_.Proto()->set_credit_limit(0);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
+
+  // With credit, the cheap package is the cheapest.
+  market_.Proto()->set_credit_limit(100);
+  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), cheap_package);
 }
 
 TEST_F(PopulationTest, Consume) {
+  SetupMarket();
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
   // Pop can now eat fish.
@@ -202,6 +218,22 @@ TEST_F(PopulationTest, Consume) {
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), 1);
+
+  // Get rid of the fish.
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
+
+  // Put some fish on the market.
+  SellGoods(1, 0, 0);
+  // Remove credit, consumption should be impossible.
+  market_.Proto()->set_credit_limit(0);
+  EXPECT_FALSE(pop_.Consume(level_, &market_));
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(fish_.kind()), 1);
+  // Restore credit and the pop can buy fish to eat.
+  market_.Proto()->set_credit_limit(100);
+  EXPECT_TRUE(pop_.Consume(level_, &market_));
+  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(fish_.kind()), 0);
 }
 
 TEST_F(PopulationTest, ConsumptionTags) {

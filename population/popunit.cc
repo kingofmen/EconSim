@@ -78,36 +78,75 @@ void PopUnit::BirthAndDeath() {}
 
 const proto::ConsumptionPackage*
 PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
-                         const market::proto::Container& prices) const {
+                         market::Market* market) const {
   const proto::ConsumptionPackage* best_package = nullptr;
   double best_price = std::numeric_limits<double>::max();
-  int size = GetSize();
+  const int size = GetSize();
+  double max_money = market->MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
     if (!(proto_.tags() > package.required_tags())) {
       continue;
     }
 
-    if (proto_.wealth() > TotalNeeded(package, size)) {
-      double curr_price = prices * package.consumed();
+    auto needed = TotalNeeded(package, size);
+    if (proto_.wealth() > needed) {
+      double curr_price = market->GetPrice(package.consumed());
       if (curr_price < best_price) {
         best_package = &package;
         best_price = curr_price;
       }
+      continue;
+    }
+    bool can_buy = true;
+    double package_money = 0;
+    for (const auto& quantity : needed.quantities()) {
+      double need_to_buy =
+          quantity.second - market::GetAmount(proto_.wealth(), quantity.first);
+      if (market->AvailableImmediately(quantity.first) >= need_to_buy) {
+        package_money += need_to_buy * market->GetPrice(quantity.first);
+        if (package_money <= max_money) {
+          continue;
+        }
+      }
+      can_buy = false;
+      break;
+    }
+    if (!can_buy) {
+      continue;
+    }
+    needed -= proto_.wealth();
+    double curr_price = market->GetPrice(needed);
+    if (curr_price < best_price) {
+      best_package = &package;
+      best_price = curr_price;
     }
   }
+
   return best_package;
 }
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       market::Market* market) {
   const proto::ConsumptionPackage* best_package =
-      CheapestPackage(level, market->Proto()->prices());
+      CheapestPackage(level, market);
   if (best_package == nullptr) {
     return false;
   }
 
   auto& resources = *proto_.mutable_wealth();
   int size = GetSize();
+  auto needed = TotalNeeded(*best_package, size);
+  needed -= resources;
+  for (const auto& need : needed.quantities()) {
+    if (need.second <= 0) {
+      continue;
+    }
+    double bought = market->TryToBuy(need.first, need.second, &resources);
+    if (bought < need.second) {
+      // This should never happen.
+      return false;
+    }
+  }
   resources -= best_package->consumed() * size;
 
   *proto_.mutable_tags() += best_package->tags();

@@ -30,9 +30,13 @@ public:
   void AutoProduce(const std::vector<const proto::AutoProduction*>& production,
                    const market::proto::Container& prices);
 
+  // Looks for packages in level that are possible to consume, either from
+  // current resources or by buying from the market (which must not be null),
+  // and returns the cheapest one in terms of the current market prices, or null
+  // if there is none.
   const proto::ConsumptionPackage*
   CheapestPackage(const proto::ConsumptionLevel& level,
-                  const market::proto::Container& prices) const;
+                  market::Market* market) const;
 
   // Attempts to consume the provided level, if necessary buying resources from
   // the market, which must not be null. Returns true on success.
