@@ -132,27 +132,31 @@ protected:
 
 TEST_F(PopulationTest, CheapestPackage) {
   SetupMarket();
+  const proto::ConsumptionPackage* cheapest = nullptr;
   // Pop has no resources, can afford nothing.
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), nullptr);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), nullptr);
 
   fish_ += 1;
   *pop_.Proto()->mutable_wealth() << fish_;
   // Pop can now eat fish.
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), fish_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), fish_package_);
+  EXPECT_EQ(cheapest, fish_package_);
 
   house_ += 1;
   *pop_.Proto()->mutable_wealth() << house_;
   fish_ += 1;
   *market_.Proto()->mutable_prices() << fish_;
   // Fish is now more expensive than house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), house_package_);
+  EXPECT_EQ(cheapest, house_package_);
 
   market::proto::Quantity scots;
   scots.set_kind(kTestCulture2);
   scots += 0.1;
   *house_package_->mutable_required_tags() << scots;
   // House is now forbidden.
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), fish_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), fish_package_);
+  EXPECT_EQ(cheapest, fish_package_);
 
   market::proto::Quantity culture;
   culture.set_kind(kTestCulture1);
@@ -162,7 +166,8 @@ TEST_F(PopulationTest, CheapestPackage) {
   culture += 0.1;
   *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), house_package_);
+  EXPECT_EQ(cheapest, house_package_);
 
   auto* cheap_package = level_.add_packages();
   youtube_ += 0.1;
@@ -172,11 +177,14 @@ TEST_F(PopulationTest, CheapestPackage) {
   // YouTube is cheaper, but only available from the market, and the pop has no
   // money. Without credit it won't be able to buy anything.
   market_.Proto()->set_credit_limit(0);
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), house_package_);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), house_package_);
+  // For the first time, the cheapest package differs from the best one.
+  EXPECT_EQ(cheapest, cheap_package);
 
-  // With credit, the cheap package is the cheapest.
+  // With credit, the cheap package is the best.
   market_.Proto()->set_credit_limit(100);
-  EXPECT_EQ(pop_.CheapestPackage(level_, &market_), cheap_package);
+  EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), cheap_package);
+  EXPECT_EQ(cheapest, cheap_package);
 }
 
 TEST_F(PopulationTest, Consume) {

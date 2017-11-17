@@ -78,11 +78,12 @@ void PopUnit::BirthAndDeath() {}
 
 const proto::ConsumptionPackage*
 PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
-                         market::Market* market) const {
+                         const market::Market& market,
+                         const proto::ConsumptionPackage*& cheapest) const {
   const proto::ConsumptionPackage* best_package = nullptr;
   double best_price = std::numeric_limits<double>::max();
   const int size = GetSize();
-  double max_money = market->MaxMoney(proto_.wealth());
+  double max_money = market.MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
     if (!(proto_.tags() > package.required_tags())) {
       continue;
@@ -90,9 +91,10 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
     auto needed = TotalNeeded(package, size);
     if (proto_.wealth() > needed) {
-      double curr_price = market->GetPrice(package.consumed());
+      double curr_price = market.GetPrice(package.consumed());
       if (curr_price < best_price) {
         best_package = &package;
+        cheapest = &package;
         best_price = curr_price;
       }
       continue;
@@ -102,8 +104,8 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
     for (const auto& quantity : needed.quantities()) {
       double need_to_buy =
           quantity.second - market::GetAmount(proto_.wealth(), quantity.first);
-      if (market->AvailableImmediately(quantity.first) >= need_to_buy) {
-        package_money += need_to_buy * market->GetPrice(quantity.first);
+      if (market.AvailableImmediately(quantity.first) >= need_to_buy) {
+        package_money += need_to_buy * market.GetPrice(quantity.first);
         if (package_money <= max_money) {
           continue;
         }
@@ -111,13 +113,14 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
       can_buy = false;
       break;
     }
-    if (!can_buy) {
-      continue;
-    }
+
     needed -= proto_.wealth();
-    double curr_price = market->GetPrice(needed);
+    double curr_price = market.GetPrice(needed);
     if (curr_price < best_price) {
-      best_package = &package;
+      if (can_buy) {
+        best_package = &package;
+      }
+      cheapest = &package;
       best_price = curr_price;
     }
   }
@@ -127,8 +130,9 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       market::Market* market) {
+  const proto::ConsumptionPackage* cheapest = nullptr;
   const proto::ConsumptionPackage* best_package =
-      CheapestPackage(level, market);
+      CheapestPackage(level, *market, cheapest);
   if (best_package == nullptr) {
     return false;
   }

@@ -33,10 +33,12 @@ public:
   // Looks for packages in level that are possible to consume, either from
   // current resources or by buying from the market (which must not be null),
   // and returns the cheapest one in terms of the current market prices, or null
-  // if there is none.
+  // if there is none. The pointer cheapest is set to point to the cheapest
+  // package whether or not it is currently achievable.
   const proto::ConsumptionPackage*
   CheapestPackage(const proto::ConsumptionLevel& level,
-                  market::Market* market) const;
+                  const market::Market& market,
+                  const proto::ConsumptionPackage*& cheapest) const;
 
   // Attempts to consume the provided level, if necessary buying resources from
   // the market, which must not be null. Returns true on success.
