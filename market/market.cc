@@ -177,17 +177,19 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
   double unit_price = GetPrice(name);
 
   std::vector<Offer> future_buyers;
+  Quantity transfer = MakeQuantity(name, 0);
   for (auto& buyer : buyers) {
-    Quantity transfer = MakeQuantity(
-        name, std::min(buyer.amount, amount_to_sell - amount_sold));
-    double max_money = MaxMoney(*buyer.target);
-    transfer.set_amount(std::min(transfer.amount(), max_money / unit_price));
+    transfer.set_amount(std::min(buyer.amount, amount_to_sell - amount_sold));
+    if (transfer.amount() > 0) {
+      double max_money = MaxMoney(*buyer.target);
+      transfer.set_amount(std::min(transfer.amount(), max_money / unit_price));
 
-    Move(transfer, source, buyer.target);
-    buyer.amount -= transfer.amount();
-    TransferMoney(transfer.amount() * unit_price, buyer.target, source);
-    amount_sold += transfer.amount();
-    *proto_.mutable_volume() += transfer;
+      Move(transfer, source, buyer.target);
+      buyer.amount -= transfer.amount();
+      TransferMoney(transfer.amount() * unit_price, buyer.target, source);
+      amount_sold += transfer.amount();
+      *proto_.mutable_volume() += transfer;
+    }
 
     if (buyer.amount > 0) {
       future_buyers.emplace_back(buyer.amount, buyer.target);
