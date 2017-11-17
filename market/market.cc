@@ -146,17 +146,19 @@ double Market::TryToBuy(const std::string& name, const double amount,
   }
 
   double amount_to_request = amount - amount_bought;
-  if (amount_to_request > 0) {
-    auto& offers = buy_offers_[name];
-    auto buy_offer = std::find_if(
-        offers.begin(), offers.end(),
-        [recipient](const Offer& offer) { return offer.target == recipient; });
+  auto& offers = buy_offers_[name];
+  auto buy_offer = std::find_if(
+      offers.begin(), offers.end(),
+      [recipient](const Offer& offer) { return offer.target == recipient; });
 
+  if (amount_to_request > 0) {
     if (buy_offer == offers.end()) {
       offers.emplace_back(amount_to_request, recipient);
     } else {
       buy_offer->amount = amount_to_request;
     }
+  } else if (buy_offer != offers.end()) {
+    offers.erase(buy_offer);
   }
 
   return amount_bought;
@@ -167,13 +169,15 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
     return 0;
   }
 
-  double amount_to_sell = std::min(offer.amount(), GetAmount(*source, offer));
+  const double amount_to_sell =
+      std::min(offer.amount(), GetAmount(*source, offer));
   double amount_sold = 0;
   const std::string name = offer.kind();
   auto& buyers = buy_offers_[name];
   double unit_price = GetPrice(name);
-  while (!buyers.empty()) {
-    auto& buyer = buyers.back();
+
+  std::vector<Offer> future_buyers;
+  for (auto& buyer : buyers) {
     Quantity transfer = MakeQuantity(
         name, std::min(buyer.amount, amount_to_sell - amount_sold));
     double max_money = MaxMoney(*buyer.target);
@@ -185,17 +189,19 @@ double Market::TryToSell(const Quantity& offer, Container* source) {
     amount_sold += transfer.amount();
     *proto_.mutable_volume() += transfer;
 
-    if (buyer.amount < 1e-6) {
-      buyers.pop_back();
-    }
-
-    if (amount_sold >= amount_to_sell) {
-      return amount_sold;
+    if (buyer.amount > 0) {
+      future_buyers.emplace_back(buyer.amount, buyer.target);
     }
   }
+
+  buyers.swap(future_buyers);
+  if (amount_sold >= amount_to_sell) {
+    return amount_sold;
+  }
+
   Quantity warehoused = MakeQuantity(name, amount_to_sell - amount_sold);
   double price = unit_price * warehoused.amount();
-  double available =
+  double available = GetAmount(proto_.warehouse(), proto_.legal_tender()) +
       proto_.credit_limit() - GetAmount(proto_.market_debt(), warehoused);
   if (available < price) {
     price = available;

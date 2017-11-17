@@ -220,4 +220,34 @@ TEST(MarketTest, Available) {
   EXPECT_DOUBLE_EQ(0.5, GetAmount(market.Proto()->market_debt(), kTestGood1));
 }
 
+TEST(MarketTest, BuySellBuy) {
+  Market market;
+  market.Proto()->set_legal_tender(kSilver);
+  market.Proto()->set_name(kMarketName);
+  market.Proto()->set_credit_limit(0);
+  market.RegisterGood(kTestGood1);
+  SetAmount(kTestGood1, 1, market.Proto()->mutable_prices());
+
+  Container buyer;
+  Container seller;
+  SetAmount(kTestGood1, 2.0, &seller);
+
+  Quantity offer = MakeQuantity(kTestGood1, 1.0);
+  // Offer to buy, no goods available.
+  EXPECT_DOUBLE_EQ(0.0, market.TryToBuy(offer, &buyer));
+  // Offer to sell, buyer has no money.
+  SetAmount(kSilver, 1, market.Proto()->mutable_warehouse());
+  EXPECT_DOUBLE_EQ(1.0, market.TryToSell(offer, &seller));
+  // Give buyer some money.
+  SetAmount(kSilver, 1.0, &buyer);
+  EXPECT_DOUBLE_EQ(1.0, market.TryToBuy(offer, &buyer));
+
+  // Create some additional supply.
+  SetAmount(kSilver, 1, market.Proto()->mutable_warehouse());
+  EXPECT_DOUBLE_EQ(1.0, market.TryToSell(offer, &seller));
+  // Buy offer should have disappeared, so price should drop.
+  market.FindPrices();
+  EXPECT_DOUBLE_EQ(0.75, market.GetPrice(kTestGood1));
+}
+
 } // namespace market

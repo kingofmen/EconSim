@@ -29,3 +29,13 @@ cc_test(
     "@gtest//:gtest_main",
   ],
 )
+
+cc_test(
+  name = "market_test",
+  srcs = ["market_test.cc"],
+  deps = [
+    ":market",
+    "@gtest//:gtest",
+    "@gtest//:gtest_main",
+  ],
+)
