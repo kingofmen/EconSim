@@ -21,7 +21,6 @@ constexpr int kNumAgeGroups = 7;
 constexpr char kExpectedProfit[] = "expected_profit";
 constexpr char kStandardDeviation[] = "standard_deviation";
 constexpr char kCorrelation[] = "correlation";
-constexpr char kSubsistence[] = "subsistence";
 
 market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
                                      int size) {
@@ -29,6 +28,23 @@ market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
   needed += package.capital();
   needed *= size;
   return needed;
+}
+
+void BuyBasket(const market::proto::Container& basket,
+               market::proto::Container* resources, market::Market* market) {
+  for (const auto& need : basket.quantities()) {
+    if (need.second <= 0) {
+      continue;
+    }
+    market->TryToBuy(need.first, need.second, resources);
+  }
+}
+
+void BuyPackage(const proto::ConsumptionPackage& package, int size,
+                market::proto::Container* resources, market::Market* market) {
+  auto needed = TotalNeeded(package, size);
+  needed -= *resources;
+  BuyBasket(needed, resources, market);
 }
 
 } // namespace
@@ -126,18 +142,6 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   }
 
   return best_package;
-}
-
-void BuyPackage(const proto::ConsumptionPackage& package, int size,
-                market::proto::Container* resources, market::Market* market) {
-  auto needed = TotalNeeded(package, size);
-  needed -= *resources;
-  for (const auto& need : needed.quantities()) {
-    if (need.second <= 0) {
-      continue;
-    }
-    market->TryToBuy(need.first, need.second, resources);
-  }
 }
 
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
