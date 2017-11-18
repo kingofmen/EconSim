@@ -137,13 +137,13 @@ TEST_F(PopulationTest, CheapestPackage) {
   EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), nullptr);
 
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << fish_;
   // Pop can now eat fish.
   EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), fish_package_);
   EXPECT_EQ(cheapest, fish_package_);
 
   house_ += 1;
-  *pop_.Proto()->mutable_wealth() << house_;
+  *pop_.mutable_wealth() << house_;
   fish_ += 1;
   *market_.Proto()->mutable_prices() << fish_;
   // Fish is now more expensive than house.
@@ -190,17 +190,17 @@ TEST_F(PopulationTest, CheapestPackage) {
 TEST_F(PopulationTest, Consume) {
   SetupMarket();
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << fish_;
   // Pop can now eat fish.
   EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
 
   house_ += 1;
-  *pop_.Proto()->mutable_wealth() << house_;
+  *pop_.mutable_wealth() << house_;
   fish_ += 1;
   *market_.Proto()->mutable_prices() << fish_;
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << fish_;
   // Fish is now more expensive than house.
   EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 1);
@@ -211,7 +211,7 @@ TEST_F(PopulationTest, Consume) {
   tools += 1;
   *house_package_->mutable_capital() << tools;
   house_ += 1;
-  *pop_.Proto()->mutable_wealth() << house_;
+  *pop_.mutable_wealth() << house_;
 
   // No tools, eat the fish.
   EXPECT_TRUE(pop_.Consume(level_, &market_));
@@ -221,7 +221,7 @@ TEST_F(PopulationTest, Consume) {
   // With tools available, use them.
   tools += 1;
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_ << tools;
+  *pop_.mutable_wealth() << fish_ << tools;
   EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 1);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
@@ -257,7 +257,7 @@ TEST_F(PopulationTest, ConsumptionTags) {
   *level_.mutable_tags() << satiation;
 
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << fish_;
   EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
   EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->tags(), bad_breath), 1);
@@ -309,9 +309,9 @@ TEST_F(PopulationTest, AutoProduction) {
 
 TEST_F(PopulationTest, EndTurn) {
   fish_ += 1;
-  *pop_.Proto()->mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << fish_;
   youtube_ += 1;
-  *pop_.Proto()->mutable_wealth() << youtube_;
+  *pop_.mutable_wealth() << youtube_;
 
   prices_.Clear();
   // Fish and guests stink after three days.

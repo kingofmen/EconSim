@@ -35,7 +35,7 @@ market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
 
 std::unordered_map<uint64, PopUnit*> PopUnit::id_to_pop_map_;
 
-PopUnit::PopUnit() : evaluator_(&default_evaluator_) {
+PopUnit::PopUnit() : evaluator_(&default_evaluator_), packages_ordered_(0) {
   proto_.set_pop_id(NewPopId());
   for (int i = 0; i < kNumAgeGroups; ++i) {
     proto_.add_males(0);
@@ -71,7 +71,7 @@ void PopUnit::AutoProduce(
   if (best_prod == nullptr) {
     return;
   }
-  *proto_.mutable_wealth() += best_prod->output();
+  *mutable_wealth() += best_prod->output();
 }
 
 void PopUnit::BirthAndDeath() {}
@@ -128,30 +128,36 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
   return best_package;
 }
 
+void BuyPackage(const proto::ConsumptionPackage& package, int size,
+                market::proto::Container* resources, market::Market* market) {
+  auto needed = TotalNeeded(package, size);
+  needed -= *resources;
+  for (const auto& need : needed.quantities()) {
+    if (need.second <= 0) {
+      continue;
+    }
+    market->TryToBuy(need.first, need.second, resources);
+  }
+}
+
 bool PopUnit::Consume(const proto::ConsumptionLevel& level,
                       market::Market* market) {
   const proto::ConsumptionPackage* cheapest = nullptr;
   const proto::ConsumptionPackage* best_package =
       CheapestPackage(level, *market, cheapest);
+  auto* resources = mutable_wealth();
+  int size = GetSize();
+
   if (best_package == nullptr) {
+    if (cheapest != nullptr && packages_ordered_ == 0) {
+      ++packages_ordered_;
+      BuyPackage(*cheapest, size, resources, market);
+    }
     return false;
   }
 
-  auto& resources = *proto_.mutable_wealth();
-  int size = GetSize();
-  auto needed = TotalNeeded(*best_package, size);
-  needed -= resources;
-  for (const auto& need : needed.quantities()) {
-    if (need.second <= 0) {
-      continue;
-    }
-    double bought = market->TryToBuy(need.first, need.second, &resources);
-    if (bought < need.second) {
-      // This should never happen.
-      return false;
-    }
-  }
-  resources -= best_package->consumed() * size;
+  BuyPackage(*best_package, size, resources, market);
+  *resources -= best_package->consumed() * size;
 
   *proto_.mutable_tags() += best_package->tags();
   *proto_.mutable_tags() += level.tags();
@@ -160,8 +166,9 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
   fields_worked_.clear();
-  *proto_.mutable_wealth() *= decay_rates;
-  market::CleanContainer(proto_.mutable_wealth());
+  *mutable_wealth() *= decay_rates;
+  packages_ordered_ = 0;
+  market::CleanContainer(mutable_wealth());
 }
 
 int PopUnit::GetSize() const {
@@ -198,7 +205,7 @@ bool PopUnit::TryProductionStep(
         good.second - market::GetAmount(proto_.wealth(), good.first);
     if (amount_to_buy > 0) {
       double bought =
-          market->TryToBuy(good.first, amount_to_buy, proto_.mutable_wealth());
+          market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
       if (bought < amount_to_buy) {
         // This should never happen.
         return false;
@@ -207,8 +214,8 @@ bool PopUnit::TryProductionStep(
   }
 
   production.PerformStep(field->fixed_capital(), 0.0, variant_index,
-                         proto_.mutable_wealth(), field->mutable_resources(),
-                         proto_.mutable_wealth(), progress);
+                         mutable_wealth(), field->mutable_resources(),
+                         mutable_wealth(), progress);
 
   fields_worked_.insert(field);
   if (production.Complete(*progress)) {

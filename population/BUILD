@@ -17,6 +17,7 @@ cc_library(
 cc_test(
   name = "population_test",
   srcs = ["population_test.cc"],
+  size = "small",
   deps = [
     ":population",
     "@gtest//:gtest",

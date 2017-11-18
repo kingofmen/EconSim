@@ -72,6 +72,9 @@ public:
 
   static uint64 NewPopId();
 
+  market::proto::Container* mutable_wealth() { return proto_.mutable_wealth(); }
+  const market::proto::Container& wealth() { return proto_.wealth(); }
+
   proto::PopUnit* Proto() { return &proto_; }
 
   void set_production_evaluator(industry::decisions::ProductionEvaluator* eval) {
@@ -91,6 +94,9 @@ private:
 
   // For choosing new production chains. Not owned.
   industry::decisions::ProductionEvaluator* evaluator_;
+
+  // Tracking how many consumption packages have been ordered from the market.
+  int packages_ordered_;
 };
 
 } // namespace population
