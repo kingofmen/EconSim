@@ -30,14 +30,21 @@ market::proto::Container TotalNeeded(const proto::ConsumptionPackage& package,
   return needed;
 }
 
-void BuyBasket(const market::proto::Container& basket,
+// Attempts to buy each good in the provided basket from market, paying with
+// resources. Returns true if all the buys are successful.
+bool BuyBasket(const market::proto::Container& basket,
                market::proto::Container* resources, market::Market* market) {
+  bool success = true;
   for (const auto& need : basket.quantities()) {
     if (need.second <= 0) {
       continue;
     }
-    market->TryToBuy(need.first, need.second, resources);
+    double bought = market->TryToBuy(need.first, need.second, resources);
+    if (bought < need.second) {
+      success = false;
+    }
   }
+  return success;
 }
 
 void BuyPackage(const proto::ConsumptionPackage& package, int size,
@@ -203,18 +210,12 @@ bool PopUnit::TryProductionStep(
   if (progress->scaling() > variant_info.possible_scale()) {
     progress->set_scaling(variant_info.possible_scale());
   }
+
   auto required = production.RequiredConsumables(*progress, variant_index);
-  for (const auto& good : required.quantities()) {
-    double amount_to_buy =
-        good.second - market::GetAmount(proto_.wealth(), good.first);
-    if (amount_to_buy > 0) {
-      double bought =
-          market->TryToBuy(good.first, amount_to_buy, mutable_wealth());
-      if (bought < amount_to_buy) {
-        // This should never happen.
-        return false;
-      }
-    }
+  required -= wealth();
+  if (!BuyBasket(required, mutable_wealth(), market)) {
+    // This should not happen.
+    return false;
   }
 
   production.PerformStep(field->fixed_capital(), 0.0, variant_index,
