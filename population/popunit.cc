@@ -214,7 +214,6 @@ bool PopUnit::TryProductionStep(
   auto required = production.RequiredConsumables(*progress, variant_index);
   required -= wealth();
   if (!BuyBasket(required, mutable_wealth(), market)) {
-    // This should not happen.
     return false;
   }
 
