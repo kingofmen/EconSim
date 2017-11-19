@@ -353,7 +353,8 @@ TEST_F(PopulationTest, TryProductionStep) {
       << fish_info.DebugString();
 
 
-  auto entertainment = market::MakeQuantity("entertainment", 10);
+  const std::string kEntertainment("entertainment");
+  auto entertainment = market::MakeQuantity(kEntertainment, 10);
   market_.RegisterGood(entertainment.kind());
   market::SetAmount(entertainment, market_.Proto()->mutable_prices());
   entertainment.set_amount(1);
@@ -368,7 +369,15 @@ TEST_F(PopulationTest, TryProductionStep) {
                                       &progress, &market_))
       << fish_info.DebugString();
 
-  EXPECT_DOUBLE_EQ(1, market::GetAmount(pop_.Proto()->wealth(), entertainment));
+  // Good will be sold to the market as it is not subsistence.
+  EXPECT_DOUBLE_EQ(0, market::GetAmount(pop_.wealth(), kEntertainment));
+  EXPECT_DOUBLE_EQ(1, market_.AvailableImmediately(kEntertainment));
+  // Money on hand should be equal to price of output, less price of inputs.
+  // Don't count credit.
+  EXPECT_DOUBLE_EQ(
+      market_.GetPrice(kEntertainment) - fish_info.total_unit_cost(),
+      market_.MaxMoney(pop_.wealth()) - market_.MaxCredit(pop_.wealth()))
+      << pop_.wealth().DebugString();
   EXPECT_TRUE(dinner_from_fish_.Complete(progress));
 
   EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,

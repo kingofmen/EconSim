@@ -97,6 +97,9 @@ private:
 
   // Tracking how many consumption packages have been ordered from the market.
   int packages_ordered_;
+
+  // The resources required for minimal subsistence.
+  market::proto::Container subsistence_need_;
 };
 
 } // namespace population
