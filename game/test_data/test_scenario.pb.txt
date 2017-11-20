@@ -281,6 +281,8 @@ decay_rates {
 #    }
 #  }
 #  Tags acquired by using the level.
+#  Note that 'subsistence' is a special tag; POPs will not sell
+#  resources they can use to reach 1.0 subsistence.
 #  tags {
 #  }
 #}
@@ -295,36 +297,14 @@ consumption {
       }
     }
   }
-  packages {
-    consumed {
-      quantities {
-        key: "food"
-        value: 0.05
-      }
-    }
-    capital {
-      quantities {
-        key: "shelter"
-        value: 0.05
-      }
-    }
-  }
-  packages {
-    consumed {
-      quantities {
-        key: "food"
-        value: 0.05
-      }
-      quantities {
-        key: "labour"
-        value: 0.10
-      }
-    }
-  }
   tags {
     quantities {
       key: "life_support"
       value: 0.10
+    }
+    quantities {
+      key: "subsistence"
+      value: 1.0
     }
   }
 }

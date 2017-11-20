@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "industry/decisions/production_evaluator.h"
+#include "util/keywords/keywords.h"
 
 using geography::proto::Field;
 
@@ -18,6 +19,12 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
                             proto_.production_chains().pointer_end());
   for (auto& decay_rate : *proto_.mutable_decay_rates()->mutable_quantities()) {
     decay_rate.second = 1 - decay_rate.second;
+  }
+
+  for (const auto& level : proto_.consumption()) {
+    if (market::GetAmount(level.tags(), keywords::kSubsistenceTag) > 0) {
+      subsistence_.push_back(&level);
+    }
   }
 }
 
@@ -44,6 +51,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
       if (pop == nullptr) {
         continue;
       }
+      pop->StartTurn(scenario_.subsistence_, area->mutable_market());
       pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
     }
     std::unordered_map<population::PopUnit*, std::vector<Field*>> fields;

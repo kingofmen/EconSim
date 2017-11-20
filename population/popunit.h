@@ -54,6 +54,11 @@ public:
   bool Produce(const industry::decisions::ProductionContext& context,
                industry::decisions::DecisionMap* production_info_map);
 
+  // Start-of-turn setup. Finds the cheapest packages within levels to add up to
+  // one unit of 'subsistence', and reserves that amount for internal use.
+  void StartTurn(const std::vector<const proto::ConsumptionLevel*>& levels,
+                 market::Market* market);
+
   // Attempts to find a new production chain to run in field. Returns true on
   // success.
   bool StartNewProduction(const industry::decisions::ProductionContext& context,

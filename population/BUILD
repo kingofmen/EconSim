@@ -11,6 +11,7 @@ cc_library(
     "//industry/decisions:production_evaluator",
     "//market/proto:goods_proto",
     "//population/proto:population_proto",
+    "//util/keywords:keywords",
   ],
 )
 

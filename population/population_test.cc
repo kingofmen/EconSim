@@ -7,7 +7,7 @@
 #include "industry/industry.h"
 #include "industry/proto/industry.pb.h"
 #include "population/proto/population.pb.h"
-
+#include "util/keywords/keywords.h"
 
 namespace population {
 namespace {
@@ -342,7 +342,7 @@ TEST_F(PopulationTest, TryProductionStep) {
                                       &progress, &market_))
       << fish_info.DebugString();
 
-  SellGoods(2, 5);
+  SellGoods(2);
 
   // Process makes no profit because it has no output.
   dinner_from_fish_proto_->mutable_outputs()->Clear();
@@ -383,6 +383,20 @@ TEST_F(PopulationTest, TryProductionStep) {
   EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
                                       &progress, &market_))
       << fish_info.DebugString();
+
+  // Make entertainment a subsistence good, and check that it's no longer sold
+  // as soon as it is produced.
+  progress = dinner_from_fish_.MakeProgress(3);
+  SellGoods(2);
+  level_.Clear();
+  market::SetAmount(keywords::kSubsistenceTag, 1, level_.mutable_tags());
+  auto* package = level_.add_packages();
+  market::SetAmount(kEntertainment, 1, package->mutable_consumed());
+  pop_.StartTurn({&level_}, &market_);
+  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
+                                      &progress, &market_))
+      << fish_info.DebugString();
+  EXPECT_DOUBLE_EQ(1, market::GetAmount(pop_.wealth(), kEntertainment));
 }
 
 TEST_F(PopulationTest, StartNewProduction) {

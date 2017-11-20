@@ -7,6 +7,7 @@
 #include "absl/algorithm/container.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
+#include "util/keywords/keywords.h"
 
 namespace population {
 
@@ -176,9 +177,7 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 }
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
-  fields_worked_.clear();
   *mutable_wealth() *= decay_rates;
-  packages_ordered_ = 0;
   market::CleanContainer(mutable_wealth());
 }
 
@@ -235,6 +234,35 @@ bool PopUnit::TryProductionStep(
   }
 
   return true;
+}
+
+void PopUnit::StartTurn(
+    const std::vector<const proto::ConsumptionLevel*>& levels,
+    market::Market* market) {
+  packages_ordered_ = 0;
+  fields_worked_.clear();
+  subsistence_need_.Clear();
+  double found = 0;
+  const proto::ConsumptionPackage* cheapest = nullptr;
+  for (const auto* level : levels) {
+    double amount = market::GetAmount(level->tags(), keywords::kSubsistenceTag);
+    if (amount <= 0) {
+      continue;
+    }
+    const proto::ConsumptionPackage* best_package =
+        CheapestPackage(*level, *market, cheapest);
+    if (best_package == nullptr) {
+      best_package = cheapest;
+    }
+    if (best_package == nullptr) {
+      continue;
+    }
+    subsistence_need_ += TotalNeeded(*best_package, GetSize());
+    found += amount;
+    if (found > 1) {
+      break;
+    }
+  }
 }
 
 bool PopUnit::StartNewProduction(

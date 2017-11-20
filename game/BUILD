@@ -10,6 +10,7 @@ cc_library(
     "//market/proto:goods_proto",
     "//population:population",
     "//population/proto:population_proto",
+    "//util/keywords:keywords",
   ],
 )
 
