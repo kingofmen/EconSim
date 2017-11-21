@@ -46,7 +46,10 @@ int main(int /*argc*/, char** /*argv*/) {
   std::unordered_map<geography::proto::Field*,
                      industry::decisions::proto::ProductionDecision>
       production_info;
-  game_world.TimeStep(&production_info);
+  for (int i = 0; i < 10; ++i) {
+    production_info.clear();
+    game_world.TimeStep(&production_info);
+  }
 
   world_proto.Clear();
   game_world.SaveToProto(&world_proto);

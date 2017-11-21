@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <list>
-
+#include <iostream>
 #include "absl/algorithm/container.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
@@ -95,7 +95,7 @@ void PopUnit::AutoProduce(
   if (best_prod == nullptr) {
     return;
   }
-  *mutable_wealth() += best_prod->output();
+  *mutable_wealth() += best_prod->output() * GetSize();
 }
 
 void PopUnit::BirthAndDeath() {}
@@ -200,7 +200,8 @@ bool PopUnit::TryProductionStep(
   if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
     return false;
   }
-  const auto& step_info = production_info.step_info(progress->step());
+  // First step info is for current step.
+  const auto& step_info = production_info.step_info(0);
   auto variant_index = step_info.best_variant();
   if (variant_index >= step_info.variant_size()) {
     return false;

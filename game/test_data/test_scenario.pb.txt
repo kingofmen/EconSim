@@ -26,13 +26,12 @@ production_chains {
   outputs {
     quantities {
       key: "food"
-      value: 1
+      value: 3.001
     }
   }
   land_type: LT_FIELDS
   name: "wheat_fields"
-  scaling_effects: 0.9
-  scaling_effects: 0.8
+  scaling_effects: 1.0
   experience_effect: 0.1
 }
 
@@ -48,104 +47,6 @@ production_chains {
       movable_capital {
         quantities {
 	  key: "sheep"
-	  value: 1
-	}
-      }
-    }
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 0.1
-	}
-      }
-      movable_capital {
-        quantities {
-	  key: "sheep"
-	  value: 1
-	}
-      }
-      fixed_capital {
-        quantities {
-	  key: "timber"
-	  value: 1
-	}
-      }
-    }
-    weather_effect: 0
-    skip_effect: 0
-  }
-  outputs {
-    quantities {
-      key: "wool"
-      value: 1
-    }
-    quantities {
-      key: "sheep"
-      value: 0.02
-    }
-  }
-  land_type: LT_PASTURE
-  name: "sheep_shearing"
-  experience_effect: 0.1
-}
-
-production_chains {
-  steps {
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 0.2
-	}
-        quantities {
-	  key: "sheep"
-	  value: 1
-	}
-      }
-    }
-    weather_effect: 0
-    skip_effect: 0
-  }
-  outputs {
-    quantities {
-      key: "food"
-      value: 1
-    }
-  }
-  land_type: LT_PASTURE
-  name: "sheep_slaughter"
-  experience_effect: 0.1
-}
-
-production_chains {
-  steps {
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 1
-	}
-        quantities {
-	  key: "wool"
-	  value: 1
-	}
-      }
-    }
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 0.1
-	}
-        quantities {
-	  key: "wool"
-	  value: 1
-	}
-      }
-      fixed_capital {
-        quantities {
-	  key: "timber"
 	  value: 1
 	}
       }
@@ -156,73 +57,20 @@ production_chains {
   outputs {
     quantities {
       key: "cloth"
-      value: 1
+      value: 0.33
     }
   }
-  land_type: LT_BUILT
-  name: "weaving"
+  scaling_effects: 1.0
+  land_type: LT_PASTURE
+  name: "sheep_shearing"
   experience_effect: 0.1
 }
-
-production_chains {
-  steps {
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 1
-	}
-      }
-      raw_materials {
-        quantities {
-	  key: "forest"
-	  value: 1
-	}
-      }
-    }
-    weather_effect: 0
-    skip_effect: 0
-  }
-  outputs {
-    quantities {
-      key: "timber"
-      value: 1
-    }
-  }
-  land_type: LT_ORCHARDS
-  name: "forestry"
-  experience_effect: 0.1
-}
-
-production_chains {
-  steps {
-    variants {
-      fixed_capital {
-        quantities {
-	  key: "timber"
-	  value: 1
-	}
-      }
-    }
-    weather_effect: 0
-    skip_effect: 0
-  }
-  outputs {
-    quantities {
-      key: "shelter"
-      value: 1
-    }
-  }
-  land_type: LT_BUILT
-  name: "housing"
-}
-
 
 auto_production {
   output {
     quantities {
       key: "labour"
-      value: 1
+      value: 1.1
     }
   }
 }
@@ -234,7 +82,7 @@ decay_rates {
   }
   quantities {
     key: "sheep"
-    value: 0.01
+    value: 0.00
   }
   quantities {
     key: "food"
@@ -246,7 +94,7 @@ decay_rates {
   }
   quantities {
     key: "cloth"
-    value: 0.03
+    value: 0.025
   }
   quantities {
     key: "wool"
@@ -416,6 +264,30 @@ consumption {
     quantities {
       key: "life_support"
       value: 0.60
+    }
+  }
+}
+
+consumption {
+  name: "Kilts"
+  packages {
+    consumed {
+      quantities {
+        key: "cloth"
+        value: 0.05
+      }
+    }
+    capital {
+      quantities {
+        key: "cloth"
+        value: 0.2
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "clothing"
+      value: 0.1
     }
   }
 }
