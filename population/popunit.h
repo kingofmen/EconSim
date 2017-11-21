@@ -28,7 +28,7 @@ public:
   void BirthAndDeath();
 
   void AutoProduce(const std::vector<const proto::AutoProduction*>& production,
-                   const market::proto::Container& prices);
+                   market::Market* market);
 
   // Looks for packages in level that are possible to consume, either from
   // current resources or by buying from the market (which must not be null),

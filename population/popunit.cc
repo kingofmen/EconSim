@@ -78,14 +78,14 @@ PopUnit::PopUnit(const proto::PopUnit& proto)
 
 void PopUnit::AutoProduce(
     const std::vector<const proto::AutoProduction*>& production,
-    const market::proto::Container& prices) {
+    market::Market* market) {
   const proto::AutoProduction* best_prod = nullptr;
   double best_price = 0;
   for (const auto* p : production) {
     if (!(proto_.tags() > p->required_tags())) {
       continue;
     }
-    double curr_price = p->output() * prices;
+    double curr_price = market->GetPrice(p->output());
     if (curr_price < best_price) {
       continue;
     }
@@ -96,6 +96,14 @@ void PopUnit::AutoProduce(
     return;
   }
   *mutable_wealth() += best_prod->output() * GetSize();
+  for (const auto& quantity : wealth().quantities()) {
+    auto amount = quantity.second;
+    amount -= market::GetAmount(subsistence_need_, quantity.first);
+    if (amount > 0) {
+      market->TryToSell(market::MakeQuantity(quantity.first, amount),
+                        mutable_wealth());
+    }
+  }
 }
 
 void PopUnit::BirthAndDeath() {}

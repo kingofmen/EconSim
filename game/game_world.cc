@@ -52,7 +52,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
         continue;
       }
       pop->StartTurn(scenario_.subsistence_, area->mutable_market());
-      pop->AutoProduce(scenario_.auto_production_, area->GetPrices());
+      pop->AutoProduce(scenario_.auto_production_, area->mutable_market());
     }
     std::unordered_map<population::PopUnit*, std::vector<Field*>> fields;
     for (auto& field : *area->Proto()->mutable_fields()) {

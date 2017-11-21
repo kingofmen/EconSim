@@ -279,15 +279,17 @@ TEST_F(PopulationTest, AutoProduction) {
 
   work += 2;
   words += 1;
-  market::proto::Container prices;
-  prices << work;
-  prices << words;
+  market_.RegisterGood(work.kind());
+  market_.RegisterGood(words.kind());
+  market_.Proto()->set_credit_limit(100);
+  *market_.Proto()->mutable_prices() << work;
+  *market_.Proto()->mutable_prices() << words;
 
   // Prayer is cheaper, so the pop should choose to work.
   std::vector<const proto::AutoProduction*> production = {&labour, &prayer};
-  pop_.AutoProduce(production, prices);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), work), 1);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), words), 0);
+  pop_.AutoProduce(production, &market_);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(work.kind()), 1);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(words.kind()), 0);
 
   market::proto::Quantity culture;
   culture.set_kind(kTestCulture2);
@@ -295,16 +297,16 @@ TEST_F(PopulationTest, AutoProduction) {
   *labour.mutable_required_tags() << culture;
 
   // Pop can no longer work, so now it should pray.
-  pop_.AutoProduce(production, prices);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), work), 1);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), words), 1);  
+  pop_.AutoProduce(production, &market_);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(work.kind()), 1);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(words.kind()), 1);  
 
   culture += 1.1;
   *pop_.Proto()->mutable_tags() << culture;
   // With ability to work restored, pop should work again.
-  pop_.AutoProduce(production, prices);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), work), 2);
-  EXPECT_DOUBLE_EQ(market::GetAmount(pop_.Proto()->wealth(), words), 1);  
+  pop_.AutoProduce(production, &market_);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(work.kind()), 2);
+  EXPECT_DOUBLE_EQ(market_.AvailableImmediately(words.kind()), 1);  
 }
 
 TEST_F(PopulationTest, EndTurn) {
