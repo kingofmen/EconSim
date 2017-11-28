@@ -14,10 +14,9 @@
 #include "market/market.h"
 #include "market/proto/goods.pb.h"
 #include "population/proto/population.pb.h"
+#include "util/headers/int_types.h"
 
 namespace population {
-
-using google::protobuf::uint64;
 
 class PopUnit {
 public:

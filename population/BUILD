@@ -12,6 +12,7 @@ cc_library(
     "//market/proto:goods_proto",
     "//population/proto:population_proto",
     "//util/keywords:keywords",
+    "//util/headers:int_types",
   ],
 )
 
