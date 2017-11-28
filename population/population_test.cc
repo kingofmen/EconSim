@@ -99,7 +99,8 @@ protected:
     market::SetAmount(dinner_.kind(), 3, market_.Proto()->mutable_prices());
   }
 
-  void SellGoods(double fish = 0, double youtube = 0, double grain = 0) {
+  void SellGoods(market::Measure fish = 0, market::Measure youtube = 0,
+                 market::Measure grain = 0) {
     fish_.set_amount(fish);
     youtube_.set_amount(youtube);
     grain_.set_amount(grain);

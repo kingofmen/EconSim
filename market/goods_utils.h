@@ -5,42 +5,44 @@
 #include "market/proto/goods.pb.h"
 
 namespace market {
+typedef double Measure;
 
 // Adds amount of name to con.
-void Add(const std::string& name, const double amount,
+void Add(const std::string& name, const Measure amount,
          market::proto::Container* con);
 
 // Sets all amounts in the container to 0.
 void Clear(market::proto::Container* con);
 
 // Removes goods with less than tolerance amount from con.
-void CleanContainer(market::proto::Container* con, double tolerance = 0.000001);
+void CleanContainer(market::proto::Container* con,
+                    Measure tolerance = 0.000001);
 
 // Returns true if con has an entry for the good name, even if the amount is
 // zero.
-bool Contains(const market::proto::Container &con, const std::string& name);
+bool Contains(const market::proto::Container& con, const std::string& name);
 // Returns true if con has an entry for the good in qua. The amount is ignored.
-bool Contains(const market::proto::Container &con,
-              const market::proto::Quantity &qua);
+bool Contains(const market::proto::Container& con,
+              const market::proto::Quantity& qua);
 
 // Returns the amount of name in con; zero if not set.
-double GetAmount(const market::proto::Container& con, const std::string& name);
+Measure GetAmount(const market::proto::Container& con, const std::string& name);
 // Returns the amount of qua.kind() in con; zero if not set.
-double GetAmount(const market::proto::Container& con,
-                 const market::proto::Quantity& qua);
+Measure GetAmount(const market::proto::Container& con,
+                  const market::proto::Quantity& qua);
 
 // Returns a quantity with the given values.
 market::proto::Quantity MakeQuantity(const std::string& name,
-                                     const double amount);
+                                     const Measure amount);
 
 // Moves amount of name from from to to.
-void Move(const std::string& name, const double amount,
+void Move(const std::string& name, const Measure amount,
           market::proto::Container* from, market::proto::Container* to);
 void Move(const market::proto::Quantity& qua, market::proto::Container* from,
           market::proto::Container* to);
 
 // Sets the amount of name in con.
-void SetAmount(const std::string& name, const double amount,
+void SetAmount(const std::string& name, const Measure amount,
                market::proto::Container* con);
 void SetAmount(const market::proto::Quantity& qua,
                market::proto::Container* con);
@@ -49,45 +51,45 @@ namespace proto {
 
 // Create an entry for the good name in con. No effect if the entry exists
 // already.
-market::proto::Container &operator<<(market::proto::Container &con,
+market::proto::Container& operator<<(market::proto::Container& con,
                                      const std::string& name);
 
 // Adds qua to con, setting the amount in qua to zero.
-market::proto::Container &operator<<(market::proto::Container &con,
-                                     market::proto::Quantity &qua);
+market::proto::Container& operator<<(market::proto::Container& con,
+                                     market::proto::Quantity& qua);
 
 // Moves any qua.kind() in con into qua.
-market::proto::Container &operator>>(market::proto::Container &con,
-                                     market::proto::Quantity &qua);
+market::proto::Container& operator>>(market::proto::Container& con,
+                                     market::proto::Quantity& qua);
 
-market::proto::Quantity &operator+=(market::proto::Quantity &lhs,
-                                    const double rhs);
-market::proto::Quantity &operator-=(market::proto::Quantity &lhs,
-                                    const double rhs);
+market::proto::Quantity& operator+=(market::proto::Quantity& lhs,
+                                    const Measure rhs);
+market::proto::Quantity& operator-=(market::proto::Quantity& lhs,
+                                    const Measure rhs);
 
-market::proto::Quantity &operator*=(market::proto::Quantity &lhs,
-                                    const double rhs);
+market::proto::Quantity& operator*=(market::proto::Quantity& lhs,
+                                    const Measure rhs);
 
 market::proto::Quantity operator*(market::proto::Quantity lhs,
-                                  const double rhs);
+                                  const Measure rhs);
 
-market::proto::Container &operator+=(market::proto::Container &lhs,
-                                     const market::proto::Container &rhs);
+market::proto::Container& operator+=(market::proto::Container& lhs,
+                                     const market::proto::Container& rhs);
 
-market::proto::Container &operator+=(market::proto::Container &lhs,
-                                     const market::proto::Quantity &rhs);
-market::proto::Container &operator-=(market::proto::Container &lhs,
-                                     const market::proto::Container &rhs);
-market::proto::Container &operator-=(market::proto::Container &lhs,
-                                     const market::proto::Quantity &rhs);
-market::proto::Container &operator*=(market::proto::Container &lhs,
-                                     const double rhs);
+market::proto::Container& operator+=(market::proto::Container& lhs,
+                                     const market::proto::Quantity& rhs);
+market::proto::Container& operator-=(market::proto::Container& lhs,
+                                     const market::proto::Container& rhs);
+market::proto::Container& operator-=(market::proto::Container& lhs,
+                                     const market::proto::Quantity& rhs);
+market::proto::Container& operator*=(market::proto::Container& lhs,
+                                     const Measure rhs);
 market::proto::Container operator+(market::proto::Container lhs,
-                                   const market::proto::Container &rhs);
+                                   const market::proto::Container& rhs);
 market::proto::Container operator-(market::proto::Container lhs,
-                                   const market::proto::Container &rhs);
+                                   const market::proto::Container& rhs);
 market::proto::Container operator*(market::proto::Container lhs,
-                                   const double rhs);
+                                   const Measure rhs);
 
 // Matrix-vector product; the amount of each good in lhs is multiplied by the
 // corresponding amount in rhs. Note that this is not the same as the
@@ -96,8 +98,8 @@ market::proto::Container& operator*=(market::proto::Container& lhs,
                                      const market::proto::Container& rhs);
 
 // Dot product - for example, multiply a basket of goods by their prices.
-double operator*(const market::proto::Container &lhs,
-                 const market::proto::Container &rhs);
+Measure operator*(const market::proto::Container& lhs,
+                  const market::proto::Container& rhs);
 
 // Note that these are counterintuitive; they cannot be used for sorting. The
 // intended meaning of a > b is that b may safely be subtracted from a, that is,
@@ -110,26 +112,26 @@ double operator*(const market::proto::Container &lhs,
 // example if the two vectors are orthogonal this is trivially true.
 bool operator<(const market::proto::Container& lhs,
                const market::proto::Container& rhs);
-bool operator>(const market::proto::Container &lhs,
-               const market::proto::Container &rhs);
+bool operator>(const market::proto::Container& lhs,
+               const market::proto::Container& rhs);
 // The <= and >= operators are aliases for the < and > operators, as they all
 // express safe subtraction rather than sizes per se.
-inline bool operator<=(const market::proto::Container &lhs,
-                const market::proto::Container &rhs) {
+inline bool operator<=(const market::proto::Container& lhs,
+                       const market::proto::Container& rhs) {
   return lhs < rhs;
 }
-inline bool operator>=(const market::proto::Container &lhs,
-                const market::proto::Container &rhs) {
+inline bool operator>=(const market::proto::Container& lhs,
+                       const market::proto::Container& rhs) {
   return lhs > rhs;
 }
-bool operator<(const market::proto::Container &lhs,
-               const market::proto::Quantity &rhs);
-bool operator>(const market::proto::Container &lhs,
-               const market::proto::Quantity &rhs);
-bool operator<=(const market::proto::Container &lhs,
-                const market::proto::Quantity &rhs);
-bool operator>=(const market::proto::Container &lhs,
-                const market::proto::Quantity &rhs);
+bool operator<(const market::proto::Container& lhs,
+               const market::proto::Quantity& rhs);
+bool operator>(const market::proto::Container& lhs,
+               const market::proto::Quantity& rhs);
+bool operator<=(const market::proto::Container& lhs,
+                const market::proto::Quantity& rhs);
+bool operator>=(const market::proto::Container& lhs,
+                const market::proto::Quantity& rhs);
 
 } // namespace proto
 } // namespace market

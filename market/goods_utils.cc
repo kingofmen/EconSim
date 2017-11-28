@@ -6,7 +6,7 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
-void Add(const std::string& name, const double amount, Container* con) {
+void Add(const std::string& name, const Measure amount, Container* con) {
   Quantity qua;
   qua.set_kind(name);
   qua.set_amount(amount);
@@ -15,7 +15,7 @@ void Add(const std::string& name, const double amount, Container* con) {
 
 void Clear(Container* con) { con->clear_quantities(); }
 
-void CleanContainer(Container* con, double tolerance) {
+void CleanContainer(Container* con, Measure tolerance) {
   std::vector<std::string> to_erase;
   for (const auto& quantity : con->quantities()) {
     if (quantity.second >= tolerance) {
@@ -36,25 +36,25 @@ bool Contains(const Container& con, const Quantity& qua) {
   return Contains(con, qua.kind());
 }
 
-double GetAmount(const Container& con, const std::string& name) {
+Measure GetAmount(const Container& con, const std::string& name) {
   if (!Contains(con, name)) {
     return 0;
   }
   return con.quantities().at(name);
 }
 
-double GetAmount(const Container& con, const Quantity& qua) {
+Measure GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
-Quantity MakeQuantity(const std::string& name, const double amount) {
+Quantity MakeQuantity(const std::string& name, const Measure amount) {
   Quantity ret;
   ret.set_kind(name);
   ret.set_amount(amount);
   return ret;
 }
 
-void Move(const std::string& name, const double amount, Container* from,
+void Move(const std::string& name, const Measure amount, Container* from,
           Container* to) {
   Quantity transfer;
   transfer.set_kind(name);
@@ -67,7 +67,7 @@ void Move(const Quantity& qua, Container* from, Container* to) {
   *to += qua;
 }
 
-void SetAmount(const std::string& name, const double amount, Container* con) {
+void SetAmount(const std::string& name, const Measure amount, Container* con) {
   auto& quantities = *con->mutable_quantities();
   quantities[name] = amount;
 }
@@ -102,22 +102,22 @@ Container& operator<<(Container& con, const std::string& name) {
   return con;
 }
 
-Quantity& operator+=(Quantity& lhs, const double rhs) {
+Quantity& operator+=(Quantity& lhs, const Measure rhs) {
   lhs.set_amount(lhs.amount() + rhs);
   return lhs;
 }
 
-Quantity& operator*=(Quantity& lhs, const double rhs) {
+Quantity& operator*=(Quantity& lhs, const Measure rhs) {
   lhs.set_amount(lhs.amount() * rhs);
   return lhs;
 }
 
-Quantity operator*(Quantity lhs, const double rhs) {
+Quantity operator*(Quantity lhs, const Measure rhs) {
   lhs *= rhs;
   return lhs;
 }
 
-Quantity& operator-=(Quantity& lhs, const double rhs) {
+Quantity& operator-=(Quantity& lhs, const Measure rhs) {
   lhs.set_amount(lhs.amount() - rhs);
   return lhs;
 }
@@ -129,7 +129,7 @@ Container& operator+=(Container& lhs, const Container& rhs) {
   return lhs;
 }
 
-Container& operator*=(Container& lhs, const double rhs) {
+Container& operator*=(Container& lhs, const Measure rhs) {
   for (auto& quantity : *lhs.mutable_quantities()) {
     quantity.second *= rhs;
   }
@@ -171,13 +171,13 @@ Container operator+(Container lhs, const Container& rhs) {
   return lhs;
 }
 
-Container operator*(Container lhs, const double rhs) {
+Container operator*(Container lhs, const Measure rhs) {
   lhs *= rhs;
   return lhs;
 }
 
-double operator*(const Container& lhs, const Container& rhs) {
-  double ret = 0;
+Measure operator*(const Container& lhs, const Container& rhs) {
+  Measure ret = 0;
   for (const auto& quantity : rhs.quantities()) {
     ret += quantity.second * GetAmount(lhs, quantity.first);
   }

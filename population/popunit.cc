@@ -40,7 +40,7 @@ bool BuyBasket(const market::proto::Container& basket,
     if (need.second <= 0) {
       continue;
     }
-    double bought = market->TryToBuy(need.first, need.second, resources);
+    auto bought = market->TryToBuy(need.first, need.second, resources);
     if (bought < need.second) {
       success = false;
     }
@@ -80,12 +80,12 @@ void PopUnit::AutoProduce(
     const std::vector<const proto::AutoProduction*>& production,
     market::Market* market) {
   const proto::AutoProduction* best_prod = nullptr;
-  double best_price = 0;
+  market::Measure best_price = 0;
   for (const auto* p : production) {
     if (!(proto_.tags() > p->required_tags())) {
       continue;
     }
-    double curr_price = market->GetPrice(p->output());
+    auto curr_price = market->GetPrice(p->output());
     if (curr_price < best_price) {
       continue;
     }
@@ -113,9 +113,9 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
                          const market::Market& market,
                          const proto::ConsumptionPackage*& cheapest) const {
   const proto::ConsumptionPackage* best_package = nullptr;
-  double best_price = std::numeric_limits<double>::max();
+  market::Measure best_price = std::numeric_limits<double>::max();
   const int size = GetSize();
-  double max_money = market.MaxMoney(proto_.wealth());
+  auto max_money = market.MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
     if (!(proto_.tags() > package.required_tags())) {
       continue;
@@ -123,7 +123,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
     auto needed = TotalNeeded(package, size);
     if (proto_.wealth() > needed) {
-      double curr_price = market.GetPrice(package.consumed());
+      auto curr_price = market.GetPrice(package.consumed());
       if (curr_price < best_price) {
         best_package = &package;
         cheapest = &package;
@@ -132,9 +132,9 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
       continue;
     }
     bool can_buy = true;
-    double package_money = 0;
+    market::Measure package_money = 0;
     for (const auto& quantity : needed.quantities()) {
-      double need_to_buy =
+      auto need_to_buy =
           quantity.second - market::GetAmount(proto_.wealth(), quantity.first);
       if (market.AvailableImmediately(quantity.first) >= need_to_buy) {
         package_money += need_to_buy * market.GetPrice(quantity.first);
@@ -147,7 +147,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
     }
 
     needed -= proto_.wealth();
-    double curr_price = market.GetPrice(needed);
+    auto curr_price = market.GetPrice(needed);
     if (curr_price < best_price) {
       if (can_buy) {
         best_package = &package;
@@ -251,10 +251,10 @@ void PopUnit::StartTurn(
   packages_ordered_ = 0;
   fields_worked_.clear();
   subsistence_need_.Clear();
-  double found = 0;
+  market::Measure found = 0;
   const proto::ConsumptionPackage* cheapest = nullptr;
   for (const auto* level : levels) {
-    double amount = market::GetAmount(level->tags(), keywords::kSubsistenceTag);
+    auto amount = market::GetAmount(level->tags(), keywords::kSubsistenceTag);
     if (amount <= 0) {
       continue;
     }

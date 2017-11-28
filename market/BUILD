@@ -23,6 +23,7 @@ cc_library(
 cc_test(
   name = "goods_utils_test",
   srcs = ["goods_utils_test.cc"],
+  size = "small",
   deps = [
     ":goods_utils",
     "@gtest//:gtest",
@@ -33,6 +34,7 @@ cc_test(
 cc_test(
   name = "market_test",
   srcs = ["market_test.cc"],
+  size = "small",
   deps = [
     ":market",
     "@gtest//:gtest",
