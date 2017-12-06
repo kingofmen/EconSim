@@ -8,23 +8,33 @@
 
 namespace micro {
 
-// A unit in micro-units.
-constexpr int64 kOneInU = 1000000;
+// Powers of ten in micro-units.
+constexpr int64 kOneInU      = 1000000;
+constexpr int64 kTenInU      = 10 * kOneInU;
+constexpr int64 kHundredInU  = 100 * kOneInU;
+constexpr int64 kThousandInU = 1000 * kOneInU;
+
 
 // Returns the square root of value_u in micro-units.
 int64 SqrtU(int64 value_u);
 
-// Returns the product, in micro-units, of two values specified in micro-units.
-int64 MultiplyU(int64 val1_u, int64 val2_u);
+// The MultiplyU methods return products that maintain the scale of the
+// left-hand value.
 
-// Multiplies a container specified in micro-units by a scale in micro-units.
-void MultiplyU(market::proto::Container& lhs_u, int64 scale_u);
+// Integer multiplication.
+int64 MultiplyU(int64 val1, int64 val2_u);
 
-// Multiplies a container by a scale in micro-units.
-void Multiply(market::proto::Container& lhs, int64 scale_u);
+// In-place scaling a container.
+void MultiplyU(market::proto::Container& lhs, int64 scale_u);
 
-// Returns the ratio of two quantities in micro-units.
-int64 DivideU(int64 val1_u, int64 val2_u);
+// In-place matrix-vector multiplication - not dot product.
+void MultiplyU(market::proto::Container& lhs,
+               const market::proto::Container& rhs_u);
+
+// DivideU methods return ratios, maintaining the left-hand scale.
+
+// Integer division.
+int64 DivideU(int64 val1, int64 val2_u);
 
 }  // namespace micro
 

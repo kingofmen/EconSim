@@ -112,8 +112,18 @@ Quantity& operator*=(Quantity& lhs, const Measure rhs) {
   return lhs;
 }
 
+Quantity& operator/=(Quantity& lhs, const Measure rhs) {
+  lhs.set_amount(lhs.amount() / rhs);
+  return lhs;
+}
+
 Quantity operator*(Quantity lhs, const Measure rhs) {
   lhs *= rhs;
+  return lhs;
+}
+
+Quantity operator/(Quantity lhs, const Measure rhs) {
+  lhs /= rhs;
   return lhs;
 }
 
@@ -132,6 +142,13 @@ Container& operator+=(Container& lhs, const Container& rhs) {
 Container& operator*=(Container& lhs, const Measure rhs) {
   for (auto& quantity : *lhs.mutable_quantities()) {
     quantity.second *= rhs;
+  }
+  return lhs;
+}
+
+Container& operator/=(Container& lhs, const Measure rhs) {
+  for (auto& quantity : *lhs.mutable_quantities()) {
+    quantity.second /= rhs;
   }
   return lhs;
 }
@@ -173,6 +190,11 @@ Container operator+(Container lhs, const Container& rhs) {
 
 Container operator*(Container lhs, const Measure rhs) {
   lhs *= rhs;
+  return lhs;
+}
+
+Container operator/(Container lhs, const Measure rhs) {
+  lhs /= rhs;
   return lhs;
 }
 

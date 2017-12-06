@@ -3,10 +3,11 @@
 #include <string>
 
 #include "absl/strings/substitute.h"
-#include "market/goods_utils.h"
-#include "market/market.h"
 #include "geography/geography.h"
 #include "industry/industry.h"
+#include "market/goods_utils.h"
+#include "market/market.h"
+#include "util/arithmetic/microunits.h"
 
 namespace industry {
 namespace decisions {
@@ -17,24 +18,31 @@ unsigned int GetVariantIndex(const industry::Production& production,
                              const industry::proto::Progress& progress,
                              const market::Market& market,
                              const proto::StepInfo& step_info,
-                             double* scale) {
+                             market::Measure* scale_u) {
   unsigned int variant_index = step_info.variant_size();
-  double max_profit = 0;
-  double max_money = market.MaxMoney(wealth);
+  market::Measure max_profit_u = 0;
+  market::Measure max_money_u = market.MaxMoney(wealth);
   for (unsigned int idx = 0; idx < step_info.variant_size(); ++idx) {
     const auto& variant_info = step_info.variant(idx);
-    double cost_at_scale = variant_info.unit_cost() * variant_info.possible_scale();
-    double max_scale =
-        std::min(variant_info.possible_scale(), max_money / cost_at_scale);
-    if (max_scale < 0.1) {
+    if (variant_info.possible_scale_u() == 0) {
       continue;
     }
-    double profit = market.GetPrice(production.ExpectedOutput(progress));
-    profit -= variant_info.unit_cost() * progress.scaling();
-    if (profit > max_profit) {
-      max_profit = profit;
+    market::Measure cost_at_scale_u = micro::MultiplyU(
+        variant_info.unit_cost_u(), variant_info.possible_scale_u());
+    market::Measure max_scale_u =
+        std::min(variant_info.possible_scale_u(),
+                 micro::DivideU(max_money_u, cost_at_scale_u));
+    if (max_scale_u < 100000) {
+      continue;
+    }
+    market::Measure profit_u =
+        market.GetPriceU(production.ExpectedOutput(progress));
+    profit_u -=
+        micro::MultiplyU(variant_info.unit_cost_u(), progress.scaling_u());
+    if (profit_u > max_profit_u) {
+      max_profit_u = profit_u;
       variant_index = idx;
-      *scale = max_scale;
+      *scale_u = max_scale_u;
     }
   }
   return variant_index;
@@ -53,64 +61,68 @@ void GetStepInfo(const industry::Production& production,
     if (!(field.fixed_capital() > input.fixed_capital())) {
       continue;
     }
-    variant_info->set_possible_scale(progress.scaling());
+    variant_info->set_possible_scale_u(progress.scaling_u());
     for (const auto& good : input.raw_materials().quantities()) {
-      double ratio = market::GetAmount(field.resources(), good.first);
-      ratio /= good.second;
-      if (ratio < variant_info->possible_scale()) {
-        variant_info->set_possible_scale(ratio);
+      market::Measure ratio_u = micro::DivideU(
+          micro::kOneInU * market::GetAmount(field.resources(), good.first),
+          micro::kOneInU * good.second);
+
+      if (ratio_u < variant_info->possible_scale_u()) {
+        variant_info->set_possible_scale_u(ratio_u);
       }
     }
 
     auto required = production.RequiredConsumables(progress.step(), index);
     for (const auto& good : required.quantities()) {
-      auto unit_cost = variant_info->unit_cost();
-      unit_cost += market.GetPrice(good.first) * good.second;
-      variant_info->set_unit_cost(unit_cost);
-      double ratio = market.AvailableImmediately(good.first) +
-                     market::GetAmount(wealth, good.first);
-      ratio /= good.second;
-      if (ratio < variant_info->possible_scale()) {
-        variant_info->set_possible_scale(ratio);
+      auto unit_cost_u = variant_info->unit_cost_u();
+      unit_cost_u +=
+          micro::MultiplyU(market.GetPriceU(good.first), good.second);
+      variant_info->set_unit_cost_u(unit_cost_u);
+      market::Measure ratio_u =
+          micro::DivideU((market.AvailableImmediately(good.first) +
+                          market::GetAmount(wealth, good.first)),
+                         good.second);
+      if (ratio_u < variant_info->possible_scale_u()) {
+        variant_info->set_possible_scale_u(ratio_u);
       }
     }
   }
 }
 
-}  // namespace
+} // namespace
 
 proto::ProductionInfo ProductionEvaluator::GetProductionInfo(
     const industry::Production& chain, const market::proto::Container& wealth,
     const market::Market& market, const geography::proto::Field& field) const {
   proto::ProductionInfo ret;
-  ret.set_max_scale(chain.MaxScale());
+  ret.set_max_scale_u(chain.MaxScaleU());
 
   int current_step = 0;
   industry::proto::Progress progress;
   if (field.has_progress()) {
     progress = field.progress();
   } else {
-    progress = chain.MakeProgress(ret.max_scale());
+    progress = chain.MakeProgress(ret.max_scale_u());
   }
 
   for (int i = progress.step(); i < chain.Proto()->steps_size(); ++i) {
     progress.set_step(i);
     auto* step_info = ret.add_step_info();
     GetStepInfo(chain, wealth, market, field, progress, step_info);
-    double scale = 0;
+    market::Measure scale_u = 0;
     step_info->set_best_variant(
-        GetVariantIndex(chain, wealth, progress, market, *step_info, &scale));
+        GetVariantIndex(chain, wealth, progress, market, *step_info, &scale_u));
     if (step_info->best_variant() >= step_info->variant_size()) {
-      ret.set_max_scale(0);
+      ret.set_max_scale_u(0);
       return ret;
     }
-    if (scale < ret.max_scale()) {
-      ret.set_max_scale(scale);
+    if (scale_u < ret.max_scale_u()) {
+      ret.set_max_scale_u(scale_u);
     }
-    auto total_unit_cost = ret.total_unit_cost();
-    total_unit_cost +=
-        step_info->variant(step_info->best_variant()).unit_cost();
-    ret.set_total_unit_cost(total_unit_cost);
+    auto total_unit_cost_u = ret.total_unit_cost_u();
+    total_unit_cost_u +=
+        step_info->variant(step_info->best_variant()).unit_cost_u();
+    ret.set_total_unit_cost_u(total_unit_cost_u);
   }
   return ret;
 }
@@ -128,45 +140,49 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
       continue;
     }
     if (!geography::HasFixedCapital(*target, *production)) {
-      ret.mutable_insufficient()->insert({chain.first, "Not enough fixed capital"});
+      ret.mutable_insufficient()->insert(
+          {chain.first, "Not enough fixed capital"});
       continue;
     }
     if (!geography::HasRawMaterials(*target, *production)) {
-      ret.mutable_insufficient()->insert({chain.first, "Not enough raw material"});
+      ret.mutable_insufficient()->insert(
+          {chain.first, "Not enough raw material"});
       continue;
     }
     possible_chains.emplace(
-        chain.first, GetProductionInfo(*production, wealth, *context.market, *target));
+        chain.first,
+        GetProductionInfo(*production, wealth, *context.market, *target));
   }
   if (possible_chains.empty()) {
     return ret;
   }
 
-  double max_profit = 0;
+  market::Measure max_profit_u = 0;
   for (auto& possible : possible_chains) {
     const auto* chain = context.production_map.at(possible.first);
     auto& info = possible.second;
     info.set_name(possible.first);
-    double profit = context.market->GetPrice(chain->Proto()->outputs());
-    profit -= info.total_unit_cost();
-    if (profit <= 0) {
+    market::Measure profit_u =
+        context.market->GetPriceU(chain->Proto()->outputs());
+    profit_u -= info.total_unit_cost_u();
+    if (profit_u <= 0) {
       info.set_reject_reason("Unprofitable");
       ret.add_rejected()->Swap(&info);
       continue;
     }
-    if (info.max_scale() <= 0) {
+    if (info.max_scale_u() <= 0) {
       info.set_reject_reason("Impractical");
       ret.add_rejected()->Swap(&info);
-      continue;      
+      continue;
     }
-    profit *= info.max_scale();
-    if (profit <= max_profit) {
+    profit_u = micro::MultiplyU(profit_u, info.max_scale_u());
+    if (profit_u <= max_profit_u) {
       info.set_reject_reason(
           absl::Substitute("Less profit than $0", ret.selected().name()));
       ret.add_rejected()->Swap(&info);
       continue;
     }
-    max_profit = profit;
+    max_profit_u = profit_u;
     ret.mutable_selected()->set_reject_reason(
         absl::Substitute("Less profit than $0", info.name()));
     ret.mutable_selected()->Swap(&info);
@@ -175,5 +191,5 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
   return ret;
 }
 
-}  // namespace decisions
-}  // namespace industry
+} // namespace decisions
+} // namespace industry

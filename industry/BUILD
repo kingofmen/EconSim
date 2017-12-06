@@ -8,6 +8,8 @@ cc_library(
     "//industry/proto:industry_proto",
     "//market/proto:goods_proto",
     "//market:market",
+    "//util/arithmetic:microunits",
+    "//util/headers:int_types",
   ],
 )
 
@@ -18,5 +20,6 @@ cc_test(
     ":industry",
     "@gtest//:gtest",
     "@gtest//:gtest_main",
+    "//util/arithmetic:microunits",
   ],
 )

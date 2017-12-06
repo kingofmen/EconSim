@@ -7,6 +7,7 @@
 #include "absl/algorithm/container.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
+#include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 
 namespace population {
@@ -85,7 +86,7 @@ void PopUnit::AutoProduce(
     if (!(proto_.tags() > p->required_tags())) {
       continue;
     }
-    auto curr_price = market->GetPrice(p->output());
+    auto curr_price = market->GetPriceU(p->output());
     if (curr_price < best_price) {
       continue;
     }
@@ -113,7 +114,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
                          const market::Market& market,
                          const proto::ConsumptionPackage*& cheapest) const {
   const proto::ConsumptionPackage* best_package = nullptr;
-  market::Measure best_price = std::numeric_limits<double>::max();
+  market::Measure best_price_u = std::numeric_limits<market::Measure>::max();
   const int size = GetSize();
   auto max_money = market.MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
@@ -123,11 +124,11 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
     auto needed = TotalNeeded(package, size);
     if (proto_.wealth() > needed) {
-      auto curr_price = market.GetPrice(package.consumed());
-      if (curr_price < best_price) {
+      auto curr_price_u = market.GetPriceU(package.consumed());
+      if (curr_price_u < best_price_u) {
         best_package = &package;
         cheapest = &package;
-        best_price = curr_price;
+        best_price_u = curr_price_u;
       }
       continue;
     }
@@ -137,7 +138,8 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
       auto need_to_buy =
           quantity.second - market::GetAmount(proto_.wealth(), quantity.first);
       if (market.AvailableImmediately(quantity.first) >= need_to_buy) {
-        package_money += need_to_buy * market.GetPrice(quantity.first);
+        package_money +=
+            micro::MultiplyU(need_to_buy, market.GetPriceU(quantity.first));
         if (package_money <= max_money) {
           continue;
         }
@@ -147,13 +149,13 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
     }
 
     needed -= proto_.wealth();
-    auto curr_price = market.GetPrice(needed);
-    if (curr_price < best_price) {
+    auto curr_price_u = market.GetPriceU(needed);
+    if (curr_price_u < best_price_u) {
       if (can_buy) {
         best_package = &package;
       }
       cheapest = &package;
-      best_price = curr_price;
+      best_price_u = curr_price_u;
     }
   }
 
@@ -184,8 +186,8 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
   return true;
 }
 
-void PopUnit::EndTurn(const market::proto::Container& decay_rates) {
-  *mutable_wealth() *= decay_rates;
+void PopUnit::EndTurn(const market::proto::Container& decay_rates_u) {
+  micro::MultiplyU(*mutable_wealth(), decay_rates_u);
   market::CleanContainer(mutable_wealth());
 }
 
@@ -215,8 +217,8 @@ bool PopUnit::TryProductionStep(
     return false;
   }
   const auto& variant_info = step_info.variant(variant_index);
-  if (progress->scaling() > variant_info.possible_scale()) {
-    progress->set_scaling(variant_info.possible_scale());
+  if (progress->scaling_u() > variant_info.possible_scale_u()) {
+    progress->set_scaling_u(variant_info.possible_scale_u());
   }
 
   auto required = production.RequiredConsumables(*progress, variant_index);
@@ -225,7 +227,7 @@ bool PopUnit::TryProductionStep(
     return false;
   }
 
-  production.PerformStep(field->fixed_capital(), 0.0, variant_index,
+  production.PerformStep(field->fixed_capital(), 0, variant_index,
                          mutable_wealth(), field->mutable_resources(),
                          mutable_wealth(), progress);
 
@@ -286,7 +288,7 @@ bool PopUnit::StartNewProduction(
 
   auto* best_chain = context.production_map.at(decision.selected().name());
   *field->mutable_progress() =
-      best_chain->MakeProgress(decision.selected().max_scale());
+      best_chain->MakeProgress(decision.selected().max_scale_u());
   return true;
 }
 

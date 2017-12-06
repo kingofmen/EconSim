@@ -3,9 +3,10 @@
 #define MARKET_GOODS_UTILS_H
 
 #include "market/proto/goods.pb.h"
+#include "util/headers/int_types.h"
 
 namespace market {
-typedef double Measure;
+typedef int64 Measure;
 
 // Adds amount of name to con.
 void Add(const std::string& name, const Measure amount,
@@ -15,8 +16,7 @@ void Add(const std::string& name, const Measure amount,
 void Clear(market::proto::Container* con);
 
 // Removes goods with less than tolerance amount from con.
-void CleanContainer(market::proto::Container* con,
-                    Measure tolerance = 0.000001);
+void CleanContainer(market::proto::Container* con, Measure tolerance = 1);
 
 // Returns true if con has an entry for the good name, even if the amount is
 // zero.
@@ -66,11 +66,14 @@ market::proto::Quantity& operator+=(market::proto::Quantity& lhs,
                                     const Measure rhs);
 market::proto::Quantity& operator-=(market::proto::Quantity& lhs,
                                     const Measure rhs);
-
 market::proto::Quantity& operator*=(market::proto::Quantity& lhs,
+                                    const Measure rhs);
+market::proto::Quantity& operator/=(market::proto::Quantity& lhs,
                                     const Measure rhs);
 
 market::proto::Quantity operator*(market::proto::Quantity lhs,
+                                  const Measure rhs);
+market::proto::Quantity operator/(market::proto::Quantity lhs,
                                   const Measure rhs);
 
 market::proto::Container& operator+=(market::proto::Container& lhs,
@@ -84,11 +87,15 @@ market::proto::Container& operator-=(market::proto::Container& lhs,
                                      const market::proto::Quantity& rhs);
 market::proto::Container& operator*=(market::proto::Container& lhs,
                                      const Measure rhs);
+market::proto::Container& operator/=(market::proto::Container& lhs,
+                                     const Measure rhs);
 market::proto::Container operator+(market::proto::Container lhs,
                                    const market::proto::Container& rhs);
 market::proto::Container operator-(market::proto::Container lhs,
                                    const market::proto::Container& rhs);
 market::proto::Container operator*(market::proto::Container lhs,
+                                   const Measure rhs);
+market::proto::Container operator/(market::proto::Container lhs,
                                    const Measure rhs);
 
 // Matrix-vector product; the amount of each good in lhs is multiplied by the

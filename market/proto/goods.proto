@@ -3,11 +3,11 @@ package market.proto;
 
 message Quantity {
   string kind = 1;
-  double amount = 2;
+  int64 amount = 2;
 }
 
 message Container {
-  map<string, double> quantities = 1;
+  map<string, int64> quantities = 1;
 }
 
 message TradeGood {

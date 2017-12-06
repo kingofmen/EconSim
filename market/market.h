@@ -9,10 +9,11 @@
 
 #include "market/proto/goods.pb.h"
 #include "market/proto/market.pb.h"
+#include "util/headers/int_types.h"
 
 namespace market {
 
-typedef double Measure;
+typedef int64 Measure;
 
 class Market {
 public:
@@ -62,13 +63,13 @@ public:
                     market::proto::Container* source);
 
   // Returns the price of the named good.
-  Measure GetPrice(const std::string& name) const;
+  Measure GetPriceU(const std::string& name) const;
 
   // Returns the price of the given amount of the given good.
-  Measure GetPrice(const market::proto::Quantity& quantity) const;
+  Measure GetPriceU(const market::proto::Quantity& quantity) const;
 
   // Returns the price of the goods in the basket.
-  Measure GetPrice(const market::proto::Container& basket) const;
+  Measure GetPriceU(const market::proto::Container& basket) const;
 
   // Returns the amount of the named good that was traded.
   Measure GetVolume(const std::string& name) const;

@@ -2,12 +2,14 @@
 
 #include <algorithm>
 
-#include "goods_utils.h"
+#include "market/goods_utils.h"
+#include "util/arithmetic/microunits.h"
 
 namespace market {
 
 using market::proto::Quantity;
 using market::proto::Container;
+constexpr double kMaxPriceChange = micro::kOneInU / 4;
 
 Measure Market::AvailableImmediately(const std::string& name) const {
   return GetAmount(proto_.warehouse(), name);
@@ -23,8 +25,8 @@ void Market::RegisterGood(const std::string& name) {
   }
   *proto_.mutable_goods() << name;
   *proto_.mutable_volume() << name;
-  *proto_.mutable_prices() << name;
-  SetAmount(name, 1, proto_.mutable_prices());
+  *proto_.mutable_prices_u() << name;
+  SetAmount(name, micro::kOneInU, proto_.mutable_prices_u());
 }
 
 void Market::FindPrices() {
@@ -39,14 +41,15 @@ void Market::FindPrices() {
                           MaxCredit(*buy.target));
     }
     Measure offer = GetAmount(proto_.warehouse(), name) + matched;
-    if (std::min(offer, bid) < 0.001) {
+    if (std::min(bid, offer) < 1) {
       continue;
     }
-    Measure ratio = bid / std::max(offer, 0.01);
-    ratio = std::min(ratio, 1.25);
-    ratio = std::max(ratio, 0.75);
-    SetAmount(name, GetAmount(proto_.prices(), name) * ratio,
-              proto_.mutable_prices());
+    Measure ratio_u = micro::DivideU(bid, offer);
+    ratio_u = std::min<Measure>(ratio_u, micro::kOneInU + kMaxPriceChange);
+    ratio_u = std::max<Measure>(ratio_u, micro::kOneInU - kMaxPriceChange);
+    SetAmount(name,
+              micro::MultiplyU(GetAmount(proto_.prices_u(), name), ratio_u),
+              proto_.mutable_prices_u());
     SetAmount(name, 0, proto_.mutable_volume());
   }
   buy_offers_.clear();
@@ -123,10 +126,10 @@ Measure Market::TryToBuy(const Quantity& bid, Container* recipient) {
 Measure Market::TryToBuy(const std::string& name, const Measure amount,
                          Container* recipient) {
   Measure amount_bought = std::min(amount, GetAmount(proto_.warehouse(), name));
-  Measure price = GetPrice(name);
+  Measure price_u = GetPriceU(name);
   Measure max_money = MaxMoney(*recipient);
-  if (price * amount_bought > max_money) {
-    amount_bought = max_money / price;
+  if (micro::MultiplyU(price_u, amount_bought) > max_money) {
+    amount_bought = micro::DivideU(max_money, price_u);
   }
   if (amount_bought > 0) {
     SetAmount(debt_token(), GetAmount(proto_.market_debt(), name),
@@ -137,7 +140,7 @@ Measure Market::TryToBuy(const std::string& name, const Measure amount,
     transfer.set_kind(name);
     transfer.set_amount(amount_bought);
     Move(transfer, proto_.mutable_warehouse(), recipient);
-    TransferMoney(GetPrice(transfer), recipient, proto_.mutable_warehouse());
+    TransferMoney(GetPriceU(transfer), recipient, proto_.mutable_warehouse());
     *proto_.mutable_volume() += transfer;
 
     SetAmount(name, GetAmount(proto_.warehouse(), debt_token()),
@@ -174,7 +177,7 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   Measure amount_sold = 0;
   const std::string name = offer.kind();
   auto& buyers = buy_offers_[name];
-  Measure unit_price = GetPrice(name);
+  Measure unit_price_u = GetPriceU(name);
 
   std::vector<Offer> future_buyers;
   Quantity transfer = MakeQuantity(name, 0);
@@ -182,11 +185,13 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
     transfer.set_amount(std::min(buyer.amount, amount_to_sell - amount_sold));
     if (transfer.amount() > 0) {
       Measure max_money = MaxMoney(*buyer.target);
-      transfer.set_amount(std::min(transfer.amount(), max_money / unit_price));
+      transfer.set_amount(
+          std::min(transfer.amount(), micro::DivideU(max_money, unit_price_u)));
 
       Move(transfer, source, buyer.target);
       buyer.amount -= transfer.amount();
-      TransferMoney(transfer.amount() * unit_price, buyer.target, source);
+      TransferMoney(micro::MultiplyU(transfer.amount(), unit_price_u),
+                    buyer.target, source);
       amount_sold += transfer.amount();
       *proto_.mutable_volume() += transfer;
     }
@@ -202,20 +207,20 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   }
 
   Quantity warehoused = MakeQuantity(name, amount_to_sell - amount_sold);
-  Measure price = unit_price * warehoused.amount();
+  Measure price_u = micro::MultiplyU(unit_price_u, warehoused.amount());
   Measure available = GetAmount(proto_.warehouse(), proto_.legal_tender()) +
                       proto_.credit_limit() -
                       GetAmount(proto_.market_debt(), warehoused);
-  if (available < price) {
-    price = available;
-    Measure unit_price = GetPrice(offer.kind());
-    warehoused.set_amount(price / unit_price);
+  if (available < price_u) {
+    price_u = available;
+    Measure unit_price_u = GetPriceU(offer.kind());
+    warehoused.set_amount(price_u / unit_price_u);
   }
 
   *source -= warehoused;
   *proto_.mutable_warehouse() += warehoused;
 
-  TransferMoney(price, proto_.mutable_warehouse(), source);
+  TransferMoney(price_u, proto_.mutable_warehouse(), source);
   Quantity debt;
   debt.set_kind(debt_token());
   *proto_.mutable_warehouse() >> debt;
@@ -224,24 +229,25 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   return warehoused.amount() + amount_sold;
 }
 
-Measure Market::GetPrice(const std::string& name) const {
+Measure Market::GetPriceU(const std::string& name) const {
   if (!TradesIn(name)) {
     return -1;
   }
-  return GetAmount(proto_.prices(), name);
+  return GetAmount(proto_.prices_u(), name);
 }
 
-Measure Market::GetPrice(const Quantity& quantity) const {
+Measure Market::GetPriceU(const Quantity& quantity) const {
   if (!TradesIn(quantity.kind())) {
     return -1;
   }
-  return GetAmount(proto_.prices(), quantity) * quantity.amount();
+  return micro::MultiplyU(GetAmount(proto_.prices_u(), quantity),
+                          quantity.amount());
 }
 
-Measure Market::GetPrice(const market::proto::Container& basket) const {
+Measure Market::GetPriceU(const market::proto::Container& basket) const {
   Measure ret = 0;
   for (const auto& good : basket.quantities()) {
-    Measure price = GetPrice(good.first) * good.second;
+    Measure price = micro::MultiplyU(GetPriceU(good.first), good.second);
     if (price >= 0) {
       ret += price;
     }

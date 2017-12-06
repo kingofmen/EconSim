@@ -30,8 +30,8 @@ public:
   Area(const market::proto::MarketProto& market) : market_(market) {}
   Area(const proto::Area& area) : proto_(area), market_(area.market()) {}
 
-  const market::proto::Container& GetPrices() const {
-    return market_.Proto().prices();
+  const market::proto::Container& GetPricesU() const {
+    return market_.Proto().prices_u();
   }
   void Update();
 

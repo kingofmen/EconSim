@@ -5,8 +5,8 @@ areas {
     progress {
       name: "wheat_fields"
       step: 1
-      efficiency: 1
-      scaling: 2
+      efficiency_u: 1000000
+      scaling_u: 2000000
     }
   }
   fields {
@@ -21,14 +21,14 @@ areas {
   pop_ids: 2
   pop_ids: 3
   market {
-    prices {
-      quantities { key: "food" value: 0.22 }
-      quantities { key: "labour" value: 0.20 }
-      quantities { key: "timber" value: 1 }
-      quantities { key: "wool" value: 1 }
-      quantities { key: "cloth" value: 1 }
-      quantities { key: "shelter" value: 1 }
-      quantities { key: "sheep" value: 0.1 }
+    prices_u {
+      quantities { key: "food" value: 220000 }
+      quantities { key: "labour" value: 200000 }
+      quantities { key: "timber" value: 1000000 }
+      quantities { key: "wool" value: 1000000 }
+      quantities { key: "cloth" value: 1000000 }
+      quantities { key: "shelter" value: 1000000 }
+      quantities { key: "sheep" value: 100000 }
     }
     goods {
       quantities { key: "food" value: 1 }
@@ -41,7 +41,7 @@ areas {
     }
     name: "area_1_market"
     legal_tender: "silver"
-    credit_limit: 100
+    credit_limit: 100000000
   }
 }
 
@@ -54,7 +54,7 @@ pops {
   women: 0
   women: 1
   wealth {
-    quantities { key: "cloth" value: 0.39 }
+    quantities { key: "cloth" value: 390000 }
   }
 }
 
@@ -67,7 +67,7 @@ pops {
   women: 0
   women: 1
   wealth {
-    quantities { key: "cloth" value: 0.39 }
+    quantities { key: "cloth" value: 390000 }
   }
 }
 
@@ -80,7 +80,7 @@ pops {
   women: 0
   women: 1
   wealth {
-    quantities { key: "sheep" value: 2 }
-    quantities { key: "cloth" value: 0.39 }
+    quantities { key: "sheep" value: 2000000 }
+    quantities { key: "cloth" value: 390000 }
   }
 }

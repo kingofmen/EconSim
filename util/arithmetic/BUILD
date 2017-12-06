@@ -11,3 +11,12 @@ cc_library(
   ],
 )
 
+cc_test(
+  name = "microunits_test",
+  srcs = ["microunits_test.cc"],
+  deps = [
+    ":microunits",
+    "@gtest//:gtest",
+    "@gtest//:gtest_main",
+  ],
+)

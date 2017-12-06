@@ -12,6 +12,8 @@ cc_library(
     "//market:goods_utils",
     "//market:market",
     "//market/proto:goods_proto",
+    "//util/arithmetic:microunits",
+    "//util/headers:int_types",
   ],
 )
 
@@ -22,5 +24,6 @@ cc_test(
     ":production_evaluator",
     "@gtest//:gtest",
     "@gtest//:gtest_main",
+    "//util/arithmetic:microunits",
   ],
 )

@@ -4,8 +4,8 @@ package market.proto;
 import "market/proto/goods.proto";
 
 message MarketProto {
-  // Current prices.
-  Container prices = 1;
+  // Current prices, in micro-units.
+  Container prices_u = 1;
   // Goods that this market trades in.
   Container goods = 2;
   // Amount of each good traded.

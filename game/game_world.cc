@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "industry/decisions/production_evaluator.h"
+#include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 
 using geography::proto::Field;
@@ -18,7 +19,7 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
                             proto_.production_chains().pointer_begin(),
                             proto_.production_chains().pointer_end());
   for (auto& decay_rate : *proto_.mutable_decay_rates()->mutable_quantities()) {
-    decay_rate.second = 1 - decay_rate.second;
+    decay_rate.second = micro::kOneInU - decay_rate.second;
   }
 
   for (const auto& level : proto_.consumption()) {

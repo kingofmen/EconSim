@@ -4,35 +4,35 @@ production_chains {
       consumables {
         quantities {
 	  key: "labour"
-	  value: 1
+	  value: 1000000
 	}
       }
     }
-    weather_effect: 0
-    skip_effect: 0
+    weather_effect_u: 0
+    skip_effect_u: 0
   }
   steps {
     variants {
       consumables {
         quantities {
 	  key: "labour"
-	  value: 1
+	  value: 1000000
 	}
       }
     }
-    weather_effect: 0
-    skip_effect: 0
+    weather_effect_u: 0
+    skip_effect_u: 0
   }
   outputs {
     quantities {
       key: "food"
-      value: 3.001
+      value: 3000000
     }
   }
   land_type: LT_FIELDS
   name: "wheat_fields"
-  scaling_effects: 1.0
-  experience_effect: 0.1
+  scaling_effects_u: 1000000
+  experience_effect_u: 100000
 }
 
 production_chains {
@@ -41,36 +41,36 @@ production_chains {
       consumables {
         quantities {
 	  key: "labour"
-	  value: 1
+	  value: 1000000
 	}
       }
       movable_capital {
         quantities {
 	  key: "sheep"
-	  value: 1
+	  value: 1000000
 	}
       }
     }
-    weather_effect: 0
-    skip_effect: 0
+    weather_effect_u: 0
+    skip_effect_u: 0
   }
   outputs {
     quantities {
       key: "cloth"
-      value: 0.33
+      value: 330000
     }
   }
-  scaling_effects: 1.0
+  scaling_effects_u: 1000000
   land_type: LT_PASTURE
   name: "sheep_shearing"
-  experience_effect: 0.1
+  experience_effect_u: 100000
 }
 
 auto_production {
   output {
     quantities {
       key: "labour"
-      value: 1.1
+      value: 1100000
     }
   }
 }
@@ -78,35 +78,35 @@ auto_production {
 decay_rates {
   quantities {
     key: "labour"
-    value: 1
+    value: 1000000
   }
   quantities {
     key: "sheep"
-    value: 0.00
+    value: 0
   }
   quantities {
     key: "food"
-    value: 0.05
+    value: 50000
   }
   quantities {
     key: "silver"
-    value: 0.0
+    value: 0
   }
   quantities {
     key: "cloth"
-    value: 0.025
+    value: 25000
   }
   quantities {
     key: "wool"
-    value: 0.02
+    value: 20000
   }
   quantities {
     key: "timber"
-    value: 0.01
+    value: 10000
   }
   quantities {
     key: "shelter"
-    value: 1
+    value: 1000000
   }
 }
 
@@ -130,7 +130,7 @@ decay_rates {
 #  }
 #  Tags acquired by using the level.
 #  Note that 'subsistence' is a special tag; POPs will not sell
-#  resources they can use to reach 1.0 subsistence.
+#  resources they can use to reach 1000000 subsistence.
 #  tags {
 #  }
 #}
@@ -141,18 +141,18 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.10
+        value: 100000
       }
     }
   }
   tags {
     quantities {
       key: "life_support"
-      value: 0.10
+      value: 100000
     }
     quantities {
       key: "subsistence"
-      value: 1.0
+      value: 1000000
     }
   }
 }
@@ -162,7 +162,7 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.30
+        value: 300000
       }
     }
   }
@@ -170,13 +170,13 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.15
+        value: 150000
       }
     }
     capital {
       quantities {
         key: "shelter"
-        value: 0.15
+        value: 150000
       }
     }
   }
@@ -184,17 +184,17 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.15
+        value: 150000
       }
       quantities {
         key: "cloth"
-        value: 0.05
+        value: 50000
       }
     }
     capital {
       quantities {
         key: "shelter"
-        value: 0.10
+        value: 100000
       }
     }
   }
@@ -202,18 +202,18 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.15
+        value: 150000
       }
       quantities {
         key: "labour"
-        value: 0.30
+        value: 300000
       }
     }
   }
   tags {
     quantities {
       key: "life_support"
-      value: 0.30
+      value: 300000
     }
   }
 }
@@ -223,7 +223,7 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.60
+        value: 600000
       }
     }
   }
@@ -231,13 +231,13 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.30
+        value: 300000
       }
     }
     capital {
       quantities {
         key: "shelter"
-        value: 0.30
+        value: 300000
       }
     }
   }
@@ -246,24 +246,24 @@ consumption {
     consumed {
       quantities {
         key: "food"
-        value: 0.30
+        value: 300000
       }
     }
     capital {
       quantities {
         key: "shelter"
-        value: 0.20
+        value: 200000
       }
       quantities {
         key: "cloth"
-        value: 0.10
+        value: 100000
       }
     }
   }
   tags {
     quantities {
       key: "life_support"
-      value: 0.60
+      value: 600000
     }
   }
 }
@@ -274,20 +274,20 @@ consumption {
     consumed {
       quantities {
         key: "cloth"
-        value: 0.05
+        value: 50000
       }
     }
     capital {
       quantities {
         key: "cloth"
-        value: 0.2
+        value: 200000
       }
     }
   }
   tags {
     quantities {
       key: "clothing"
-      value: 0.1
+      value: 100000
     }
   }
 }
@@ -298,14 +298,14 @@ consumption {
     consumed {
       quantities {
         key: "labour"
-        value: 0.1
+        value: 100000
       }
     }
   }
   tags {
     quantities {
       key: "culture"
-      value: 0.10
+      value: 100000
     }
   }
 }
@@ -315,14 +315,14 @@ consumption {
     consumed {
       quantities {
         key: "labour"
-        value: 0.1
+        value: 100000
       }
     }
   }
   tags {
     quantities {
       key: "culture"
-      value: 0.10
+      value: 100000
     }
   }
 }
@@ -332,14 +332,14 @@ consumption {
     consumed {
       quantities {
         key: "labour"
-        value: 0.3
+        value: 300000
       }
     }
   }
   tags {
     quantities {
       key: "culture"
-      value: 0.30
+      value: 300000
     }
   }
 }
@@ -349,14 +349,14 @@ consumption {
     consumed {
       quantities {
         key: "labour"
-        value: 0.3
+        value: 300000
       }
     }
   }
   tags {
     quantities {
       key: "culture"
-      value: 0.30
+      value: 300000
     }
   }
 }
@@ -366,14 +366,14 @@ consumption {
     consumed {
       quantities {
         key: "labour"
-        value: 0.3
+        value: 300000
       }
     }
   }
   tags {
     quantities {
       key: "culture"
-      value: 0.30
+      value: 300000
     }
   }
 }

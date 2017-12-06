@@ -17,23 +17,24 @@ public:
   // Returns true if this progress has completed all steps.
   bool Complete(const proto::Progress& progress) const;
 
-  // Returns the current output multiplier for this progress.
-  market::Measure Efficiency(const proto::Progress& progress) const;
+  // Returns the current output multiplier in micro-units for this progress.
+  market::Measure EfficiencyU(const proto::Progress& progress) const;
 
   // Returns the output given the current scale and efficiency.
   market::proto::Container
   ExpectedOutput(const proto::Progress& progress) const;
 
-  // Returns the input multiplier for the given amount of institutional capital.
+  // Returns the input multiplier in micro-units for the given amount of
+  // institutional capital.
   market::Measure
-  ExperienceEffect(const market::Measure institutional_capital) const;
+  ExperienceEffectU(const market::Measure institutional_capital_u) const;
 
   // Initialises a Progress proto with this production chain.
-  proto::Progress MakeProgress(market::Measure scale) const;
+  proto::Progress MakeProgress(market::Measure scale_u) const;
 
-  // Returns the theoretical maximum scale, assuming all the necessary resources
-  // are present.
-  market::Measure MaxScale() const;
+  // Returns the theoretical maximum scale in micro-units, assuming all the
+  // necessary resources are present.
+  market::Measure MaxScaleU() const;
 
   // Increments the step if inputs and fixed_capital contains sufficient
   // consumables and capital to run variant_index.

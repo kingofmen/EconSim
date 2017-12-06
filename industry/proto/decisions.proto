@@ -2,8 +2,8 @@ syntax = "proto3";
 package industry.decisions.proto;
 
 message VariantInfo {
-  double unit_cost = 1;
-  double possible_scale = 2;
+  int64 unit_cost_u = 1;
+  int64 possible_scale_u = 2;
 }
 
 message StepInfo {
@@ -13,8 +13,8 @@ message StepInfo {
 
 message ProductionInfo {
   string name = 1;
-  double max_scale = 2;
-  double total_unit_cost = 3;
+  int64 max_scale_u = 2;
+  int64 total_unit_cost_u = 3;
   repeated StepInfo step_info = 4;
   string reject_reason = 5;
 }
