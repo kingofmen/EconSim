@@ -188,6 +188,7 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates_u) {
   micro::MultiplyU(*mutable_wealth(), decay_rates_u);
+  micro::MultiplyU(*proto_.mutable_tags(), decay_rates_u);
   market::CleanContainer(mutable_wealth());
 }
 

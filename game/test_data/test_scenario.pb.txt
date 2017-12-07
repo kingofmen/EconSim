@@ -76,6 +76,7 @@ auto_production {
 }
 
 decay_rates {
+  # Goods
   quantities {
     key: "labour"
     value: 1000000
@@ -107,6 +108,23 @@ decay_rates {
   quantities {
     key: "shelter"
     value: 1000000
+  }
+  # Tags
+  quantities {
+    key: "life_support"
+    value: 250000
+  }
+  quantities {
+    key: "subsistence"
+    value: 1000000
+  }
+  quantities {
+    key: "clothing"
+    value: 10000
+  }
+  quantities {
+    key: "culture"
+    value: 1000
   }
 }
 

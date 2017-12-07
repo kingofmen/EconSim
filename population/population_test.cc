@@ -22,7 +22,7 @@ protected:
     pop_.Proto()->add_males(1);
     market::proto::Quantity culture;
     culture.set_kind(kTestCulture1);
-    culture += 1;
+    culture += micro::kOneInU;
     *pop_.Proto()->mutable_tags() << culture;
 
     fish_.set_kind("fish");
@@ -151,7 +151,7 @@ TEST_F(PopulationTest, CheapestPackage) {
 
   market::proto::Quantity scots;
   scots.set_kind(kTestCulture2);
-  scots += 1;
+  scots += micro::kOneInU;
   *house_package_->mutable_required_tags() << scots;
   // House is now forbidden.
   EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), fish_package_);
@@ -159,10 +159,10 @@ TEST_F(PopulationTest, CheapestPackage) {
 
   market::proto::Quantity culture;
   culture.set_kind(kTestCulture1);
-  culture += 1;
+  culture += micro::kOneInU;
   *fish_package_->mutable_required_tags() << culture;
   market::Clear(house_package_->mutable_required_tags());
-  culture += 1;
+  culture += micro::kOneInU;
   *house_package_->mutable_required_tags() << culture;
   // Both packages are allowed again, so it'll be house.
   EXPECT_EQ(pop_.CheapestPackage(level_, market_, cheapest), house_package_);
@@ -315,18 +315,21 @@ TEST_F(PopulationTest, EndTurn) {
   youtube_ += micro::kOneInU;
   *pop_.mutable_wealth() << youtube_;
 
-  prices_.Clear();
+  market::proto::Container decay_rates;
   // Fish and guests stink after three days.
-  prices_ << fish_;
+  market::SetAmount(fish_, &decay_rates);
   // A good cat video is a thing of joy forever.
   youtube_ += micro::kOneInU;
-  prices_ << youtube_;
+  market::SetAmount(youtube_, &decay_rates);
+  market::SetAmount(kTestCulture1, micro::kOneInU / 2, &decay_rates);
 
-  pop_.EndTurn(prices_);
+  pop_.EndTurn(decay_rates);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
   EXPECT_FALSE(market::Contains(pop_.Proto()->wealth(), fish_));
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), youtube_),
             micro::kOneInU);
+  EXPECT_EQ(market::GetAmount(pop_.Proto()->tags(), kTestCulture1),
+            micro::kOneInU / 2);
 }
 
 TEST_F(PopulationTest, TryProductionStep) {
