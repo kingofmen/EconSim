@@ -1,4 +1,5 @@
 # Needed to let proto_library rules find protoc.
+# Known issue: https://github.com/google/protobuf/issues/3766
 local_repository(
   name = "com_google_protobuf",
   path = "C:\\Users\\Rolf\\base\\protobuf\\"
