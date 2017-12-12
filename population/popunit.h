@@ -107,6 +107,9 @@ private:
 
   // The resources required for minimal subsistence.
   market::proto::Container subsistence_need_;
+
+  // Resources that have been used as movable capital.
+  market::proto::Container used_capital_;
 };
 
 } // namespace population

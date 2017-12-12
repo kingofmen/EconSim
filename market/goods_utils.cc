@@ -84,6 +84,12 @@ Container& operator<<(Container& con, Quantity& qua) {
   return con;
 }
 
+Container& operator<<(Container& dst, Container& src) {
+  dst += src;
+  src.Clear();
+  return dst;
+}
+
 Container& operator>>(Container& con, Quantity& qua) {
   if (!Contains(con, qua)) {
     return con;

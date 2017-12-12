@@ -5,8 +5,8 @@
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
-#include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"
+#include "gtest/gtest.h"
 
 namespace industry {
 namespace {
@@ -61,6 +61,7 @@ protected:
   Container capital_;
   Container raw_materials_;
   Container existing_;
+  Container used_capital_;
   Quantity wool_;
   Quantity cloth_;
   Quantity mules_;
@@ -68,8 +69,9 @@ protected:
 
 TEST_F(IndustryTest, EmptyIsComplete) {
   progress_ = production_->MakeProgress(micro::kOneInU);
-  production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+  EXPECT_FALSE(production_->PerformStep(capital_, 0, 0, &inputs_,
+                                        &raw_materials_, &outputs_,
+                                        &used_capital_, &progress_));
   EXPECT_TRUE(production_->Complete(progress_));
 }
 
@@ -80,7 +82,7 @@ TEST_F(IndustryTest, OneStep) {
   AddClothOutput();
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
@@ -88,7 +90,7 @@ TEST_F(IndustryTest, OneStep) {
   wool_ += 1000;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_EQ(market::GetAmount(outputs_, cloth_),
@@ -105,13 +107,13 @@ TEST_F(IndustryTest, TwoSteps) {
   wool_ += 1000;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
@@ -119,7 +121,7 @@ TEST_F(IndustryTest, TwoSteps) {
   wool_ += 1000;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
@@ -146,10 +148,11 @@ TEST_F(IndustryTest, MovableCapital) {
   inputs_ << wool_ << dogs;
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
-  EXPECT_EQ(market::GetAmount(inputs_, dogs), 1000);
+  EXPECT_EQ(market::GetAmount(used_capital_, dogs), 1000);
+  EXPECT_EQ(market::GetAmount(inputs_, dogs), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000);
 }
 
@@ -167,9 +170,10 @@ TEST_F(IndustryTest, MovableCapitalSameAsInput) {
   inputs_ << wool_;
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
-  EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
+  EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
+  EXPECT_EQ(market::GetAmount(used_capital_, wool_), 1000);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000);
 }
 
@@ -190,13 +194,13 @@ TEST_F(IndustryTest, FixedCapital) {
   inputs_ << wool_;
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
 
   dogs += 1000;
   capital_ << dogs;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
 
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
@@ -214,7 +218,7 @@ TEST_F(IndustryTest, InstitutionalCapital) {
   wool_ += 500;
   inputs_ << wool_;
   production_->PerformStep(capital_, 1000000, 0, &inputs_, &raw_materials_,
-                           &outputs_, &progress_);
+                           &outputs_, &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000);
@@ -229,14 +233,14 @@ TEST_F(IndustryTest, ScalingEffects) {
   inputs_ << wool_;
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
 
   wool_ += 1000;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1900);
@@ -248,13 +252,13 @@ TEST_F(IndustryTest, ScalingEffects) {
   outputs_ >> cloth_;
   progress_.set_step(0);
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_FALSE(production_->Complete(progress_));
 
   wool_ += 500;
   inputs_ << wool_;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   int64 last_scale_effect_u = (int64)floor(sqrt(500000) * 1000 + 0.5);
@@ -281,7 +285,7 @@ TEST_F(IndustryTest, SkippingEffects) {
 
   production_->Skip(&progress_);
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 500);
 }
@@ -301,13 +305,13 @@ TEST_F(IndustryTest, RawMaterials) {
   inputs_ << wool_;
 
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
 
   clay += 1000;
   raw_materials_ << clay;
   production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_, &outputs_,
-                           &progress_);
+                           &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(raw_materials_, clay), 0);
 }

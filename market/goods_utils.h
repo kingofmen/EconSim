@@ -58,6 +58,10 @@ market::proto::Container& operator<<(market::proto::Container& con,
 market::proto::Container& operator<<(market::proto::Container& con,
                                      market::proto::Quantity& qua);
 
+// Moves all goods in src into dst.
+market::proto::Container& operator<<(market::proto::Container& dst,
+                                     market::proto::Container& src);
+
 // Moves any qua.kind() in con into qua.
 market::proto::Container& operator>>(market::proto::Container& con,
                                      market::proto::Quantity& qua);

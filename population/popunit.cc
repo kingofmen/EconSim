@@ -182,6 +182,7 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 void PopUnit::EndTurn(const market::proto::Container& decay_rates_u) {
   micro::MultiplyU(*mutable_wealth(), decay_rates_u);
   micro::MultiplyU(*proto_.mutable_tags(), decay_rates_u);
+  *mutable_wealth() << used_capital_;
   market::CleanContainer(mutable_wealth());
 }
 
@@ -223,7 +224,7 @@ bool PopUnit::TryProductionStep(
 
   production.PerformStep(field->fixed_capital(), 0, variant_index,
                          mutable_wealth(), field->mutable_resources(),
-                         mutable_wealth(), progress);
+                         mutable_wealth(), &used_capital_, progress);
 
   fields_worked_.insert(field);
   if (production.Complete(*progress)) {

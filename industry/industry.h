@@ -37,12 +37,16 @@ public:
   market::Measure MaxScaleU() const;
 
   // Increments the step if inputs and fixed_capital contains sufficient
-  // consumables and capital to run variant_index.
-  void PerformStep(const market::proto::Container& fixed_capital,
+  // consumables and capital to run variant_index. Takes consumables and movable
+  // capital from inputs, and resources from raw_materials; puts movable capital
+  // into used_capital. If the process completes, fills outputs with the
+  // products. Returns true if the step is completed.
+  bool PerformStep(const market::proto::Container& fixed_capital,
                    const market::Measure institutional_capital,
                    const int variant_index, market::proto::Container* inputs,
                    market::proto::Container* raw_materials,
                    market::proto::Container* outputs,
+                   market::proto::Container* used_capital,
                    proto::Progress* progress) const;
 
   // Returns the consumables needed for the next step in the process assuming

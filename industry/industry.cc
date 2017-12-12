@@ -74,52 +74,61 @@ market::Measure Production::MaxScaleU() const {
   return (1 + proto_.scaling_effects_u_size()) * micro::kOneInU;
 }
 
-void Production::PerformStep(const Container& fixed_capital,
+bool Production::PerformStep(const Container& fixed_capital,
                              const market::Measure institutional_capital_u,
                              const int variant_index, Container* inputs,
                              Container* raw_materials, Container* output,
+                             Container* used_capital,
                              proto::Progress* progress) const {
   if (proto_.name() != progress->name()) {
-    return;
+    return false;
   }
   if (Complete(*progress)) {
-    return;
+    return false;
   }
 
   const int step = progress->step();
-  const auto& needed = proto_.steps(step).variants(variant_index);
-  if (!(fixed_capital > needed.fixed_capital())) {
-    return;
+  const market::Measure scaling_u = progress->scaling_u();
+  const auto& step_inputs = proto_.steps(step).variants(variant_index);
+  auto needed_capital = step_inputs.fixed_capital();
+  micro::MultiplyU(needed_capital, scaling_u);
+  if (!(fixed_capital > needed_capital)) {
+    return false;
   }
 
   const market::Measure experience_u =
       ExperienceEffectU(institutional_capital_u);
-  const market::Measure scaling_u = progress->scaling_u();
-  auto needed_raw_material = needed.raw_materials();
+  auto needed_raw_material = step_inputs.raw_materials();
   micro::MultiplyU(needed_raw_material,
                   micro::MultiplyU(scaling_u, experience_u));
 
   if (!(*raw_materials > needed_raw_material)) {
-    return;
+    return false;
   }
 
-  auto required = RequiredConsumables(*progress, variant_index);
-  micro::MultiplyU(required, experience_u);
+  auto needed_inputs = step_inputs.consumables();
+  micro::MultiplyU(needed_inputs, micro::MultiplyU(scaling_u, experience_u));
+  needed_capital = step_inputs.movable_capital();
+  micro::MultiplyU(needed_capital, scaling_u);
+  auto required = needed_inputs + needed_capital;
 
   if (!(*inputs > required)) {
-    return;
+    return false;
   }
 
   // TODO: Weather and other adverse effects.
 
   *raw_materials -= needed_raw_material;
-  auto used = needed.consumables();
-  micro::MultiplyU(used, micro::MultiplyU(scaling_u, experience_u));
-  *inputs -= used;
+  *inputs -= needed_inputs;
+
+  *inputs -= needed_capital;
+  *used_capital << needed_capital;
+
   progress->set_step(1 + step);
   if (Complete(*progress)) {
     *output += ExpectedOutput(*progress);
   }
+  return true;
 }
 
 market::proto::Container
