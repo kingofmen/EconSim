@@ -90,6 +90,9 @@ private:
 
   static industry::decisions::ProductionEvaluator& default_evaluator_;
 
+  // Sells what the pop won't use for subsistence.
+  void SellSurplus(market::Market* market);
+
   // Keeps track of process information for the turn.
   std::unordered_set<geography::proto::Field*> fields_worked_;
 

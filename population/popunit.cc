@@ -97,14 +97,7 @@ void PopUnit::AutoProduce(
     return;
   }
   *mutable_wealth() += best_prod->output() * GetSize();
-  for (const auto& quantity : wealth().quantities()) {
-    auto amount = quantity.second;
-    amount -= market::GetAmount(subsistence_need_, quantity.first);
-    if (amount > 0) {
-      market->TryToSell(market::MakeQuantity(quantity.first, amount),
-                        mutable_wealth());
-    }
-  }
+  SellSurplus(market);
 }
 
 void PopUnit::BirthAndDeath() {}
@@ -235,14 +228,7 @@ bool PopUnit::TryProductionStep(
   fields_worked_.insert(field);
   if (production.Complete(*progress)) {
     field->clear_progress();
-    for (const auto& quantity : wealth().quantities()) {
-      auto amount = quantity.second;
-      amount -= market::GetAmount(subsistence_need_, quantity.first);
-      if (amount > 0) {
-        market->TryToSell(market::MakeQuantity(quantity.first, amount),
-                          mutable_wealth());
-      }
-    }
+    SellSurplus(market);
   }
 
   return true;
@@ -324,6 +310,17 @@ bool PopUnit::Produce(const industry::decisions::ProductionContext& context,
     }
   }
   return any_progress;
+}
+
+void PopUnit::SellSurplus(market::Market* market) {
+  for (const auto& quantity : wealth().quantities()) {
+    auto amount = quantity.second;
+    amount -= market::GetAmount(subsistence_need_, quantity.first);
+    if (amount > 0) {
+      market->TryToSell(market::MakeQuantity(quantity.first, amount),
+                        mutable_wealth());
+    }
+  }
 }
 
 uint64 PopUnit::NewPopId() { return ++unused_pop_id; }
