@@ -13,6 +13,9 @@ namespace industry {
 namespace decisions {
 namespace {
 
+constexpr market::Measure kMinPracticalScale = micro::kOneInU / 10;
+
+// Returns the index and scale of the variant with the highest profit.
 unsigned int GetVariantIndex(const industry::Production& production,
                              const market::proto::Container& wealth,
                              const industry::proto::Progress& progress,
@@ -22,6 +25,7 @@ unsigned int GetVariantIndex(const industry::Production& production,
   unsigned int variant_index = step_info.variant_size();
   market::Measure max_profit_u = 0;
   market::Measure max_money_u = market.MaxMoney(wealth);
+  industry::proto::Progress progress_copy = progress;
   for (unsigned int idx = 0; idx < step_info.variant_size(); ++idx) {
     const auto& variant_info = step_info.variant(idx);
     if (variant_info.possible_scale_u() == 0) {
@@ -32,13 +36,13 @@ unsigned int GetVariantIndex(const industry::Production& production,
     market::Measure max_scale_u =
         std::min(variant_info.possible_scale_u(),
                  micro::DivideU(max_money_u, cost_at_scale_u));
-    if (max_scale_u < 100000) {
+    if (max_scale_u < kMinPracticalScale) {
       continue;
     }
+    progress_copy.set_scaling_u(max_scale_u);
     market::Measure profit_u =
-        market.GetPriceU(production.ExpectedOutput(progress));
-    profit_u -=
-        micro::MultiplyU(variant_info.unit_cost_u(), progress.scaling_u());
+        market.GetPriceU(production.ExpectedOutput(progress_copy)) -
+        micro::MultiplyU(variant_info.unit_cost_u(), max_scale_u);
     if (profit_u > max_profit_u) {
       max_profit_u = profit_u;
       variant_index = idx;
@@ -114,6 +118,7 @@ proto::ProductionInfo ProductionEvaluator::GetProductionInfo(
         GetVariantIndex(chain, wealth, progress, market, *step_info, &scale_u));
     if (step_info->best_variant() >= step_info->variant_size()) {
       ret.set_max_scale_u(0);
+      ret.set_reject_reason(absl::Substitute("Impractical at step $0", i));
       return ret;
     }
     if (scale_u < ret.max_scale_u()) {
@@ -124,6 +129,7 @@ proto::ProductionInfo ProductionEvaluator::GetProductionInfo(
         step_info->variant(step_info->best_variant()).unit_cost_u();
     ret.set_total_unit_cost_u(total_unit_cost_u);
   }
+
   return ret;
 }
 
@@ -162,16 +168,15 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
     const auto* chain = context.production_map.at(possible.first);
     auto& info = possible.second;
     info.set_name(possible.first);
+    if (!info.reject_reason().empty()) {
+      ret.add_rejected()->Swap(&info);
+      continue;
+    }
     market::Measure profit_u =
         context.market->GetPriceU(chain->Proto()->outputs());
     profit_u -= info.total_unit_cost_u();
     if (profit_u <= 0) {
       info.set_reject_reason("Unprofitable");
-      ret.add_rejected()->Swap(&info);
-      continue;
-    }
-    if (info.max_scale_u() <= 0) {
-      info.set_reject_reason("Impractical");
       ret.add_rejected()->Swap(&info);
       continue;
     }
