@@ -4,6 +4,7 @@
 #include <limits>
 #include <list>
 #include <iostream>
+
 #include "absl/algorithm/container.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
@@ -107,7 +108,8 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
                          const market::Market& market,
                          const proto::ConsumptionPackage*& cheapest) const {
   const proto::ConsumptionPackage* best_package = nullptr;
-  market::Measure best_price_u = std::numeric_limits<market::Measure>::max();
+  market::Measure best_available_u = std::numeric_limits<market::Measure>::max();
+  market::Measure cheapest_price_u = std::numeric_limits<market::Measure>::max();
   const int size = GetSize();
   auto max_money = market.MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
@@ -118,10 +120,13 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
     auto needed = TotalNeeded(package, size);
     if (proto_.wealth() > needed) {
       auto curr_price_u = market.GetPriceU(package.consumed());
-      if (curr_price_u < best_price_u) {
+      if (curr_price_u < best_available_u) {
         best_package = &package;
+        best_available_u = curr_price_u;
+      }
+      if (curr_price_u < cheapest_price_u) {
         cheapest = &package;
-        best_price_u = curr_price_u;
+        cheapest_price_u = curr_price_u;
       }
       continue;
     }
@@ -143,12 +148,13 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
 
     needed -= proto_.wealth();
     auto curr_price_u = market.GetPriceU(needed);
-    if (curr_price_u < best_price_u) {
-      if (can_buy) {
-        best_package = &package;
-      }
+    if (curr_price_u < best_available_u && can_buy) {
+      best_package = &package;
+      best_available_u = curr_price_u;
+    }
+    if (curr_price_u < cheapest_price_u) {
       cheapest = &package;
-      best_price_u = curr_price_u;
+      cheapest_price_u = curr_price_u;
     }
   }
 
@@ -205,6 +211,7 @@ bool PopUnit::TryProductionStep(
   if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
     return false;
   }
+
   // First step info is for current step.
   const auto& step_info = production_info.step_info(0);
   auto variant_index = step_info.best_variant();
@@ -283,7 +290,6 @@ bool PopUnit::StartNewProduction(
 bool PopUnit::Produce(const industry::decisions::ProductionContext& context,
                       industry::decisions::DecisionMap* production_info_map) {
   bool any_progress = false;
-
   for (auto* field : context.fields) {
     if (absl::c_find(fields_worked_, field) != fields_worked_.end()) {
       continue;
@@ -304,11 +310,14 @@ bool PopUnit::Produce(const industry::decisions::ProductionContext& context,
       production_info_map->emplace(
           field, evaluator_->Evaluate(context, proto_.wealth(), field));
     }
-    if (TryProductionStep(*chain->second,
+
+    if (production_info_map->at(field).has_selected() &&
+        TryProductionStep(*chain->second,
                           production_info_map->at(field).selected(), field,
                           progress, context.market)) {
       any_progress = true;
     }
+
   }
   return any_progress;
 }
