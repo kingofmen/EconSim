@@ -1,0 +1,129 @@
+areas {
+  fields {
+    land_type: LT_FIELDS
+    owner_id: 1
+    progress {
+      name: "wheat_fields"
+      step: 1
+      efficiency_u: 1000000
+      scaling_u: 2000000
+    }
+  }
+  fields {
+    land_type: LT_FIELDS
+    owner_id: 2
+  }
+  fields {
+    land_type: LT_PASTURE
+    owner_id: 3
+    fixed_capital {
+      quantities { key: "sheep" value: 1000000 }
+    }
+  }
+  fields {
+    land_type: LT_LIGHT_INDUSTRY
+    owner_id: 3
+  }
+  fields {
+    land_type: LT_ORCHARDS
+    owner_id: 4
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
+  }
+  fields {
+    land_type: LT_ORCHARDS
+    owner_id: 4
+    resources {
+      quantities { key: "iron" value: 1000000000 }
+    }
+  }
+  fields {
+    land_type: LT_LIGHT_INDUSTRY
+    owner_id: 4
+  }
+  pop_ids: 1
+  pop_ids: 2
+  pop_ids: 3
+  pop_ids: 4
+  market {
+    prices_u {
+      quantities { key: "mana" value: 1 }
+      quantities { key: "food" value: 2000000 }
+      quantities { key: "labour" value: 1000000 }
+      quantities { key: "timber" value: 3150000 }
+      quantities { key: "tools" value: 10000000 }
+      quantities { key: "wool" value: 2000000 }
+      quantities { key: "iron" value: 2000000 }
+      quantities { key: "cloth" value: 8500000 }
+      quantities { key: "sheep" value: 100000 }
+    }
+    goods {
+      quantities { key: "mana" value: 1 }
+      quantities { key: "food" value: 1 }
+      quantities { key: "labour" value: 1 }
+      quantities { key: "timber" value: 1 }
+      quantities { key: "tools" value: 1 }
+      quantities { key: "wool" value: 1 }
+      quantities { key: "iron" value: 1 }
+      quantities { key: "cloth" value: 1 }
+      quantities { key: "sheep" value: 1 }
+    }
+    name: "area_1_market"
+    legal_tender: "silver"
+    credit_limit: 1000000000
+  }
+}
+
+pops {
+  pop_id: 1
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+  wealth {
+    quantities { key: "tools" value: 550000 }
+  }
+}
+
+pops {
+  pop_id: 2
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+  wealth {
+    quantities { key: "tools" value: 1350000 }
+  }
+}
+
+pops {
+  pop_id: 3
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+  wealth {
+    quantities { key: "tools" value: 1450000 }
+  }
+}
+
+pops {
+  pop_id: 4
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+  wealth {
+    quantities { key: "tools" value: 2050000 }
+  }
+}
+

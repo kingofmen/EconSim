@@ -179,6 +179,8 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
   BuyPackage(*best_package, size, resources, market);
   *resources -= best_package->consumed() * size;
+  *resources -= best_package->capital() * size;
+  used_capital_ += best_package->capital() * size;
 
   *proto_.mutable_tags() += best_package->tags();
   *proto_.mutable_tags() += level.tags();
@@ -186,9 +188,9 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 }
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates_u) {
+  *mutable_wealth() << used_capital_;
   micro::MultiplyU(*mutable_wealth(), decay_rates_u);
   micro::MultiplyU(*proto_.mutable_tags(), decay_rates_u);
-  *mutable_wealth() << used_capital_;
   market::CleanContainer(mutable_wealth());
 }
 

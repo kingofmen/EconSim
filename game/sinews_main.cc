@@ -29,14 +29,14 @@ util::Status ParseProtoFile(const std::string& filename,
 
 int main(int /*argc*/, char** /*argv*/) {
   game::proto::GameWorld world_proto;
-  auto status = ParseProtoFile(".\\test_data\\test.pb.txt", &world_proto);
+  auto status = ParseProtoFile(".\\test_data\\simple.pb.txt", &world_proto);
   if (!status.ok()) {
     std::cout << status.error_message() << "\n";
     return 1;
   }
 
   game::proto::Scenario scenario;
-  status = ParseProtoFile(".\\test_data\\test_scenario.pb.txt", &scenario);
+  status = ParseProtoFile(".\\test_data\\simple_economy.pb.txt", &scenario);
   if (!status.ok()) {
     std::cout << status.error_message() << "\n";
     return 1;
@@ -47,19 +47,19 @@ int main(int /*argc*/, char** /*argv*/) {
                      industry::decisions::proto::ProductionDecision>
       production_info;
   for (int i = 0; i < 10; ++i) {
+    std::cout << "Turn " << i << " begins\n";
     production_info.clear();
     game_world.TimeStep(&production_info);
+    for (const auto& info : production_info) {
+      std::cout << "\nField:\n"
+                << info.first->DebugString() << "decision:\n"
+                << info.second.DebugString();
+    }
   }
 
   world_proto.Clear();
   game_world.SaveToProto(&world_proto);
   std::cout << world_proto.DebugString() << "\n";
-
-  for (const auto& info : production_info) {
-    std::cout << "Field:\n"
-              << info.first->DebugString() << "\ndecision:\n"
-              << info.second.DebugString();
-  }
 
   return 0;
 }

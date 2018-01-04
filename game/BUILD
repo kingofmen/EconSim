@@ -22,3 +22,19 @@ cc_binary(
     ":game_world",
   ],
 )
+
+cc_test(
+  name = "simple_econ_test",
+  srcs = ["simple_econ_test.cc"],
+  deps = [
+    ":game_world",
+    "@com_google_absl//absl/strings:strings",
+    "@gtest//:gtest",
+    "@gtest//:gtest_main",
+    "//market:goods_utils",
+  ],
+  data = [
+    ":test_data/simple.pb.txt",
+    ":test_data/simple_economy.pb.txt",
+  ],
+)

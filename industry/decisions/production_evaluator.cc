@@ -52,44 +52,50 @@ unsigned int GetVariantIndex(const industry::Production& production,
   return variant_index;
 }
 
+// Fills in step_info.
 void GetStepInfo(const industry::Production& production,
-                 const market::proto::Container& wealth,
-                 const market::Market& market,
-                 const geography::proto::Field& field,
-                 const industry::proto::Progress& progress,
-                 proto::StepInfo* step_info) {
+                        const market::proto::Container& wealth,
+                        const market::Market& market,
+                        const geography::proto::Field& field,
+                        const industry::proto::Progress& progress,
+                        proto::StepInfo* step_info) {
   const auto& step = production.Proto()->steps(progress.step());
+  std::vector<std::string> variant_strings(step.variants_size());
   for (int index = 0; index < step.variants_size(); ++index) {
     auto* variant_info = step_info->add_variant();
     const auto& input = step.variants(index);
     if (!(field.fixed_capital() > input.fixed_capital())) {
+      variant_info->set_bottleneck("missing fixed capital");
       continue;
     }
     variant_info->set_possible_scale_u(progress.scaling_u());
     for (const auto& good : input.raw_materials().quantities()) {
       market::Measure ratio_u = micro::DivideU(
-          micro::kOneInU * market::GetAmount(field.resources(), good.first),
-          micro::kOneInU * good.second);
-
+          market::GetAmount(field.resources(), good.first), good.second);
+      std::cout << "Looking at raw material " << good.first << ", getting "
+                << market::GetAmount(field.resources(), good.first) << " / "
+                << good.second << " = " << ratio_u << "\n";
       if (ratio_u < variant_info->possible_scale_u()) {
+        variant_info->set_bottleneck(good.first);
         variant_info->set_possible_scale_u(ratio_u);
+        std::cout << "Bottleneck " << good.first << " " << ratio_u << "\n";
       }
     }
 
-    auto required = production.RequiredConsumables(progress.step(), index);
-    for (const auto& good : required.quantities()) {
-      auto unit_cost_u = variant_info->unit_cost_u();
-      unit_cost_u +=
-          micro::MultiplyU(market.GetPriceU(good.first), good.second);
-      variant_info->set_unit_cost_u(unit_cost_u);
+    auto consumed = input.consumables();
+    const auto& movable = input.movable_capital();
+    auto required_per_unit = consumed + movable;
+    for (const auto& good : required_per_unit.quantities()) {
       market::Measure ratio_u =
           micro::DivideU((market.AvailableImmediately(good.first) +
                           market::GetAmount(wealth, good.first)),
                          good.second);
       if (ratio_u < variant_info->possible_scale_u()) {
+        variant_info->set_bottleneck(good.first);
         variant_info->set_possible_scale_u(ratio_u);
       }
     }
+    variant_info->set_unit_cost_u(market.GetPriceU(consumed));
   }
 }
 
@@ -139,6 +145,7 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
                                geography::proto::Field* target) const {
   proto::ProductionDecision ret;
   std::unordered_map<std::string, proto::ProductionInfo> possible_chains;
+
   for (const auto& chain : context.production_map) {
     const auto* production = chain.second;
     if (!geography::HasLandType(*target, *production)) {
@@ -174,12 +181,13 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
     }
     market::Measure profit_u =
         context.market->GetPriceU(chain->Proto()->outputs());
-    profit_u -= info.total_unit_cost_u();
-    if (profit_u <= 0) {
-      info.set_reject_reason("Unprofitable");
+    if (profit_u <= info.total_unit_cost_u()) {
+      info.set_reject_reason(absl::Substitute(
+          "Unprofitable, $0 vs cost $1", profit_u, info.total_unit_cost_u()));
       ret.add_rejected()->Swap(&info);
       continue;
     }
+    profit_u -= info.total_unit_cost_u();
     profit_u = micro::MultiplyU(profit_u, info.max_scale_u());
     if (profit_u <= max_profit_u) {
       info.set_reject_reason(

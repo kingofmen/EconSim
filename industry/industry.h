@@ -50,10 +50,8 @@ public:
                    proto::Progress* progress) const;
 
   // Returns the consumables needed for the next step in the process assuming
-  // variant is used.
+  // variant is used, with the scale given by progress.
   market::proto::Container RequiredConsumables(const proto::Progress& progress,
-                                               const int variant) const;
-  market::proto::Container RequiredConsumables(const int step,
                                                const int variant) const;
 
   // Skips the current step, at a price in efficiency.
@@ -65,6 +63,9 @@ public:
   const std::string& get_name() const { return proto_.name(); }
 
 private:
+  market::proto::Container RequiredConsumables(const int step,
+                                               const int variant) const;
+
   proto::Production proto_;
 };
 

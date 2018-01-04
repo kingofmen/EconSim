@@ -224,6 +224,11 @@ TEST_F(PopulationTest, Consume) {
   EXPECT_TRUE(pop_.Consume(level_, &market_));
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), micro::kOneInU);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
+  EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), 0);
+  // Put the tools back into the proto from the used capital; freeze the fish.
+  market::proto::Container decay_rates;
+  market::SetAmount(fish_.kind(), micro::kOneInU, &decay_rates);
+  pop_.EndTurn(decay_rates);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), micro::kOneInU);
 
   // Get rid of the fish.

@@ -44,9 +44,11 @@ void Market::FindPrices() {
     if (std::min(bid, offer) < 1) {
       continue;
     }
-    Measure ratio_u = micro::DivideU(bid, offer);
+    Measure ratio_u = micro::DivideU(std::max(bid, offer), std::min(bid, offer));
     ratio_u = std::min<Measure>(ratio_u, micro::kOneInU + kMaxPriceChange);
-    ratio_u = std::max<Measure>(ratio_u, micro::kOneInU - kMaxPriceChange);
+    if (offer > bid) {
+      ratio_u = micro::DivideU(micro::kOneInU, ratio_u);
+    }
     SetAmount(name,
               micro::MultiplyU(GetAmount(proto_.prices_u(), name), ratio_u),
               proto_.mutable_prices_u());

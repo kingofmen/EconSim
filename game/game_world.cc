@@ -9,6 +9,28 @@
 using geography::proto::Field;
 
 namespace game {
+namespace {
+
+void PrintContainer(const market::proto::Container& container) {
+  for (const auto& good : container.quantities()) {
+    std::cout << good.first << ":\t" << good.second << "\n";
+  }
+}
+
+void PrintMarket(const market::proto::MarketProto& market,
+                 const market::proto::Container& volumes) {
+  std::cout << "Good\tprice\tstored\tvolume\tdebt\n";
+  for (const auto& good : market.goods().quantities()) {
+    const std::string& name = good.first;
+    std::cout << name << "\t" << market::GetAmount(market.prices_u(), name)
+              << "\t" << market::GetAmount(market.warehouse(), name) << "\t"
+              << market::GetAmount(volumes, name) << "\t"
+              << market::GetAmount(market.market_debt(), name) << "\n";
+  }
+}
+
+}  // namespace
+
 
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   proto_.Swap(scenario);
@@ -63,6 +85,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
       }
       fields[pop].emplace_back(&field);
     }
+    
     bool progress = true;
     while (progress) {
       progress = false;
@@ -83,16 +106,24 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
 
   for (auto& pop : pops_) {
     pop->EndTurn(scenario_.proto_.decay_rates());
+    std::cout << pop->Proto()->DebugString();
+  }
+  for (auto& area: areas_) {
+    market::proto::Container volumes =
+        area->mutable_market()->Proto()->volume();
+    area->mutable_market()->FindPrices();
+    PrintMarket(*area->mutable_market()->Proto(), volumes);
   }
 }
 
 void GameWorld::SaveToProto(proto::GameWorld* proto) const {
-
   for (const auto& pop: pops_) {
     *proto->add_pops() = *pop->Proto();
   }
   for (const auto& area: areas_) {
-    *proto->add_areas() = *area->Proto();
+    auto* area_proto = proto->add_areas();
+    *area_proto = *area->Proto();
+    *area_proto->mutable_market() = *area->mutable_market()->Proto();
   }
 }
 
