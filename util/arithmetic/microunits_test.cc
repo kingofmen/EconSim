@@ -1,5 +1,7 @@
 #include "util/arithmetic/microunits.h"
 
+#include <limits>
+
 #include "gtest/gtest.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
@@ -26,6 +28,50 @@ TEST(MicroUnitsTest, DivideInts) {
   EXPECT_EQ(DivideU(lhs, rhs_u), 5);
   int64 lhs_u = kTenInU;
   EXPECT_EQ(DivideU(lhs_u, rhs_u), 5 * kOneInU);
+}
+
+TEST(MicroUnitsTest, DivideOverflowingInts) {
+  int64 bignum = std::numeric_limits<int64>::max();
+  int64 smallnum_u = kOneInU;
+  uint64 overflow = 0;
+  EXPECT_EQ(bignum, DivideU(bignum, smallnum_u, &overflow));
+  EXPECT_EQ(0, overflow);
+
+  // Dividing by one-half is equivalent to multiplying by two.
+  smallnum_u = kOneInU / 2;
+  EXPECT_EQ(bignum << 1, DivideU(bignum, smallnum_u, &overflow));
+  // Overflow is into 64th bit.
+  EXPECT_EQ(0x8000000000000000u, overflow);
+
+  smallnum_u = kOneInU / 4;
+  EXPECT_EQ(bignum << 2, DivideU(bignum, smallnum_u, &overflow));
+  // 64th and 65th bits overflow.
+  EXPECT_EQ(0x8000000000000001u, overflow);
+
+  smallnum_u = kOneInU / 8;
+  EXPECT_EQ(bignum << 3, DivideU(bignum, smallnum_u, &overflow));
+  // 64th, 65th, 66th bits overflow.
+  EXPECT_EQ(0x8000000000000003u, overflow);
+
+  bignum = std::numeric_limits<int64>::min();
+  smallnum_u = kOneInU;
+  EXPECT_EQ(std::numeric_limits<int64>::min(),
+            DivideU(bignum, smallnum_u, &overflow));
+  // No overflow in this case!
+  EXPECT_EQ(0, overflow);
+
+  bignum = std::numeric_limits<int64>::min();
+  smallnum_u = 1;
+  EXPECT_EQ(0,
+            DivideU(bignum, smallnum_u, &overflow));
+  // Maximum possible overflow - one million into the overflow bits, of which
+  // one bit is the MSB of the return value!
+  EXPECT_EQ(kOneInU / 2, overflow);
+
+  EXPECT_EQ(0, DivideU(bignum, 0, &overflow));
+  // All overflow bits set to indicate badness.
+  EXPECT_EQ(-1, overflow);
+  
 }
 
 TEST(MicroUnitsTest, SquareRoot) {

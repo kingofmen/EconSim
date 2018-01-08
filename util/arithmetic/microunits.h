@@ -33,8 +33,16 @@ void MultiplyU(market::proto::Container& lhs,
 
 // DivideU methods return ratios, maintaining the left-hand scale.
 
-// Integer division.
-int64 DivideU(int64 val1, int64 val2_u);
+// Integer division. If the result overflows and overflow is non-null, overflow
+// will be set to a nonzero value. If the result is considered as a 128-bit
+// unsigned int, the MSB of overflow stores its 64th bit, and the least
+// significant bits store the 65th through 127th. Note that if val2_u is
+// expressed in micro-units, as it should be, then the maximum possible overflow
+// is gotten by dividing the lowest representable int64 value by 1 micro-unit,
+// which requires considerably less than 63 bits to represent.
+// If val2_u is zero, zero will be returned; if overflow is non-null all its
+// bits will be set.
+int64 DivideU(int64 val1, int64 val2_u, uint64* overflow = nullptr);
 
 }  // namespace micro
 

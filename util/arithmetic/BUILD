@@ -8,6 +8,7 @@ cc_library(
     "//market:goods_utils",
     "//market/proto:goods_proto",
     "//util/headers:int_types",
+    "@com_google_protobuf//:protobuf_lite",
   ],
 )
 
