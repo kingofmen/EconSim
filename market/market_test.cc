@@ -133,7 +133,7 @@ TEST(MarketTest, FindPrices) {
   // More offers than bids, and they are effectual. Price should fall.
   EXPECT_EQ(1 * micro::kOneInU, market.GetVolume(kTestGood1));
   market.FindPrices();
-  EXPECT_EQ(750000, market.GetPriceU(kTestGood1));
+  EXPECT_EQ(800000, market.GetPriceU(kTestGood1));
   EXPECT_EQ(3 * micro::kOneInU, GetAmount(seller, kCredit));
   EXPECT_EQ(3 * micro::kOneInU, GetAmount(seller, kSilver));
   EXPECT_EQ(0 * micro::kOneInU, GetAmount(bidder, kSilver));
@@ -249,7 +249,7 @@ TEST(MarketTest, BuySellBuy) {
   EXPECT_EQ(1 * micro::kOneInU, market.TryToSell(offer, &seller));
   // Buy offer should have disappeared, so price should drop.
   market.FindPrices();
-  EXPECT_EQ(750000, market.GetPriceU(kTestGood1));
+  EXPECT_EQ(800000, market.GetPriceU(kTestGood1));
 }
 
 } // namespace market
