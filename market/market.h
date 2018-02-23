@@ -27,6 +27,9 @@ public:
   // True if the basket can be bought right away.
   bool AvailableImmediately(const market::proto::Container& basket) const;
 
+  // Make goods stored in warehouse decay at the given rates.
+  void DecayGoods(const market::proto::Container& rates);
+
   // Balances current bids and offers to find new prices. Surplus offers cause
   // the price to go down, unmatched bids cause it to go up. Also clears
   // existing buy and sell offers since the prices change.

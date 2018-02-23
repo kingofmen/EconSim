@@ -112,6 +112,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_info) {
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
+    area->mutable_market()->DecayGoods(scenario_.proto_.decay_rates());
     PrintMarket(*area->mutable_market()->Proto(), volumes);
   }
 }

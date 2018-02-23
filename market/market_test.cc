@@ -252,4 +252,16 @@ TEST(MarketTest, BuySellBuy) {
   EXPECT_EQ(800000, market.GetPriceU(kTestGood1));
 }
 
+TEST(MarketTest, DecayGoods) {
+  Market market;
+  Container decay_rates_u;
+  const int64 kNineTenths = 9 * micro::kOneInU / 10;
+  market.RegisterGood(kTestGood1);
+  SetAmount(kTestGood1, micro::kOneInU, market.Proto()->mutable_warehouse());
+  EXPECT_EQ(micro::kOneInU, market.AvailableImmediately(kTestGood1));
+  SetAmount(kTestGood1, kNineTenths, &decay_rates_u);
+  market.DecayGoods(decay_rates_u);
+  EXPECT_EQ(kNineTenths, market.AvailableImmediately(kTestGood1));
+}
+
 } // namespace market

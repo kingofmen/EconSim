@@ -29,6 +29,10 @@ void Market::RegisterGood(const std::string& name) {
   SetAmount(name, micro::kOneInU, proto_.mutable_prices_u());
 }
 
+void Market::DecayGoods(const market::proto::Container& decay_rates_u) {
+  micro::MultiplyU(*proto_.mutable_warehouse(), decay_rates_u);
+}
+
 void Market::FindPrices() {
   for (const auto& good : proto_.goods().quantities()) {
     const std::string& name = good.first;
