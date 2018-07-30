@@ -20,3 +20,17 @@ local_repository(
   name = "com_google_absl",
   path = "C:\\Users\\Rolf\\base\\third_party\\abseil-cpp",
 )
+
+new_local_repository(
+  name = "ogre",
+  path = "C:\\Users\\Rolf\\base\\third_party\\ogre",
+  build_file = "C:\\Users\\Rolf\\base\\third_party\\ogre\\ogre.BUILD",
+)
+
+new_local_repository(
+  name = "horde3d",
+  path = "C:\\Users\\Rolf\\base\\third_party\\Horde3D",
+  build_file = "C:\\Users\\Rolf\\base\\third_party\\Horde3D\\horde3d.BUILD",
+)
+
+
