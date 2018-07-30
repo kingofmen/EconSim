@@ -15,35 +15,39 @@ bool gameLoop(H3DNode& model, H3DNode& cam, float fps) {
   std::cout << "Time is " << t << "\n";
   // Play animation
   h3dSetModelAnimParams(model, 0, t, 1.0f);
-  std::cout << "Animation done\n";
   h3dUpdateModel(
       model, H3DModelUpdateFlags::Animation | H3DModelUpdateFlags::Geometry);
-  std::cout << "Updated model\n";
 
   // Set new model position
   h3dSetNodeTransform(model, t * 10, 0, 0, // Translation
                       0, 0, 0,             // Rotation
                       1, 1, 1);            // Scale
-  std::cout << "Set position\n";
 
   // Render scene
   h3dRender(cam);
-  std::cout << "Rendered\n";
 
   // Finish rendering of frame
   h3dFinalizeFrame();
-  std::cout << "Finalised\n";
   return t > 200;
 }
+
+class Terminator {
+ public:
+  Terminator() {}
+  ~Terminator() {
+    glfwTerminate();
+  }
+};
 
 int main(int argc, char** argv) {
   glfwSetErrorCallback([](int code, const char* description) {
       std::cout << "Code " << code << " " << description << "\n";
     });
   int init = glfwInit();
+  Terminator terminator;
   auto* window = glfwCreateWindow(winWidth, winHeight, "Test", nullptr, nullptr);
   if (window == nullptr) {
-    glfwTerminate();
+    std::cout << "Could not create window\n";
     return 1;
   }
   glfwMakeContextCurrent(window);
@@ -51,7 +55,6 @@ int main(int argc, char** argv) {
   // Initialize engine.
   if (!h3dInit(H3DRenderDevice::OpenGL4)) {
     std::cout << "Failed to initialise\n";
-    glfwTerminate();
     return 1;    
   }
 
@@ -75,7 +78,10 @@ int main(int argc, char** argv) {
       "party\\Horde3D\\Horde3D\\Binaries\\Content\\animations\\man.anim",
       0);
   // Load added resources
-  h3dutLoadResourcesFromDisk("");
+  if (!h3dutLoadResourcesFromDisk("")) {
+    std::cout << "Could not load resources\n";
+    return 1;
+  }
 
   // Add model to scene
   H3DNode model = h3dAddNodes(H3DRootNode, modelRes);
@@ -90,7 +96,6 @@ int main(int argc, char** argv) {
       h3dAddLightNode(H3DRootNode, "Light1", 0, "LIGHTING", "SHADOWMAP");
   if (light == 0) {
     std::cout << "Could not create light\n";
-    glfwTerminate();
     return 1;
   }
 
@@ -110,13 +115,9 @@ int main(int argc, char** argv) {
   while (!done) {
     done = gameLoop(model, cam, 60.0);
   }
-  std::cout << "Reached the end\n";
+
   // Release engine.
   h3dRelease();
-  std::cout << "Released\n";
   glfwDestroyWindow(window);
-  std::cout << "Destroyed\n";
-  glfwTerminate();
-  std::cout << "Terminated\n";
   return 0;
 }
