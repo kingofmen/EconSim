@@ -1,0 +1,4 @@
+<Model name="Battleship" geometry="models/Battleship.geo">
+
+	<Mesh name="cone" material="models/Default.material.xml" batchStart="0" batchCount="144" vertRStart="0" vertREnd="132" />
+</Model>

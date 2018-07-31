@@ -7,13 +7,14 @@
 constexpr int winWidth = 800;
 constexpr int winHeight = 600;
 
-bool gameLoop(H3DNode& model, H3DNode& cam, float fps) {
+bool gameLoop(H3DNode& model, H3DNode& cam, float fps, GLFWwindow* winHandle) {
   static float t = 0;
 
   // Increase animation time
   t = t + 10.0f * (1 / fps);
   std::cout << "Time is " << t << "\n";
   // Play animation
+  /*
   h3dSetModelAnimParams(model, 0, t, 1.0f);
   h3dUpdateModel(
       model, H3DModelUpdateFlags::Animation | H3DModelUpdateFlags::Geometry);
@@ -22,13 +23,14 @@ bool gameLoop(H3DNode& model, H3DNode& cam, float fps) {
   h3dSetNodeTransform(model, t * 10, 0, 0, // Translation
                       0, 0, 0,             // Rotation
                       1, 1, 1);            // Scale
-
+  */
   // Render scene
   h3dRender(cam);
 
   // Finish rendering of frame
   h3dFinalizeFrame();
-  return t > 200;
+  glfwSwapBuffers(winHandle);
+  return t > 60;
 }
 
 class Terminator {
@@ -58,38 +60,31 @@ int main(int argc, char** argv) {
     return 1;    
   }
 
-  // Add pipeline resource
+  // Add pipeline resource.
   H3DRes pipeRes = h3dAddResource(H3DResTypes::Pipeline,
-                                  "C:\\Users\\Rolf\\base\\third_"
-                                  "party\\Horde3D\\Horde3D\\Binaries\\Content\\pipel"
-                                  "ines\\forward.pipeline.xml",
-                                  0);
+                                  "pipelines\\forward.pipeline.xml", 0);
+  // Add model resource.
+  H3DRes modelRes =
+      h3dAddResource(H3DResTypes::SceneGraph, "models\\Battleship.scene.xml", 0);
 
-  // Add model resource
-  H3DRes modelRes = h3dAddResource(
-      H3DResTypes::SceneGraph,
-      "C:\\Users\\Rolf\\base\\third_"
-      "party\\Horde3D\\Horde3D\\Binaries\\Content\\models\\man\\man.scene.xml",
-      0);
-  // Add animation resource
-  H3DRes animRes = h3dAddResource(
-      H3DResTypes::Animation,
-      "C:\\Users\\Rolf\\base\\third_"
-      "party\\Horde3D\\Horde3D\\Binaries\\Content\\animations\\man.anim",
-      0);
   // Load added resources
-  if (!h3dutLoadResourcesFromDisk("")) {
+  if (!h3dutLoadResourcesFromDisk("c:\\Users\\Rolf\\base\\naval\\graphics|C:"
+                                  "\\Users\\Rolf\\base\\third_"
+                                  "party\\Horde3D\\Binaries\\Content")) {
     std::cout << "Could not load resources\n";
     return 1;
   }
 
   // Add model to scene
   H3DNode model = h3dAddNodes(H3DRootNode, modelRes);
-  // Apply animation
-  h3dSetupModelAnimStage(model, 0, animRes, 0, "", false);
+  // Draw at origin.
+  h3dSetNodeTransform( model, 0, 0, 0, 0, 0, 0, 0.02, 0.02, 0.02 );
 
   // Add camera
   H3DNode cam = h3dAddCameraNode(H3DRootNode, "Camera", pipeRes);
+  // 20 units out of the screen, look straight at origin.
+  h3dSetNodeTransform(cam, 0, 0, 20, 0, 0, 0, 1, 1, 1);
+
 
   // Add light source
   H3DNode light =
@@ -113,7 +108,7 @@ int main(int argc, char** argv) {
 
   bool done = false;
   while (!done) {
-    done = gameLoop(model, cam, 60.0);
+    done = gameLoop(model, cam, 60.0, window);
   }
 
   // Release engine.
