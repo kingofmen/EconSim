@@ -1,0 +1,4 @@
+<Model name="World" geometry="models/World.geo">
+
+	<Mesh name="sphere" material="materials/worldmap.material.xml" tx="0" ty="50" tz="0" batchStart="0" batchCount="6624" vertRStart="0" vertREnd="6463" />
+</Model>
