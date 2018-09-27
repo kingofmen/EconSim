@@ -31,6 +31,13 @@ void PrintMarket(const market::proto::MarketProto& market,
 
 }  // namespace
 
+GameWorld::~GameWorld() {
+  for (auto& production : production_map_) {
+    delete production.second;
+  }
+  production_map_.clear();
+}
+
 
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   proto_.Swap(scenario);

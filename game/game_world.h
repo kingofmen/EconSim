@@ -18,6 +18,7 @@ namespace game {
 class GameWorld {
 public:
   GameWorld(const proto::GameWorld& world, proto::Scenario* scenario);
+  ~GameWorld();
 
   struct Scenario {
     Scenario(proto::Scenario* scenario);
