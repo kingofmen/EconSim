@@ -28,15 +28,7 @@ OpenGL4
 
 [[VS_GENERAL_GL4]]
 // =================================================================================================
-#ifdef _F03_ParallaxMapping
-	#define _F02_NormalMapping
-#endif
-
 #include "shaders/utilityLib/vertCommon.glsl"
-
-#ifdef _F01_Skinning
-	#include "shaders/utilityLib/vertSkinningGL4.glsl"
-#endif
 
 uniform mat4 viewProjMat;
 uniform vec3 viewerPos;
@@ -45,64 +37,19 @@ layout( location = 0 ) in vec3 vertPos;
 layout( location = 1 ) in vec3 normal;
 layout( location = 5 ) in vec2 texCoords0;
 
-#ifdef _F02_NormalMapping
-	layout ( location = 2 ) in vec4 tangent;
-#endif
-
 out vec4 pos, vsPos;
 out vec2 texCoords;
-
-#ifdef _F02_NormalMapping
-	out mat3 tsbMat;
-#else
-	out vec3 tsbNormal;
-#endif
-#ifdef _F03_ParallaxMapping
-	out vec3 eyeTS;
-#endif
-
+out vec3 tsbNormal;
 
 void main( void )
 {
-#ifdef _F01_Skinning
-	mat4 skinningMat = calcSkinningMat();
-	mat3 skinningMatVec = getSkinningMatVec( skinningMat );
-#endif
-	
 	// Calculate normal
-#ifdef _F01_Skinning
-	vec3 _normal = normalize( calcWorldVec( skinVec( normal, skinningMatVec ) ) );
-#else
-	vec3 _normal = normalize( calcWorldVec( normal ) );
-#endif
-
-	// Calculate tangent and bitangent
-#ifdef _F02_NormalMapping
-	#ifdef _F01_Skinning
-		vec3 _tangent = normalize( calcWorldVec( skinVec( tangent.xyz, skinningMatVec ) ) );
-	#else
-		vec3 _tangent = normalize( calcWorldVec( tangent.xyz ) );
-	#endif
-	
-	vec3 _bitangent = cross( _normal, _tangent ) * tangent.w;
-	tsbMat = calcTanToWorldMat( _tangent, _bitangent, _normal );
-#else
-	tsbNormal = _normal;
-#endif
+	//vec3 _normal = normalize( calcWorldVec( normal ) );
+	//tsbNormal = _normal;
 
 	// Calculate world space position
-#ifdef _F01_Skinning	
-	pos = calcWorldPos( skinPos( vec4( vertPos, 1.0 ), skinningMat ) );
-#else
 	pos = calcWorldPos( vec4( vertPos, 1.0 ) );
-#endif
-
 	vsPos = calcViewPos( pos );
-
-	// Calculate tangent space eye vector
-#ifdef _F03_ParallaxMapping
-	eyeTS = calcTanVec( viewerPos - pos.xyz, _tangent, _bitangent, _normal );
-#endif
 	
 	// Calculate texture coordinates and clip space position
 	texCoords = texCoords0;
