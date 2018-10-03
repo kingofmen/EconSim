@@ -74,45 +74,63 @@ market::Measure Production::MaxScaleU() const {
   return (1 + proto_.scaling_effects_u_size()) * micro::kOneInU;
 }
 
+bool Production::StepPossible(const Container& fixed_capital,
+                              const Container& inputs,
+                              const Container& raw_materials,
+                              const proto::Progress& progress,
+                              const market::Measure institutional_capital_u,
+                              const int variant_index,
+                              Container* needed_capital,
+                              Container* needed_inputs,
+                              Container* needed_raw_material) const {
+  if (proto_.name() != progress.name()) {
+    return false;
+  }
+  if (Complete(progress)) {
+    return false;
+  }
+
+  const int step = progress.step();
+  const market::Measure scaling_u = progress.scaling_u();
+  const auto& step_inputs = proto_.steps(step).variants(variant_index);
+  auto required_fixcap = step_inputs.fixed_capital();
+  micro::MultiplyU(required_fixcap, scaling_u);
+
+  if (!(fixed_capital > required_fixcap)) {
+    return false;
+  }
+
+  const market::Measure experience_u =
+      ExperienceEffectU(institutional_capital_u);
+  *needed_raw_material = step_inputs.raw_materials();
+  micro::MultiplyU(*needed_raw_material,
+                  micro::MultiplyU(scaling_u, experience_u));
+
+  if (!(raw_materials > *needed_raw_material)) {
+    return false;
+  }
+
+  *needed_inputs = step_inputs.consumables();
+  micro::MultiplyU(*needed_inputs, micro::MultiplyU(scaling_u, experience_u));
+  *needed_capital = step_inputs.movable_capital();
+  micro::MultiplyU(*needed_capital, scaling_u);
+  auto required = *needed_inputs + *needed_capital;
+
+  return inputs > required;
+}
+
 bool Production::PerformStep(const Container& fixed_capital,
                              const market::Measure institutional_capital_u,
                              const int variant_index, Container* inputs,
                              Container* raw_materials, Container* output,
                              Container* used_capital,
                              proto::Progress* progress) const {
-  if (proto_.name() != progress->name()) {
-    return false;
-  }
-  if (Complete(*progress)) {
-    return false;
-  }
-
-  const int step = progress->step();
-  const market::Measure scaling_u = progress->scaling_u();
-  const auto& step_inputs = proto_.steps(step).variants(variant_index);
-  auto needed_capital = step_inputs.fixed_capital();
-  micro::MultiplyU(needed_capital, scaling_u);
-  if (!(fixed_capital > needed_capital)) {
-    return false;
-  }
-
-  const market::Measure experience_u =
-      ExperienceEffectU(institutional_capital_u);
-  auto needed_raw_material = step_inputs.raw_materials();
-  micro::MultiplyU(needed_raw_material,
-                  micro::MultiplyU(scaling_u, experience_u));
-
-  if (!(*raw_materials > needed_raw_material)) {
-    return false;
-  }
-
-  auto needed_inputs = step_inputs.consumables();
-  micro::MultiplyU(needed_inputs, micro::MultiplyU(scaling_u, experience_u));
-  needed_capital = step_inputs.movable_capital();
-  micro::MultiplyU(needed_capital, scaling_u);
-  auto required = needed_inputs + needed_capital;
-
-  if (!(*inputs > required)) {
+  Container needed_capital;
+  Container needed_inputs;
+  Container needed_raw_material;
+  if (!StepPossible(fixed_capital, *inputs, *raw_materials, *progress,
+                    institutional_capital_u, variant_index, &needed_capital,
+                    &needed_inputs, &needed_raw_material)) {
     return false;
   }
 
@@ -120,11 +138,10 @@ bool Production::PerformStep(const Container& fixed_capital,
 
   *raw_materials -= needed_raw_material;
   *inputs -= needed_inputs;
-
   *inputs -= needed_capital;
   *used_capital << needed_capital;
 
-  progress->set_step(1 + step);
+  progress->set_step(1 + progress->step());
   if (Complete(*progress)) {
     *output += ExpectedOutput(*progress);
   }

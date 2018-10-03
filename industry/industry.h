@@ -36,11 +36,10 @@ public:
   // necessary resources are present.
   market::Measure MaxScaleU() const;
 
-  // Increments the step if inputs and fixed_capital contains sufficient
-  // consumables and capital to run variant_index. Takes consumables and movable
-  // capital from inputs, and resources from raw_materials; puts movable capital
-  // into used_capital. If the process completes, fills outputs with the
-  // products. Returns true if the step is completed.
+  // Increments the step if possible; otherwise returns false. Takes consumables
+  // and movable capital from inputs, and resources from raw_materials; puts
+  // movable capital into used_capital. If the process completes, fills outputs
+  // with the products.
   bool PerformStep(const market::proto::Container& fixed_capital,
                    const market::Measure institutional_capital,
                    const int variant_index, market::proto::Container* inputs,
@@ -48,6 +47,20 @@ public:
                    market::proto::Container* outputs,
                    market::proto::Container* used_capital,
                    proto::Progress* progress) const;
+
+  // Returns true if fixed_capital, inputs, and raw_materials respectively contain
+  // enough goods to satisfy the capital, consumables, and resource requirements
+  // of the current step in progress, using variant_index. Fills the three needed_foo
+  // Containers (which may not be null) with the required goods.
+  bool StepPossible(const market::proto::Container& fixed_capital,
+                    const market::proto::Container& inputs,
+                    const market::proto::Container& raw_materials,
+                    const proto::Progress& progress,
+                    const market::Measure institutional_capital_u,
+                    const int variant_index,
+                    market::proto::Container* needed_capital,
+                    market::proto::Container* needed_inputs,
+                    market::proto::Container* needed_raw_material) const;
 
   // Returns the consumables needed for the next step in the process assuming
   // variant is used, with the scale given by progress.
