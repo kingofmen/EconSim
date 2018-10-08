@@ -13,6 +13,19 @@ cc_library(
   ],
 )
 
+cc_library(
+  name = "worker",
+  srcs = ["worker.cc"],
+  hdrs = ["worker.h"],
+  deps = [
+    ":industry",
+    "//industry/decisions:production_evaluator",
+    "//market/proto:goods_proto",
+    "//util/arithmetic:microunits",
+    "//util/headers:int_types",
+  ],
+)
+
 cc_test(
   name = "industry_test",
   srcs = ["industry_test.cc"],

@@ -105,6 +105,7 @@ proto::ProductionInfo ProductionEvaluator::GetProductionInfo(
     const industry::Production& chain, const market::proto::Container& wealth,
     const market::Market& market, const geography::proto::Field& field) const {
   proto::ProductionInfo ret;
+  ret.set_name(chain.get_name());
   ret.set_max_scale_u(chain.MaxScaleU());
 
   int current_step = 0;
@@ -202,6 +203,41 @@ LocalProfitMaximiser::Evaluate(const ProductionContext& context,
   }
 
   return ret;
+}
+
+void LocalProfitMaximiser::SelectCandidate(
+    const ProductionContext& context,
+    std::vector<proto::ProductionInfo>& candidates,
+    proto::ProductionDecision* decision) const {
+  market::Measure max_profit_u = 0;
+  for (auto& info : candidates) {
+    const auto* chain = context.production_map.at(info.name());
+    if (!info.reject_reason().empty()) {
+      decision->add_rejected()->Swap(&info);
+      continue;
+    }
+    market::Measure profit_u =
+        context.market->GetPriceU(chain->Proto()->outputs());
+    if (profit_u <= info.total_unit_cost_u()) {
+      info.set_reject_reason(absl::Substitute(
+          "Unprofitable, $0 vs cost $1", profit_u, info.total_unit_cost_u()));
+      decision->add_rejected()->Swap(&info);
+      continue;
+    }
+    profit_u -= info.total_unit_cost_u();
+    profit_u = micro::MultiplyU(profit_u, info.max_scale_u());
+    if (profit_u <= max_profit_u) {
+      info.set_reject_reason(
+          absl::Substitute("Less profit than $0", decision->selected().name()));
+      decision->add_rejected()->Swap(&info);
+      continue;
+    }
+    max_profit_u = profit_u;
+    decision->mutable_selected()->set_reject_reason(
+        absl::Substitute("Less profit than $0", info.name()));
+    decision->mutable_selected()->Swap(&info);
+  }
+  
 }
 
 } // namespace decisions

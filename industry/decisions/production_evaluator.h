@@ -27,10 +27,15 @@ public:
       const industry::Production& chain, const market::proto::Container& wealth,
       const market::Market& market, const geography::proto::Field& field) const;
 
+  // Deprecated; use SelectCandidate instead.
   virtual proto::ProductionDecision
   Evaluate(const ProductionContext& context,
            const market::proto::Container& wealth,
            geography::proto::Field* target) const = 0;
+
+  virtual void SelectCandidate(const ProductionContext& context,
+                               std::vector<proto::ProductionInfo>& candidates,
+                               proto::ProductionDecision* decision) const = 0;
 };
 
 // Evaluates the profit the chain will make, assuming all inputs can be bought
@@ -41,6 +46,10 @@ public:
   Evaluate(const ProductionContext& context,
            const market::proto::Container& wealth,
            geography::proto::Field* target) const override;
+
+  void SelectCandidate(const ProductionContext& context,
+                       std::vector<proto::ProductionInfo>& candidates,
+                       proto::ProductionDecision* decision) const override;
 };
 
 }  // namespace decisions
