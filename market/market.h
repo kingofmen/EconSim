@@ -27,6 +27,10 @@ public:
   // True if the basket can be bought right away.
   bool AvailableImmediately(const market::proto::Container& basket) const;
 
+  // Attempts to buy each good in the provided basket from market, paying with
+  // target. Returns true if all the buys are successful.
+  bool BuyBasket(const proto::Container& basket, proto::Container* target);
+
   // Make goods stored in warehouse decay at the given rates.
   void DecayGoods(const market::proto::Container& rates);
 

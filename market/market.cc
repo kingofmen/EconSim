@@ -29,6 +29,21 @@ void Market::RegisterGood(const std::string& name) {
   SetAmount(name, micro::kOneInU, proto_.mutable_prices_u());
 }
 
+bool Market::BuyBasket(const proto::Container& basket,
+                       proto::Container* target) {
+  bool success = true;
+  for (const auto& need : basket.quantities()) {
+    if (need.second <= 0) {
+      continue;
+    }
+    auto bought = TryToBuy(need.first, need.second, target);
+    if (bought < need.second) {
+      success = false;
+    }
+  }
+  return success;
+}
+
 void Market::DecayGoods(const market::proto::Container& decay_rates_u) {
   micro::MultiplyU(*proto_.mutable_warehouse(), decay_rates_u);
 }
