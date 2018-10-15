@@ -10,7 +10,6 @@
 #include "industry/decisions/production_evaluator.h"
 #include "industry/industry.h"
 #include "industry/proto/industry.pb.h"
-#include "market/goods_utils.h"
 #include "market/market.h"
 #include "market/proto/goods.pb.h"
 #include "population/proto/population.pb.h"
@@ -58,49 +57,27 @@ public:
   void StartTurn(const std::vector<const proto::ConsumptionLevel*>& levels,
                  market::Market* market);
 
-  // Attempts to find a new production chain to run in field. Returns true on
-  // success.
-  bool StartNewProduction(const industry::decisions::ProductionContext& context,
-                          industry::decisions::DecisionMap* production_info_map,
-                          geography::proto::Field* field);
-
-  // Attempts to run the next step of production. Returns true if the process
-  // advances.
-  bool TryProductionStep(
-      const industry::Production& production,
-      const industry::decisions::proto::ProductionInfo& production_info,
-      geography::proto::Field* field, industry::proto::Progress* progress,
-      market::Market* market);
-
   static PopUnit* GetPopId(uint64 id) { return id_to_pop_map_[id]; }
 
   static uint64 NewPopId();
 
+  // Sells what the pop won't use for subsistence.
+  void SellSurplus(market::Market* market);
+
   market::proto::Container* mutable_wealth() { return proto_.mutable_wealth(); }
   const market::proto::Container& wealth() { return proto_.wealth(); }
 
+  void ReturnCapital(market::proto::Container* caps);
+
   proto::PopUnit* Proto() { return &proto_; }
 
-  void set_production_evaluator(industry::decisions::ProductionEvaluator* eval) {
-    evaluator_ = eval;
-  }
+  uint64 pop_id() const { return proto_.pop_id(); }
 
 private:
   static std::unordered_map<uint64, PopUnit*> id_to_pop_map_;
 
-  static industry::decisions::ProductionEvaluator& default_evaluator_;
-
-  // Sells what the pop won't use for subsistence.
-  void SellSurplus(market::Market* market);
-
-  // Keeps track of process information for the turn.
-  std::unordered_set<geography::proto::Field*> fields_worked_;
-
   // The underlying data in wire format.
   proto::PopUnit proto_;
-
-  // For choosing new production chains. Not owned.
-  industry::decisions::ProductionEvaluator* evaluator_;
 
   // Tracking how many consumption packages have been ordered from the market.
   int packages_ordered_;

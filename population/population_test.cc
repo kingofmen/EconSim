@@ -28,8 +28,6 @@ protected:
     fish_.set_kind("fish");
     house_.set_kind("house");
     youtube_.set_kind("youtube");
-    dinner_.set_kind("dinner");
-    grain_.set_kind("grain");
 
     fish_package_ = level_.add_packages();
     house_package_ = level_.add_packages();
@@ -37,77 +35,28 @@ protected:
     *fish_package_->mutable_consumed() << fish_;
     house_ += micro::kOneInU;
     *house_package_->mutable_consumed() << house_;
-
-    dinner_from_grain_proto_ = dinner_from_grain_.Proto();
-    dinner_from_fish_proto_ = dinner_from_fish_.Proto();
-  }
-
-  void SetupProduction() {
-    dinner_from_fish_proto_->set_name("dinner_from_fish");
-    dinner_from_fish_proto_->add_scaling_effects_u(micro::kOneInU);
-    dinner_from_fish_proto_->add_scaling_effects_u(8 * micro::kOneInU / 10);
-    dinner_from_fish_proto_->add_scaling_effects_u(micro::kOneInU / 2);
-    auto* step = dinner_from_fish_proto_->add_steps();
-    auto* variant1 = step->add_variants();
-    auto* variant2 = step->add_variants();
-    auto* variant3 = step->add_variants();
-
-    house_ += micro::kOneInU;
-    fish_ += micro::kOneInU;
-    *variant1->mutable_fixed_capital() << house_;
-    *variant1->mutable_consumables() << fish_;
-    fish_ += 2 * micro::kOneInU;
-    *variant2->mutable_consumables() << fish_;
-    youtube_ += micro::kOneInU;
-    *variant3->mutable_consumables() << youtube_;
-    dinner_ += micro::kOneInU;
-    *dinner_from_fish_proto_->mutable_outputs() << dinner_;
-
-    dinner_from_grain_proto_->set_name("dinner_from_grain");
-    dinner_from_grain_proto_->add_scaling_effects_u(micro::kOneInU);
-    dinner_from_grain_proto_->add_scaling_effects_u(8 * micro::kOneInU / 10);
-    step = dinner_from_grain_proto_->add_steps();
-    variant1 = step->add_variants();
-    variant2 = step->add_variants();
-
-    grain_ += 2 * micro::kOneInU;
-    *variant1->mutable_consumables() << grain_;
-
-    grain_ += micro::kOneInU;
-    house_ += micro::kOneInU;
-    *variant2->mutable_consumables() << grain_;
-    *variant2->mutable_fixed_capital() << house_;
-    dinner_ += micro::kOneInU;
-    *dinner_from_grain_proto_->mutable_outputs() << dinner_;
   }
 
   void SetupMarket() {
     market_.RegisterGood(fish_.kind());
     market_.RegisterGood(youtube_.kind());
-    market_.RegisterGood(dinner_.kind());
-    market_.RegisterGood(grain_.kind());
+    //market_.RegisterGood(dinner_.kind());
+    //market_.RegisterGood(grain_.kind());
     market_.RegisterGood(house_.kind());
     market_.Proto()->set_credit_limit(micro::kHundredInU);
     market_.Proto()->set_name("market");
-    market::SetAmount(fish_.kind(), micro::kOneInU,
-                      market_.Proto()->mutable_prices_u());
-    market::SetAmount(youtube_.kind(), 2 * micro::kOneInU,
-                      market_.Proto()->mutable_prices_u());
-    market::SetAmount(dinner_.kind(), 3 * micro::kOneInU,
-                      market_.Proto()->mutable_prices_u());
+    auto* prices = market_.Proto()->mutable_prices_u();
+    market::SetAmount(fish_.kind(), micro::kOneInU, prices);
+    market::SetAmount(youtube_.kind(), 2 * micro::kOneInU, prices);
   }
 
-  void SellGoods(market::Measure fish = 0, market::Measure youtube = 0,
-                 market::Measure grain = 0) {
+  void SellGoods(market::Measure fish = 0, market::Measure youtube = 0) {
     fish_.set_amount(fish);
     youtube_.set_amount(youtube);
-    grain_.set_amount(grain);
     seller_ += fish_;
     seller_ += youtube_;
-    seller_ += grain_;
     EXPECT_EQ(market_.TryToSell(fish_, &seller_), fish);
     market_.TryToSell(youtube_, &seller_);
-    market_.TryToSell(grain_, &seller_);
     EXPECT_GE(market_.AvailableImmediately(fish_.kind()), fish);
   }
 
@@ -115,16 +64,10 @@ protected:
   proto::ConsumptionLevel level_;
   proto::ConsumptionPackage* fish_package_;
   proto::ConsumptionPackage* house_package_;
-  industry::Production dinner_from_fish_;
-  industry::proto::Production* dinner_from_fish_proto_;
-  industry::Production dinner_from_grain_;
-  industry::proto::Production* dinner_from_grain_proto_;
   market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity house_;
   market::proto::Quantity youtube_;
-  market::proto::Quantity dinner_;
-  market::proto::Quantity grain_;
   market::proto::Container prices_;
   market::proto::Container seller_;
 };
@@ -171,7 +114,7 @@ TEST_F(PopulationTest, CheapestPackage) {
   auto* cheap_package = level_.add_packages();
   youtube_ += 1;
   *cheap_package->mutable_consumed() << youtube_;
-  SellGoods(0, 1, 0);
+  SellGoods(0, 1);
 
   // YouTube is cheaper, but only available from the market, and the pop has no
   // money. Without credit it won't be able to buy anything.
@@ -225,9 +168,10 @@ TEST_F(PopulationTest, Consume) {
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), micro::kOneInU);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), house_), 0);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), 0);
-  // Put the tools back into the proto from the used capital; freeze the fish.
+  // Set decay rates to zero.
   market::proto::Container decay_rates;
   market::SetAmount(fish_.kind(), micro::kOneInU, &decay_rates);
+  market::SetAmount(tools.kind(), micro::kOneInU, &decay_rates);
   pop_.EndTurn(decay_rates);
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), tools), micro::kOneInU);
 
@@ -236,7 +180,7 @@ TEST_F(PopulationTest, Consume) {
   EXPECT_EQ(market::GetAmount(pop_.Proto()->wealth(), fish_), 0);
 
   // Put some fish on the market.
-  SellGoods(micro::kOneInU, 0, 0);
+  SellGoods(micro::kOneInU, 0);
   // Remove credit, consumption should be impossible.
   market_.Proto()->set_credit_limit(0);
   EXPECT_FALSE(pop_.Consume(level_, &market_));
@@ -337,99 +281,34 @@ TEST_F(PopulationTest, EndTurn) {
             micro::kOneInU / 2);
 }
 
-TEST_F(PopulationTest, TryProductionStep) {
-  SetupProduction();
+// Test that non-subsistence goods get sold, and subsistence doesn't.
+TEST_F(PopulationTest, SellSurplus) {
   SetupMarket();
-  industry::decisions::LocalProfitMaximiser evaluator;
-  geography::proto::Field field;
-
-  auto progress = dinner_from_fish_.MakeProgress(3 * micro::kOneInU);
-  EXPECT_EQ(28 * micro::kOneInU / 10, dinner_from_fish_.EfficiencyU(progress));
-  auto fish_info = evaluator.GetProductionInfo(
-      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
-
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
-                                      &progress, &market_))
-      << fish_info.DebugString();
-
-  SellGoods(2 * micro::kOneInU);
-
-  // Process makes no profit because it has no output.
-  dinner_from_fish_proto_->mutable_outputs()->Clear();
-  fish_info = evaluator.GetProductionInfo(
-      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
-                                      &progress, &market_))
-      << fish_info.DebugString();
-
-  const std::string kEntertainment("entertainment");
-  auto entertainment = market::MakeQuantity(kEntertainment, micro::kTenInU);
-  market_.RegisterGood(entertainment.kind());
-  market::SetAmount(entertainment, market_.Proto()->mutable_prices_u());
-  entertainment.set_amount(micro::kOneInU);
-  market::SetAmount(entertainment, dinner_from_fish_proto_->mutable_outputs());
-  EXPECT_EQ(dinner_from_fish_.EfficiencyU(progress),
-            market::GetAmount(dinner_from_fish_.ExpectedOutput(progress),
-                              entertainment));
-  fish_info = evaluator.GetProductionInfo(
-      dinner_from_fish_, pop_.Proto()->wealth(), market_, field);
-
-  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
-                                     &progress, &market_))
-      << fish_info.DebugString();
-
-  // Good will be sold to the market as it is not subsistence.
-  EXPECT_EQ(0, market::GetAmount(pop_.wealth(), kEntertainment));
-  EXPECT_EQ(dinner_from_fish_.EfficiencyU(progress),
-            market_.AvailableImmediately(kEntertainment));
-  // Money on hand should be equal to price of output, less price of inputs.
-  // Don't count credit.
-  EXPECT_EQ(market_.GetPriceU(kEntertainment) - fish_info.total_unit_cost_u(),
-            market_.MaxMoney(pop_.wealth()) - market_.MaxCredit(pop_.wealth()))
-      << pop_.wealth().DebugString() << "\n"
-      << market_.Proto()->DebugString() << "\n"
-      << fish_info.DebugString() << "\n"
-      << dinner_from_fish_.Proto()->DebugString();
-  EXPECT_TRUE(dinner_from_fish_.Complete(progress));
-
-  EXPECT_FALSE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
-                                      &progress, &market_))
-      << fish_info.DebugString();
-
-  // Make entertainment a subsistence good, and check that it's no longer sold
-  // as soon as it is produced.
-  progress = dinner_from_fish_.MakeProgress(3 * micro::kOneInU);
-  SellGoods(2 * micro::kOneInU);
   level_.Clear();
+  proto::ConsumptionLevel level2;
+
+  // Mark first level (fish) as subsistence.
   market::SetAmount(keywords::kSubsistenceTag, micro::kOneInU,
                     level_.mutable_tags());
   auto* package = level_.add_packages();
-  market::SetAmount(kEntertainment, micro::kOneInU,
-                    package->mutable_consumed());
-  pop_.StartTurn({&level_}, &market_);
-  EXPECT_TRUE(pop_.TryProductionStep(dinner_from_fish_, fish_info, &field,
-                                     &progress, &market_))
-      << fish_info.DebugString();
-  EXPECT_EQ(micro::kOneInU, market::GetAmount(pop_.wealth(), kEntertainment));
-}
+  fish_ += micro::kOneInU;
+  youtube_ += micro::kOneInU;
+  market::SetAmount(fish_, package->mutable_consumed());
 
-TEST_F(PopulationTest, StartNewProduction) {
-  SetupProduction();
-  SetupMarket();
-  SellGoods(micro::kTenInU, micro::kTenInU, micro::kTenInU);
+  // Set second level as youtube and non-subsistence.
+  package = level2.add_packages();
+  market::SetAmount(youtube_, package->mutable_consumed());
 
-  industry::decisions::LocalProfitMaximiser evaluator;
-  industry::decisions::ProductionContext context;
-  industry::decisions::DecisionMap production_info_map;
-  geography::proto::Field field;
-  context.production_map[dinner_from_fish_proto_->name()] = &dinner_from_fish_;
-  context.production_map[dinner_from_grain_proto_->name()] =
-      &dinner_from_grain_;
-  context.fields.push_back(&field);
-  context.market = &market_;
-  EXPECT_TRUE(pop_.StartNewProduction(context, &production_info_map, &field));
-  auto prod_info = production_info_map.find(&field);
-  EXPECT_NE(prod_info, production_info_map.end());
+  pop_.StartTurn({&level_, &level2}, &market_);
+  *pop_.mutable_wealth() << fish_;
+  *pop_.mutable_wealth() << youtube_;
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(pop_.wealth(), youtube_));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(pop_.wealth(), fish_));
+  pop_.SellSurplus(&market_);
+
+  // Youtube should be sold, not fish.
+  EXPECT_EQ(0, market::GetAmount(pop_.wealth(), youtube_));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(pop_.wealth(), fish_));
 }
 
 } // namespace population
