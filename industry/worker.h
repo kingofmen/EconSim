@@ -5,6 +5,7 @@
 #include "geography/proto/geography.pb.h"
 #include "industry/decisions/production_evaluator.h"
 #include "industry/industry.h"
+#include "market/market.h"
 #include "market/proto/goods.pb.h"
 
 namespace industry {
@@ -25,6 +26,14 @@ void SelectProduction(const decisions::ProductionContext& context,
                       const decisions::ProductionEvaluator& evaluator,
                       decisions::DecisionMap* info_map);
 
+// Attempts to run the next step of production. Returns true if the process
+// advances. Any output goods are put into target. No pointers may be null.
+bool TryProductionStep(
+    const industry::Production& production,
+    const industry::decisions::proto::ProductionInfo& production_info,
+    geography::proto::Field* field, industry::proto::Progress* progress,
+    market::proto::Container* source, market::proto::Container* target,
+    market::proto::Container* used_capital, market::Market* market);
 }  // namespace industry
 
 #endif
