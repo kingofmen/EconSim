@@ -16,7 +16,7 @@ typedef std::unordered_map<geography::proto::Field*, proto::ProductionDecision>
 
 struct ProductionContext {
   ProductionMap production_map;
-  std::vector<geography::proto::Field*> fields;
+  std::unordered_set<geography::proto::Field*> fields;
   market::Market* market;
 };
 
