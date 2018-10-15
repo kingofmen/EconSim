@@ -8,6 +8,7 @@ cc_library(
     "//industry:industry",
     "//industry:worker",
     "//industry/decisions:production_evaluator",
+    "//industry/proto:industry_proto",
     "//market/proto:goods_proto",
     "//population:population",
     "//population/proto:population_proto",
