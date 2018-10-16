@@ -72,13 +72,9 @@ void GetStepInfo(const industry::Production& production,
     for (const auto& good : input.raw_materials().quantities()) {
       market::Measure ratio_u = micro::DivideU(
           market::GetAmount(field.resources(), good.first), good.second);
-      std::cout << "Looking at raw material " << good.first << ", getting "
-                << market::GetAmount(field.resources(), good.first) << " / "
-                << good.second << " = " << ratio_u << "\n";
       if (ratio_u < variant_info->possible_scale_u()) {
         variant_info->set_bottleneck(good.first);
         variant_info->set_possible_scale_u(ratio_u);
-        std::cout << "Bottleneck " << good.first << " " << ratio_u << "\n";
       }
     }
 
