@@ -15,7 +15,22 @@ namespace market {
 
 typedef int64 Measure;
 
-class Market {
+// Interface for estimating prices.
+class PriceEstimator {
+ public:
+  // Returns the price of the named good, turns ahead.
+  virtual Measure GetPriceU(const std::string& name, int turns) const = 0;
+
+  // Returns the price of the given amount of the given good.
+  virtual Measure GetPriceU(const market::proto::Quantity& quantity, int turns) const = 0;
+
+  // Returns the price of the goods in the basket.
+  virtual Measure GetPriceU(const market::proto::Container& basket, int turns) const = 0;
+};
+
+// Price finder. Also implements PriceEstimator, simply returning the current
+// price.
+class Market : public PriceEstimator {
 public:
   Market() = default;
   Market(const proto::MarketProto& proto) : proto_(proto) {}
@@ -70,13 +85,13 @@ public:
                     market::proto::Container* source);
 
   // Returns the price of the named good.
-  Measure GetPriceU(const std::string& name) const;
+  Measure GetPriceU(const std::string& name, int turns = 0) const override;
 
   // Returns the price of the given amount of the given good.
-  Measure GetPriceU(const market::proto::Quantity& quantity) const;
+  Measure GetPriceU(const market::proto::Quantity& quantity, int turns = 0) const override;
 
   // Returns the price of the goods in the basket.
-  Measure GetPriceU(const market::proto::Container& basket) const;
+  Measure GetPriceU(const market::proto::Container& basket, int turns = 0) const override;
 
   // Returns the amount of the named good that was traded.
   Measure GetVolume(const std::string& name) const;

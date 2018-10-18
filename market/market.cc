@@ -250,14 +250,14 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   return warehoused.amount() + amount_sold;
 }
 
-Measure Market::GetPriceU(const std::string& name) const {
+Measure Market::GetPriceU(const std::string& name, int turns) const {
   if (!TradesIn(name)) {
     return -1;
   }
   return GetAmount(proto_.prices_u(), name);
 }
 
-Measure Market::GetPriceU(const Quantity& quantity) const {
+Measure Market::GetPriceU(const Quantity& quantity, int turns) const {
   if (!TradesIn(quantity.kind())) {
     return -1;
   }
@@ -265,7 +265,7 @@ Measure Market::GetPriceU(const Quantity& quantity) const {
                           quantity.amount());
 }
 
-Measure Market::GetPriceU(const market::proto::Container& basket) const {
+Measure Market::GetPriceU(const market::proto::Container& basket, int turns) const {
   Measure ret = 0;
   for (const auto& good : basket.quantities()) {
     Measure price = micro::MultiplyU(GetPriceU(good.first), good.second);
