@@ -138,12 +138,14 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_decisions)
 
           market::proto::Container used_capital;
           auto* output = pop->mutable_wealth();
-          if (chain->get_target() == industry::proto::Production::PT_FIELD) {
-            output = field->mutable_fixed_capital();
+          if (selected.step_info_size() < 1) {
+            // TODO: This is an error, handle it better.
+            continue;
           }
-          if (industry::TryProductionStep(
-                  *chain, selected, field, field->mutable_progress(),
-                  pop->mutable_wealth(), output, &used_capital, market)) {
+          if (industry::TryProductionStep(*chain, selected.step_info(0), field,
+                                          field->mutable_progress(),
+                                          pop->mutable_wealth(), output,
+                                          &used_capital, market)) {
             progress = true;
             targets.erase(field);
             if (!field->has_progress()) {

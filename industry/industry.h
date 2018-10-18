@@ -74,9 +74,6 @@ public:
   proto::Production* Proto() { return &proto_; }
 
   const std::string& get_name() const { return proto_.name(); }
-  proto::Production::ProductionTarget get_target() const {
-    return proto_.target();
-  }
 
 private:
   market::proto::Container RequiredConsumables(const int step,

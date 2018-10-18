@@ -28,12 +28,14 @@ void SelectProduction(const decisions::ProductionContext& context,
 
 // Attempts to run the next step of production. Returns true if the process
 // advances. Any output goods are put into target. No pointers may be null.
-bool TryProductionStep(
-    const industry::Production& production,
-    const industry::decisions::proto::ProductionInfo& production_info,
-    geography::proto::Field* field, industry::proto::Progress* progress,
-    market::proto::Container* source, market::proto::Container* target,
-    market::proto::Container* used_capital, market::Market* market);
+bool TryProductionStep(const industry::Production& production,
+                       const industry::decisions::proto::StepInfo& step_info,
+                       geography::proto::Field* field,
+                       industry::proto::Progress* progress,
+                       market::proto::Container* source,
+                       market::proto::Container* target,
+                       market::proto::Container* used_capital,
+                       market::Market* market);
 }  // namespace industry
 
 #endif

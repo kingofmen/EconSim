@@ -128,15 +128,14 @@ TEST_F(WorkerTest, TryLabourToGrain) {
   market::proto::Container used_capital;
 
   auto prod = LabourToGrain();
-  decisions::proto::ProductionInfo prod_info;
-  auto* step_info = prod_info.add_step_info();
-  step_info->set_best_variant(0);
-  auto* variant_info = step_info->add_variant();
+  decisions::proto::StepInfo step_info;
+  step_info.set_best_variant(0);
+  auto* variant_info = step_info.add_variant();
   variant_info->set_possible_scale_u(micro::kOneInU);
   *field_.mutable_progress() = prod.MakeProgress(micro::kOneInU);
 
   // First try without labour, expect no result.
-  EXPECT_FALSE(TryProductionStep(prod, prod_info, &field_,
+  EXPECT_FALSE(TryProductionStep(prod, step_info, &field_,
                                 field_.mutable_progress(), &source, &target,
                                 &used_capital, &market_));
   EXPECT_EQ(0, market::GetAmount(source, grain_));
@@ -147,7 +146,7 @@ TEST_F(WorkerTest, TryLabourToGrain) {
   // Now with labour.
   labour_ += micro::kOneInU;
   source << labour_;
-  EXPECT_TRUE(TryProductionStep(prod, prod_info, &field_,
+  EXPECT_TRUE(TryProductionStep(prod, step_info, &field_,
                                 field_.mutable_progress(), &source, &target,
                                 &used_capital, &market_));
   EXPECT_EQ(0, market::GetAmount(source, grain_));

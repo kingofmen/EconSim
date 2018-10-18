@@ -68,17 +68,11 @@ void SelectProduction(const decisions::ProductionContext& context,
 // TODO: Just pass the StepInfo?
 bool TryProductionStep(
     const industry::Production& production,
-    const industry::decisions::proto::ProductionInfo& production_info,
+    const industry::decisions::proto::StepInfo& step_info,
     geography::proto::Field* field, industry::proto::Progress* progress,
     market::proto::Container* source, market::proto::Container* target,
     market::proto::Container* used_capital, market::Market* market) {
-  if (production_info.step_info_size() < 1) {
-    // TODO: Actual error handling.
-    return false;
-  }
 
-  // First step info is for current step.
-  const auto& step_info = production_info.step_info(0);
   auto variant_index = step_info.best_variant();
   if (variant_index >= step_info.variant_size()) {
     return false;
