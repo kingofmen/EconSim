@@ -74,6 +74,10 @@ public:
   proto::Production* Proto() { return &proto_; }
 
   const std::string& get_name() const { return proto_.name(); }
+  const proto::ProductionStep& get_step(unsigned int s) const {
+    return proto_.steps(s);
+  }
+  unsigned int num_steps() const { return proto_.steps_size(); }
 
 private:
   market::proto::Container RequiredConsumables(const int step,
