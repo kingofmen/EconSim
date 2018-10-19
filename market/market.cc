@@ -11,11 +11,11 @@ using market::proto::Quantity;
 using market::proto::Container;
 constexpr double kMaxPriceChange = micro::kOneInU / 4;
 
-Measure Market::AvailableImmediately(const std::string& name) const {
+Measure Market::Available(const std::string& name, int) const {
   return GetAmount(proto_.warehouse(), name);
 }
 
-bool Market::AvailableImmediately(const Container& basket) const {
+bool Market::Available(const Container& basket, int) const {
   return proto_.warehouse() > basket;
 }
 

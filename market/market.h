@@ -28,19 +28,35 @@ class PriceEstimator {
   virtual Measure GetPriceU(const market::proto::Container& basket, int turns) const = 0;
 };
 
-// Price finder. Also implements PriceEstimator, simply returning the current
-// price.
-class Market : public PriceEstimator {
+// Interface for estimating availability.
+class AvailabilityEstimator {
+ public:
+  // Returns the amount of name immediately available.
+  Measure AvailableImmediately(const std::string& name) const {
+    return Available(name, 0);
+  }
+
+  // Returns true if the basket can be bought right away.
+  bool AvailableImmediately(const market::proto::Container& basket) const {
+    return Available(basket, 0);
+  }
+
+  virtual Measure Available(const std::string& name, int ahead) const = 0;
+  virtual bool Available(const market::proto::Container& basket,
+                         int ahead) const = 0;
+};
+
+// Price finder. Implements PriceEstimator, simply returning the current
+// price, and AvailabilityEstimator, returning the current availability.
+class Market : public PriceEstimator, public AvailabilityEstimator {
 public:
   Market() = default;
   Market(const proto::MarketProto& proto) : proto_(proto) {}
   ~Market() = default;
 
-  // Returns the amount of name immediately available.
-  Measure AvailableImmediately(const std::string& name) const;
-
-  // True if the basket can be bought right away.
-  bool AvailableImmediately(const market::proto::Container& basket) const;
+  Measure Available(const std::string& name, int ahead = 0) const override;
+  bool Available(const market::proto::Container& basket,
+                 int ahead = 0) const override;
 
   // Attempts to buy each good in the provided basket from market, paying with
   // target. Returns true if all the buys are successful.
