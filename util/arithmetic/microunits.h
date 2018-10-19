@@ -2,6 +2,8 @@
 #ifndef UTIL_ARITHMETIC_MICROUNITS_H
 #define UTIL_ARITHMETIC_MICROUNITS_H
 
+#include <limits>
+
 #include "util/headers/int_types.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
@@ -13,6 +15,7 @@ constexpr int64 kOneInU      = 1000000;
 constexpr int64 kTenInU      = 10 * kOneInU;
 constexpr int64 kHundredInU  = 100 * kOneInU;
 constexpr int64 kThousandInU = 1000 * kOneInU;
+constexpr int64 kMaxU        = std::numeric_limits<int64>::max();
 
 
 // Returns the square root of value_u in micro-units.
