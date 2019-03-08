@@ -38,12 +38,6 @@ message ProductionStep {
 
 // A production chain, possibly of multiple steps, from input to outputs.
 message Production {
-  enum ProductionTarget {
-    PT_UNKNOWN = 0;
-    PT_OWNER = 1;
-    PT_FIELD = 2;
-  }
-
   // The series of steps that make up this production chain.
   repeated ProductionStep steps = 1;
   // The goods produced.
@@ -56,8 +50,6 @@ message Production {
   repeated int64 scaling_effects_u = 5;
   // Maximum effect of experience in micro-units.
   int64 experience_effect_u = 6;
-  // Where to put the outputs.
-  ProductionTarget target = 7;
 }
 
 // A specific case of a production chain.

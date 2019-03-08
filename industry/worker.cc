@@ -3,9 +3,108 @@
 #include <iostream>
 
 #include "market/goods_utils.h"
+#include "util/arithmetic/microunits.h"
 
 namespace industry {
 namespace {
+
+// Returns the unit cost of input, with prices estimated by market at
+// stepsAhead.
+market::Measure GetUnitCostU(const proto::Input& input,
+                             const market::PriceEstimator& market,
+                             unsigned int stepsAhead) {
+  return market.GetPriceU(input.consumables() + input.movable_capital(),
+                          stepsAhead);
+}
+
+// Returns the maximum scale.
+market::Measure GetMaxScaleU(const proto::Input& input,
+                             const market::proto::Container& wealth,
+                             const market::proto::Container& resources,
+                             const market::proto::Container& fixed_capital,
+                             const market::AvailabilityEstimator& market,
+                             unsigned int stepsAhead, std::string* bottleneck) {
+  market::Measure scale_u = micro::kMaxU;
+  std::string bottle;
+  // Look for resource bottlenecks.
+  for (const auto& good : input.raw_materials().quantities()) {
+    market::Measure ratio_u =
+        micro::DivideU(market::GetAmount(resources, good.first), good.second);
+    if (ratio_u < scale_u) {
+      scale_u = ratio_u;
+      bottle = good.first;
+    }
+  }
+
+  // Now consumables bottlenecks.
+  auto required = input.consumables() + input.movable_capital();
+  for (const auto& good : required.quantities()) {
+    market::Measure ratio_u =
+        micro::DivideU((market.Available(good.first, stepsAhead) +
+                        market::GetAmount(wealth, good.first)),
+                       good.second);
+    if (ratio_u < scale_u) {
+      scale_u = ratio_u;
+      bottle = good.first;
+    }
+  }
+
+  // Finally fixcap. TODO: Account for install costs.
+  const auto& fixcap = input.fixed_capital();
+  for (const auto& good : fixcap.quantities()) {
+    market::Measure ratio_u =
+        micro::DivideU((market.Available(good.first, stepsAhead) +
+                        market::GetAmount(fixed_capital, good.first) +
+                        market::GetAmount(wealth, good.first)),
+                       good.second);
+    if (ratio_u < scale_u) {
+      scale_u = ratio_u;
+      bottle = good.first;
+    }
+  }
+
+  if (bottleneck != nullptr && !bottle.empty()) {
+    *bottleneck = bottle;
+  }
+  return scale_u;
+}
+
+decisions::proto::ProductionInfo
+GetProductionInfo(const Production& chain,
+                  const market::proto::Container& wealth,
+                  const market::PriceEstimator& prices,
+                  const market::AvailabilityEstimator& available,
+                  const geography::proto::Field& field) {
+  decisions::proto::ProductionInfo ret;
+  ret.set_name(chain.get_name());
+  auto max_scale_u = chain.MaxScaleU();
+
+  proto::Progress progress;
+  if (field.has_progress()) {
+    progress = field.progress();
+  } else {
+    progress = chain.MakeProgress(ret.max_scale_u());
+  }
+
+  for (unsigned int step = progress.step(); step < chain.num_steps(); ++step) {
+    auto ahead = step - progress.step();
+    auto* step_info = ret.add_step_info();
+    const auto& prod_step = chain.get_step(step);
+    for (unsigned int var = 0; var < prod_step.variants_size(); ++var) {
+      const auto& input = prod_step.variants(var);
+      auto* var_info = step_info->add_variant();
+      max_scale_u = std::min(
+          max_scale_u,
+          GetMaxScaleU(input, wealth, field.resources(), field.fixed_capital(),
+                       available, ahead, var_info->mutable_bottleneck()));
+      var_info->set_possible_scale_u(max_scale_u);
+      var_info->set_unit_cost_u(GetUnitCostU(input, prices, ahead));
+    }
+  }
+
+  ret.set_max_scale_u(max_scale_u);
+  return ret;
+}
 
 // For each production chain in context, return a ProductionInfo with scale
 // and unit cost if it passes all filters.
@@ -29,7 +128,8 @@ GenerateOptions(const geography::proto::Field& field,
     if (!pass) {
       continue;
     }
-    ret.push_back(evaluator.GetProductionInfo(*prod, wealth, *context.market, field));
+    ret.push_back(
+        evaluator.GetProductionInfo(*prod, wealth, *context.market, field));
   }
   return ret;
 }
@@ -54,7 +154,6 @@ void SelectProduction(const decisions::ProductionContext& context,
     }
     decisions::proto::ProductionDecision decision;
     evaluator.SelectCandidate(context, cand.second, &decision);
-    std::cout << "Decision: " << decision.DebugString() << "\n";
     if (info_map->find(cand.first) != info_map->end()) {
       info_map->at(cand.first).Swap(&decision);
     } else {
@@ -65,11 +164,9 @@ void SelectProduction(const decisions::ProductionContext& context,
 
 // TODO: Don't pass the field here, pass the fixcap and resources. Clear
 // separately.
-// TODO: Just pass the StepInfo?
 bool TryProductionStep(
-    const industry::Production& production,
-    const industry::decisions::proto::StepInfo& step_info,
-    geography::proto::Field* field, industry::proto::Progress* progress,
+    const Production& production, const decisions::proto::StepInfo& step_info,
+    geography::proto::Field* field, proto::Progress* progress,
     market::proto::Container* source, market::proto::Container* target,
     market::proto::Container* used_capital, market::Market* market) {
 

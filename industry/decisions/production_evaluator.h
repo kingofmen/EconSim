@@ -27,12 +27,8 @@ public:
       const industry::Production& chain, const market::proto::Container& wealth,
       const market::Market& market, const geography::proto::Field& field) const;
 
-  // Deprecated; use SelectCandidate instead.
-  virtual proto::ProductionDecision
-  Evaluate(const ProductionContext& context,
-           const market::proto::Container& wealth,
-           geography::proto::Field* target) const = 0;
-
+  // Fills in the 'selected' and 'rejected' fields of decision. Assumes all
+  // candidates are possible.
   virtual void SelectCandidate(const ProductionContext& context,
                                std::vector<proto::ProductionInfo>& candidates,
                                proto::ProductionDecision* decision) const = 0;
@@ -42,11 +38,6 @@ public:
 // and all outputs sold at the quoted market prices. Ignores the context.
 class LocalProfitMaximiser : public ProductionEvaluator {
 public:
-  proto::ProductionDecision
-  Evaluate(const ProductionContext& context,
-           const market::proto::Container& wealth,
-           geography::proto::Field* target) const override;
-
   void SelectCandidate(const ProductionContext& context,
                        std::vector<proto::ProductionInfo>& candidates,
                        proto::ProductionDecision* decision) const override;
