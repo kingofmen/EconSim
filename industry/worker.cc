@@ -17,6 +17,16 @@ market::Measure GetUnitCostU(const proto::Input& input,
                           stepsAhead);
 }
 
+// Returns the unit cost of capex, with prices estimated by market at
+// stepsAhead.
+market::Measure GetCapCostU(const proto::Input& input,
+                            const market::PriceEstimator& market,
+                            unsigned int stepsAhead,
+                            const market::proto::Container& fixcap) {
+  auto required = market::SubtractFloor(input.fixed_capital(), fixcap);
+  return market.GetPriceU(required, stepsAhead);
+}
+
 // Returns the maximum scale.
 market::Measure GetMaxScaleU(const proto::Input& input,
                              const market::proto::Container& wealth,
@@ -69,41 +79,34 @@ market::Measure GetMaxScaleU(const proto::Input& input,
   return scale_u;
 }
 
-decisions::proto::ProductionInfo
-GetProductionInfo(const Production& chain,
-                  const market::proto::Container& wealth,
-                  const market::PriceEstimator& prices,
-                  const market::AvailabilityEstimator& available,
-                  const geography::proto::Field& field) {
-  decisions::proto::ProductionInfo ret;
-  ret.set_name(chain.get_name());
+
+
+void
+FillProductionCostInfo(const Production& chain,
+                       const market::PriceEstimator& prices,
+                       const geography::proto::Field& field,
+                       decisions::proto::ProductionInfo* production_info) {
   auto max_scale_u = chain.MaxScaleU();
 
   proto::Progress progress;
   if (field.has_progress()) {
     progress = field.progress();
   } else {
-    progress = chain.MakeProgress(ret.max_scale_u());
+    progress = chain.MakeProgress(production_info->max_scale_u());
   }
 
   for (unsigned int step = progress.step(); step < chain.num_steps(); ++step) {
     auto ahead = step - progress.step();
-    auto* step_info = ret.add_step_info();
+    auto* step_info = production_info->add_step_info();
     const auto& prod_step = chain.get_step(step);
     for (unsigned int var = 0; var < prod_step.variants_size(); ++var) {
       const auto& input = prod_step.variants(var);
       auto* var_info = step_info->add_variant();
-      max_scale_u = std::min(
-          max_scale_u,
-          GetMaxScaleU(input, wealth, field.resources(), field.fixed_capital(),
-                       available, ahead, var_info->mutable_bottleneck()));
-      var_info->set_possible_scale_u(max_scale_u);
       var_info->set_unit_cost_u(GetUnitCostU(input, prices, ahead));
+      var_info->set_cap_cost_u(
+          GetCapCostU(input, prices, ahead, field.fixed_capital()));
     }
   }
-
-  ret.set_max_scale_u(max_scale_u);
-  return ret;
 }
 
 // For each production chain in context, return a ProductionInfo with scale
