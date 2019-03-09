@@ -342,4 +342,32 @@ TEST(GoodsUtilsTest, TwoGoodsRelations) {
   EXPECT_FALSE(chest < shaker);
 }
 
+TEST(GoodsUtilsTest, SubtractFloor) {
+  Quantity gold;
+  gold.set_kind(kTestGood1);
+  gold.set_amount(10);
+  Quantity salt;
+  salt.set_kind(kTestGood2);
+  salt.set_amount(1);
+
+  Container chest;
+  chest << gold;
+  Container thief;
+  thief << salt;
+
+  auto diff = SubtractFloor(chest, thief, 0);
+  EXPECT_EQ(GetAmount(chest, gold), 10);
+  EXPECT_EQ(GetAmount(chest, salt), 0);
+
+  SetAmount(kTestGood1, -1000, &chest);
+  SetAmount(kTestGood1, std::numeric_limits<int64>::max(), &thief);
+  diff = SubtractFloor(chest, thief, -2000);
+  EXPECT_EQ(-2000, GetAmount(diff, gold));
+
+  SetAmount(kTestGood1, std::numeric_limits<int64>::max() - 1, &chest);
+  SetAmount(kTestGood1, std::numeric_limits<int64>::min(), &thief);
+  diff = SubtractFloor(chest, thief, 0);
+  EXPECT_EQ(std::numeric_limits<int64>::max(), GetAmount(diff, gold));
+}
+
 } // namespace market

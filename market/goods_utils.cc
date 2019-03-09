@@ -1,6 +1,8 @@
 // Utility functions for goods protos.
 #include "goods_utils.h"
 
+#include <limits>
+
 namespace market {
 
 using market::proto::Quantity;
@@ -74,6 +76,33 @@ void SetAmount(const std::string& name, const Measure amount, Container* con) {
 
 void SetAmount(const Quantity& qua, Container* con) {
   SetAmount(qua.kind(), qua.amount(), con);
+}
+
+market::proto::Container
+SubtractFloor(const market::proto::Container& minuend,
+              const market::proto::Container& subtrahend,
+              market::Measure floor) {
+  auto diff = minuend;
+  for (auto& quantity : subtrahend.quantities()) {
+    auto existing = GetAmount(diff, quantity.first);
+    auto subtract = quantity.second;
+    if (existing <= floor) {
+      continue;
+    }
+    if (subtract >= 0 && std::numeric_limits<int64>::min() + subtract > existing) {
+      SetAmount(quantity.first, floor, &diff);
+      continue;
+    } else if (subtract < 0 && std::numeric_limits<int64>::max() + subtract < existing) {
+      SetAmount(quantity.first, std::numeric_limits<int64>::max(), &diff);
+      continue;
+    }
+    existing -= subtract;
+    if (existing < floor) {
+      existing = floor;
+    }
+    SetAmount(quantity.first, existing, &diff);
+  }
+  return diff;
 }
 
 namespace proto {

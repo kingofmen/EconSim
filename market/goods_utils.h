@@ -47,6 +47,12 @@ void SetAmount(const std::string& name, const Measure amount,
 void SetAmount(const market::proto::Quantity& qua,
                market::proto::Container* con);
 
+// Subtracts the subtrahend from the minuend, leaving at least floor.
+market::proto::Container
+SubtractFloor(const market::proto::Container& minuend,
+              const market::proto::Container& subtrahend,
+              market::Measure floor = 0);
+
 namespace proto {
 
 // Create an entry for the good name in con. No effect if the entry exists
