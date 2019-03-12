@@ -47,7 +47,9 @@ void SetAmount(const std::string& name, const Measure amount,
 void SetAmount(const market::proto::Quantity& qua,
                market::proto::Container* con);
 
-// Subtracts the subtrahend from the minuend, leaving at least floor.
+// Subtracts the subtrahend from the minuend, leaving at least floor of each
+// quantity, unless the amount was already smaller than floor, in which case it
+// is unchanged.
 market::proto::Container
 SubtractFloor(const market::proto::Container& minuend,
               const market::proto::Container& subtrahend,

@@ -19,4 +19,5 @@ proto_library(
 proto_library(
   name = "industry_decisions_proto_lib",
   srcs = ["decisions.proto"],
+  deps = ["//market/proto:goods_proto_lib"],
 )

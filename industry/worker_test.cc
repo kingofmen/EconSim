@@ -48,7 +48,7 @@ protected:
     return Production(prod_proto);
   }
 
-  // {roduction chain that converts labour plus capital to grain.
+  // Production chain that converts labour plus capital to grain.
   Production CapitalToGrain() {
     proto::Production prod_proto;
     prod_proto.set_name(kCapitalToGrain);
@@ -70,6 +70,77 @@ protected:
   geography::proto::Field field_;
 };
 
+// Check that production scale is correctly calculated.
+TEST_F(WorkerTest, CalculateProductionScale) {
+  const Production labour = LabourToGrain();
+  const Production capital = CapitalToGrain();
+  decisions::ProductionMap prod_map = {{"labour", &labour},
+                                       {"capital", &capital}};
+  market::proto::Container wealth;
+  FieldInfoMap field_map = {{&field_, {{}, {}}}};
+  decisions::proto::ProductionInfo* labour_info = &field_map[&field_][0];
+  decisions::proto::ProductionInfo* capital_info = &field_map[&field_][1];
+  labour_info->set_name("labour");
+  capital_info->set_name("capital");
+
+  CalculateProductionCosts(labour, market_, field_, labour_info);
+  EXPECT_EQ(labour_info->step_info_size(), labour.num_steps());
+  CalculateProductionCosts(capital, market_, field_, capital_info);
+  EXPECT_EQ(capital_info->step_info_size(), capital.num_steps());
+
+  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  const decisions::proto::VariantInfo& labour_var =
+      labour_info->step_info(0).variant(0);
+  const decisions::proto::VariantInfo& capital_var =
+      capital_info->step_info(0).variant(0);
+  EXPECT_EQ(0, labour_var.possible_scale_u());
+  EXPECT_EQ(0, capital_var.possible_scale_u());
+
+  labour_ += micro::kOneInU;
+  market::SetAmount(labour_, &wealth);
+  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  EXPECT_EQ(micro::kOneInU, labour_var.possible_scale_u());
+  EXPECT_EQ(0, capital_var.possible_scale_u());
+
+  capital_ += micro::kOneInU;
+  market::SetAmount(capital_, &wealth);
+  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  EXPECT_EQ(micro::kOneInU, labour_var.possible_scale_u());
+  EXPECT_EQ(micro::kOneInU, capital_var.possible_scale_u());
+}
+
+// Sanity-check unit-cost and capex-cost calculations.
+TEST_F(WorkerTest, CalculateProductionCosts) {
+  const Production labour = LabourToGrain();
+  decisions::proto::ProductionInfo prod_info;
+  CalculateProductionCosts(labour, market_, field_, &prod_info);
+  EXPECT_EQ(prod_info.step_info_size(), labour.num_steps());
+  for (int i = 0; i < prod_info.step_info_size(); ++i) {
+    const decisions::proto::StepInfo& step_info = prod_info.step_info(i);
+    const proto::ProductionStep& step = labour.get_step(i);
+    EXPECT_EQ(step_info.variant_size(), step.variants_size());
+    for (int var = 0; var < step_info.variant_size(); ++var) {
+      EXPECT_EQ(market_.GetPriceU(step.variants(var).consumables()),
+                step_info.variant(var).unit_cost_u());
+    }
+  }
+
+  const Production capital = CapitalToGrain();
+  prod_info.Clear();
+  CalculateProductionCosts(capital, market_, field_, &prod_info);
+  EXPECT_EQ(prod_info.step_info_size(), capital.num_steps());
+  for (int i = 0; i < prod_info.step_info_size(); ++i) {
+    const decisions::proto::StepInfo& step_info = prod_info.step_info(i);
+    const proto::ProductionStep& step = capital.get_step(i);
+    EXPECT_EQ(step_info.variant_size(), step.variants_size());
+    for (int var = 0; var < step_info.variant_size(); ++var) {
+      EXPECT_EQ(market_.GetPriceU(step.variants(var).consumables()),
+                step_info.variant(var).unit_cost_u());
+    }
+  }
+}
+
+#ifdef NONONO
 // Test that SelectProduction picks a reasonable option.
 TEST_F(WorkerTest, SelectProduction) {
   decisions::ProductionContext context;
@@ -120,6 +191,7 @@ TEST_F(WorkerTest, SelectProduction) {
   decision = info_map[&field_];
   EXPECT_EQ(kLabourToGrain, decision.selected().name());
 }
+#endif
 
 // Test that TryProductionStep consumes inputs and produces outputs.
 TEST_F(WorkerTest, TryLabourToGrain) {

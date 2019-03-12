@@ -3,8 +3,6 @@
 #include <string>
 
 #include "absl/strings/substitute.h"
-#include "geography/geography.h"
-#include "industry/industry.h"
 #include "market/goods_utils.h"
 #include "market/market.h"
 #include "util/arithmetic/microunits.h"
@@ -15,160 +13,76 @@ namespace {
 
 constexpr market::Measure kMinPracticalScale = micro::kOneInU / 10;
 
-// Returns the index and scale of the variant with the highest profit.
-unsigned int GetVariantIndex(const industry::Production& production,
-                             const market::proto::Container& wealth,
-                             const industry::proto::Progress& progress,
-                             const market::Market& market,
-                             const proto::StepInfo& step_info,
-                             market::Measure* scale_u) {
-  unsigned int variant_index = step_info.variant_size();
-  market::Measure max_profit_u = 0;
-  market::Measure max_money_u = market.MaxMoney(wealth);
-  industry::proto::Progress progress_copy = progress;
-  for (unsigned int idx = 0; idx < step_info.variant_size(); ++idx) {
-    const auto& variant_info = step_info.variant(idx);
-    if (variant_info.possible_scale_u() == 0) {
-      continue;
-    }
-    market::Measure cost_at_scale_u = micro::MultiplyU(
-        variant_info.unit_cost_u(), variant_info.possible_scale_u());
-    market::Measure max_scale_u =
-        std::min(variant_info.possible_scale_u(),
-                 micro::DivideU(max_money_u, cost_at_scale_u));
-    if (max_scale_u < kMinPracticalScale) {
-      continue;
-    }
-    progress_copy.set_scaling_u(max_scale_u);
-    market::Measure profit_u =
-        market.GetPriceU(production.ExpectedOutput(progress_copy)) -
-        micro::MultiplyU(variant_info.unit_cost_u(), max_scale_u);
-    if (profit_u > max_profit_u) {
-      max_profit_u = profit_u;
-      variant_index = idx;
-      *scale_u = max_scale_u;
-    }
-  }
-  return variant_index;
-}
-
-// Fills in step_info.
-void GetStepInfo(const industry::Production& production,
-                        const market::proto::Container& wealth,
-                        const market::Market& market,
-                        const geography::proto::Field& field,
-                        const industry::proto::Progress& progress,
-                        proto::StepInfo* step_info) {
-  const auto& step = production.Proto()->steps(progress.step());
-  std::vector<std::string> variant_strings(step.variants_size());
-  for (int index = 0; index < step.variants_size(); ++index) {
-    auto* variant_info = step_info->add_variant();
-    const auto& input = step.variants(index);
-    if (!(field.fixed_capital() > input.fixed_capital())) {
-      variant_info->set_bottleneck("missing fixed capital");
-      continue;
-    }
-    variant_info->set_possible_scale_u(progress.scaling_u());
-    for (const auto& good : input.raw_materials().quantities()) {
-      market::Measure ratio_u = micro::DivideU(
-          market::GetAmount(field.resources(), good.first), good.second);
-      if (ratio_u < variant_info->possible_scale_u()) {
-        variant_info->set_bottleneck(good.first);
-        variant_info->set_possible_scale_u(ratio_u);
-      }
-    }
-
-    auto consumed = input.consumables();
-    const auto& movable = input.movable_capital();
-    auto required_per_unit = consumed + movable;
-    for (const auto& good : required_per_unit.quantities()) {
-      market::Measure ratio_u =
-          micro::DivideU((market.AvailableImmediately(good.first) +
-                          market::GetAmount(wealth, good.first)),
-                         good.second);
-      if (ratio_u < variant_info->possible_scale_u()) {
-        variant_info->set_bottleneck(good.first);
-        variant_info->set_possible_scale_u(ratio_u);
-      }
-    }
-    variant_info->set_unit_cost_u(market.GetPriceU(consumed));
-  }
-}
-
 } // namespace
-
-proto::ProductionInfo ProductionEvaluator::GetProductionInfo(
-    const industry::Production& chain, const market::proto::Container& wealth,
-    const market::Market& market, const geography::proto::Field& field) const {
-  proto::ProductionInfo ret;
-  ret.set_name(chain.get_name());
-  ret.set_max_scale_u(chain.MaxScaleU());
-
-  int current_step = 0;
-  industry::proto::Progress progress;
-  if (field.has_progress()) {
-    progress = field.progress();
-  } else {
-    progress = chain.MakeProgress(ret.max_scale_u());
-  }
-
-  for (int i = progress.step(); i < chain.Proto()->steps_size(); ++i) {
-    progress.set_step(i);
-    auto* step_info = ret.add_step_info();
-    GetStepInfo(chain, wealth, market, field, progress, step_info);
-    market::Measure scale_u = 0;
-    step_info->set_best_variant(
-        GetVariantIndex(chain, wealth, progress, market, *step_info, &scale_u));
-    if (step_info->best_variant() >= step_info->variant_size()) {
-      ret.set_max_scale_u(0);
-      ret.set_reject_reason(absl::Substitute("Impractical at step $0", i));
-      return ret;
-    }
-    if (scale_u < ret.max_scale_u()) {
-      ret.set_max_scale_u(scale_u);
-    }
-    auto total_unit_cost_u = ret.total_unit_cost_u();
-    total_unit_cost_u +=
-        step_info->variant(step_info->best_variant()).unit_cost_u();
-    ret.set_total_unit_cost_u(total_unit_cost_u);
-  }
-
-  return ret;
-}
 
 void LocalProfitMaximiser::SelectCandidate(
     const ProductionContext& context,
     std::vector<proto::ProductionInfo>& candidates,
     proto::ProductionDecision* decision) const {
   market::Measure max_profit_u = 0;
-  for (auto& info : candidates) {
-    const auto* chain = context.production_map.at(info.name());
-    if (!info.reject_reason().empty()) {
-      decision->add_rejected()->Swap(&info);
+  for (auto& prod_info : candidates) {
+    market::Measure scale_u = prod_info.max_scale_u();
+    if (scale_u < kMinPracticalScale) {
+      prod_info.set_reject_reason("Impractical scale $0", scale_u);
+      decision->add_rejected()->Swap(&prod_info);
       continue;
     }
-    market::Measure profit_u =
-        context.market->GetPriceU(chain->Proto()->outputs());
-    if (profit_u <= info.total_unit_cost_u()) {
-      info.set_reject_reason(absl::Substitute(
-          "Unprofitable, $0 vs cost $1", profit_u, info.total_unit_cost_u()));
-      decision->add_rejected()->Swap(&info);
+
+    market::Measure reven_u = context.market->GetPriceU(
+        prod_info.expected_output(), prod_info.step_info_size());
+    market::Measure cost_u = 0;
+    market::Measure current_scale_u = scale_u;
+    for (int step = 0; step < prod_info.step_info_size(); ++step) {
+      const industry::decisions::proto::StepInfo& step_info =
+          prod_info.step_info(step);
+      market::Measure lowest_var_cost_u = micro::kMaxU;
+      market::Measure best_scale_u = current_scale_u;
+      for (int var = 0; var < step_info.variant_size(); ++var) {
+        const industry::decisions::proto::VariantInfo& var_info = step_info.variant(var);
+        // TODO: Account for capital cost here - note that this is not a unit cost!
+        // So this will require some thinking; how to account for existing capital?
+        market::Measure var_cost_u = micro::MultiplyU(var_info.unit_cost_u(),
+                                                      var_info.possible_scale_u());
+        market::Measure var_scale_u = var_info.possible_scale_u();
+        market::Measure scale_loss_u = current_scale_u - var_scale_u;
+        if (scale_loss_u > 0) {
+          var_cost_u += micro::MultiplyU(
+              scale_loss_u, micro::DivideU(reven_u, prod_info.max_scale_u()));
+        }
+        if (var_cost_u < lowest_var_cost_u) {
+          lowest_var_cost_u = var_cost_u;
+          best_scale_u = var_scale_u;
+        }
+      }
+      cost_u += lowest_var_cost_u;
+      if (best_scale_u < current_scale_u) {
+        current_scale_u = best_scale_u;
+      }
+    }
+
+    market::Measure profit_u = reven_u - cost_u;
+    if (profit_u <= 0) {
+      prod_info.set_reject_reason(absl::Substitute(
+          "Unprofitable, revenue $0 vs cost $1", reven_u, cost_u));
+      decision->add_rejected()->Swap(&prod_info);
       continue;
     }
-    profit_u -= info.total_unit_cost_u();
-    profit_u = micro::MultiplyU(profit_u, info.max_scale_u());
+
     if (profit_u <= max_profit_u) {
-      info.set_reject_reason(
-          absl::Substitute("Less profit than $0", decision->selected().name()));
-      decision->add_rejected()->Swap(&info);
+      prod_info.set_reject_reason(
+          absl::Substitute("Less profit ($0) than $1 ($2)", profit_u,
+                           decision->selected().name(), max_profit_u));
+      decision->add_rejected()->Swap(&prod_info);
       continue;
     }
     max_profit_u = profit_u;
-    decision->mutable_selected()->set_reject_reason(
-        absl::Substitute("Less profit than $0", info.name()));
-    decision->mutable_selected()->Swap(&info);
+    if (decision->has_selected()) {
+      decision->mutable_selected()->set_reject_reason(
+          absl::Substitute("Less profit than $0", prod_info.name()));
+      decision->add_rejected()->Swap(decision->mutable_selected());
+    }
+    decision->mutable_selected()->Swap(&prod_info);
   }
-  
 }
 
 } // namespace decisions

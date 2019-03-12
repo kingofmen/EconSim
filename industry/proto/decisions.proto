@@ -1,6 +1,8 @@
 syntax = "proto3";
 package industry.decisions.proto;
 
+import "market/proto/goods.proto";
+
 message VariantInfo {
   int64 unit_cost_u = 1;
   int64 possible_scale_u = 2;
@@ -19,6 +21,7 @@ message ProductionInfo {
   int64 total_unit_cost_u = 3;
   repeated StepInfo step_info = 4;
   string reject_reason = 5;
+  market.proto.Container expected_output = 6;
 }
 
 // Holds information about which production chain was

@@ -22,11 +22,6 @@ struct ProductionContext {
 
 class ProductionEvaluator {
 public:
-  // Calculates the maximum scale and unit cost of the provided chain.
-  proto::ProductionInfo GetProductionInfo(
-      const industry::Production& chain, const market::proto::Container& wealth,
-      const market::Market& market, const geography::proto::Field& field) const;
-
   // Fills in the 'selected' and 'rejected' fields of decision. Assumes all
   // candidates are possible.
   virtual void SelectCandidate(const ProductionContext& context,
