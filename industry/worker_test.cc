@@ -140,58 +140,57 @@ TEST_F(WorkerTest, CalculateProductionCosts) {
   }
 }
 
-#ifdef NONONO
 // Test that SelectProduction picks a reasonable option.
 TEST_F(WorkerTest, SelectProduction) {
   decisions::ProductionContext context;
-  std::vector<ProductionFilter*> filters;
-  market::proto::Container source;  
-  decisions::LocalProfitMaximiser evaluator;
+  market::proto::Container source;
   decisions::DecisionMap info_map;
+  FieldInfoMap field_map;
+
+  // Test class that selects a Production chain based on its name.
+  class TestSelector : public decisions::ProductionEvaluator {
+   public:
+     void SelectCandidate(
+         const decisions::ProductionContext& context,
+         std::vector<decisions::proto::ProductionInfo>& candidates,
+         decisions::proto::ProductionDecision* decision) const override {
+       for (const decisions::proto::ProductionInfo& cand : candidates) {
+         decisions::proto::ProductionInfo copy = cand;
+         if (cand.name() != chain_name) {
+           copy.set_reject_reason("Wrong name");
+           decision->add_rejected()->Swap(&copy);
+           continue;
+         }
+         decision->mutable_selected()->Swap(&copy);
+       }
+    }
+
+    void set_name(const std::string name) {chain_name = name;}
+   private:
+    std::string chain_name;
+  };
+  TestSelector evaluator;
 
   // Check that all-empty inputs does nothing.
-  SelectProduction(context, source, filters, evaluator, &info_map);
+  SelectProduction(context, source, evaluator, field_map, &info_map);
   EXPECT_TRUE(info_map.empty());
 
-  // Check that we can select the only available option.
   context = {{}, {&field_}, &market_};
-  auto labour_to_grain = LabourToGrain();
-  context.production_map[kLabourToGrain] = &labour_to_grain;
-  labour_ += micro::kOneInU;
-  source << labour_;
-  SelectProduction(context, source, filters, evaluator, &info_map);
-  auto decision = info_map[&field_];
+  field_map[&field_].emplace_back();
+  field_map[&field_].back().set_name(kLabourToGrain);
+  field_map[&field_].emplace_back();
+  field_map[&field_].back().set_name(kCapitalToGrain);
+  evaluator.set_name(kLabourToGrain);
+  SelectProduction(context, source, evaluator, field_map, &info_map);
+  auto& decision = info_map[&field_];
   EXPECT_EQ(kLabourToGrain, decision.selected().name());
 
-  // Using capital would be more profitable if we had any.
-  auto capital_to_grain = CapitalToGrain();
-  context.production_map[kCapitalToGrain] = &capital_to_grain;
-  SelectProduction(context, source, filters, evaluator, &info_map);
-  decision = info_map[&field_];
-  EXPECT_EQ(kLabourToGrain, decision.selected().name());
-
-  // Supply some capital.
-  capital_ += micro::kOneInU;
-  *field_.mutable_fixed_capital() << capital_;
-  SelectProduction(context, source, filters, evaluator, &info_map);
+  info_map.clear();
+  evaluator.set_name(kCapitalToGrain);
+  SelectProduction(context, source, evaluator, field_map, &info_map);
   decision = info_map[&field_];
   EXPECT_EQ(kCapitalToGrain, decision.selected().name());
-
-  // Filter out the capital option and go back to labour.
-  class CapitalFilter : public ProductionFilter {
-   public:
-     bool Filter(const geography::proto::Field&,
-                 const Production& prod) const override {
-       return prod.get_name() != kCapitalToGrain;
-     }
-  };
-  CapitalFilter capital_filter;
-  filters.push_back(&capital_filter);
-  SelectProduction(context, source, filters, evaluator, &info_map);
-  decision = info_map[&field_];
-  EXPECT_EQ(kLabourToGrain, decision.selected().name());
 }
-#endif
 
 // Test that TryProductionStep consumes inputs and produces outputs.
 TEST_F(WorkerTest, TryLabourToGrain) {
