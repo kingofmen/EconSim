@@ -68,7 +68,7 @@ void RunIndustry(const industry::decisions::ProductionMap& production_map,
       }
       industry::CalculateProductionScale(production_map, pop->wealth(), *market,
                                          &local_map);
-      industry::SelectProduction(context, pop->wealth(), evaluator, local_map,
+      industry::SelectProduction(context, evaluator, local_map,
                                  production_decisions);
 
       for (auto* field : targets) {

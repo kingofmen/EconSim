@@ -38,7 +38,6 @@ void CalculateProductionCosts(
 // For each field in context, uses evaluator to select one of the candidate
 // production types stored in field_info, storing the decisions in info_map.
 void SelectProduction(const decisions::ProductionContext& context,
-                      const market::proto::Container& wealth,
                       const decisions::ProductionEvaluator& evaluator,
                       FieldInfoMap& field_info,
                       decisions::DecisionMap* info_map);

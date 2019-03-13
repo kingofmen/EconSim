@@ -143,7 +143,6 @@ TEST_F(WorkerTest, CalculateProductionCosts) {
 // Test that SelectProduction picks a reasonable option.
 TEST_F(WorkerTest, SelectProduction) {
   decisions::ProductionContext context;
-  market::proto::Container source;
   decisions::DecisionMap info_map;
   FieldInfoMap field_map;
 
@@ -172,7 +171,7 @@ TEST_F(WorkerTest, SelectProduction) {
   TestSelector evaluator;
 
   // Check that all-empty inputs does nothing.
-  SelectProduction(context, source, evaluator, field_map, &info_map);
+  SelectProduction(context, evaluator, field_map, &info_map);
   EXPECT_TRUE(info_map.empty());
 
   context = {{}, {&field_}, &market_};
@@ -181,13 +180,13 @@ TEST_F(WorkerTest, SelectProduction) {
   field_map[&field_].emplace_back();
   field_map[&field_].back().set_name(kCapitalToGrain);
   evaluator.set_name(kLabourToGrain);
-  SelectProduction(context, source, evaluator, field_map, &info_map);
+  SelectProduction(context, evaluator, field_map, &info_map);
   auto& decision = info_map[&field_];
   EXPECT_EQ(kLabourToGrain, decision.selected().name());
 
   info_map.clear();
   evaluator.set_name(kCapitalToGrain);
-  SelectProduction(context, source, evaluator, field_map, &info_map);
+  SelectProduction(context, evaluator, field_map, &info_map);
   decision = info_map[&field_];
   EXPECT_EQ(kCapitalToGrain, decision.selected().name());
 }

@@ -136,7 +136,6 @@ void CalculateProductionCosts(
 }
 
 void SelectProduction(const decisions::ProductionContext& context,
-                      const market::proto::Container& wealth,
                       const decisions::ProductionEvaluator& evaluator,
                       FieldInfoMap& field_info,
                       decisions::DecisionMap* info_map) {
