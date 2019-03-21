@@ -31,13 +31,13 @@ market::Measure CalculateCapCostU(const proto::Input& input,
 void CalculateProductionScale(const market::proto::Container& wealth,
                               decisions::ProductionContext* context,
                               geography::proto::Field* field) {
-  std::vector<decisions::proto::ProductionInfo>& cands =
+  std::vector<std::unique_ptr<decisions::proto::ProductionInfo>>& cands =
       context->candidates.at(field);
-  for (decisions::proto::ProductionInfo& cand : cands) {
-    const Production* chain = context->production_map->at(cand.name());
+  for (auto& cand : cands) {
+    const Production* chain = context->production_map->at(cand->name());
     auto overall_scale = chain->MaxScaleU();
     proto::Progress progress;
-    if (field->has_progress() && field->progress().name() == cand.name()) {
+    if (field->has_progress() && field->progress().name() == cand->name()) {
       progress = field->progress();
     } else {
       progress = chain->MakeProgress(overall_scale);
@@ -45,12 +45,12 @@ void CalculateProductionScale(const market::proto::Container& wealth,
     for (unsigned int step = progress.step(); step < chain->num_steps();
          ++step) {
       auto ahead = step - progress.step();
-      if (ahead >= cand.step_info_size()) {
+      if (ahead >= cand->step_info_size()) {
         // This should never happen.
         break;
       }
 
-      decisions::proto::StepInfo* step_info = cand.mutable_step_info(ahead);
+      decisions::proto::StepInfo* step_info = cand->mutable_step_info(ahead);
       const proto::ProductionStep& prod_step = chain->get_step(step);
       market::Measure step_scale = 0;
       for (int var = 0; var < step_info->variant_size(); ++var) {
@@ -105,7 +105,7 @@ void CalculateProductionScale(const market::proto::Container& wealth,
       }
     }
 
-    cand.set_max_scale_u(overall_scale);
+    cand->set_max_scale_u(overall_scale);
   }
 }
 

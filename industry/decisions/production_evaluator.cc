@@ -17,24 +17,24 @@ constexpr market::Measure kMinPracticalScale = micro::kOneInU / 10;
 
 void LocalProfitMaximiser::SelectCandidate(
     const ProductionContext& context,
-    const std::vector<proto::ProductionInfo>& candidates,
+    const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
     proto::ProductionDecision* decision) const {
   market::Measure max_profit_u = 0;
 
   for (const auto& prod_info : candidates) {
-    market::Measure scale_u = prod_info.max_scale_u();
+    market::Measure scale_u = prod_info->max_scale_u();
     auto* reject = decision->add_rejected();
-    *reject = prod_info;
+    *reject = *prod_info;
     if (scale_u < kMinPracticalScale) {
       reject->set_reject_reason(absl::Substitute("Impractical scale $0", scale_u));
       continue;
     }
 
     market::Measure reven_u = context.market->GetPriceU(
-        prod_info.expected_output(), prod_info.step_info_size());
+        prod_info->expected_output(), prod_info->step_info_size());
     market::Measure cost_u = 0;
     market::Measure current_scale_u = scale_u;
-    for (int step = 0; step < prod_info.step_info_size(); ++step) {
+    for (int step = 0; step < prod_info->step_info_size(); ++step) {
       industry::decisions::proto::StepInfo* step_info =
           reject->mutable_step_info(step);
       market::Measure lowest_var_cost_u = micro::kMaxU;
@@ -50,7 +50,7 @@ void LocalProfitMaximiser::SelectCandidate(
         market::Measure scale_loss_u = current_scale_u - var_scale_u;
         if (scale_loss_u > 0) {
           var_cost_u += micro::MultiplyU(
-              scale_loss_u, micro::DivideU(reven_u, prod_info.max_scale_u()));
+              scale_loss_u, micro::DivideU(reven_u, prod_info->max_scale_u()));
         }
         if (var_cost_u < lowest_var_cost_u) {
           lowest_var_cost_u = var_cost_u;
@@ -82,7 +82,7 @@ void LocalProfitMaximiser::SelectCandidate(
     max_profit_u = profit_u;
     if (decision->has_selected()) {
       decision->mutable_selected()->set_reject_reason(
-          absl::Substitute("Less profit than $0", prod_info.name()));
+          absl::Substitute("Less profit than $0", prod_info->name()));
       reject->Swap(decision->mutable_selected());
       continue;
     }

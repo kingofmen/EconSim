@@ -180,9 +180,9 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
           continue;
         }
 
-        contexts[pop].candidates[&field].emplace_back();
-        industry::decisions::proto::ProductionInfo* info =
-            &(contexts[pop].candidates[&field].back());
+        contexts[pop].candidates[&field].emplace_back(
+            std::make_unique<industry::decisions::proto::ProductionInfo>());
+        auto* info = contexts[pop].candidates[&field].back().get();
         info->set_name(chain.first);
         industry::CalculateProductionCosts(prod, *market, field, info);
       }

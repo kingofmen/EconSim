@@ -16,10 +16,8 @@ struct ProductionContext {
   const std::unordered_map<std::string, const industry::Production*>*
       production_map;
   std::unordered_set<geography::proto::Field*> fields;
-  // TODO: Should use unique pointers, to avoid pointing into vector that may
-  // move around?
   std::unordered_map<geography::proto::Field*,
-                     std::vector<proto::ProductionInfo>>
+                     std::vector<std::unique_ptr<proto::ProductionInfo>>>
       candidates;
   DecisionMap* decisions;
   market::Market* market;
@@ -29,19 +27,20 @@ class ProductionEvaluator {
 public:
   // Fills in the 'selected' and 'rejected' fields of decision. Assumes all
   // candidates are possible.
-  virtual void
-  SelectCandidate(const ProductionContext& context,
-                  const std::vector<proto::ProductionInfo>& candidates,
-                  proto::ProductionDecision* decision) const = 0;
+  virtual void SelectCandidate(
+      const ProductionContext& context,
+      const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
+      proto::ProductionDecision* decision) const = 0;
 };
 
 // Evaluates the profit the chain will make, assuming all inputs can be bought
 // and all outputs sold at the quoted market prices. Ignores the context.
 class LocalProfitMaximiser : public ProductionEvaluator {
 public:
-  void SelectCandidate(const ProductionContext& context,
-                       const std::vector<proto::ProductionInfo>& candidates,
-                       proto::ProductionDecision* decision) const override;
+  void SelectCandidate(
+      const ProductionContext& context,
+      const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
+      proto::ProductionDecision* decision) const override;
 };
 
 }  // namespace decisions

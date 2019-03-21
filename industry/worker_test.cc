@@ -1,6 +1,8 @@
 // Tests for worker methods.
 #include "industry/worker.h"
 
+#include <memory>
+
 #include "geography/proto/geography.pb.h"
 #include "industry/industry.h"
 #include "industry/proto/decisions.pb.h"
@@ -77,15 +79,20 @@ TEST_F(WorkerTest, CalculateProductionScale) {
   decisions::DecisionMap decisions = {{&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}, {kCapitalToGrain, &capital}};
+
   decisions::ProductionContext context = {
-      &prod_map, {&field_}, {{&field_, {{}, {}}}}, &decisions, &market_};
+      &prod_map, {&field_}, {}, &decisions, &market_};
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+
+  auto* labour_info = context.candidates[&field_][0].get();
+  auto* capital_info = context.candidates[&field_][1].get();
+
   market::proto::Container wealth;
-  decisions::proto::ProductionInfo* labour_info =
-      &context.candidates[&field_][0];
-  decisions::proto::ProductionInfo* capital_info =
-      &context.candidates[&field_][1];
-  context.candidates[&field_][0].set_name(kLabourToGrain);
-  context.candidates[&field_][1].set_name(kCapitalToGrain);
+  labour_info->set_name(kLabourToGrain);
+  capital_info->set_name(kCapitalToGrain);
   CalculateProductionCosts(labour, market_, field_, labour_info);
   EXPECT_EQ(labour_info->step_info_size(), labour.num_steps());
   CalculateProductionCosts(capital, market_, field_, capital_info);
@@ -150,16 +157,17 @@ TEST_F(WorkerTest, SelectProduction) {
    public:
      void SelectCandidate(
          const decisions::ProductionContext& context,
-         const std::vector<decisions::proto::ProductionInfo>& candidates,
+         const std::vector<std::unique_ptr<decisions::proto::ProductionInfo>>&
+             candidates,
          decisions::proto::ProductionDecision* decision) const override {
-       for (const decisions::proto::ProductionInfo& cand : candidates) {
-         if (cand.name() != chain_name) {
+       for (const auto& cand : candidates) {
+         if (cand->name() != chain_name) {
            auto* reject = decision->add_rejected();
-           *reject = cand;
+           *reject = *cand;
            reject->set_reject_reason("Wrong name");
            continue;
          }
-         *decision->mutable_selected() = cand;
+         *decision->mutable_selected() = *cand;
        }
     }
 
@@ -179,10 +187,12 @@ TEST_F(WorkerTest, SelectProduction) {
 
   context = {NULL, {&field_}, {}, &decisions, &market_};
   decisions[&field_] = {};
-  context.candidates[&field_].emplace_back();
-  context.candidates[&field_].back().set_name(kLabourToGrain);
-  context.candidates[&field_].emplace_back();
-  context.candidates[&field_].back().set_name(kCapitalToGrain);
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+  context.candidates[&field_].back()->set_name(kLabourToGrain);
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+  context.candidates[&field_].back()->set_name(kCapitalToGrain);
   evaluator.set_name(kLabourToGrain);
   SelectProduction(evaluator, &context, &field_);
   decisions::proto::ProductionDecision& decision = decisions[&field_];

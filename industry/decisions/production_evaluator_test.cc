@@ -41,11 +41,14 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   context.market = &market_;
   proto::ProductionDecision decision;
 
-  std::vector<proto::ProductionInfo> candidates(3);
+  std::vector<std::unique_ptr<proto::ProductionInfo>> candidates;
+  candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
+  candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
+  candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   proto::StepInfo* step_info;
   proto::VariantInfo* var_info;
 
-  proto::ProductionInfo* candidate = &candidates[0];
+  proto::ProductionInfo* candidate = candidates[0].get();
   candidate->set_name("fish");
   candidate->set_max_scale_u(micro::kOneInU * 2);
   fish_.set_amount(micro::kOneInU * 3);
@@ -64,7 +67,7 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU * 2);
 
-  candidate = &candidates[1];
+  candidate = candidates[1].get();
   candidate->set_name("salt");
   candidate->set_max_scale_u(micro::kOneInU);
   salt_.set_amount(micro::kOneInU);
@@ -74,7 +77,7 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU);
 
-  candidate = &candidates[2];
+  candidate = candidates[2].get();
   candidate->set_name("gold");
   candidate->set_max_scale_u(micro::kOneInU);
   gold_.set_amount(micro::kOneInU);
