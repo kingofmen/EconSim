@@ -29,9 +29,6 @@ message ProductionInfo {
 message ProductionDecision {
   // The best chain, if there is one.
   ProductionInfo selected = 1;
-  // Chains rejected as impossible.
-  map<string, string> insufficient = 2;
   // Chains that are possible, but not as good as the selected one.
-  repeated ProductionInfo rejected = 3;
+  repeated ProductionInfo rejected = 2;
 }
-

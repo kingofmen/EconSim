@@ -39,49 +39,52 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
   ProductionContext context;
   context.market = &market_;
-  std::vector<proto::ProductionInfo> candidates(3);
+  proto::ProductionDecision decision;
 
+  std::vector<proto::ProductionInfo> candidates(3);
   proto::StepInfo* step_info;
   proto::VariantInfo* var_info;
 
-  candidates[0].set_name("fish");
-  candidates[0].set_max_scale_u(micro::kOneInU * 2);
+  proto::ProductionInfo* candidate = &candidates[0];
+  candidate->set_name("fish");
+  candidate->set_max_scale_u(micro::kOneInU * 2);
   fish_.set_amount(micro::kOneInU * 3);
-  *candidates[0].mutable_expected_output() << fish_;
-  step_info = candidates[0].add_step_info();
+  *candidate->mutable_expected_output() << fish_;
+  step_info = candidate->add_step_info();
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU * 2);
 
-  step_info = candidates[0].add_step_info();
+  step_info = candidate->add_step_info();
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU * 2);
 
-  candidates[1].set_name("salt");
-  candidates[1].set_max_scale_u(micro::kOneInU);
+  candidate = &candidates[1];
+  candidate->set_name("salt");
+  candidate->set_max_scale_u(micro::kOneInU);
   salt_.set_amount(micro::kOneInU);
-  *candidates[1].mutable_expected_output() << salt_;
-  step_info = candidates[1].add_step_info();
+  *candidate->mutable_expected_output() << salt_;
+  step_info = candidate->add_step_info();
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU);
 
-  candidates[2].set_name("gold");
-  candidates[2].set_max_scale_u(micro::kOneInU);
+  candidate = &candidates[2];
+  candidate->set_name("gold");
+  candidate->set_max_scale_u(micro::kOneInU);
   gold_.set_amount(micro::kOneInU);
-  *candidates[2].mutable_expected_output() << gold_;
-  step_info = candidates[2].add_step_info();
+  *candidate->mutable_expected_output() << gold_;
+  step_info = candidate->add_step_info();
   var_info = step_info->add_variant();
   var_info->set_unit_cost_u(micro::kOneInU);
   var_info->set_possible_scale_u(micro::kOneInU);
 
   LocalProfitMaximiser evaluator;
-  proto::ProductionDecision decision;
   evaluator.SelectCandidate(context, candidates, &decision);
   EXPECT_EQ("gold", decision.selected().name()) << decision.DebugString();
   EXPECT_EQ(2, decision.rejected_size()) << decision.DebugString();

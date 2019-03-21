@@ -8,9 +8,7 @@
 #include "util/keywords/keywords.h"
 
 using geography::proto::Field;
-
-typedef std::unordered_map<population::PopUnit*, std::unordered_set<Field*>>
-    PopFieldMap;
+using industry::decisions::ProductionContext;
 
 namespace game {
 namespace {
@@ -48,54 +46,51 @@ void PrintMarket(const market::proto::MarketProto& market,
 
 // Selects and runs production processes for each field until no fields make
 // progress.
-void RunIndustry(const industry::decisions::ProductionMap& production_map,
-                 const industry::FieldInfoMap& field_info, PopFieldMap& fields,
-                 market::Market* market,
-                 industry::decisions::DecisionMap* production_decisions) {
+void RunAreaIndustry(
+    std::unordered_map<population::PopUnit*, ProductionContext>* contexts) {
   static industry::decisions::LocalProfitMaximiser evaluator;
 
+  std::unordered_set<Field*> progressed;
   bool progress = true;
   while (progress) {
     progress = false;
-    for (auto& pop_field : fields) {
-      auto* pop = pop_field.first;
-      auto& targets = pop_field.second;
-      industry::decisions::ProductionContext context = {production_map,
-                                                        targets, market};
-      industry::FieldInfoMap local_map;
-      for (auto* target : targets) {
-        local_map[target] = field_info.at(target);
-      }
-      industry::CalculateProductionScale(production_map, pop->wealth(), *market,
-                                         &local_map);
-      industry::SelectProduction(context, evaluator, local_map,
-                                 production_decisions);
+    for (auto& pop_context : *contexts) {
+      population::PopUnit* pop = pop_context.first;
+      ProductionContext& context = pop_context.second;
 
-      for (auto* field : targets) {
-        auto& decision = (*production_decisions)[field];
+      for (auto* field : context.fields) {
+        if (progressed.count(field) != 0) {
+          continue;
+        }
+        industry::CalculateProductionScale(pop->wealth(), &context, field);
+        industry::SelectProduction(evaluator, &context, field);
+
+        auto& decision = context.decisions->at(field);
         if (!decision.has_selected()) {
           continue;
         }
+
         auto& selected = decision.selected();
-        auto* chain = production_map.at(selected.name());
+        auto* chain = context.production_map.at(selected.name());
         if (!field->has_progress()) {
           *field->mutable_progress() =
               chain->MakeProgress(selected.max_scale_u());
         }
 
         market::proto::Container used_capital;
-        auto* output = pop->mutable_wealth();
         if (selected.step_info_size() < 1) {
           // TODO: This is an error, handle it better.
           continue;
         }
+
         if (industry::TryProductionStep(
                 *chain, selected.step_info(0), field, field->mutable_progress(),
-                pop->mutable_wealth(), output, &used_capital, market)) {
+                pop->mutable_wealth(), pop->mutable_wealth(), &used_capital,
+                context.market)) {
           progress = true;
-          targets.erase(field);
+          progressed.emplace(field);
           if (!field->has_progress()) {
-            pop->SellSurplus(market);
+            pop->SellSurplus(context.market);
           }
         }
         pop->ReturnCapital(&used_capital);
@@ -149,7 +144,7 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   }
 }
 
-void GameWorld::TimeStep(industry::decisions::DecisionMap* production_decisions) {
+void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
   static PossibilityFilter possible;
 
   for (auto& area: areas_) {
@@ -162,32 +157,47 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* production_decisions)
       pop->StartTurn(scenario_.subsistence_, market);
       pop->AutoProduce(scenario_.auto_production_, market);
     }
-    PopFieldMap fields;
-    industry::FieldInfoMap field_info;
+
+    std::unordered_set<Field*> fields;
+    std::unordered_map<population::PopUnit*, ProductionContext> contexts;
     for (auto& field : *area->Proto()->mutable_fields()) {
       auto* pop = population::PopUnit::GetPopId(field.owner_id());
       if (pop == nullptr) {
         continue;
       }
-      fields[pop].emplace(&field);
+      if (contexts.find(pop) == contexts.end()) {
+        contexts.emplace(pop, ProductionContext());
+        contexts[pop].production_map = production_map_;
+        contexts[pop].market = market;
+        contexts[pop].decisions = decisions;
+      }
+      contexts[pop].fields.emplace(&field);
+      fields.emplace(&field);
+      decisions->emplace(&field,
+                         industry::decisions::proto::ProductionDecision());
       for(const auto& chain : production_map_) {
         const industry::Production& prod = *chain.second;
         if (!possible.Filter(field, prod)) {
           continue;
         }
-        field_info[&field].emplace_back();
-        industry::decisions::proto::ProductionInfo& info =
-            field_info[&field].back();
-        info.set_name(chain.first);
-        industry::CalculateProductionCosts(prod, *market, field, &info);
+
+        contexts[pop].candidates[&field].emplace_back();
+        industry::decisions::proto::ProductionInfo* info =
+            &(contexts[pop].candidates[&field].back());
+        info->set_name(chain.first);
+        industry::CalculateProductionCosts(prod, *market, field, info);
       }
     }
 
-    RunIndustry(production_map_, field_info, fields, market, production_decisions);
+    RunAreaIndustry(&contexts);
 
     for (const auto& level : scenario_.proto_.consumption()) {
-      for (auto& pop_field : fields) {
-        pop_field.first->Consume(level, market);
+      for (const auto pop_id : area->Proto()->pop_ids()) {
+        auto* pop = population::PopUnit::GetPopId(pop_id);
+        if (pop == nullptr) {
+          continue;
+        }
+        pop->Consume(level, market);
       }
     }
   }

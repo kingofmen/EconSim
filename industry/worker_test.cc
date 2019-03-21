@@ -74,21 +74,26 @@ protected:
 TEST_F(WorkerTest, CalculateProductionScale) {
   const Production labour = LabourToGrain();
   const Production capital = CapitalToGrain();
-  decisions::ProductionMap prod_map = {{"labour", &labour},
-                                       {"capital", &capital}};
+  decisions::DecisionMap decisions = {{&field_, {}}};
+  decisions::ProductionContext context = {
+      {{kLabourToGrain, &labour}, {kCapitalToGrain, &capital}},
+      {&field_},
+      {{&field_, {{}, {}}}},
+      &decisions,
+      &market_};
   market::proto::Container wealth;
-  FieldInfoMap field_map = {{&field_, {{}, {}}}};
-  decisions::proto::ProductionInfo* labour_info = &field_map[&field_][0];
-  decisions::proto::ProductionInfo* capital_info = &field_map[&field_][1];
-  labour_info->set_name("labour");
-  capital_info->set_name("capital");
-
+  decisions::proto::ProductionInfo* labour_info =
+      &context.candidates[&field_][0];
+  decisions::proto::ProductionInfo* capital_info =
+      &context.candidates[&field_][1];
+  context.candidates[&field_][0].set_name(kLabourToGrain);
+  context.candidates[&field_][1].set_name(kCapitalToGrain);
   CalculateProductionCosts(labour, market_, field_, labour_info);
   EXPECT_EQ(labour_info->step_info_size(), labour.num_steps());
   CalculateProductionCosts(capital, market_, field_, capital_info);
   EXPECT_EQ(capital_info->step_info_size(), capital.num_steps());
 
-  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  CalculateProductionScale(wealth, &context, &field_);
   const decisions::proto::VariantInfo& labour_var =
       labour_info->step_info(0).variant(0);
   const decisions::proto::VariantInfo& capital_var =
@@ -98,13 +103,13 @@ TEST_F(WorkerTest, CalculateProductionScale) {
 
   labour_ += micro::kOneInU;
   market::SetAmount(labour_, &wealth);
-  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kOneInU, labour_var.possible_scale_u());
   EXPECT_EQ(0, capital_var.possible_scale_u());
 
   capital_ += micro::kOneInU;
   market::SetAmount(capital_, &wealth);
-  CalculateProductionScale(prod_map, wealth, market_, &field_map);
+  CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kOneInU, labour_var.possible_scale_u());
   EXPECT_EQ(micro::kOneInU, capital_var.possible_scale_u());
 }
@@ -142,25 +147,21 @@ TEST_F(WorkerTest, CalculateProductionCosts) {
 
 // Test that SelectProduction picks a reasonable option.
 TEST_F(WorkerTest, SelectProduction) {
-  decisions::ProductionContext context;
-  decisions::DecisionMap info_map;
-  FieldInfoMap field_map;
-
   // Test class that selects a Production chain based on its name.
   class TestSelector : public decisions::ProductionEvaluator {
    public:
      void SelectCandidate(
          const decisions::ProductionContext& context,
-         std::vector<decisions::proto::ProductionInfo>& candidates,
+         const std::vector<decisions::proto::ProductionInfo>& candidates,
          decisions::proto::ProductionDecision* decision) const override {
        for (const decisions::proto::ProductionInfo& cand : candidates) {
-         decisions::proto::ProductionInfo copy = cand;
          if (cand.name() != chain_name) {
-           copy.set_reject_reason("Wrong name");
-           decision->add_rejected()->Swap(&copy);
+           auto* reject = decision->add_rejected();
+           *reject = cand;
+           reject->set_reject_reason("Wrong name");
            continue;
          }
-         decision->mutable_selected()->Swap(&copy);
+         *decision->mutable_selected() = cand;
        }
     }
 
@@ -168,26 +169,32 @@ TEST_F(WorkerTest, SelectProduction) {
    private:
     std::string chain_name;
   };
+
   TestSelector evaluator;
+  decisions::DecisionMap decisions;
+  decisions::ProductionContext context;
+  context.decisions = &decisions;
 
   // Check that all-empty inputs does nothing.
-  SelectProduction(context, evaluator, field_map, &info_map);
-  EXPECT_TRUE(info_map.empty());
+  SelectProduction(evaluator, &context, &field_);
+  EXPECT_TRUE(decisions.empty());
 
-  context = {{}, {&field_}, &market_};
-  field_map[&field_].emplace_back();
-  field_map[&field_].back().set_name(kLabourToGrain);
-  field_map[&field_].emplace_back();
-  field_map[&field_].back().set_name(kCapitalToGrain);
+  context = {{}, {&field_}, {}, &decisions, &market_};
+  decisions[&field_] = {};
+  context.candidates[&field_].emplace_back();
+  context.candidates[&field_].back().set_name(kLabourToGrain);
+  context.candidates[&field_].emplace_back();
+  context.candidates[&field_].back().set_name(kCapitalToGrain);
   evaluator.set_name(kLabourToGrain);
-  SelectProduction(context, evaluator, field_map, &info_map);
-  auto& decision = info_map[&field_];
+  SelectProduction(evaluator, &context, &field_);
+  decisions::proto::ProductionDecision& decision = decisions[&field_];
   EXPECT_EQ(kLabourToGrain, decision.selected().name());
 
-  info_map.clear();
+  decisions[&field_].clear_rejected();
+  decisions[&field_].clear_selected();
   evaluator.set_name(kCapitalToGrain);
-  SelectProduction(context, evaluator, field_map, &info_map);
-  decision = info_map[&field_];
+  SelectProduction(evaluator, &context, &field_);
+  decision = decisions[&field_];
   EXPECT_EQ(kCapitalToGrain, decision.selected().name());
 }
 

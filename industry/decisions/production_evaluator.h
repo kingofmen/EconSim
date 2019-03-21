@@ -17,6 +17,12 @@ typedef std::unordered_map<geography::proto::Field*, proto::ProductionDecision>
 struct ProductionContext {
   ProductionMap production_map;
   std::unordered_set<geography::proto::Field*> fields;
+  // TODO: Should use unique pointers, to avoid pointing into vector that may
+  // move around?
+  std::unordered_map<geography::proto::Field*,
+                     std::vector<proto::ProductionInfo>>
+      candidates;
+  DecisionMap* decisions;
   market::Market* market;
 };
 
@@ -24,9 +30,10 @@ class ProductionEvaluator {
 public:
   // Fills in the 'selected' and 'rejected' fields of decision. Assumes all
   // candidates are possible.
-  virtual void SelectCandidate(const ProductionContext& context,
-                               std::vector<proto::ProductionInfo>& candidates,
-                               proto::ProductionDecision* decision) const = 0;
+  virtual void
+  SelectCandidate(const ProductionContext& context,
+                  const std::vector<proto::ProductionInfo>& candidates,
+                  proto::ProductionDecision* decision) const = 0;
 };
 
 // Evaluates the profit the chain will make, assuming all inputs can be bought
@@ -34,7 +41,7 @@ public:
 class LocalProfitMaximiser : public ProductionEvaluator {
 public:
   void SelectCandidate(const ProductionContext& context,
-                       std::vector<proto::ProductionInfo>& candidates,
+                       const std::vector<proto::ProductionInfo>& candidates,
                        proto::ProductionDecision* decision) const override;
 };
 

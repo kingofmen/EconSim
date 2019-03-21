@@ -10,11 +10,6 @@
 
 namespace industry {
 
-typedef std::unordered_map<
-    geography::proto::Field*,
-    std::vector<industry::decisions::proto::ProductionInfo>>
-    FieldInfoMap;
-
 // Interface allowing filtering of production chains.
 class ProductionFilter {
  public:
@@ -22,12 +17,11 @@ class ProductionFilter {
   virtual bool Filter(const geography::proto::Field&, const Production&) const = 0;
 };
 
-// Calculate the maximum scale of each variant of each production candidate in
-// the field_info map from the availability of resources, ignoring their price.
-void CalculateProductionScale(
-    const industry::decisions::ProductionMap& production_map,
-    const market::proto::Container& wealth, const market::Market& market,
-    FieldInfoMap* field_info);
+// Calculate the maximum scale of each variant of each production candidate from
+// the availability of resources.
+void CalculateProductionScale(const market::proto::Container& wealth,
+                              decisions::ProductionContext* context,
+                              geography::proto::Field* field);
 
 // Calculates unit costs, including capex, for each step and variant of chain.
 void CalculateProductionCosts(
@@ -35,12 +29,10 @@ void CalculateProductionCosts(
     const geography::proto::Field& field,
     industry::decisions::proto::ProductionInfo* production_info);
 
-// For each field in context, uses evaluator to select one of the candidate
-// production types stored in field_info, storing the decisions in info_map.
-void SelectProduction(const decisions::ProductionContext& context,
-                      const decisions::ProductionEvaluator& evaluator,
-                      FieldInfoMap& field_info,
-                      decisions::DecisionMap* info_map);
+// Uses evaluator to select a production chain for the field.
+void SelectProduction(const decisions::ProductionEvaluator& evaluator,
+                      decisions::ProductionContext* context,
+                      geography::proto::Field* field);
 
 // Attempts to run the next step of production. Returns true if the process
 // advances. Any output goods are put into target. No pointers may be null.
