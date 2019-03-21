@@ -41,7 +41,7 @@ private:
   // World-state information.
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
-  industry::decisions::ProductionMap production_map_;
+  std::unordered_map<std::string, const industry::Production*> production_map_;
   industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
 };
 

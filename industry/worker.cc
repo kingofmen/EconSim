@@ -34,7 +34,7 @@ void CalculateProductionScale(const market::proto::Container& wealth,
   std::vector<decisions::proto::ProductionInfo>& cands =
       context->candidates.at(field);
   for (decisions::proto::ProductionInfo& cand : cands) {
-    const Production* chain = context->production_map.at(cand.name());
+    const Production* chain = context->production_map->at(cand.name());
     auto overall_scale = chain->MaxScaleU();
     proto::Progress progress;
     if (field->has_progress() && field->progress().name() == cand.name()) {

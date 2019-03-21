@@ -75,12 +75,10 @@ TEST_F(WorkerTest, CalculateProductionScale) {
   const Production labour = LabourToGrain();
   const Production capital = CapitalToGrain();
   decisions::DecisionMap decisions = {{&field_, {}}};
+  std::unordered_map<std::string, const Production*> prod_map = {
+      {kLabourToGrain, &labour}, {kCapitalToGrain, &capital}};
   decisions::ProductionContext context = {
-      {{kLabourToGrain, &labour}, {kCapitalToGrain, &capital}},
-      {&field_},
-      {{&field_, {{}, {}}}},
-      &decisions,
-      &market_};
+      &prod_map, {&field_}, {{&field_, {{}, {}}}}, &decisions, &market_};
   market::proto::Container wealth;
   decisions::proto::ProductionInfo* labour_info =
       &context.candidates[&field_][0];
@@ -179,7 +177,7 @@ TEST_F(WorkerTest, SelectProduction) {
   SelectProduction(evaluator, &context, &field_);
   EXPECT_TRUE(decisions.empty());
 
-  context = {{}, {&field_}, {}, &decisions, &market_};
+  context = {NULL, {&field_}, {}, &decisions, &market_};
   decisions[&field_] = {};
   context.candidates[&field_].emplace_back();
   context.candidates[&field_].back().set_name(kLabourToGrain);

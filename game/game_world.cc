@@ -71,7 +71,7 @@ void RunAreaIndustry(
         }
 
         auto& selected = decision.selected();
-        auto* chain = context.production_map.at(selected.name());
+        auto* chain = context.production_map->at(selected.name());
         if (!field->has_progress()) {
           *field->mutable_progress() =
               chain->MakeProgress(selected.max_scale_u());
@@ -166,8 +166,7 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
         continue;
       }
       if (contexts.find(pop) == contexts.end()) {
-        contexts.emplace(pop, ProductionContext());
-        contexts[pop].production_map = production_map_;
+        contexts[pop].production_map = &production_map_;
         contexts[pop].market = market;
         contexts[pop].decisions = decisions;
       }
