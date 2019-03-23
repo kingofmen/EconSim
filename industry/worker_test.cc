@@ -206,6 +206,14 @@ TEST_F(WorkerTest, SelectProduction) {
   EXPECT_EQ(kCapitalToGrain, decision.selected().name());
 }
 
+// Test that InstallFixedCapital installs fixed capital.
+TEST_F(WorkerTest, InstallFixCap) {
+  market::proto::Container source;
+  market::proto::Container target;
+  EXPECT_TRUE(InstallFixedCapital(LabourToGrain().get_step(0).variants(0), 0,
+                                  &source, &target, &market_));
+}
+
 // Test that TryProductionStep consumes inputs and produces outputs.
 TEST_F(WorkerTest, TryLabourToGrain) {
   market::proto::Container source;

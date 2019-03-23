@@ -71,7 +71,8 @@ void RunAreaIndustry(
         }
 
         auto& selected = decision.selected();
-        auto* chain = context.production_map->at(selected.name());
+        const industry::Production* chain =
+            context.production_map->at(selected.name());
         if (!field->has_progress()) {
           *field->mutable_progress() =
               chain->MakeProgress(selected.max_scale_u());
@@ -80,6 +81,15 @@ void RunAreaIndustry(
         market::proto::Container used_capital;
         if (selected.step_info_size() < 1) {
           // TODO: This is an error, handle it better.
+          continue;
+        }
+
+        int var_idx = selected.step_info(0).best_variant();
+        if (!industry::InstallFixedCapital(
+                chain->get_step(field->progress().step()).variants(var_idx),
+                selected.step_info(0).variant(var_idx).possible_scale_u(),
+                pop->mutable_wealth(), field->mutable_fixed_capital(),
+                context.market)) {
           continue;
         }
 

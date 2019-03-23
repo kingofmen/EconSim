@@ -153,6 +153,14 @@ void SelectProduction(const decisions::ProductionEvaluator& evaluator,
   evaluator.SelectCandidate(*context, cands->second, &decision);
 }
 
+bool InstallFixedCapital(const proto::Input& production,
+                         market::Measure scale_u,
+                         market::proto::Container* source,
+                         market::proto::Container* target,
+                         market::Market* market) {
+  return true;
+}
+
 // TODO: Don't pass the field here, pass the fixcap and resources. Clear
 // separately.
 bool TryProductionStep(

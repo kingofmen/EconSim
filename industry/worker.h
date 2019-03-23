@@ -34,6 +34,15 @@ void SelectProduction(const decisions::ProductionEvaluator& evaluator,
                       decisions::ProductionContext* context,
                       geography::proto::Field* field);
 
+// Attempts to install the required fixed capital for the provided step of the
+// chain. Returns true if all the capital can be installed; otherwise no changes
+// are made.
+bool InstallFixedCapital(const industry::proto::Input& production,
+                         market::Measure scale_u,
+                         market::proto::Container* source,
+                         market::proto::Container* target,
+                         market::Market* market);
+
 // Attempts to run the next step of production. Returns true if the process
 // advances. Any output goods are put into target. No pointers may be null.
 bool TryProductionStep(const industry::Production& production,
