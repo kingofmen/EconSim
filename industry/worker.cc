@@ -158,6 +158,35 @@ bool InstallFixedCapital(const proto::Input& production,
                          market::proto::Container* source,
                          market::proto::Container* target,
                          market::Market* market) {
+  market::proto::Container required = production.fixed_capital();
+  micro::MultiplyU(required, scale_u);
+  if (*target >= required) {
+    return true;
+  }
+  market::SubtractFloor(required, *target, 0);
+
+  if (required > *source) {
+    market::proto::Container to_buy = required;
+    market::SubtractFloor(to_buy, *source, 0);
+    market::CleanContainer(&to_buy);
+
+    if (!market->CanBuy(to_buy, *source)) {
+      return false;
+    }
+
+    if (!market->BuyBasket(to_buy, source)) {
+      return false;
+    }
+  }
+
+  if (required > *source) {
+    return false;
+  }
+
+  for (const auto& good : required.quantities()) {
+    market::Move(good.first, good.second, source, target);
+  }
+
   return true;
 }
 
