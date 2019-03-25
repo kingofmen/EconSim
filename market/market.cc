@@ -12,10 +12,18 @@ using market::proto::Container;
 constexpr double kMaxPriceChange = micro::kOneInU / 4;
 
 Measure Market::Available(const std::string& name, int) const {
+  if (!TradesIn(name)) {
+    return false;
+  }
   return GetAmount(proto_.warehouse(), name);
 }
 
 bool Market::Available(const Container& basket, int) const {
+  for (const auto& need : basket.quantities()) {
+    if (!TradesIn(need.first)) {
+      return false;
+    }
+  }  
   return proto_.warehouse() > basket;
 }
 
@@ -42,6 +50,14 @@ bool Market::BuyBasket(const proto::Container& basket,
     }
   }
   return success;
+}
+
+bool Market::CanBuy(const proto::Container& basket,
+                    const proto::Container& buyer) const {
+  if (!AvailableImmediately(basket)) {
+    return false;
+  }
+  return MaxMoney(buyer) >= GetPriceU(basket);
 }
 
 void Market::DecayGoods(const market::proto::Container& decay_rates_u) {

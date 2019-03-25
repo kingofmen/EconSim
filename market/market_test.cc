@@ -9,18 +9,39 @@
 namespace market {
 
 namespace {
+using proto::Quantity;
+using proto::Container;
+
 constexpr char kTestGood1[] = "TestGood1";
 constexpr char kTestGood2[] = "TestGood2";
 constexpr char kSilver[] = "silver";
 constexpr char kMarketName[] = "market";
 constexpr char kCredit[] = "market_short_term_credit";
 constexpr char kDebt[] = "market_short_term_debt";
+
 }
 
-using proto::Quantity;
-using proto::Container;
+class MarketTest : public testing::Test {
+ protected:
+  void SetUp() override {
+    market_.Proto()->set_legal_tender(kSilver);
+    market_.Proto()->set_name(kMarketName);
+    market_.Proto()->set_credit_limit(micro::kHundredInU);
+  }
 
-TEST(MarketTest, FindPrices) {
+  void SetPrice(const Quantity& price) {
+    SetAmount(price, market_.Proto()->mutable_prices_u());
+  }
+
+  void SetPrice(const std::string name, const Measure amount) {
+    SetAmount(name, amount, market_.Proto()->mutable_prices_u());
+  }
+
+  Market market_;
+  Container buyer_;
+};
+
+TEST_F(MarketTest, FindPrices) {
   Market market;
   market.Proto()->set_legal_tender(kSilver);
   market.Proto()->set_name(kMarketName);
@@ -145,7 +166,7 @@ TEST(MarketTest, FindPrices) {
   EXPECT_EQ(2 * micro::kOneInU, GetAmount(bidder, kDebt));
 }
 
-TEST(MarketTest, TransferMoney) {
+TEST_F(MarketTest, TransferMoney) {
   Market market;
   market.Proto()->set_name(kMarketName);
   market.Proto()->set_legal_tender(kSilver);
@@ -198,7 +219,7 @@ TEST(MarketTest, TransferMoney) {
   EXPECT_EQ(GetAmount(poor, kDebt), 0);
 }
 
-TEST(MarketTest, Available) {
+TEST_F(MarketTest, Available) {
   Market market;
   market.Proto()->set_legal_tender(kSilver);
   market.Proto()->set_name(kMarketName);
@@ -222,7 +243,7 @@ TEST(MarketTest, Available) {
   EXPECT_EQ(kHalf, GetAmount(market.Proto()->market_debt(), kTestGood1));
 }
 
-TEST(MarketTest, BuySellBuy) {
+TEST_F(MarketTest, BuySellBuy) {
   Market market;
   market.Proto()->set_legal_tender(kSilver);
   market.Proto()->set_name(kMarketName);
@@ -252,7 +273,7 @@ TEST(MarketTest, BuySellBuy) {
   EXPECT_EQ(800000, market.GetPriceU(kTestGood1));
 }
 
-TEST(MarketTest, DecayGoods) {
+TEST_F(MarketTest, DecayGoods) {
   Market market;
   Container decay_rates_u;
   const int64 kNineTenths = 9 * micro::kOneInU / 10;
@@ -262,6 +283,41 @@ TEST(MarketTest, DecayGoods) {
   SetAmount(kTestGood1, kNineTenths, &decay_rates_u);
   market.DecayGoods(decay_rates_u);
   EXPECT_EQ(kNineTenths, market.AvailableImmediately(kTestGood1));
+}
+
+TEST_F(MarketTest, CanBuy) {
+  SetPrice(kTestGood1, micro::kOneInU);
+  market_.Proto()->set_credit_limit(0);
+  market_.RegisterGood(kTestGood1);
+  SetAmount(kTestGood1, micro::kOneInU, market_.Proto()->mutable_warehouse());
+
+  Container basket;
+  SetAmount(kTestGood1, micro::kOneInU, &basket);
+
+  // Buyer has neither money nor credit.
+  EXPECT_FALSE(market_.CanBuy(basket, buyer_));
+
+  SetAmount(kSilver, micro::kOneInU, &buyer_);
+  // Buyer now has money.
+  EXPECT_TRUE(market_.CanBuy(basket, buyer_));
+
+  SetAmount(kSilver, 0, &buyer_);
+  market_.Proto()->set_credit_limit(micro::kTenInU);
+  // Buyer now has credit.
+  EXPECT_TRUE(market_.CanBuy(basket, buyer_));
+  
+  SetAmount(kTestGood2, micro::kOneInU, &basket);
+  // Cannot buy what the market does not trade in.
+  EXPECT_FALSE(market_.CanBuy(basket, buyer_));
+
+  SetAmount(kTestGood2, micro::kOneInU, market_.Proto()->mutable_warehouse());
+  // Not even when it's actually in the warehouse! (This should never happen.)
+  EXPECT_FALSE(market_.CanBuy(basket, buyer_));
+
+  market_.RegisterGood(kTestGood2);
+  // Oh right, you mean _kTestGood2_! Yes sir, I remember now, we have some on
+  // hand.
+  EXPECT_TRUE(market_.CanBuy(basket, buyer_));
 }
 
 } // namespace market

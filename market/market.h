@@ -62,6 +62,11 @@ public:
   // target. Returns true if all the buys are successful.
   bool BuyBasket(const proto::Container& basket, proto::Container* target);
 
+  // Returns true if all the goods in basket are available and buyer can pay
+  // for them.
+  bool CanBuy(const proto::Container& basket,
+              const proto::Container& buyer) const;
+
   // Make goods stored in warehouse decay at the given rates.
   void DecayGoods(const market::proto::Container& rates);
 
