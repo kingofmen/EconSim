@@ -22,6 +22,8 @@ cc_binary(
   srcs = ["sinews_main.cc"],
   deps = [
     ":game_world",
+    "//util/proto:file",
+    "//util/status:status",
   ],
 )
 
@@ -34,6 +36,8 @@ cc_test(
     "@gtest//:gtest",
     "@gtest//:gtest_main",
     "//market:goods_utils",
+    "//util/proto:file",
+    "//util/status:status",
   ],
   data = [
     ":test_data/simple.pb.txt",

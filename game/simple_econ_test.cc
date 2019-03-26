@@ -14,6 +14,7 @@
 #include "gtest/gtest.h"
 #include "industry/proto/decisions.pb.h"
 #include "market/goods_utils.h"
+#include "util/proto/file.h"
 #include "util/status/status.h"
 
 namespace simple_economy_test {
@@ -21,47 +22,31 @@ const std::string kTestDataLocation = "game/test_data";
 const std::string kSimpleSetup = "simple.pb.txt";
 const std::string kSimpleEconomy = "simple_economy.pb.txt";
 
-namespace {
-util::Status ParseProtoFile(const std::string& filename,
-                            google::protobuf::Message* proto) {
-  std::ifstream reader(filename);
-  if (!reader.good()) {
-    return util::InvalidArgumentError(
-        absl::Substitute("Could not open file $0", filename));
-  }
-  google::protobuf::io::IstreamInputStream input(&reader);
-  if (!google::protobuf::TextFormat::Parse(&input, proto)) {
-    return util::InvalidArgumentError(
-        absl::Substitute("Error parsing file $0", filename));
-  }
+const std::string kFixcapSetup = "fixcap.pb.txt";
+const std::string kFixcapEconomy = "fixcap_economy.pb.txt";
 
-  reader.close();
-  return util::OkStatus();
+namespace {
+
+void ReadFile(const std::string filename, google::protobuf::Message* proto) {
+  // This is a workaround for Bazel issues 4102 and 4292. When they are
+  // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
+  const std::string kTestDir = "C:/Users/Rolf/base";
+  auto status = util::proto::ParseProtoFile(
+      absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), proto);
+  ASSERT_TRUE(status.ok()) << status.error_message();
 }
+
 }
 
 class SimpleEconomyTest : public testing::Test {
 protected:
-  void SetUp() override {
-    // This is a workaround for Bazel issues 4102 and 4292. When they are
-    // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
-    const std::string kTestDir = "C:/Users/Rolf/base";
-    auto status = ParseProtoFile(
-        absl::StrJoin({kTestDir, kTestDataLocation, kSimpleSetup}, "/"),
-        &world_proto_);
-    ASSERT_TRUE(status.ok()) << status.error_message();
-
-    status = ParseProtoFile(
-        absl::StrJoin({kTestDir, kTestDataLocation, kSimpleEconomy}, "/"),
-        &scenario_);
-    ASSERT_TRUE(status.ok()) << status.error_message();
-  }
-
   game::proto::GameWorld world_proto_;
   game::proto::Scenario scenario_;
 };
 
 TEST_F(SimpleEconomyTest, TestStablePrices) {
+  ReadFile(kSimpleSetup, &world_proto_);
+  ReadFile(kSimpleEconomy, &scenario_);
   game::GameWorld game_world(world_proto_, &scenario_);
   auto initial_prices = world_proto_.areas(0).market().prices_u();
   std::unordered_map<geography::proto::Field*,
