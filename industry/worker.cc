@@ -163,8 +163,7 @@ bool InstallFixedCapital(const proto::Input& production,
   if (*target >= required) {
     return true;
   }
-  market::SubtractFloor(required, *target, 0);
-
+  required = market::SubtractFloor(required, *target, 0);
   if (required > *source) {
     market::proto::Container to_buy = required;
     market::SubtractFloor(to_buy, *source, 0);

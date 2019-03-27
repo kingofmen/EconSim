@@ -13,6 +13,7 @@ public:
   enum Code {
     OK = 0,
     INVALID_ARGUMENT = 1,
+    FAILED_PRECONDITION = 2,
   };
 
   Status() : code_(OK) {}
@@ -34,6 +35,7 @@ private:
 const Status& OkStatus();
 
 Status InvalidArgumentError(const std::string& msg);
+Status FailedPreconditionError(const std::string& msg);
 
 std::ostream& operator<<(std::ostream& os, const Status& status);
 } // namespace util

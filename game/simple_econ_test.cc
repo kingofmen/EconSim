@@ -27,45 +27,77 @@ const std::string kFixcapEconomy = "fixcap_economy.pb.txt";
 
 namespace {
 
-void ReadFile(const std::string filename, google::protobuf::Message* proto) {
+util::Status ReadFile(const std::string filename, google::protobuf::Message* proto) {
   // This is a workaround for Bazel issues 4102 and 4292. When they are
   // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
   const std::string kTestDir = "C:/Users/Rolf/base";
-  auto status = util::proto::ParseProtoFile(
+  return util::proto::ParseProtoFile(
       absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), proto);
-  ASSERT_TRUE(status.ok()) << status.error_message();
 }
 
 }
 
-class SimpleEconomyTest : public testing::Test {
+class EconomyTest : public testing::Test {
 protected:
   game::proto::GameWorld world_proto_;
   game::proto::Scenario scenario_;
+
+  util::Status ReadWorld(const std::string& setup, const std::string& scenario) {
+    auto status = ReadFile(setup, &world_proto_);
+    if (!status.ok()) return status;
+    status = ReadFile(scenario, &scenario_);
+    if (!status.ok()) return status;
+    return util::OkStatus();
+  }
+
+  util::Status SteadyStateTest() {
+    game::GameWorld game_world(world_proto_, &scenario_);
+    auto initial_prices = world_proto_.areas(0).market().prices_u();
+    std::unordered_map<geography::proto::Field*,
+                       industry::decisions::proto::ProductionDecision>
+        production_info;
+    for (int i = 0; i < 10; ++i) {
+      production_info.clear();
+      game_world.TimeStep(&production_info);
+
+      world_proto_.Clear();
+      game_world.SaveToProto(&world_proto_);
+
+      auto current_prices = world_proto_.areas(0).market().prices_u();
+      for (const auto& good : initial_prices.quantities()) {
+        auto curr_price = market::GetAmount(current_prices, good.first);
+        if (good.second != curr_price) {
+          return util::FailedPreconditionError(
+              absl::Substitute("Turn $0: $1 price $2 does not match initial $3",
+                               i, good.first, curr_price, good.second));
+        }
+      }
+      for (const auto& good : current_prices.quantities()) {
+        auto init_price = market::GetAmount(initial_prices, good.first);
+        if (good.second != init_price) {
+          return util::FailedPreconditionError(
+              absl::Substitute("Turn $0: $1 price $2 does not match initial $3",
+                               i, good.first, good.second, init_price));
+        }
+      }
+    }
+    return util::OkStatus();
+  }
 };
 
-TEST_F(SimpleEconomyTest, TestStablePrices) {
-  ReadFile(kSimpleSetup, &world_proto_);
-  ReadFile(kSimpleEconomy, &scenario_);
-  game::GameWorld game_world(world_proto_, &scenario_);
-  auto initial_prices = world_proto_.areas(0).market().prices_u();
-  std::unordered_map<geography::proto::Field*,
-                     industry::decisions::proto::ProductionDecision>
-      production_info;
-  for (int i = 0; i < 10; ++i) {
-    production_info.clear();
-    game_world.TimeStep(&production_info);
-  }
-  world_proto_.Clear();
-  game_world.SaveToProto(&world_proto_);
-  auto final_prices = world_proto_.areas(0).market().prices_u();
-  for (const auto& good : initial_prices.quantities()) {
-    EXPECT_NE(good.second, 0);
-    EXPECT_EQ(good.second, market::GetAmount(final_prices, good.first));
-  }
-  for (const auto& good : final_prices.quantities()) {
-    EXPECT_EQ(good.second, market::GetAmount(initial_prices, good.first));
-  }
+TEST_F(EconomyTest, TestSimpleSteadyState) {
+  auto status = ReadWorld(kSimpleSetup, kSimpleEconomy);
+  ASSERT_TRUE(status.ok()) << status.error_message();
+  status = SteadyStateTest();
+  EXPECT_TRUE(status.ok()) << status.error_message();
+}
+
+TEST_F(EconomyTest, TestFixcapSteadyState) {
+  auto status = ReadWorld(kFixcapSetup, kFixcapEconomy);
+  ASSERT_TRUE(status.ok()) << status.error_message();
+  status = SteadyStateTest();
+  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+                           << world_proto_.DebugString();
 }
 
 } // namespace simple_economy_test

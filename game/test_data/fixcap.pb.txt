@@ -1,0 +1,55 @@
+# Scenario for a world where fixed capital decays and needs
+# replacement.
+
+areas {
+  fields {
+    land_type: LT_FIELDS
+    owner_id: 1
+    fixed_capital {
+      quantities { key: "capital" value: 950000 }
+    }
+  }
+  fields {
+    land_type: LT_HEAVY_INDUSTRY
+    owner_id: 2
+  }
+  pop_ids: 1
+  pop_ids: 2
+  market {
+    prices_u {
+      quantities { key: "labour" value: 100000 }
+      quantities { key: "capital" value: 4000000 }
+      quantities { key: "output" value: 1000000 }
+    }
+    goods {
+      quantities { key: "labour" value: 1 }
+      quantities { key: "capital" value: 1 }
+      quantities { key: "output" value: 1 }
+    }
+    name: "area_1_market"
+    legal_tender: "silver"
+    credit_limit: 1000000000
+  }
+}
+
+pops {
+  pop_id: 1
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+  wealth {
+  }
+}
+
+pops {
+  pop_id: 2
+  males: 0
+  males: 0
+  males: 1
+  women: 0
+  women: 0
+  women: 0
+}

@@ -1,0 +1,90 @@
+# Economic setup with fixed capital production, decay, and install.
+# There are three abstract goods: Labour, capital, and output.
+
+auto_production {
+  output {
+    quantities {
+      key: "labour"
+      value: 1000000
+    }
+  }
+}
+
+decay_rates {
+  quantities {
+    key: "labour"
+    value: 1000000
+  }
+  quantities {
+    key: "capital"
+    value: 50000
+  }
+  quantities {
+    key: "output"
+    value: 1000000
+  }
+}
+
+production_chains {
+  name: "industry"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      fixed_capital {
+        quantities {
+	  key: "capital"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "output"
+      value: 200000
+    }
+  }
+  land_type: LT_FIELDS
+}
+production_chains {
+  name: "invest"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "capital"
+      value: 50000
+    }
+  }
+  land_type: LT_HEAVY_INDUSTRY
+}
+
+consumption {
+  name: "Consumption"
+  packages {
+    consumed {
+      quantities {
+        key: "output"
+        value: 100000
+      }
+    }
+  }
+}
+
