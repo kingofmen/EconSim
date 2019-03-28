@@ -51,9 +51,12 @@ void RunAreaIndustry(
   static industry::decisions::LocalProfitMaximiser evaluator;
 
   std::unordered_set<Field*> progressed;
-  bool progress = true;
-  while (progress) {
-    progress = false;
+  // TODO: Allow progress to be split between rounds if there is scale loss.
+  while (true) {
+    geography::proto::Field* best_field = NULL;
+    population::PopUnit* best_pop = NULL;
+    market::Measure lowest_scale_loss_u = micro::kMaxU;
+
     for (auto& pop_context : *contexts) {
       population::PopUnit* pop = pop_context.first;
       ProductionContext& context = pop_context.second;
@@ -65,47 +68,71 @@ void RunAreaIndustry(
         industry::CalculateProductionScale(pop->wealth(), &context, field);
         industry::SelectProduction(evaluator, &context, field);
 
-        auto& decision = context.decisions->at(field);
+        const auto& decision = context.decisions->at(field);
         if (!decision.has_selected()) {
           continue;
         }
 
-        auto& selected = decision.selected();
+        const auto& selected = decision.selected();
         const industry::Production* chain =
             context.production_map->at(selected.name());
-        if (!field->has_progress()) {
-          *field->mutable_progress() =
-              chain->MakeProgress(selected.max_scale_u());
-        }
-
-        market::proto::Container used_capital;
-        if (selected.step_info_size() < 1) {
-          // TODO: This is an error, handle it better.
-          continue;
+        market::Measure max_scale_u = 0;
+        if (field->has_progress()) {
+          max_scale_u = field->progress().scaling_u();
+        } else {
+          max_scale_u = chain->MaxScaleU();
         }
 
         int var_idx = selected.step_info(0).best_variant();
-        if (!industry::InstallFixedCapital(
-                chain->get_step(field->progress().step()).variants(var_idx),
-                selected.step_info(0).variant(var_idx).possible_scale_u(),
-                pop->mutable_wealth(), field->mutable_fixed_capital(),
-                context.market)) {
-          continue;
+        auto scale_loss_u =
+            max_scale_u -
+            selected.step_info(0).variant(var_idx).possible_scale_u();
+        if (scale_loss_u < lowest_scale_loss_u) {
+          best_field = field;
+          best_pop = pop;
+          lowest_scale_loss_u = scale_loss_u;
         }
-
-        if (industry::TryProductionStep(
-                *chain, selected.step_info(0), field, field->mutable_progress(),
-                pop->mutable_wealth(), pop->mutable_wealth(), &used_capital,
-                context.market)) {
-          progress = true;
-          progressed.emplace(field);
-          if (!field->has_progress()) {
-            pop->SellSurplus(context.market);
-          }
-        }
-        pop->ReturnCapital(&used_capital);
       }
     }
+    if (best_field == NULL) {
+      break;
+    }
+    progressed.emplace(best_field);
+
+    ProductionContext& context = contexts->at(best_pop);
+    const auto& decision = context.decisions->at(best_field);
+    const auto& selected = decision.selected();
+    const industry::Production* chain =
+        context.production_map->at(selected.name());
+
+    market::proto::Container used_capital;
+    if (selected.step_info_size() < 1) {
+      // TODO: This is an error, handle it better.
+      continue;
+    }
+
+    if (!best_field->has_progress()) {
+      *best_field->mutable_progress() = chain->MakeProgress(chain->MaxScaleU());
+    }
+
+    int var_idx = selected.step_info(0).best_variant();
+    if (!industry::InstallFixedCapital(
+            chain->get_step(best_field->progress().step()).variants(var_idx),
+            selected.step_info(0).variant(var_idx).possible_scale_u(),
+            best_pop->mutable_wealth(), best_field->mutable_fixed_capital(),
+            context.market)) {
+      continue;
+    }
+
+    if (industry::TryProductionStep(
+            *chain, selected.step_info(0), best_field,
+            best_field->mutable_progress(), best_pop->mutable_wealth(),
+            best_pop->mutable_wealth(), &used_capital, context.market)) {
+      if (!best_field->has_progress()) {
+        best_pop->SellSurplus(context.market);
+      }
+    }
+    best_pop->ReturnCapital(&used_capital);
   }
 }
 

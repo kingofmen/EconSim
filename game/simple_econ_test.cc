@@ -89,7 +89,8 @@ TEST_F(EconomyTest, TestSimpleSteadyState) {
   auto status = ReadWorld(kSimpleSetup, kSimpleEconomy);
   ASSERT_TRUE(status.ok()) << status.error_message();
   status = SteadyStateTest();
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+                           << world_proto_.DebugString();
 }
 
 TEST_F(EconomyTest, TestFixcapSteadyState) {

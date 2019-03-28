@@ -3,15 +3,15 @@
 
 areas {
   fields {
+    land_type: LT_HEAVY_INDUSTRY
+    owner_id: 2
+  }
+  fields {
     land_type: LT_FIELDS
     owner_id: 1
     fixed_capital {
       quantities { key: "capital" value: 950000 }
     }
-  }
-  fields {
-    land_type: LT_HEAVY_INDUSTRY
-    owner_id: 2
   }
   pop_ids: 1
   pop_ids: 2

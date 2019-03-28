@@ -212,9 +212,11 @@ bool TryProductionStep(
     return false;
   }
 
-  production.PerformStep(field->fixed_capital(), 0, variant_index, source,
-                         field->mutable_resources(), target, used_capital,
-                         progress);
+  if (!production.PerformStep(field->fixed_capital(), 0, variant_index, source,
+                              field->mutable_resources(), target, used_capital,
+                              progress)) {
+    return false;
+  }
 
   if (production.Complete(*progress)) {
     field->clear_progress();
