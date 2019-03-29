@@ -251,27 +251,40 @@ TEST_F(WorkerTest, InstallFixedCapital) {
 
   capital_ += micro::kOneInU;
   source << capital_;
-  EXPECT_TRUE(InstallFixedCapital(capital.get_step(0).variants(0), micro::kOneInU,
-                                  &source, field_.mutable_fixed_capital(),
-                                  &market_));
+  EXPECT_TRUE(InstallFixedCapital(input, micro::kOneInU, &source,
+                                  field_.mutable_fixed_capital(), &market_));
   EXPECT_EQ(market::GetAmount(input.fixed_capital(), "capital"),
             market::GetAmount(field_.fixed_capital(), "capital"));
+
   market::Clear(&source);
-  EXPECT_TRUE(InstallFixedCapital(capital.get_step(0).variants(0), micro::kOneInU,
-                                  &source, field_.mutable_fixed_capital(),
-                                  &market_));
+  EXPECT_TRUE(InstallFixedCapital(input, micro::kOneInU, &source,
+                                  field_.mutable_fixed_capital(), &market_));
+  EXPECT_EQ(market::GetAmount(input.fixed_capital(), "capital"),
+            market::GetAmount(field_.fixed_capital(), "capital"));
+
+  market::Clear(field_.mutable_fixed_capital());
+  capital_ += micro::kOneInU;
+  market::SetAmount(capital_, market_.Proto()->mutable_warehouse());
+  EXPECT_TRUE(InstallFixedCapital(input, micro::kOneInU, &source,
+                                  field_.mutable_fixed_capital(), &market_));
   EXPECT_EQ(market::GetAmount(input.fixed_capital(), "capital"),
             market::GetAmount(field_.fixed_capital(), "capital"));
 
 
   market::Clear(field_.mutable_fixed_capital());
+  proto::Input with_install_cost = input;
   capital_ += micro::kOneInU;
-  market::SetAmount(capital_, market_.Proto()->mutable_warehouse());
-  EXPECT_TRUE(InstallFixedCapital(capital.get_step(0).variants(0), micro::kOneInU,
-                                  &source, field_.mutable_fixed_capital(),
-                                  &market_));
-  EXPECT_EQ(market::GetAmount(input.fixed_capital(), "capital"),
+  labour_ += micro::kOneInU;
+  market::SetAmount(capital_, &source);
+  market::SetAmount(labour_, &source);
+  market::SetAmount(labour_, with_install_cost.mutable_install_cost());
+
+  EXPECT_TRUE(InstallFixedCapital(with_install_cost, micro::kOneInU, &source,
+                                  field_.mutable_fixed_capital(), &market_));
+  EXPECT_EQ(market::GetAmount(with_install_cost.fixed_capital(), "capital"),
             market::GetAmount(field_.fixed_capital(), "capital"));
+  EXPECT_EQ(0, market::GetAmount(source, "labour"));
+  EXPECT_EQ(0, market::GetAmount(field_.fixed_capital(), "labour"));
 }
 
 }  // namespace industry
