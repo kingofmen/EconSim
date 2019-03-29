@@ -17,6 +17,11 @@ constexpr int64 kHundredInU  = 100 * kOneInU;
 constexpr int64 kThousandInU = 1000 * kOneInU;
 constexpr int64 kMaxU        = std::numeric_limits<int64>::max();
 
+// Some fractions.
+constexpr int64 kOneTenthInU     = kOneInU * 1 / 10;
+constexpr int64 kOneFourthInU    = kOneInU * 1 / 4;
+constexpr int64 kHalfInU         = kOneInU * 1 / 2;
+constexpr int64 kThreeFourthsInU = kOneInU * 3 / 4;
 
 // Returns the square root of value_u in micro-units.
 int64 SqrtU(int64 value_u);

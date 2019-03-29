@@ -115,4 +115,10 @@ TEST(MicroUnitsTest, MatrixVectorMultiplication) {
   EXPECT_EQ(market::GetAmount(lhs_u, kTestGood2), kHundredInU);
 }
 
+TEST(MicroUnitsTest, Sanity) {
+  EXPECT_EQ(kOneFourthInU, MultiplyU(kHalfInU, kHalfInU));
+  EXPECT_EQ(kThreeFourthsInU, MultiplyU(kThreeFourthsInU, kOneInU));
+  EXPECT_EQ(kTenInU, MultiplyU(kHundredInU, kOneTenthInU));
+}
+
 }  // namespace micro
