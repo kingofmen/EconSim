@@ -23,6 +23,8 @@ message Input {
   market.proto.Container fixed_capital = 3;
   // Inputs consumed, but from the land-patch, not the owner input.
   market.proto.Container raw_materials = 4;
+  // Install costs per unit of the fixed capital.
+  market.proto.Container install_cost = 5;
 }
 
 // A step in a production chain, for example sowing or reaping.

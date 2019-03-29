@@ -41,11 +41,13 @@ void LocalProfitMaximiser::SelectCandidate(
       market::Measure best_scale_u = current_scale_u;
       int best_var = 0;
       for (int var = 0; var < step_info->variant_size(); ++var) {
-        const industry::decisions::proto::VariantInfo& var_info = step_info->variant(var);
-        // TODO: Account for capital cost here - note that this is not a unit cost!
-        // So this will require some thinking; how to account for existing capital?
-        market::Measure var_cost_u = micro::MultiplyU(var_info.unit_cost_u(),
-                                                      var_info.possible_scale_u());
+        const industry::decisions::proto::VariantInfo& var_info =
+            step_info->variant(var);
+        // TODO: Account for capital cost here - note that this is not a unit
+        // cost! So this will require some thinking; how to account for existing
+        // capital?
+        market::Measure var_cost_u = micro::MultiplyU(
+            var_info.unit_cost_u(), var_info.possible_scale_u());
         market::Measure var_scale_u = var_info.possible_scale_u();
         market::Measure scale_loss_u = current_scale_u - var_scale_u;
         if (scale_loss_u > 0) {

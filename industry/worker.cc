@@ -22,8 +22,8 @@ market::Measure CalculateCapCostU(const proto::Input& input,
                             const market::PriceEstimator& market,
                             unsigned int stepsAhead,
                             const market::proto::Container& fixcap) {
-  auto required = market::SubtractFloor(input.fixed_capital(), fixcap);
-  return market.GetPriceU(required, stepsAhead);
+  auto total = input.fixed_capital() + input.install_cost();
+  return market.GetPriceU(total, stepsAhead);
 }
 
 }  // namespace
@@ -150,6 +150,7 @@ void SelectProduction(const decisions::ProductionEvaluator& evaluator,
     return;
   }
 
+  decision.Clear();
   evaluator.SelectCandidate(*context, cands->second, &decision);
 }
 

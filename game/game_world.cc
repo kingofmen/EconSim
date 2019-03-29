@@ -51,6 +51,7 @@ void RunAreaIndustry(
   static industry::decisions::LocalProfitMaximiser evaluator;
 
   std::unordered_set<Field*> progressed;
+  std::unordered_map<Field*, int> attempts;
   // TODO: Allow progress to be split between rounds if there is scale loss.
   while (true) {
     geography::proto::Field* best_field = NULL;
@@ -85,7 +86,7 @@ void RunAreaIndustry(
 
         int var_idx = selected.step_info(0).best_variant();
         auto scale_loss_u =
-            max_scale_u -
+            max_scale_u + attempts[field] -
             selected.step_info(0).variant(var_idx).possible_scale_u();
         if (scale_loss_u < lowest_scale_loss_u) {
           best_field = field;
@@ -97,7 +98,9 @@ void RunAreaIndustry(
     if (best_field == NULL) {
       break;
     }
-    progressed.emplace(best_field);
+
+    // If this fails we can retry, but at a lower priority.
+    attempts[best_field]++;
 
     ProductionContext& context = contexts->at(best_pop);
     const auto& decision = context.decisions->at(best_field);
@@ -111,7 +114,8 @@ void RunAreaIndustry(
       continue;
     }
 
-    if (!best_field->has_progress()) {
+    if (!best_field->has_progress() ||
+        best_field->progress().name() != chain->get_name()) {
       *best_field->mutable_progress() = chain->MakeProgress(chain->MaxScaleU());
     }
 
@@ -128,6 +132,7 @@ void RunAreaIndustry(
             *chain, selected.step_info(0), best_field,
             best_field->mutable_progress(), best_pop->mutable_wealth(),
             best_pop->mutable_wealth(), &used_capital, context.market)) {
+      progressed.emplace(best_field);
       if (!best_field->has_progress()) {
         best_pop->SellSurplus(context.market);
       }
