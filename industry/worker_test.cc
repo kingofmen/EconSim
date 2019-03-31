@@ -58,9 +58,9 @@ protected:
     *prod_proto.mutable_outputs() << grain_;
     auto* step = prod_proto.add_steps();
     auto* input = step->add_variants();
-    labour_ += micro::kOneInU / 10;
+    labour_ += micro::kOneTenthInU;
     market::SetAmount(labour_, input->mutable_consumables());
-    capital_ += micro::kOneInU / 2;
+    capital_ += micro::kHalfInU;
     market::SetAmount(capital_, input->mutable_fixed_capital());
     return Production(prod_proto);
   }
@@ -119,7 +119,126 @@ TEST_F(WorkerTest, CalculateProductionScale) {
   EXPECT_EQ(micro::kOneInU, capital_var.possible_scale_u());
 }
 
-// Sanity-check unit-cost and capex-cost calculations.
+// Test scale calculation when consumables, install costs, and capital overlap.
+TEST_F(WorkerTest, OverlappingInputs) {
+  Production labour = LabourToGrain();
+  proto::Input* input = labour.Proto()->mutable_steps(0)->mutable_variants(0);
+  market::proto::Container wealth;
+
+  decisions::DecisionMap decisions = {{&field_, {}}};
+  std::unordered_map<std::string, const Production*> prod_map = {
+      {kLabourToGrain, &labour}};
+  decisions::ProductionContext context = {
+      &prod_map, {&field_}, {}, &decisions, &market_};
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+  auto* labour_info = context.candidates[&field_][0].get();
+
+  labour_info->set_name(kLabourToGrain);
+  CalculateProductionCosts(labour, market_, field_, labour_info);
+
+  market::SetAmount(labour_.kind(), micro::kOneInU,
+                    input->mutable_fixed_capital());
+  market::SetAmount(capital_.kind(), micro::kOneInU,
+                    input->mutable_fixed_capital());
+  market::SetAmount(grain_.kind(), 0, input->mutable_fixed_capital());
+
+  market::SetAmount(labour_.kind(), micro::kOneInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kOneInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kHalfInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kHalfInU,
+                    field_.mutable_fixed_capital());
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kOneInU,
+                    input->mutable_install_cost());
+  market::SetAmount(labour_.kind(), micro::kOneInU + micro::kOneFourthInU,
+                    &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+}
+
+// Test scale calculation for entirely distinct inputs.
+TEST_F(WorkerTest, DistinctInputs) {
+  proto::Production prod_proto;
+  prod_proto.set_name(kLabourToGrain);
+  auto* step = prod_proto.add_steps();
+  auto* input = step->add_variants();
+
+  grain_ += micro::kOneInU;
+  market::SetAmount(grain_, input->mutable_consumables());
+  capital_ += micro::kOneInU;
+  market::SetAmount(capital_, input->mutable_fixed_capital());
+  labour_ += micro::kOneInU;
+  market::SetAmount(labour_, input->mutable_install_cost());
+
+  Production labour(prod_proto);
+  decisions::DecisionMap decisions = {{&field_, {}}};
+  std::unordered_map<std::string, const Production*> prod_map = {
+      {kLabourToGrain, &labour}};
+  decisions::ProductionContext context = {
+      &prod_map, {&field_}, {}, &decisions, &market_};
+  context.candidates[&field_].emplace_back(
+      std::make_unique<decisions::proto::ProductionInfo>());
+  auto* labour_info = context.candidates[&field_][0].get();
+  labour_info->set_name(kLabourToGrain);
+  CalculateProductionCosts(labour, market_, field_, labour_info);
+
+  market::proto::Container wealth;
+  market::SetAmount(labour_.kind(), micro::kHalfInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kHalfInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kOneFourthInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  std::cout << __FILE__ << ":" << __LINE__ << "\n";
+  EXPECT_EQ(micro::kOneFourthInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kThreeFourthsInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(capital_.kind(), micro::kHalfInU,
+                    field_.mutable_fixed_capital());
+  market::SetAmount(labour_.kind(), micro::kOneFourthInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  std::cout << __FILE__ << ":" << __LINE__ << "\n";
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kOneFourthInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+
+  market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
+  market::SetAmount(grain_.kind(), micro::kThreeFourthsInU, &wealth);
+  market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
+  CalculateProductionScale(wealth, &context, &field_);
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).possible_scale_u());
+}
+
+// Sanity-check unit-cost calculation.
 TEST_F(WorkerTest, CalculateProductionCosts) {
   const Production labour = LabourToGrain();
   decisions::proto::ProductionInfo prod_info;

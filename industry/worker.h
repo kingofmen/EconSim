@@ -17,13 +17,14 @@ class ProductionFilter {
   virtual bool Filter(const geography::proto::Field&, const Production&) const = 0;
 };
 
-// Calculate the maximum scale of each variant of each production candidate from
-// the availability of resources.
+// Calculates the maximum scale of each variant of each production candidate
+// from the availability of resources; also calculates the resulting capital
+// costs.
 void CalculateProductionScale(const market::proto::Container& wealth,
                               decisions::ProductionContext* context,
                               geography::proto::Field* field);
 
-// Calculates unit costs, including capex, for each step and variant of chain.
+// Calculates unit costs for each step and variant of chain.
 void CalculateProductionCosts(
     const industry::Production& chain, const market::PriceEstimator& prices,
     const geography::proto::Field& field,

@@ -4,9 +4,13 @@ package industry.decisions.proto;
 import "market/proto/goods.proto";
 
 message VariantInfo {
+  // Cost per unit of consumable inputs.
   int64 unit_cost_u = 1;
+  // Maximum scale.
   int64 possible_scale_u = 2;
+  // Resource that makes the limit on this variant.
   string bottleneck = 3;
+  // Cost at scale (not per unit!) of capital, including install costs.
   int64 cap_cost_u = 4;
 }
 
