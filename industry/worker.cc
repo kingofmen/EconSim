@@ -4,29 +4,8 @@
 #include "market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 
-#include <iostream>
-
 namespace industry {
 namespace {
-
-// Returns the unit cost of input, with prices estimated by market at
-// stepsAhead.
-market::Measure CalculateUnitCostU(const proto::Input& input,
-                                   const market::PriceEstimator& market,
-                                   unsigned int stepsAhead) {
-  // TODO: Opportunity cost of movable capital?
-  return market.GetPriceU(input.consumables(), stepsAhead);
-}
-
-// Returns the unit cost of capex, with prices estimated by market at
-// stepsAhead.
-market::Measure CalculateCapCostU(const proto::Input& input,
-                                  const market::PriceEstimator& market,
-                                  unsigned int stepsAhead,
-                                  const market::proto::Container& fixcap) {
-  auto total = input.fixed_capital() + input.install_cost();
-  return market.GetPriceU(total, stepsAhead);
-}
 
 // Returns the number of unit_u that can be made from available_u.
 market::Measure AvailableUnits(market::Measure available_u,
@@ -43,6 +22,42 @@ market::Measure AvailableUnits(market::Measure available_u,
     return micro::kMaxU;
   }
   return units_u;
+}
+
+// Returns the unit cost of input, with prices estimated by market at
+// stepsAhead.
+market::Measure CalculateUnitCostU(const proto::Input& input,
+                                   const market::PriceEstimator& market,
+                                   unsigned int stepsAhead) {
+  // TODO: Opportunity cost of movable capital?
+  return market.GetPriceU(input.consumables(), stepsAhead);
+}
+
+// Returns the scale cost of capex, with prices estimated by market at
+// stepsAhead.
+market::Measure CalculateCapCostU(const proto::Input& input,
+                                  const market::PriceEstimator& market,
+                                  market::Measure scale_u,
+                                  unsigned int stepsAhead,
+                                  const market::proto::Container& fixcap) {
+  market::proto::Container to_install = input.fixed_capital();
+  micro::MultiplyU(to_install, scale_u);
+  to_install = market::SubtractFloor(to_install, fixcap, 0);
+  market::CleanContainer(&to_install);
+  market::Measure least_install_scale_u = scale_u;
+  for (const auto& good : to_install.quantities()) {
+    market::Measure install_scale_u =
+        AvailableUnits(market::GetAmount(fixcap, good.first),
+                       market::GetAmount(input.fixed_capital(), good.first));
+    if (install_scale_u < least_install_scale_u) {
+      least_install_scale_u = install_scale_u;
+    }
+  }
+  market::proto::Container install_cost = input.install_cost();
+  micro::MultiplyU(install_cost, scale_u - least_install_scale_u);
+
+  to_install += install_cost;
+  return market.GetPriceU(to_install, stepsAhead);
 }
 
 // Returns the possible scale if resource is the bottleneck. The scale s is the
@@ -71,12 +86,6 @@ market::Measure CalculatePossibleScale(market::Measure available_A_u,
   if (capital_unit_C_u + consumed_unit_L_u + install_unit_I_u == 0) {
     return micro::kMaxU;
   }
-  std::cout << "  " << available_A_u << " "
-            << capital_unit_C_u << " "
-            << consumed_unit_L_u << " "
-            << install_unit_I_u << " "
-            << existing_Ce_u << " "
-            << existing_Ie_u << "\n";
   uint64 overflow = 0;
   market::Measure scale_u = 0;
 
@@ -204,14 +213,12 @@ void CalculateProductionScale(const market::proto::Container& wealth,
           market::Measure available_u =
               context->market->Available(good.first, ahead) +
               market::GetAmount(wealth, good.first);
-          std::cout << good.first << " " << available_u << ":\n";
           market::Measure ratio_u = CalculatePossibleScale(
               available_u, market::GetAmount(fixcap, good.first),
               market::GetAmount(consumed, good.first),
               market::GetAmount(install, good.first),
               market::GetAmount(existing_Ce_u, good.first),
               market::GetAmount(existing_Ie_u, good.first));
-          std::cout << "  " << ratio_u << " " << variant_scale_u << "\n";
           if (ratio_u < variant_scale_u) {
             variant_scale_u = ratio_u;
             var_info->set_bottleneck(good.first);
@@ -228,6 +235,8 @@ void CalculateProductionScale(const market::proto::Container& wealth,
         }
 
         var_info->set_possible_scale_u(variant_scale_u);
+        var_info->set_cap_cost_u(CalculateCapCostU(
+            input, *context->market, variant_scale_u, ahead, existing_Ce_u));
         if (variant_scale_u > step_scale) {
           step_scale = variant_scale_u;
         }

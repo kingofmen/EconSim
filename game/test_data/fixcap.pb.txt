@@ -19,7 +19,7 @@ areas {
     prices_u {
       quantities { key: "labour" value: 100000 }
       quantities { key: "capital" value: 4000000 }
-      quantities { key: "output" value: 1000000 }
+      quantities { key: "output" value: 2000000 }
     }
     goods {
       quantities { key: "labour" value: 1 }

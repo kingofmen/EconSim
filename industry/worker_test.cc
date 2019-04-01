@@ -148,12 +148,16 @@ TEST_F(WorkerTest, OverlappingInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kHalfInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(2 * micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHalfInU,
                     field_.mutable_fixed_capital());
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(micro::kOneInU + micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kOneInU,
                     input->mutable_install_cost());
@@ -162,6 +166,10 @@ TEST_F(WorkerTest, OverlappingInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  // Three-fourths units of capital is 1.5, quarter unit of labour is 0.25,
+  // three-fourths units labour for the install cost is 0.75, total 2.5.
+  EXPECT_EQ(2 * micro::kOneInU + micro::kHalfInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 }
 
 // Test scale calculation for entirely distinct inputs.
@@ -197,14 +205,17 @@ TEST_F(WorkerTest, DistinctInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kHalfInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  // Capital costs 2, not 1, unit.
+  EXPECT_EQ(3 * micro::kHalfInU, labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(grain_.kind(), micro::kOneFourthInU, &wealth);
   market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
   CalculateProductionScale(wealth, &context, &field_);
-  std::cout << __FILE__ << ":" << __LINE__ << "\n";
   EXPECT_EQ(micro::kOneFourthInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
@@ -212,6 +223,8 @@ TEST_F(WorkerTest, DistinctInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(3 * micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(capital_.kind(), micro::kHalfInU,
                     field_.mutable_fixed_capital());
@@ -219,9 +232,10 @@ TEST_F(WorkerTest, DistinctInputs) {
   market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(capital_.kind(), micro::kHundredInU, &wealth);
   CalculateProductionScale(wealth, &context, &field_);
-  std::cout << __FILE__ << ":" << __LINE__ << "\n";
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(grain_.kind(), micro::kHundredInU, &wealth);
@@ -229,6 +243,8 @@ TEST_F(WorkerTest, DistinctInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(grain_.kind(), micro::kThreeFourthsInU, &wealth);
@@ -236,6 +252,8 @@ TEST_F(WorkerTest, DistinctInputs) {
   CalculateProductionScale(wealth, &context, &field_);
   EXPECT_EQ(micro::kThreeFourthsInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
+  EXPECT_EQ(micro::kThreeFourthsInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 }
 
 // Sanity-check unit-cost calculation.
