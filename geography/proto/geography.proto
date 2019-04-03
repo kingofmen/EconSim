@@ -35,6 +35,7 @@ message Area {
   ResourceLimits limits = 2;
   repeated uint64 pop_ids = 3;
   market.proto.MarketProto market = 4;
+  int64 id = 5;
 }
 
 // A series of steps by which a Field can be converted from one LandType to
@@ -57,4 +58,30 @@ message Transition {
 
   // Number of steps in the absence of fixed capital.
   int32 steps = 7;
+}
+
+// Types of connection.
+enum ConnectionType {
+  CT_OPEN = 0;
+  CT_FOREST = 1;
+  CT_MARSH = 2;
+  CT_HILLS = 3;
+  CT_MOUNTAIN = 4;
+  CT_DESERT = 5;
+  CT_RIVERINE = 6;
+  CT_COASTAL = 7;
+  CT_OPEN_SEA = 8;
+}
+
+// A connection between two areas.
+message Connection {
+  ConnectionType type = 1;
+  int64 distance = 2;
+  int64 width = 3;
+  int32 ruggedness = 4;
+  int32 chokepoints = 5;
+
+  int64 a_end = 6;
+  int64 z_end = 7;
+  // TODO: Infrastructure, vulnerability.
 }
