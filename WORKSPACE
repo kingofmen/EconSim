@@ -1,3 +1,12 @@
+# Needed to build protobuf, see https://github.com/protocolbuffers/protobuf/issues/5051.
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
+    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
+)
+
 # Needed to let proto_library rules find protoc.
 # Known issue: https://github.com/google/protobuf/issues/3766
 local_repository(
