@@ -23,3 +23,24 @@ cc_test(
     "@gtest//:gtest_main",
   ],
 )
+
+cc_library(
+  name = "connection",
+  srcs = ["connection.cc"],
+  hdrs = ["connection.h"],
+  deps = [
+    "//geography:geography",
+    "//geography/proto:geography_proto",
+    "@com_google_protobuf//:protobuf",
+  ],
+)
+
+cc_test(
+  name = "connection_test",
+  srcs = ["connection_test.cc"],
+  deps = [
+    ":connection",
+    "@gtest//:gtest",
+    "@gtest//:gtest_main",
+  ],
+)

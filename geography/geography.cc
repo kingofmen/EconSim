@@ -86,6 +86,7 @@ GenerateTransitionProcess(const proto::Field& field,
 std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
   std::unique_ptr<Area> ret;
   if (area.id() == 0) {
+    // TODO: Actually handle some errors here and below.
     return ret;
   }
   if (id_map_.find(area.id()) != id_map_.end()) {

@@ -81,7 +81,7 @@ message Connection {
   int32 ruggedness = 4;
   int32 chokepoints = 5;
 
-  int64 a_end = 6;
-  int64 z_end = 7;
+  int64 a = 6;
+  int64 z = 7;
   // TODO: Infrastructure, vulnerability.
 }
