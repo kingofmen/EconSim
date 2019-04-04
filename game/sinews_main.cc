@@ -11,7 +11,6 @@
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "industry/proto/decisions.pb.h"
 #include "util/proto/file.h"
-#include "util/status/status.h"
 
 int main(int /*argc*/, char** /*argv*/) {
   game::proto::GameWorld world_proto;

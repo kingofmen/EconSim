@@ -2,6 +2,7 @@
 # replacement.
 
 areas {
+  id: 1
   fields {
     land_type: LT_HEAVY_INDUSTRY
     owner_id: 2

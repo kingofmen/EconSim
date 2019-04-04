@@ -8,7 +8,6 @@
 #include "industry/industry.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
-#include "util/status/macros.h"
 
 namespace geography {
 namespace {
@@ -25,12 +24,15 @@ class GeographyTest : public testing::Test {
      production_ = std::unique_ptr<industry::Production>(
          new industry::Production());
      stuff_.set_kind("stuff");
-     area_proto_ = area_.Proto();
+     proto::Area proto;
+     proto.set_id(1);
+     area_ = Area::FromProto(proto);
+     area_proto_ = area_->Proto();
      field_ = area_proto_->add_fields();
    }
 
    std::unique_ptr<industry::Production> production_;
-   Area area_;
+   std::unique_ptr<Area> area_;
    proto::Area* area_proto_;
    proto::Field* field_;
    market::proto::Quantity stuff_;
@@ -72,7 +74,6 @@ TEST_F(GeographyTest, Recovery) {
   auto& limits = *resource_limits.mutable_maximum();
   stuff_ += 10;
   limits << stuff_;
-
   auto& recovery = *resource_limits.mutable_recovery();
   stuff_ += 10;
   recovery << stuff_;
@@ -81,9 +82,9 @@ TEST_F(GeographyTest, Recovery) {
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);
-  area_.Update();
+  area_->Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
-  area_.Update();
+  area_->Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
 }
 
@@ -99,9 +100,9 @@ TEST_F(GeographyTest, FallowRecovery) {
 
   auto& resources = *field_->mutable_resources();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 0);
-  area_.Update();
+  area_->Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
-  area_.Update();
+  area_->Update();
   EXPECT_DOUBLE_EQ(market::GetAmount(resources, stuff_), 10);
 }
 

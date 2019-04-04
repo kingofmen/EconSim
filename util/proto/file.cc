@@ -4,12 +4,13 @@
 
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
+#include "util/status/status.h"
 
 namespace util {
 namespace proto {
 
-util::Status ParseProtoFile(const std::string& filename,
-                            google::protobuf::Message* proto) {
+google::protobuf::util::Status
+ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   std::ifstream reader(filename);
   if (!reader.good()) {
     return util::InvalidArgumentError("Could not open file");

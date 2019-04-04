@@ -6,8 +6,11 @@
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
+#include "util/status/status.h"
 
 namespace geography {
+
+std::unordered_map<uint64, Area*> Area::id_map_;
 
 bool HasFixedCapital(const proto::Field& field,
                      const industry::Production& production) {
@@ -53,7 +56,7 @@ bool HasRawMaterials(const proto::Field& field,
   return true;
 }
 
-util::Status
+google::protobuf::util::Status
 GenerateTransitionProcess(const proto::Field& field,
                           const proto::Transition& transition,
                           industry::Production* production) {
@@ -78,6 +81,33 @@ GenerateTransitionProcess(const proto::Field& field,
     input += transition.step_input();
   }
   return util::OkStatus();
+}
+
+std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
+  std::unique_ptr<Area> ret;
+  if (area.id() == 0) {
+    return ret;
+  }
+  if (id_map_.find(area.id()) != id_map_.end()) {
+    return ret;
+  }
+  ret.reset(new Area(area));
+  return ret;
+}
+
+Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
+  if (proto_.id() == 0) {
+    // TODO: Handle error here.
+  }
+  id_map_[id()] = this;
+}
+
+Area::~Area() {
+  id_map_.erase(id());
+}
+
+Area* Area::GetById(uint64 id) {
+  return id_map_[id];
 }
 
 void Area::Update() {

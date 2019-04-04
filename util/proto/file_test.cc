@@ -20,7 +20,7 @@ TEST(ProtoUtils, TestParseProtoFile) {
   const std::string filename = "industry.pb.txt";
   auto status = ParseProtoFile(
       absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), &proto);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_OK(status) << status.error_message();
   EXPECT_EQ(industry::proto::LT_FIELDS, proto.land_type())
       << proto.DebugString();
 }

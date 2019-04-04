@@ -10,6 +10,7 @@
 #include "geography/proto/geography.pb.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/stubs/logging.h"
+#include "google/protobuf/stubs/status.h"
 #include "google/protobuf/text_format.h"
 #include "gtest/gtest.h"
 #include "industry/proto/decisions.pb.h"
@@ -27,7 +28,8 @@ const std::string kFixcapEconomy = "fixcap_economy.pb.txt";
 
 namespace {
 
-util::Status ReadFile(const std::string filename, google::protobuf::Message* proto) {
+google::protobuf::util::Status ReadFile(const std::string filename,
+                                        google::protobuf::Message* proto) {
   // This is a workaround for Bazel issues 4102 and 4292. When they are
   // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
   const std::string kTestDir = "C:/Users/Rolf/base";
@@ -42,7 +44,8 @@ protected:
   game::proto::GameWorld world_proto_;
   game::proto::Scenario scenario_;
 
-  util::Status ReadWorld(const std::string& setup, const std::string& scenario) {
+  google::protobuf::util::Status ReadWorld(const std::string& setup,
+                                           const std::string& scenario) {
     auto status = ReadFile(setup, &world_proto_);
     if (!status.ok()) return status;
     status = ReadFile(scenario, &scenario_);
@@ -50,7 +53,7 @@ protected:
     return util::OkStatus();
   }
 
-  util::Status SteadyStateTest() {
+  google::protobuf::util::Status SteadyStateTest() {
     game::GameWorld game_world(world_proto_, &scenario_);
     auto initial_prices = world_proto_.areas(0).market().prices_u();
     std::unordered_map<geography::proto::Field*,
@@ -87,7 +90,7 @@ protected:
 
 TEST_F(EconomyTest, TestSimpleSteadyState) {
   auto status = ReadWorld(kSimpleSetup, kSimpleEconomy);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
                            << world_proto_.DebugString();
@@ -95,7 +98,7 @@ TEST_F(EconomyTest, TestSimpleSteadyState) {
 
 TEST_F(EconomyTest, TestFixcapSteadyState) {
   auto status = ReadWorld(kFixcapSetup, kFixcapEconomy);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
                            << world_proto_.DebugString();

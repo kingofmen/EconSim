@@ -35,7 +35,7 @@ message Area {
   ResourceLimits limits = 2;
   repeated uint64 pop_ids = 3;
   market.proto.MarketProto market = 4;
-  int64 id = 5;
+  uint64 id = 5;
 }
 
 // A series of steps by which a Field can be converted from one LandType to

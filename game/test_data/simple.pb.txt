@@ -1,4 +1,5 @@
 areas {
+  id: 1
   fields {
     land_type: LT_FIELDS
     owner_id: 1

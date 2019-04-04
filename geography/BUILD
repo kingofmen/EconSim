@@ -8,6 +8,7 @@ cc_library(
     "//industry:industry",
     "//market/proto:goods_proto",
     "//geography/proto:geography_proto",
+    "@com_google_protobuf//:protobuf",
     "//util/status:status",
   ],
 )
