@@ -77,6 +77,13 @@ TEST_F(ConnectionTest, TestFromProto) {
   const auto& lookup_z = Connection::ByEndpoint(z_end_->id());
   EXPECT_EQ(1, lookup_z.size());
   EXPECT_EQ(connection.get(), *lookup_z.begin());
+
+  EXPECT_EQ(a_end_->id(), connection->OtherSide(z_end_->id()));
+  EXPECT_EQ(z_end_->id(), connection->OtherSide(a_end_->id()));
+  EXPECT_EQ(0, connection->OtherSide(10));
+
+  EXPECT_EQ(a_end_.get(), connection->OtherSide(z_end_.get()));
+  EXPECT_EQ(z_end_.get(), connection->OtherSide(a_end_.get()));
 }
 
 

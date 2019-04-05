@@ -38,4 +38,34 @@ const std::unordered_set<Connection*>& Connection::ByEndpoint(uint64 area_id) {
   return endpoint_map_[area_id];
 }
 
+uint64 Connection::OtherSide(uint64 area_id) const {
+  if (area_id == proto_.a()) {
+    return proto_.z();
+  }
+  if (area_id == proto_.z()) {
+    return proto_.a();
+  }
+  return 0;
+}
+
+Area* Connection::OtherSide(const Area* area) {
+  if (area == a()) {
+    return z();
+  }
+  if (area == z()) {
+    return a();
+  }
+  return NULL;
+}
+
+const Area* Connection::OtherSide(const Area* area) const {
+  if (area == a()) {
+    return z();
+  }
+  if (area == z()) {
+    return a();
+  }
+  return NULL;
+}
+
 } // namespace geography

@@ -20,6 +20,15 @@ class Connection {
   // Endpoint access.
   Area* a() { return Area::GetById(proto_.a()); }
   Area* z() { return Area::GetById(proto_.z()); }
+  const Area* a() const { return Area::GetById(proto_.a()); }
+  const Area* z() const { return Area::GetById(proto_.z()); }
+
+  // ID of the other side.
+  uint64 OtherSide(uint64 area_id) const;
+
+  // Other-side area.
+  Area* OtherSide(const Area* area);
+  const Area* OtherSide(const Area* area) const;
 
   // Builder method.
   static std::unique_ptr<Connection> FromProto(const proto::Connection& conn);
