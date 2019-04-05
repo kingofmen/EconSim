@@ -1,8 +1,14 @@
 #include "geography/connection.h"
 
-#include <memory>
-
 namespace geography {
+
+std::unordered_map<uint64, std::unordered_set<Connection*>>
+    Connection::endpoint_map_;
+
+Connection::Connection(const proto::Connection& conn) : proto_(conn) {
+  endpoint_map_[proto_.a()].insert(this);
+  endpoint_map_[proto_.z()].insert(this);
+}
 
 std::unique_ptr<Connection>
 Connection::FromProto(const proto::Connection& conn) {
@@ -12,6 +18,9 @@ Connection::FromProto(const proto::Connection& conn) {
     return ret;
   }
   if (conn.z() == 0) {
+    return ret;
+  }
+  if (conn.a() == conn.z()) {
     return ret;
   }
   if (conn.distance() == 0) {
@@ -25,6 +34,8 @@ Connection::FromProto(const proto::Connection& conn) {
   return ret;
 }
 
-Connection::Connection(const proto::Connection& conn) : proto_(conn) {}
+const std::unordered_set<Connection*>& Connection::ByEndpoint(uint64 area_id) {
+  return endpoint_map_[area_id];
+}
 
 } // namespace geography

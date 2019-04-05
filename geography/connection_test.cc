@@ -25,42 +25,58 @@ class ConnectionTest : public testing::Test {
 
 TEST_F(ConnectionTest, TestFromProto) {
   proto_.Clear();
-  proto_.set_z(2);
+  proto_.set_z(z_end_->id());
   proto_.set_distance(1);
   proto_.set_width(1);
   auto connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_a(1);
+  proto_.set_a(a_end_->id());
   proto_.set_distance(1);
   proto_.set_width(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_a(1);
-  proto_.set_z(2);
+  proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
   proto_.set_width(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_a(1);
-  proto_.set_z(2);
+  proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
   proto_.set_distance(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_a(1);
-  proto_.set_z(2);
+  proto_.set_a(a_end_->id());
+  proto_.set_z(1);
+  proto_.set_distance(1);
+  proto_.set_width(1);
+  connection = Connection::FromProto(proto_);
+  EXPECT_EQ(NULL, connection.get());
+
+  proto_.Clear();
+  proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
   proto_.set_distance(1);
   proto_.set_width(1);
   connection = Connection::FromProto(proto_);
   EXPECT_FALSE(connection.get() == NULL);
   EXPECT_EQ(connection->a(), a_end_.get());
   EXPECT_EQ(connection->z(), z_end_.get());
+
+  const auto& lookup_a = Connection::ByEndpoint(a_end_->id());
+  EXPECT_EQ(1, lookup_a.size());
+  EXPECT_EQ(connection.get(), *lookup_a.begin());
+
+  const auto& lookup_z = Connection::ByEndpoint(z_end_->id());
+  EXPECT_EQ(1, lookup_z.size());
+  EXPECT_EQ(connection.get(), *lookup_z.begin());
 }
 
 
