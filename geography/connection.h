@@ -16,6 +16,7 @@ namespace geography {
 // either endpoint.
 class Connection {
  public:
+  ~Connection();
 
   // Endpoint access.
   Area* a() { return Area::GetById(proto_.a()); }

@@ -10,6 +10,11 @@ Connection::Connection(const proto::Connection& conn) : proto_(conn) {
   endpoint_map_[proto_.z()].insert(this);
 }
 
+Connection::~Connection() {
+  endpoint_map_[proto_.a()].erase(this);
+  endpoint_map_[proto_.z()].erase(this);
+}
+
 std::unique_ptr<Connection>
 Connection::FromProto(const proto::Connection& conn) {
   std::unique_ptr<Connection> ret;
