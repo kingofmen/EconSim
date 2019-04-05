@@ -4,6 +4,7 @@ cc_library(
   hdrs = ["game_world.h"],
   deps = [
     "//game/proto:game_world_proto",
+    "//geography:connection",
     "//geography:geography",
     "//industry:industry",
     "//industry:worker",

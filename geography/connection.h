@@ -13,7 +13,7 @@ namespace geography {
 
 // Bidirectional connections between Areas. Note that endpoints are denoted 'a'
 // and 'z', but this is only for convenience - Connections may be looked up by
-// either endpoint.
+// either endpoint, and are fully symmetric.
 class Connection {
  public:
   ~Connection();
@@ -30,6 +30,9 @@ class Connection {
   // Other-side area.
   Area* OtherSide(const Area* area);
   const Area* OtherSide(const Area* area) const;
+
+  // Proto access.
+  const proto::Connection& Proto() const { return proto_; }
 
   // Builder method.
   static std::unique_ptr<Connection> FromProto(const proto::Connection& conn);

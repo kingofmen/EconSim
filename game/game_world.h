@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "game/proto/game_world.pb.h"
+#include "geography/connection.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/decisions/production_evaluator.h"
@@ -41,6 +42,7 @@ private:
   // World-state information.
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
+  std::vector<std::unique_ptr<geography::Connection>> connections_;
   std::unordered_map<std::string, const industry::Production*> production_map_;
   industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
 };

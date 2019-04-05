@@ -181,6 +181,10 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
     areas_.emplace_back(geography::Area::FromProto(area));
   }
 
+  for (const auto& conn : world.connections()) {
+    connections_.emplace_back(geography::Connection::FromProto(conn));
+  }
+
   for (const auto* prod_proto : scenario_.production_chains_) {
     production_map_.emplace(prod_proto->name(), new industry::Production(*prod_proto));
   }
@@ -264,10 +268,14 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
   for (const auto& pop: pops_) {
     *proto->add_pops() = *pop->Proto();
   }
-  for (const auto& area: areas_) {
+  for (const auto& area : areas_) {
     auto* area_proto = proto->add_areas();
     *area_proto = *area->Proto();
     *area_proto->mutable_market() = *area->mutable_market()->Proto();
+  }
+  for (const auto& conn : connections_) {
+    auto* conn_proto = proto->add_connections();
+    *conn_proto = conn->Proto();
   }
 }
 

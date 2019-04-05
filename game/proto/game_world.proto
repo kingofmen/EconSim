@@ -16,4 +16,5 @@ message Scenario {
 message GameWorld {
   repeated geography.proto.Area areas = 1;
   repeated population.proto.PopUnit pops = 2;
+  repeated geography.proto.Connection connections = 3;
 }
