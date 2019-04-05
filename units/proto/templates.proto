@@ -1,0 +1,6 @@
+syntax = "proto2";
+package units.proto;
+
+message Template {
+  optional uint64 id = 1;
+}
