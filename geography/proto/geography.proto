@@ -76,12 +76,12 @@ enum ConnectionType {
 // A connection between two areas.
 message Connection {
   ConnectionType type = 1;
-  int64 distance = 2;
-  int64 width = 3;
+  uint64 distance = 2;
+  uint64 width = 3;
   int32 ruggedness = 4;
   int32 chokepoints = 5;
 
-  int64 a = 6;
-  int64 z = 7;
+  uint64 a = 6;
+  uint64 z = 7;
   // TODO: Infrastructure, vulnerability.
 }
