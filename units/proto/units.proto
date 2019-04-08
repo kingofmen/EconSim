@@ -1,6 +1,20 @@
 syntax = "proto2";
 package units.proto;
 
+message Location {
+  optional uint64 source_area_id = 1;
+  optional uint64 target_area_id = 2;
+  optional uint64 destination_area_id = 3;
+  optional uint64 progress_u = 4;
+}
+
+message UnitId {
+  optional uint64 type = 1;
+  optional uint64 number = 2;
+}
+
 message Unit {
-  optional uint64 template_id = 1;
+  optional UnitId unit_id = 1;
+  optional uint64 template_id = 2;
+  optional Location location = 3;
 }
