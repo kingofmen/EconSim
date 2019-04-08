@@ -2,21 +2,36 @@
 #ifndef BASE_GEOGRAPHY_CONNECTION_H
 #define BASE_GEOGRAPHY_CONNECTION_H
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
+#include "units/unit_id.h"
+#include "units/mobile.h"
+#include "util/headers/int_types.h"
 
 namespace geography {
 
 // Bidirectional connections between Areas. Note that endpoints are denoted 'a'
 // and 'z', but this is only for convenience - Connections may be looked up by
-// either endpoint, and are fully symmetric.
+// either endpoint, and are fully symmetric. Note that there may be more than
+// one Connection between two Areas.
 class Connection {
  public:
   ~Connection();
+
+  struct Detection {
+    int64 see_target;
+    int64 target_sees;
+  };
+  typedef std::function<Detection(units::Mobile*)> Listener;
+
+  // Callbacks for detection and evasion.
+  void Register(const units::proto::UnitId& unit_id, Listener l);
+  void UnRegister(const units::proto::UnitId& unit_id);
 
   // Endpoint access.
   Area* a() { return Area::GetById(proto_.a()); }
@@ -31,6 +46,8 @@ class Connection {
   Area* OtherSide(const Area* area);
   const Area* OtherSide(const Area* area) const;
 
+  uint64 ID() const { return proto_.id(); }
+
   // Proto access.
   const proto::Connection& Proto() const { return proto_; }
 
@@ -40,6 +57,13 @@ class Connection {
   // Lookup by endpoint; both A and Z connections are returned.
   static const std::unordered_set<Connection*>& ByEndpoint(uint64 area_id);
 
+  // Lookup by both endpoints.
+  static const std::unordered_set<Connection*>& ByEndpoints(uint64 area_one,
+                                                            uint64 area_two);
+
+  // Lookup by connection ID.
+  static Connection* ById(uint64 conn_id);
+
 private:
   Connection() = delete;
   Connection(const proto::Connection& conn);
@@ -47,9 +71,27 @@ private:
   // The underlying data.
   proto::Connection proto_;
 
+  // Listener map.
+  std::unordered_map<units::proto::UnitId, Listener> listeners_;
+
+  // ID mapping.
+  static std::unordered_map<uint64, Connection*> id_map_;
+
   // Endpoint mapping.
   static std::unordered_map<uint64, std::unordered_set<Connection*>>
       endpoint_map_;
+
+  // Mapping by both endpoints.
+  static std::unordered_map<uint64, std::unordered_set<Connection*>>
+      both_endpoints_map_;
+};
+
+// Interface for moving Mobiles.
+class Traverser {
+public:
+  // Updates location; returns true if final destination is reached.
+  virtual bool Traverse(const units::Mobile& mobile,
+                        units::proto::Location* location) const = 0;
 };
 
 

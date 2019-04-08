@@ -25,6 +25,7 @@ class ConnectionTest : public testing::Test {
 
 TEST_F(ConnectionTest, TestFromProto) {
   proto_.Clear();
+  proto_.set_id(1);
   proto_.set_z(z_end_->id());
   proto_.set_distance(1);
   proto_.set_width(1);
@@ -33,12 +34,22 @@ TEST_F(ConnectionTest, TestFromProto) {
 
   proto_.Clear();
   proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
   proto_.set_distance(1);
   proto_.set_width(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
+  proto_.set_id(1);
+  proto_.set_a(a_end_->id());
+  proto_.set_distance(1);
+  proto_.set_width(1);
+  connection = Connection::FromProto(proto_);
+  EXPECT_EQ(NULL, connection.get());
+
+  proto_.Clear();
+  proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
   proto_.set_width(1);
@@ -46,6 +57,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
+  proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
   proto_.set_distance(1);
@@ -53,6 +65,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
+  proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(1);
   proto_.set_distance(1);
@@ -61,6 +74,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
+  proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
   proto_.set_distance(1);
@@ -70,6 +84,9 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(connection->a(), a_end_.get());
   EXPECT_EQ(connection->z(), z_end_.get());
 
+  auto duplicate = Connection::FromProto(proto_);
+  EXPECT_EQ(NULL, duplicate.get());
+
   const auto& lookup_a = Connection::ByEndpoint(a_end_->id());
   EXPECT_EQ(1, lookup_a.size());
   EXPECT_EQ(connection.get(), *lookup_a.begin());
@@ -77,6 +94,16 @@ TEST_F(ConnectionTest, TestFromProto) {
   const auto& lookup_z = Connection::ByEndpoint(z_end_->id());
   EXPECT_EQ(1, lookup_z.size());
   EXPECT_EQ(connection.get(), *lookup_z.begin());
+
+  const auto* lookup_id = Connection::ById(1);
+  EXPECT_EQ(connection.get(), lookup_id);
+
+  const auto& lookup_a_z = Connection::ByEndpoints(a_end_->id(), z_end_->id());
+  EXPECT_EQ(1, lookup_a_z.size());
+  EXPECT_EQ(connection.get(), *lookup_a_z.begin());
+  const auto& lookup_z_a = Connection::ByEndpoints(z_end_->id(), a_end_->id());
+  EXPECT_EQ(1, lookup_z_a.size());
+  EXPECT_EQ(connection.get(), *lookup_z_a.begin());
 
   EXPECT_EQ(a_end_->id(), connection->OtherSide(z_end_->id()));
   EXPECT_EQ(z_end_->id(), connection->OtherSide(a_end_->id()));

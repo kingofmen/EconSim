@@ -31,6 +31,9 @@ cc_library(
   deps = [
     "//geography:geography",
     "//geography/proto:geography_proto",
+    "//units:mobile",
+    "//units:unit_id",
+    "//util/headers:int_types",
     "@com_google_protobuf//:protobuf",
   ],
 )
