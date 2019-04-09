@@ -6,6 +6,7 @@ message Location {
   optional uint64 target_area_id = 2;
   optional uint64 destination_area_id = 3;
   optional uint64 progress_u = 4;
+  optional uint64 connection_id = 5;
 }
 
 message UnitId {

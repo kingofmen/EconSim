@@ -24,14 +24,17 @@ class Connection {
   ~Connection();
 
   struct Detection {
+    units::proto::UnitId unit_id;
     int64 see_target;
     int64 target_sees;
   };
-  typedef std::function<Detection(units::Mobile*)> Listener;
+  typedef std::function<Detection(const units::Mobile&)> Listener;
 
   // Callbacks for detection and evasion.
   void Register(const units::proto::UnitId& unit_id, Listener l);
   void UnRegister(const units::proto::UnitId& unit_id);
+  void Listen(const units::Mobile& mobile, uint64 distance_u,
+              std::vector<Detection>* detections) const;
 
   // Endpoint access.
   Area* a() { return Area::GetById(proto_.a()); }
@@ -47,6 +50,9 @@ class Connection {
   const Area* OtherSide(const Area* area) const;
 
   uint64 ID() const { return proto_.id(); }
+  uint64 length_u() const { return proto_.distance_u(); }
+  uint64 width_u() const { return proto_.width_u(); }
+  geography::proto::ConnectionType type() const { return proto_.type(); }
 
   // Proto access.
   const proto::Connection& Proto() const { return proto_; }
@@ -94,6 +100,12 @@ public:
                         units::proto::Location* location) const = 0;
 };
 
+// Default implementation.
+class DefaultTraverser : public Traverser {
+public:
+  bool Traverse(const units::Mobile& mobile,
+                units::proto::Location* location) const override;
+};
 
 } // namespace geography
 

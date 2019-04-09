@@ -77,8 +77,8 @@ enum ConnectionType {
 message Connection {
   ConnectionType type = 1;
   uint64 id = 2;
-  uint64 distance = 3;
-  uint64 width = 4;
+  uint64 distance_u = 3;
+  uint64 width_u = 4;
   int32 ruggedness = 5;
   int32 chokepoints = 6;
 

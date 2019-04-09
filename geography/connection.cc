@@ -63,10 +63,10 @@ Connection::FromProto(const proto::Connection& conn) {
   if (conn.a() == conn.z()) {
     return ret;
   }
-  if (conn.distance() == 0) {
+  if (conn.distance_u() == 0) {
     return ret;
   }
-  if (conn.width() == 0) {
+  if (conn.width_u() == 0) {
     return ret;
   }
 
@@ -113,6 +113,52 @@ const Area* Connection::OtherSide(const Area* area) const {
     return a();
   }
   return NULL;
+}
+
+void Connection::Listen(const units::Mobile& mobile, uint64 distance_u,
+                        std::vector<Connection::Detection>* detections) const {
+  for (const auto& listener : listeners_) {
+    Connection::Detection det = listener.second(mobile);
+    det.unit_id = listener.first;
+    detections->emplace_back(std::move(det));
+  }
+}
+
+bool DefaultTraverser::Traverse(const units::Mobile& mobile,
+                                units::proto::Location* location) const {
+  Connection* conn = Connection::ById(location->connection_id());
+  if (conn == NULL) {
+    // TODO: Actual thought here, not just the first one.
+    conn = *Connection::ByEndpoints(location->source_area_id(),
+                                    location->target_area_id())
+                .begin();
+  }
+  if (conn == NULL) {
+    // TODO: Handle this error case.
+    return false;
+  }
+
+  uint64 progress_u = location->progress_u();
+  uint64 distance_u = mobile.speed_u(conn->type());
+  uint64 length_u = conn->length_u() - progress_u;
+  if (distance_u > length_u) {
+    distance_u = length_u;
+  }
+  std::vector<Connection::Detection> detections;
+  conn->Listen(mobile, distance_u, &detections);
+  // TODO: Actually handle detections.
+
+  if (distance_u >= length_u) {
+    location->clear_progress_u();
+    location->set_source_area_id(location->target_area_id());
+    // TODO: Invoke AI to set new target.
+    location->clear_target_area_id();
+    location->clear_connection_id();
+  } else {
+    location->set_progress_u(progress_u + distance_u);
+  }
+
+  return false;
 }
 
 } // namespace geography

@@ -43,6 +43,9 @@ cc_test(
   srcs = ["connection_test.cc"],
   deps = [
     ":connection",
+    "//units/impl:unit_impl",
+    "//units:mobile",
+    "//units/proto:units_proto",
     "@gtest//:gtest",
     "@gtest//:gtest_main",
   ],

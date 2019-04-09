@@ -5,6 +5,9 @@
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "gtest/gtest.h"
+#include "units/impl/land_cargo.h"
+#include "units/mobile.h"
+#include "units/proto/units.pb.h"
 
 namespace geography {
 
@@ -27,32 +30,24 @@ TEST_F(ConnectionTest, TestFromProto) {
   proto_.Clear();
   proto_.set_id(1);
   proto_.set_z(z_end_->id());
-  proto_.set_distance(1);
-  proto_.set_width(1);
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
   auto connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
-  proto_.set_distance(1);
-  proto_.set_width(1);
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
   proto_.set_id(1);
   proto_.set_a(a_end_->id());
-  proto_.set_distance(1);
-  proto_.set_width(1);
-  connection = Connection::FromProto(proto_);
-  EXPECT_EQ(NULL, connection.get());
-
-  proto_.Clear();
-  proto_.set_id(1);
-  proto_.set_a(a_end_->id());
-  proto_.set_z(z_end_->id());
-  proto_.set_width(1);
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
@@ -60,7 +55,15 @@ TEST_F(ConnectionTest, TestFromProto) {
   proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
-  proto_.set_distance(1);
+  proto_.set_width_u(1);
+  connection = Connection::FromProto(proto_);
+  EXPECT_EQ(NULL, connection.get());
+
+  proto_.Clear();
+  proto_.set_id(1);
+  proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
+  proto_.set_distance_u(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
@@ -68,8 +71,8 @@ TEST_F(ConnectionTest, TestFromProto) {
   proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(1);
-  proto_.set_distance(1);
-  proto_.set_width(1);
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
   connection = Connection::FromProto(proto_);
   EXPECT_EQ(NULL, connection.get());
 
@@ -77,8 +80,8 @@ TEST_F(ConnectionTest, TestFromProto) {
   proto_.set_id(1);
   proto_.set_a(a_end_->id());
   proto_.set_z(z_end_->id());
-  proto_.set_distance(1);
-  proto_.set_width(1);
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
   connection = Connection::FromProto(proto_);
   EXPECT_FALSE(connection.get() == NULL);
   EXPECT_EQ(connection->a(), a_end_.get());
@@ -113,5 +116,42 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(z_end_.get(), connection->OtherSide(a_end_.get()));
 }
 
+TEST_F(ConnectionTest, TestTraversing) {
+  proto_.set_id(1);
+  proto_.set_a(a_end_->id());
+  proto_.set_z(z_end_->id());
+  proto_.set_distance_u(2);
+  proto_.set_width_u(1);
+  auto connection = Connection::FromProto(proto_);
+  units::proto::UnitId unit1;
+  unit1.set_type(1);
+  unit1.set_number(1);
+
+  int attempts = 0;
+  connection->Register(
+      unit1, [&attempts](const units::Mobile&) -> Connection::Detection {
+        attempts++;
+        return Connection::Detection();
+      });
+
+  units::impl::LandCargoCarrier mobile;
+  units::proto::Location location;
+  location.set_source_area_id(a_end_->id());
+  location.set_target_area_id(z_end_->id());
+  location.set_connection_id(connection->ID());
+  const DefaultTraverser traverser;
+  traverser.Traverse(mobile, &location);
+  EXPECT_EQ(1, attempts);
+  EXPECT_EQ(a_end_->id(), location.source_area_id());
+  EXPECT_EQ(z_end_->id(), location.target_area_id());
+  EXPECT_EQ(1, location.progress_u());
+
+  connection->UnRegister(unit1);
+  traverser.Traverse(mobile, &location);
+  EXPECT_EQ(1, attempts);
+  EXPECT_EQ(z_end_->id(), location.source_area_id());
+  EXPECT_FALSE(location.has_target_area_id());
+  EXPECT_EQ(0, location.progress_u());
+}
 
 } // namespace geography
