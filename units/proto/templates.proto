@@ -1,6 +1,11 @@
 syntax = "proto2";
 package units.proto;
 
+message Mobility {
+  optional uint64 speed_u = 1;
+}
+
 message Template {
   optional uint64 id = 1;
+  optional Mobility mobility = 2;
 }

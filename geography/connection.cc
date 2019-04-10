@@ -115,7 +115,7 @@ const Area* Connection::OtherSide(const Area* area) const {
   return NULL;
 }
 
-void Connection::Listen(const units::Mobile& mobile, uint64 distance_u,
+void Connection::Listen(const Mobile& mobile, uint64 distance_u,
                         std::vector<Connection::Detection>* detections) const {
   for (const auto& listener : listeners_) {
     Connection::Detection det = listener.second(mobile);
@@ -124,8 +124,8 @@ void Connection::Listen(const units::Mobile& mobile, uint64 distance_u,
   }
 }
 
-bool DefaultTraverser::Traverse(const units::Mobile& mobile,
-                                units::proto::Location* location) const {
+bool DefaultTraverser::Traverse(const Mobile& mobile,
+                                proto::Location* location) const {
   Connection* conn = Connection::ById(location->connection_id());
   if (conn == NULL) {
     // TODO: Actual thought here, not just the first one.

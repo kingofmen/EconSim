@@ -1,11 +1,9 @@
-#ifndef UNITS_MOBILE_HH
-#define UNITS_MOBILE_HH
+#ifndef GEOGRAPHY_MOBILE_HH
+#define GEOGRAPHY_MOBILE_HH
 
-#include "geography/proto/geography.pb.h"
-#include "units/proto/units.pb.h"
 #include "util/headers/int_types.h"
 
-namespace units {
+namespace geography {
 
 // Interface that tracks the movement-related aspects of a unit - speed,
 // location, transport capacity.
@@ -15,6 +13,6 @@ public:
   virtual uint64 speed_u(geography::proto::ConnectionType type) const = 0;
 };
 
-} // namespace units
+} // namespace geography
 
 #endif

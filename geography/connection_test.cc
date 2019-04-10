@@ -5,9 +5,7 @@
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "gtest/gtest.h"
-#include "units/impl/land_cargo.h"
-#include "units/mobile.h"
-#include "units/proto/units.pb.h"
+#include "geography/mobile.h"
 
 namespace geography {
 
@@ -128,14 +126,21 @@ TEST_F(ConnectionTest, TestTraversing) {
   unit1.set_number(1);
 
   int attempts = 0;
-  connection->Register(
-      unit1, [&attempts](const units::Mobile&) -> Connection::Detection {
-        attempts++;
-        return Connection::Detection();
-      });
+  connection->Register(unit1,
+                       [&attempts](const Mobile&) -> Connection::Detection {
+                         attempts++;
+                         return Connection::Detection();
+                       });
 
-  units::impl::LandCargoCarrier mobile;
-  units::proto::Location location;
+  class TestMobile : public Mobile {
+  public:
+    uint64 speed_u(geography::proto::ConnectionType type) const override {
+      return 1;
+    }
+  };
+
+  TestMobile mobile;
+  proto::Location location;
   location.set_source_area_id(a_end_->id());
   location.set_target_area_id(z_end_->id());
   location.set_connection_id(connection->ID());

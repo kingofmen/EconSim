@@ -8,9 +8,9 @@
 #include <unordered_set>
 
 #include "geography/geography.h"
+#include "geography/mobile.h"
 #include "geography/proto/geography.pb.h"
 #include "units/unit_id.h"
-#include "units/mobile.h"
 #include "util/headers/int_types.h"
 
 namespace geography {
@@ -20,7 +20,7 @@ namespace geography {
 // either endpoint, and are fully symmetric. Note that there may be more than
 // one Connection between two Areas.
 class Connection {
- public:
+public:
   ~Connection();
 
   struct Detection {
@@ -28,12 +28,12 @@ class Connection {
     int64 see_target;
     int64 target_sees;
   };
-  typedef std::function<Detection(const units::Mobile&)> Listener;
+  typedef std::function<Detection(const Mobile&)> Listener;
 
   // Callbacks for detection and evasion.
   void Register(const units::proto::UnitId& unit_id, Listener l);
   void UnRegister(const units::proto::UnitId& unit_id);
-  void Listen(const units::Mobile& mobile, uint64 distance_u,
+  void Listen(const Mobile& mobile, uint64 distance_u,
               std::vector<Detection>* detections) const;
 
   // Endpoint access.
@@ -96,18 +96,17 @@ private:
 class Traverser {
 public:
   // Updates location; returns true if final destination is reached.
-  virtual bool Traverse(const units::Mobile& mobile,
-                        units::proto::Location* location) const = 0;
+  virtual bool Traverse(const Mobile& mobile,
+                        geography::proto::Location* location) const = 0;
 };
 
 // Default implementation.
 class DefaultTraverser : public Traverser {
 public:
-  bool Traverse(const units::Mobile& mobile,
-                units::proto::Location* location) const override;
+  bool Traverse(const Mobile& mobile,
+                geography::proto::Location* location) const override;
 };
 
 } // namespace geography
-
 
 #endif

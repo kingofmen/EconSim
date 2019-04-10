@@ -4,12 +4,12 @@
 
 #include "geography/proto/geography.pb.h"
 #include "market/proto/goods.pb.h"
-#include "units/mobile.h"
+#include "geography/mobile.h"
 
 namespace units {
 namespace impl {
 
-class LandCargoCarrier : public units::Mobile {
+class LandCargoCarrier : public geography::Mobile {
 public:
   uint64 speed_u(geography::proto::ConnectionType type) const override;
 

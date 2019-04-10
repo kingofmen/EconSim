@@ -25,13 +25,23 @@ cc_test(
 )
 
 cc_library(
+  name = "mobile",
+  hdrs = ["mobile.h"],
+  deps = [
+    "//geography/proto:geography_proto",
+    "//util/headers:int_types",
+    "@com_google_protobuf//:protobuf",
+  ],
+)
+
+cc_library(
   name = "connection",
   srcs = ["connection.cc"],
   hdrs = ["connection.h"],
   deps = [
-    "//geography:geography",
+    ":geography",
+    ":mobile",
     "//geography/proto:geography_proto",
-    "//units:mobile",
     "//units:unit_id",
     "//util/headers:int_types",
     "@com_google_protobuf//:protobuf",
@@ -43,10 +53,8 @@ cc_test(
   srcs = ["connection_test.cc"],
   deps = [
     ":connection",
-    "//units/impl:unit_impl",
-    "//units:mobile",
-    "//units/proto:units_proto",
     "@gtest//:gtest",
     "@gtest//:gtest_main",
   ],
 )
+
