@@ -6,6 +6,7 @@
 #include "geography/proto/geography.pb.h"
 #include "gtest/gtest.h"
 #include "geography/mobile.h"
+#include "util/headers/int_types.h"
 
 namespace geography {
 
@@ -121,7 +122,7 @@ TEST_F(ConnectionTest, TestTraversing) {
   proto_.set_distance_u(2);
   proto_.set_width_u(1);
   auto connection = Connection::FromProto(proto_);
-  units::proto::UnitId unit1;
+  util::proto::ObjectId unit1;
   unit1.set_type(1);
   unit1.set_number(1);
 

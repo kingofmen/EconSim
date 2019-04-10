@@ -42,7 +42,7 @@ cc_library(
     ":geography",
     ":mobile",
     "//geography/proto:geography_proto",
-    "//units:unit_id",
+    "//util/proto:object_id",
     "//util/headers:int_types",
     "@com_google_protobuf//:protobuf",
   ],
@@ -53,6 +53,9 @@ cc_test(
   srcs = ["connection_test.cc"],
   deps = [
     ":connection",
+    ":mobile",
+    "//geography/proto:geography_proto",
+    "//util/headers:int_types",
     "@gtest//:gtest",
     "@gtest//:gtest_main",
   ],

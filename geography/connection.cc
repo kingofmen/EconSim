@@ -35,12 +35,12 @@ Connection::~Connection() {
   id_map_.erase(ID());
 }
 
-void Connection::Register(const units::proto::UnitId& unit_id,
+void Connection::Register(const util::proto::ObjectId& unit_id,
                           Connection::Listener l) {
   listeners_[unit_id] = l;
 }
 
-void Connection::UnRegister(const units::proto::UnitId& unit_id) {
+void Connection::UnRegister(const util::proto::ObjectId& unit_id) {
   listeners_.erase(unit_id);
 }
 

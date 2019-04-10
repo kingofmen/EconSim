@@ -1,12 +1,9 @@
 syntax = "proto2";
 package units.proto;
 
-message UnitId {
-  optional uint64 type = 1;
-  optional uint64 number = 2;
-}
+import "util/proto/object_id.proto";
 
 message Unit {
-  optional UnitId unit_id = 1;
+  optional util.proto.ObjectId unit_id = 1;
   optional uint64 template_id = 2;
 }

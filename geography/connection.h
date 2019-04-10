@@ -10,7 +10,7 @@
 #include "geography/geography.h"
 #include "geography/mobile.h"
 #include "geography/proto/geography.pb.h"
-#include "units/unit_id.h"
+#include "util/proto/object_id.h"
 #include "util/headers/int_types.h"
 
 namespace geography {
@@ -24,15 +24,15 @@ public:
   ~Connection();
 
   struct Detection {
-    units::proto::UnitId unit_id;
+    util::proto::ObjectId unit_id;
     int64 see_target;
     int64 target_sees;
   };
   typedef std::function<Detection(const Mobile&)> Listener;
 
   // Callbacks for detection and evasion.
-  void Register(const units::proto::UnitId& unit_id, Listener l);
-  void UnRegister(const units::proto::UnitId& unit_id);
+  void Register(const util::proto::ObjectId& unit_id, Listener l);
+  void UnRegister(const util::proto::ObjectId& unit_id);
   void Listen(const Mobile& mobile, uint64 distance_u,
               std::vector<Detection>* detections) const;
 
@@ -78,7 +78,7 @@ private:
   proto::Connection proto_;
 
   // Listener map.
-  std::unordered_map<units::proto::UnitId, Listener> listeners_;
+  std::unordered_map<util::proto::ObjectId, Listener> listeners_;
 
   // ID mapping.
   static std::unordered_map<uint64, Connection*> id_map_;

@@ -25,3 +25,23 @@ cc_test(
     ":test_data/industry.pb.txt",
   ],
 )
+
+cc_proto_library(
+  name = "object_id_proto",
+  deps = [":object_id_proto_lib"],
+)
+
+proto_library(
+  name = "object_id_proto_lib",
+  srcs = ["object_id.proto"],
+  deps = ["//market/proto:goods_proto_lib"],
+)
+
+cc_library(
+  name = "object_id",
+  hdrs = ["object_id.h"],
+  deps = [
+    "//util/proto:object_id_proto",
+    "//util/headers:int_types",
+  ],
+)

@@ -6,18 +6,23 @@ cc_proto_library(
 )
 
 cc_proto_library(
-  name = "units_templates_proto",
-  deps = [":units_templates_proto_lib"],
+  name = "unit_templates_proto",
+  deps = [
+    ":unit_templates_proto_lib",
+  ],
 )
 
 proto_library(
   name = "units_proto_lib",
   srcs = ["units.proto"],
-  deps = ["//market/proto:goods_proto_lib"],
+  deps = [
+    "//market/proto:goods_proto_lib",
+    "//util/proto:object_id_proto_lib",
+  ],
 )
 
 proto_library(
-  name = "units_templates_proto_lib",
+  name = "unit_templates_proto_lib",
   srcs = ["templates.proto"],
   deps = ["//market/proto:goods_proto_lib"],
 )
