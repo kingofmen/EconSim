@@ -8,7 +8,7 @@ cc_library(
     "//geography:mobile",
     "//units/proto:units_proto",
     "//units/proto:unit_templates_proto",
-    "//util/status:status",
+    "//util/proto:object_id",
     "@com_google_protobuf//:protobuf",
   ],
 )

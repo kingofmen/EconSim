@@ -1,5 +1,10 @@
 #include "units/unit.h"
 
+#include <unordered_map>
+
+std::unordered_map<uint64, const units::proto::Template> units::Unit::templates_;
+std::unordered_map<util::proto::ObjectId, units::Unit*> units::Unit::units_;
+
 namespace units {
 
 std::unique_ptr<Unit> Unit::FromProto(const proto::Unit& proto) {
@@ -12,6 +17,9 @@ std::unique_ptr<Unit> Unit::FromProto(const proto::Unit& proto) {
     return ret;
   }
   if (TemplateById(proto.unit_id().type()) == NULL) {
+    return ret;
+  }
+  if (ById(proto.unit_id()) != NULL) {
     return ret;
   }
 
@@ -31,15 +39,27 @@ bool Unit::RegisterTemplate(const proto::Template& proto) {
 }
 
 const proto::Template* Unit::TemplateById(uint64 id) {
+  if (templates_.find(id) == templates_.end()) {
+    return NULL;
+  }
   return &templates_[id];
+}
+
+Unit* Unit::ById(const util::proto::ObjectId& id) {
+  return units_[id];
 }
 
 uint64 Unit::speed_u(geography::proto::ConnectionType type) const {
   return 1;
 }
 
-Unit::Unit(const proto::Unit& proto) : proto_(proto) {}
-Unit::~Unit() {}
+Unit::Unit(const proto::Unit& proto) : proto_(proto) {
+  units_[proto_.unit_id()] = this;
+}
+
+Unit::~Unit() {
+  units_.erase(proto_.unit_id());
+}
 
 
 

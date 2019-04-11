@@ -8,6 +8,7 @@
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
 #include "util/headers/int_types.h"
+#include "util/proto/object_id.h"
 
 namespace units {
 
@@ -20,6 +21,7 @@ public:
   static std::unique_ptr<Unit> FromProto(const proto::Unit& proto);
   static bool RegisterTemplate(const proto::Template& proto);
   static const proto::Template* TemplateById(uint64 id);
+  static Unit* ById(const util::proto::ObjectId& id);
 
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
@@ -28,6 +30,7 @@ private:
   Unit(const proto::Unit& proto);
 
   static std::unordered_map<uint64, const proto::Template> templates_;
+  static std::unordered_map<util::proto::ObjectId, Unit*> units_;
 
   proto::Unit proto_;
 };
