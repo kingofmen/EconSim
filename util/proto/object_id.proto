@@ -1,0 +1,7 @@
+syntax = "proto2";
+package util.proto;
+
+message ObjectId {
+  optional uint64 type = 1;
+  optional uint64 number = 2;
+}
