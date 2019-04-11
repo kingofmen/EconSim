@@ -5,5 +5,4 @@ import "util/proto/object_id.proto";
 
 message Unit {
   optional util.proto.ObjectId unit_id = 1;
-  optional uint64 template_id = 2;
 }

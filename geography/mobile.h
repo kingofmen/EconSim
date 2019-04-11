@@ -1,6 +1,7 @@
 #ifndef GEOGRAPHY_MOBILE_HH
 #define GEOGRAPHY_MOBILE_HH
 
+#include "geography/proto/geography.pb.h"
 #include "util/headers/int_types.h"
 
 namespace geography {
