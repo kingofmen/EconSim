@@ -13,6 +13,7 @@ cc_library(
     "//market/proto:goods_proto",
     "//population:population",
     "//population/proto:population_proto",
+    "//units:units",
     "//util/arithmetic:microunits",
     "//util/keywords:keywords",
   ],

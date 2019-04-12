@@ -17,6 +17,8 @@ proto_library(
     "//industry/proto:industry_proto_lib",
     "//market/proto:goods_proto_lib",
     "//population/proto:population_proto_lib",
+    "//units/proto:units_proto_lib",
+    "//units/proto:unit_templates_proto_lib",
   ],
 )
 

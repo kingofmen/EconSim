@@ -24,6 +24,8 @@ public:
   static const proto::Template* TemplateById(uint64 id);
   static Unit* ById(const util::proto::ObjectId& id);
 
+  // Template and proto access.
+  const proto::Unit& Proto() const { return proto_; }
   const proto::Template& Template() const;
 
   // From Mobile interface.

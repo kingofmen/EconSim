@@ -13,6 +13,7 @@
 #include "industry/proto/industry.pb.h"
 #include "population/popunit.h"
 #include "population/proto/population.pb.h"
+#include "units/unit.h"
 
 namespace game {
 
@@ -43,6 +44,7 @@ private:
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
   std::vector<std::unique_ptr<geography::Connection>> connections_;
+  std::vector<std::unique_ptr<units::Unit>> units_;
   std::unordered_map<std::string, const industry::Production*> production_map_;
   industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
 };

@@ -5,16 +5,20 @@ import "geography/proto/geography.proto";
 import "industry/proto/industry.proto";
 import "market/proto/goods.proto";
 import "population/proto/population.proto";
+import "units/proto/templates.proto";
+import "units/proto/units.proto";
 
 message Scenario {
   repeated population.proto.AutoProduction auto_production = 1;
   repeated industry.proto.Production production_chains = 2;
   market.proto.Container decay_rates = 3;
   repeated population.proto.ConsumptionLevel consumption = 4;
+  repeated units.proto.Template unit_templates = 5;
 }
 
 message GameWorld {
   repeated geography.proto.Area areas = 1;
   repeated population.proto.PopUnit pops = 2;
   repeated geography.proto.Connection connections = 3;
+  repeated units.proto.Unit units = 4;
 }

@@ -4,6 +4,7 @@
 
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"
+#include "units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 
@@ -150,7 +151,7 @@ GameWorld::~GameWorld() {
   production_map_.clear();
 }
 
-
+// TODO: This really needs to handle errors, e.g. in registering templates.
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   proto_.Swap(scenario);
   auto_production_.insert(auto_production_.end(),
@@ -167,6 +168,10 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
     if (market::GetAmount(level.tags(), keywords::kSubsistenceTag) > 0) {
       subsistence_.push_back(&level);
     }
+  }
+
+  for (const auto& temp : proto_.unit_templates()) {
+    units::Unit::RegisterTemplate(temp);
   }
 }
 
@@ -187,6 +192,10 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
 
   for (const auto* prod_proto : scenario_.production_chains_) {
     production_map_.emplace(prod_proto->name(), new industry::Production(*prod_proto));
+  }
+
+  for (const auto& unit : world.units()) {
+    units_.emplace_back(units::Unit::FromProto(unit));
   }
 }
 
@@ -276,6 +285,11 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
   for (const auto& conn : connections_) {
     auto* conn_proto = proto->add_connections();
     *conn_proto = conn->Proto();
+  }
+
+  for (const auto& unit : units_) {
+    auto& unit_proto = *proto->add_units();
+    unit_proto = unit->Proto();
   }
 }
 
