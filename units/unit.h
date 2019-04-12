@@ -20,8 +20,11 @@ public:
 
   static std::unique_ptr<Unit> FromProto(const proto::Unit& proto);
   static bool RegisterTemplate(const proto::Template& proto);
+  // TODO: Make this a StatusOr<Template&> when Abseil releases StatusOr.
   static const proto::Template* TemplateById(uint64 id);
   static Unit* ById(const util::proto::ObjectId& id);
+
+  const proto::Template& Template() const;
 
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;

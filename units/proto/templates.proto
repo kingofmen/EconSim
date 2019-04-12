@@ -8,4 +8,5 @@ message Mobility {
 message Template {
   optional uint64 id = 1;
   optional Mobility mobility = 2;
+  optional string name = 3;
 }

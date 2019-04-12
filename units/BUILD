@@ -13,3 +13,13 @@ cc_library(
   ],
 )
 
+cc_test(
+  name = "unit_test",
+  srcs = ["unit_test.cc"],
+  deps = [
+    ":units",
+    "//util/proto:object_id",
+    "@gtest//:gtest",
+    "@gtest//:gtest_main",
+  ],
+)

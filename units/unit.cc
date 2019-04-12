@@ -49,8 +49,13 @@ Unit* Unit::ById(const util::proto::ObjectId& id) {
   return units_[id];
 }
 
+const proto::Template& Unit::Template() const {
+  const proto::Template* t = TemplateById(proto_.unit_id().type());
+  return *t;
+}
+
 uint64 Unit::speed_u(geography::proto::ConnectionType type) const {
-  return 1;
+  return Template().mobility().speed_u();
 }
 
 Unit::Unit(const proto::Unit& proto) : proto_(proto) {
