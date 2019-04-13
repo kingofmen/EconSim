@@ -1,0 +1,17 @@
+syntax = "proto2";
+package actions.proto;
+
+// Buy apples in Appleville, carry to Orangetown, sell apples, buy oranges,
+// go back and sell the oranges, repeat.
+message ShuttleTrade {
+  optional string good_a = 1;
+  optional string good_z = 2;
+  optional uint64 area_a_id = 3;
+  optional uint64 area_z_id = 4;
+}
+
+message Strategy {
+  oneof strategy {
+    ShuttleTrade shuttle_trade = 1;
+  }
+}

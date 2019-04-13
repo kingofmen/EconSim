@@ -1,0 +1,14 @@
+syntax = "proto2";
+package actions.proto;
+
+enum AtomicAction {
+  AA_MOVE = 1;
+}
+
+message Step {
+  optional AtomicAction action = 1;
+}
+
+message Plan {
+  repeated Step steps = 1;
+}
