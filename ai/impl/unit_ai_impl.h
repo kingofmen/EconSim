@@ -9,9 +9,12 @@ namespace ai {
 namespace impl {
 
 class ShuttleTrader : public ai::UnitAi {
- public:
-   void AddStepsToPlan(const actions::proto::Strategy& strategy,
-                       actions::proto::Plan* plan) const override;
+public:
+  void AddStepsToPlan(const actions::proto::Strategy& strategy,
+                      actions::proto::State* state,
+                      actions::proto::Plan* plan) const override;
+
+private:
 };
 
 } // namespace impl

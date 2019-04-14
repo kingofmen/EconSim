@@ -6,7 +6,8 @@
 
 namespace ai {
 
-actions::proto::Plan MakePlan(const actions::proto::Strategy& strategy);
+actions::proto::Plan MakePlan(const actions::proto::Strategy& strategy,
+                              actions::proto::State* state);
 
 } // namespace ai
 

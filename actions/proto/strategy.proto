@@ -1,6 +1,9 @@
 syntax = "proto2";
 package actions.proto;
 
+import "geography/proto/geography.proto";
+import "market/proto/goods.proto";
+
 // Buy apples in Appleville, carry to Orangetown, sell apples, buy oranges,
 // go back and sell the oranges, repeat.
 message ShuttleTrade {
@@ -8,10 +11,26 @@ message ShuttleTrade {
   optional string good_z = 2;
   optional uint64 area_a_id = 3;
   optional uint64 area_z_id = 4;
+  enum State {
+    STS_BUY_A = 0;
+    STS_BUY_Z = 1;
+    STS_TRANSIT_TO_A = 2;
+    STS_TRANSIT_TO_Z = 3;
+    STS_SHUTDOWN = 4;
+  }
 }
 
 message Strategy {
   oneof strategy {
     ShuttleTrade shuttle_trade = 1;
+  }
+}
+
+message State {
+  optional geography.proto.Location location = 1;
+  optional market.proto.Container resources = 2;
+  // Reserved for future common fields: 3-19.
+  oneof state {
+    ShuttleTrade.State shuttle_trade = 20;
   }
 }
