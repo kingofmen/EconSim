@@ -8,5 +8,6 @@ cc_library(
     "//ai:unit_ai",
     "//actions/proto:strategy_proto",
     "//actions/proto:plan_proto",
+    "//units:units",
   ],
 )

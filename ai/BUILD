@@ -7,6 +7,7 @@ cc_library(
   deps = [
     "//actions/proto:strategy_proto",
     "//actions/proto:plan_proto",
+    "//units:units",
   ],
 )
 
@@ -18,5 +19,6 @@ cc_library(
   deps = [
     ":unit_ai",
     "//ai/impl:unit_ai_impl",
+    "//units:units",
   ],
 )
