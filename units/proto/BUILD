@@ -16,6 +16,7 @@ proto_library(
   name = "units_proto_lib",
   srcs = ["units.proto"],
   deps = [
+    "//geography/proto:geography_proto_lib",
     "//market/proto:goods_proto_lib",
     "//util/proto:object_id_proto_lib",
   ],

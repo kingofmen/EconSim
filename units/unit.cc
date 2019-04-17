@@ -58,6 +58,10 @@ uint64 Unit::speed_u(geography::proto::ConnectionType type) const {
   return Template().mobility().speed_u();
 }
 
+const geography::proto::Location& Unit::location() const {
+  return proto_.location();
+}
+
 Unit::Unit(const proto::Unit& proto) : proto_(proto) {
   units_[proto_.unit_id()] = this;
 }

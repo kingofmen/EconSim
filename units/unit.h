@@ -30,6 +30,7 @@ public:
 
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
+  const geography::proto::Location& location() const override;
 
 private:
   Unit(const proto::Unit& proto);
