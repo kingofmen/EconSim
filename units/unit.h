@@ -5,6 +5,7 @@
 
 #include "geography/mobile.h"
 #include "geography/proto/geography.pb.h"
+#include "market/proto/goods.pb.h"
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
 #include "util/headers/int_types.h"
@@ -31,6 +32,9 @@ public:
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
   const geography::proto::Location& location() const override;
+
+  // Cargo or supplies.
+  const market::proto::Container& resources() const;
 
 private:
   Unit(const proto::Unit& proto);

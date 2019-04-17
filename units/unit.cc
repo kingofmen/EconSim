@@ -62,6 +62,10 @@ const geography::proto::Location& Unit::location() const {
   return proto_.location();
 }
 
+const market::proto::Container& Unit::resources() const {
+  return proto_.resources();
+}
+
 Unit::Unit(const proto::Unit& proto) : proto_(proto) {
   units_[proto_.unit_id()] = this;
 }

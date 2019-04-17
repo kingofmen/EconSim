@@ -2,9 +2,11 @@ syntax = "proto2";
 package units.proto;
 
 import "geography/proto/geography.proto";
+import "market/proto/goods.proto";
 import "util/proto/object_id.proto";
 
 message Unit {
   optional util.proto.ObjectId unit_id = 1;
   optional geography.proto.Location location = 2;
+  optional market.proto.Container resources = 3;
 }

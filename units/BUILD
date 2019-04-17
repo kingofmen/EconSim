@@ -6,6 +6,7 @@ cc_library(
   hdrs = ["unit.h"],
   deps = [
     "//geography:mobile",
+    "//market/proto:goods_proto",
     "//units/proto:units_proto",
     "//units/proto:unit_templates_proto",
     "//util/proto:object_id",
