@@ -11,11 +11,9 @@ message ShuttleTrade {
   enum State {
     STS_BUY_A = 0;
     STS_BUY_Z = 1;
-    STS_TRANSIT_TO_A = 2;
-    STS_TRANSIT_TO_Z = 3;
-    STS_SHUTDOWN = 4;
   }
   optional State state = 5;
+  optional uint64 tolerance = 6 [default = 900000];
 }
 
 message Strategy {
