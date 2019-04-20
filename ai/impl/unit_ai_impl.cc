@@ -79,13 +79,13 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
       if (visited[cand_id].cost_u + visited[cand_id].heuristic_u >= least_cost_u) {
         continue;
       }
-      least_cost_u = visited[cand_id].cost_u;
+      least_cost_u = visited[cand_id].cost_u + visited[cand_id].heuristic_u;
       least_cost_id = cand_id;
     }
-    least_cost_u = visited[least_cost_id].cost_u;
     if (least_cost_id == target_id) {
       break;
     }
+    least_cost_u = visited[least_cost_id].cost_u;
   }
 
   if (visited.find(target_id) == visited.end()) {
