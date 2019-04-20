@@ -10,14 +10,30 @@
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 
+typedef std::function<market::Measure(const geography::Connection&)>
+    CostFunction;
+
+typedef std::function<market::Measure(uint64, uint64)> Heuristic;
+
 namespace ai {
 namespace impl {
 namespace {
 
+// Cost function returning the length of the connection.
+market::Measure ShortestDistance(const geography::Connection& conn) {
+  return conn.length_u();
+}
+
+// Default heuristic that doesn't actually heurise.
+market::Measure ZeroHeuristic(uint64 cand_id, uint64 target_id) {
+  return 0;
+}
+
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
-void FindPath(const units::Unit& unit, uint64 target_id,
-              actions::proto::Plan* plan) {
+void FindPath(const units::Unit& unit, const CostFunction& cost_function,
+              const Heuristic& heuristic, 
+              uint64 target_id, actions::proto::Plan* plan) {
   std::unordered_set<uint64> open;
   struct Node {
     uint64 previous_id;
@@ -36,21 +52,13 @@ void FindPath(const units::Unit& unit, uint64 target_id,
   // besides it would interact badly with the possibility of multiple edges
   // between two nodes.
 
-  // Placeholder cost and heuristic functions - user should specify.
-  auto costFunction = [](const geography::Connection* conn) -> market::Measure {
-    return conn->length_u();
-  };
-  auto heuristic = [](uint64 cand_id, uint64 target_id) -> market::Measure {
-    return 0;
-  };
-
   // TODO: Include a give-up condition and handler.
   while(open.size() > 0) {
     const std::unordered_set<geography::Connection*>& conns =
         geography::Connection::ByEndpoint(least_cost_id);
     for (const auto* conn : conns) {
       uint64 other_side_id = conn->OtherSide(least_cost_id);
-      market::Measure real_cost_u = least_cost_u + costFunction(conn);
+      market::Measure real_cost_u = least_cost_u + cost_function(*conn);
       const auto& existing = visited.find(other_side_id);
       if (existing == visited.end()) {
         visited.insert({other_side_id,
@@ -106,7 +114,7 @@ void FindPath(const units::Unit& unit, uint64 target_id,
 bool GoBuySell(const units::Unit& unit, uint64 target_id, const std::string& buy,
                const std::string& sell, actions::proto::Plan* plan) {
   if (unit.location().source_area_id() != target_id) {
-    FindPath(unit, target_id, plan);
+    FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
     return false;
   }
 
