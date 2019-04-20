@@ -66,6 +66,10 @@ const market::proto::Container& Unit::resources() const {
   return proto_.resources();
 }
 
+market::proto::Container* Unit::mutable_resources() {
+  return proto_.mutable_resources();
+}
+
 Unit::Unit(const proto::Unit& proto) : proto_(proto) {
   units_[proto_.unit_id()] = this;
 }

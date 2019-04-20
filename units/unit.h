@@ -35,6 +35,7 @@ public:
 
   // Cargo or supplies.
   const market::proto::Container& resources() const;
+  market::proto::Container* mutable_resources();
 
 private:
   Unit(const proto::Unit& proto);

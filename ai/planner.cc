@@ -7,7 +7,9 @@
 
 namespace ai {
 
-std::unordered_map<actions::proto::Strategy::StrategyCase, UnitAi*> unit_ai_map;
+std::unordered_map<actions::proto::Strategy::StrategyCase, UnitAi*> unit_ai_map = {
+  {actions::proto::Strategy::kShuttleTrade, new impl::ShuttleTrader()},
+};
 
 actions::proto::Plan MakePlan(const units::Unit& unit,
                               actions::proto::Strategy* strategy) {
