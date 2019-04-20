@@ -5,5 +5,8 @@
 *.ps1
 *.o
 *.exe
+*.png
+*.jpg
 bazel-*
 protobuf*
+third_party*
