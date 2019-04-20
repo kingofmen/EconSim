@@ -17,6 +17,7 @@ actions::proto::Plan MakePlan(const units::Unit& unit,
   if (unit_ai_map.find(strategy->strategy_case()) == unit_ai_map.end()) {
     return plan;
   }
+
   unit_ai_map[strategy->strategy_case()]->AddStepsToPlan(unit, strategy, &plan);
   return plan;
 }
