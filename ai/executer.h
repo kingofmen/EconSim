@@ -6,7 +6,9 @@
 
 namespace ai {
 
-void ExecutePlan(const actions::proto::Plan& plan, units::Unit* unit);
+// Attempts to execute steps of plan. Returns true if the unit is able
+// to do anything else.
+bool ExecutePlan(units::Unit* unit, actions::proto::Plan* plan);
 
 } // namespace ai
 
