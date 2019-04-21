@@ -22,3 +22,14 @@ cc_library(
         "//units",
     ],
 )
+
+cc_library(
+    name = "executer",
+    srcs = ["executer.cc"],
+    hdrs = ["executer.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//actions/proto:plan_proto",
+        "//units",
+    ],
+)
