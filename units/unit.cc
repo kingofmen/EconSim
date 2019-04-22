@@ -54,6 +54,14 @@ const proto::Template& Unit::Template() const {
   return *t;
 }
 
+actions::proto::Strategy* Unit:: mutable_strategy() {
+  return proto_.mutable_strategy();
+}
+
+actions::proto::Plan* Unit::mutable_plan() {
+  return proto_.mutable_plan();
+}
+
 uint64 Unit::speed_u(geography::proto::ConnectionType type) const {
   return Template().mobility().speed_u();
 }

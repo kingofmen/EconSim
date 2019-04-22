@@ -29,6 +29,10 @@ public:
   const proto::Unit& Proto() const { return proto_; }
   const proto::Template& Template() const;
 
+  // Planning interface.
+  actions::proto::Strategy* mutable_strategy();
+  actions::proto::Plan* mutable_plan();
+
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
   const geography::proto::Location& location() const override;
