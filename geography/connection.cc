@@ -126,13 +126,10 @@ void Connection::Listen(const Mobile& mobile, uint64 distance_u,
 
 bool DefaultTraverser::Traverse(const Mobile& mobile,
                                 proto::Location* location) const {
-  Connection* conn = Connection::ById(location->connection_id());
-  if (conn == NULL) {
-    // TODO: Actual thought here, not just the first one.
-    conn = *Connection::ByEndpoints(location->source_area_id(),
-                                    location->target_area_id())
-                .begin();
+  if (!location->has_connection_id()) {
+    return false;
   }
+  Connection* conn = Connection::ById(location->connection_id());
   if (conn == NULL) {
     // TODO: Handle this error case.
     return false;
@@ -144,15 +141,14 @@ bool DefaultTraverser::Traverse(const Mobile& mobile,
   if (distance_u > length_u) {
     distance_u = length_u;
   }
+
   std::vector<Connection::Detection> detections;
   conn->Listen(mobile, distance_u, &detections);
   // TODO: Actually handle detections.
 
   if (distance_u >= length_u) {
     location->clear_progress_u();
-    location->set_source_area_id(location->target_area_id());
-    // TODO: Invoke AI to set new target.
-    location->clear_target_area_id();
+    location->set_source_area_id(conn->OtherSide(location->source_area_id()));
     location->clear_connection_id();
   } else {
     location->set_progress_u(progress_u + distance_u);
