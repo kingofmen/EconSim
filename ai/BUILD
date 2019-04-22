@@ -30,6 +30,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//actions/proto:plan_proto",
+        "//ai/impl:executor_impl",
         "//units",
     ],
 )
