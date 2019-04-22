@@ -32,6 +32,7 @@ public:
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
   const geography::proto::Location& location() const override;
+  geography::proto::Location* mutable_location() override;
 
   // Cargo or supplies.
   const market::proto::Container& resources() const;

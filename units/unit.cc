@@ -62,6 +62,10 @@ const geography::proto::Location& Unit::location() const {
   return proto_.location();
 }
 
+geography::proto::Location* Unit::mutable_location() {
+  return proto_.mutable_location();
+}
+
 const market::proto::Container& Unit::resources() const {
   return proto_.resources();
 }

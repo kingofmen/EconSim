@@ -13,6 +13,7 @@ public:
   // Returns the speed at which this unit travels in the terrain type.
   virtual uint64 speed_u(geography::proto::ConnectionType type) const = 0;
   virtual const geography::proto::Location& location() const = 0;
+  virtual geography::proto::Location* mutable_location() = 0;
 };
 
 } // namespace geography
