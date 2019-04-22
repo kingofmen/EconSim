@@ -104,6 +104,8 @@ public:
   // accepted.
   Measure TryToSell(const market::proto::Quantity& offer,
                     market::proto::Container* source);
+  Measure TryToSell(const std::string& name, const Measure amount,
+                    market::proto::Container* source);
 
   // Returns the price of the named good.
   Measure GetPriceU(const std::string& name, int turns = 0) const override;

@@ -266,6 +266,11 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   return warehoused.amount() + amount_sold;
 }
 
+Measure Market::TryToSell(const std::string& name, const Measure amount,
+                          Container* source) {
+  return TryToSell(MakeQuantity(name, amount), source);
+}
+
 Measure Market::GetPriceU(const std::string& name, int turns) const {
   if (!TradesIn(name)) {
     return -1;
