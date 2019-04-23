@@ -32,6 +32,8 @@ public:
   // Planning interface.
   actions::proto::Strategy* mutable_strategy();
   actions::proto::Plan* mutable_plan();
+  const actions::proto::Strategy& strategy();
+  const actions::proto::Plan& plan();
 
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
