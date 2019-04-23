@@ -24,6 +24,11 @@ TEST_F(ExecuterTest, TestDeleteStep) {
   DeleteStep(&plan_);
 
   EXPECT_EQ(0, plan_.steps_size());
+  step = plan_.add_steps();
+  step = plan_.add_steps();
+  EXPECT_EQ(2, plan_.steps_size());
+  DeleteStep(&plan_);
+  EXPECT_EQ(1, plan_.steps_size());
 }
 
 TEST_F(ExecuterTest, TestExecuteStep) {
