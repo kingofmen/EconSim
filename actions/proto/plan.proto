@@ -2,6 +2,7 @@ syntax = "proto2";
 package actions.proto;
 
 enum AtomicAction {
+  AA_UNKNOWN = 0;
   AA_MOVE = 1;
   AA_SELL = 2;
   AA_BUY = 3;

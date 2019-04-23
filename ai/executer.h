@@ -6,9 +6,12 @@
 
 namespace ai {
 
-// Attempts to execute steps of plan. Returns true if the unit is able
-// to do anything else.
-bool ExecutePlan(units::Unit* unit, actions::proto::Plan* plan);
+// Executes the first step of plan; returns true if execution succeeded.
+bool ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit);
+
+// Deletes the first step of plan.
+void DeleteStep(actions::proto::Plan* plan);
+
 
 } // namespace ai
 

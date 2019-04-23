@@ -16,21 +16,24 @@ std::unordered_map<actions::proto::AtomicAction, StepExecutor> execution_map = {
     {actions::proto::AA_SELL, ai::impl::BuyOrSell},
 };
 
-bool ExecutePlan(units::Unit* unit, actions::proto::Plan* plan) {
-  int stepsTaken = 0;
-  for (const auto& step : plan->steps()) {
-    if (execution_map.find(step.action()) != execution_map.end()) {
-      execution_map[step.action()](step, unit);
-    }
-    stepsTaken++;
+bool ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
+  if (plan.steps_size() == 0) {
+    return false;
   }
-  if (stepsTaken >= plan->steps_size()) {
-    plan->clear_steps();
-  } else if (stepsTaken > 0) {
-    plan->mutable_steps()->DeleteSubrange(0, stepsTaken);
+  const auto& step = plan.steps(0);
+  if (execution_map.find(step.action()) == execution_map.end()) {
+    return false;
   }
+  execution_map[step.action()](step, unit);
+  return true;
+}
 
-  return false;
+void DeleteStep(actions::proto::Plan* plan) {
+  if (plan->steps_size() == 1) {
+    plan->clear_steps();
+  } else if (plan->steps_size() > 1) {
+    plan->mutable_steps()->DeleteSubrange(0, 1);
+  }
 }
 
 } // namespace ai

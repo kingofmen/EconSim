@@ -34,3 +34,14 @@ cc_library(
         "//units",
     ],
 )
+
+cc_test(
+    name = "executer_test",
+    srcs = ["executer_test.cc"],
+    deps = [
+        ":executer",
+        "//actions/proto:plan_proto",
+        "@gtest",
+        "@gtest//:gtest_main",
+    ],
+)
