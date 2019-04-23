@@ -298,6 +298,8 @@ bool InstallFixedCapital(const proto::Input& production,
                          market::proto::Container* source,
                          market::proto::Container* target,
                          market::Market* market) {
+  // TODO: Should be possible to install X by paying Y, eg housing by paying
+  // timber and labour.
   market::proto::Container required = production.fixed_capital();
   micro::MultiplyU(required, scale_u);
   if (*target >= required) {
