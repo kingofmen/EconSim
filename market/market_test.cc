@@ -320,4 +320,21 @@ TEST_F(MarketTest, CanBuy) {
   EXPECT_TRUE(market_.CanBuy(basket, buyer_));
 }
 
+// Test that a net flow of zero doesn't affect price even with some stored in
+// warehouse.
+TEST_F(MarketTest, WarehouseVolume) {
+  market_.RegisterGood(kTestGood1);
+  SetPrice(kTestGood1, micro::kOneInU);
+  SetAmount(kTestGood1, micro::kOneInU, market_.Proto()->mutable_warehouse());
+
+  EXPECT_EQ(micro::kOneInU,
+            market_.TryToBuy(kTestGood1, micro::kOneInU, &buyer_));
+  Container seller;
+  SetAmount(kTestGood1, micro::kOneInU, &seller);
+  EXPECT_EQ(micro::kOneInU, market_.TryToSell(kTestGood1, micro::kOneInU, &seller));
+  EXPECT_EQ(micro::kOneInU, GetAmount(market_.Proto()->warehouse(), kTestGood1));
+  market_.FindPrices();
+  EXPECT_EQ(micro::kOneInU, market_.GetPriceU(kTestGood1));
+}
+
 } // namespace market

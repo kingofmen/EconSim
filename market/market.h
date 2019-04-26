@@ -141,6 +141,9 @@ private:
   std::unordered_map<std::string, std::vector<Offer>> buy_offers_;
 
   proto::MarketProto proto_;
+
+  // Stores how much has flowed into or out of the warehouse this turn.
+  proto::Container flow_tracker_;
 };
 
 } // namespace market

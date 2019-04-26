@@ -75,7 +75,7 @@ void Market::FindPrices() {
                       GetAmount(*buy.target, proto_.legal_tender()) +
                           MaxCredit(*buy.target));
     }
-    Measure offer = GetAmount(proto_.warehouse(), name) + matched;
+    Measure offer = GetAmount(flow_tracker_, name) + matched;
     if (std::min(bid, offer) < 1) {
       continue;
     }
@@ -90,6 +90,7 @@ void Market::FindPrices() {
     SetAmount(name, 0, proto_.mutable_volume());
   }
   buy_offers_.clear();
+  Clear(&flow_tracker_);
 }
 
 Measure Market::MaxCredit(const Container& borrower) const {
@@ -177,6 +178,7 @@ Measure Market::TryToBuy(const std::string& name, const Measure amount,
     transfer.set_kind(name);
     transfer.set_amount(amount_bought);
     Move(transfer, proto_.mutable_warehouse(), recipient);
+    Add(name, -amount_bought, &flow_tracker_);
     TransferMoney(GetPriceU(transfer), recipient, proto_.mutable_warehouse());
     *proto_.mutable_volume() += transfer;
 
@@ -256,6 +258,7 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
 
   *source -= warehoused;
   *proto_.mutable_warehouse() += warehoused;
+  flow_tracker_ += warehoused;
 
   TransferMoney(price_u, proto_.mutable_warehouse(), source);
   Quantity debt;
