@@ -27,6 +27,7 @@ public:
 
   // Template and proto access.
   const proto::Unit& Proto() const { return proto_; }
+  const util::proto::ObjectId& ID() const { return proto_.unit_id(); }
   const proto::Template& Template() const;
 
   // Planning interface.
