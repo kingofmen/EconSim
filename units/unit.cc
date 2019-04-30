@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 
+#include "util/arithmetic/microunits.h"
+
 std::unordered_map<uint64, const units::proto::Template> units::Unit::templates_;
 std::unordered_map<util::proto::ObjectId, units::Unit*> units::Unit::units_;
 
@@ -96,6 +98,30 @@ Unit::Unit(const proto::Unit& proto) : proto_(proto) {
 
 Unit::~Unit() {
   units_.erase(proto_.unit_id());
+}
+
+market::Measure Unit::Capacity(const std::string& good) const {
+  market::Measure current_bulk_u = 0;
+  market::Measure current_weight_u = 0;
+  for (const auto& quantity : resources().quantities()) {
+    current_bulk_u +=
+        micro::MultiplyU(market::BulkU(quantity.first), quantity.second);
+    current_weight_u +=
+        micro::MultiplyU(market::WeightU(quantity.first), quantity.second);
+  }
+
+  // TODO: Derive these from a Template instead of hardcoding.
+  market::Measure remaining_bulk_u = micro::kOneInU;
+  market::Measure remaining_weight_u = micro::kOneInU;
+
+  remaining_bulk_u -= current_bulk_u;
+  remaining_weight_u -= current_weight_u;
+
+  // Bulk and weight guaranteed nonzero.
+  remaining_bulk_u = micro::DivideU(remaining_bulk_u, market::BulkU(good));
+  remaining_weight_u = micro::DivideU(remaining_weight_u, market::WeightU(good));
+
+  return std::min(remaining_bulk_u, remaining_weight_u);
 }
 
 

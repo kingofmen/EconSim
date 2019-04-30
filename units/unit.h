@@ -1,10 +1,12 @@
 #ifndef UNITS_UNIT_H
 #define UNITS_UNIT_H
 
+#include <string>
 #include <unordered_map>
 
 #include "geography/mobile.h"
 #include "geography/proto/geography.pb.h"
+#include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
@@ -44,6 +46,10 @@ public:
   // Cargo or supplies.
   const market::proto::Container& resources() const;
   market::proto::Container* mutable_resources();
+
+  // Returns the amount of good that can still be loaded, whether limited
+  // by bulk or weight.
+  market::Measure Capacity(const std::string& good) const;
 
 private:
   Unit(const proto::Unit& proto);

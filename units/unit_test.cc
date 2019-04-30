@@ -3,8 +3,11 @@
 #include <memory>
 
 #include "gtest/gtest.h"
+#include "market/goods_utils.h"
+#include "market/proto/goods.pb.h"
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
+#include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.h"
 
@@ -36,6 +39,29 @@ TEST_F(UnitTest, GetById) {
   EXPECT_EQ(unit_.get(), Unit::ById(id));
 }
 
+TEST_F(UnitTest, Capacity) {
+  market::proto::TradeGood bulky;
+  bulky.set_name("bulky");
+  bulky.set_bulk_u(2 * micro::kOneInU);
+  bulky.set_weight_u(micro::kHalfInU);
+  market::CreateTradeGood(bulky);
+  market::proto::TradeGood heavy;
+  heavy.set_name("heavy");
+  heavy.set_bulk_u(micro::kHalfInU);
+  heavy.set_weight_u(2 * micro::kOneInU);
+  market::CreateTradeGood(heavy);
+
+  EXPECT_EQ(micro::kHalfInU, unit_->Capacity(bulky.name()));
+  EXPECT_EQ(micro::kHalfInU, unit_->Capacity(heavy.name()));
+
+  market::SetAmount(bulky.name(), 2 * micro::kOneTenthInU, unit_->mutable_resources());
+  EXPECT_EQ(3 * micro::kOneTenthInU, unit_->Capacity(bulky.name()));
+  EXPECT_EQ(micro::kOneFourthInU + 2 * micro::kOneTenthInU, unit_->Capacity(heavy.name()));
+
+  market::SetAmount(bulky.name(), micro::kHalfInU, unit_->mutable_resources());
+  EXPECT_EQ(0, unit_->Capacity(bulky.name()));
+  EXPECT_EQ(0, unit_->Capacity(heavy.name()));
+}
 
 } // namespace units
 
