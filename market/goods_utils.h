@@ -8,6 +8,14 @@
 namespace market {
 typedef int64 Measure;
 
+// Registers a trade good.
+void CreateTradeGood(const market::proto::TradeGood& good);
+
+// Information about trade goods.
+Measure BulkU(const std::string& name);
+Measure DecayU(const std::string& name);
+Measure WeightU(const std::string& name);
+
 // Adds amount of name to con.
 void Add(const std::string& name, const Measure amount,
          market::proto::Container* con);

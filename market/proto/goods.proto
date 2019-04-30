@@ -12,5 +12,8 @@ message Container {
 
 message TradeGood {
   string name = 1;  // required
+  int64 decay_rate_u = 2;
+  int64 bulk_u = 3;
+  int64 weight_u = 4;
 }
 

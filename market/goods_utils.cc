@@ -2,11 +2,40 @@
 #include "goods_utils.h"
 
 #include <limits>
+#include <unordered_map>
+
+#include "market/proto/goods.pb.h"
+
+std::unordered_map<std::string, market::proto::TradeGood> goods_map_;
 
 namespace market {
 
 using market::proto::Quantity;
 using market::proto::Container;
+
+void CreateTradeGood(const market::proto::TradeGood& good) {
+  // TODO: Handle these errors.
+  if (good.name() == "") {
+    return;
+  }
+  if (goods_map_.find(good.name()) != goods_map_.end()) {
+    return;
+  }
+
+  goods_map_[good.name()] = good;
+}
+
+Measure BulkU(const std::string& name) {
+  return goods_map_[name].bulk_u();
+}
+
+Measure DecayU(const std::string& name) {
+  return goods_map_[name].decay_rate_u();
+}
+
+Measure WeightU(const std::string& name) {
+  return goods_map_[name].weight_u();
+}
 
 void Add(const std::string& name, const Measure amount, Container* con) {
   Quantity qua;
