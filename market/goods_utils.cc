@@ -23,6 +23,13 @@ void CreateTradeGood(const market::proto::TradeGood& good) {
   }
 
   goods_map_[good.name()] = good;
+  market::proto::TradeGood& copy = goods_map_[good.name()];
+  if (copy.bulk_u() < 1) {
+    copy.set_bulk_u(1);
+  }
+  if (copy.weight_u() < 1) {
+    copy.set_weight_u(1);
+  }
 }
 
 Measure BulkU(const std::string& name) {
