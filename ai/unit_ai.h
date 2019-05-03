@@ -10,7 +10,7 @@ namespace ai {
 class UnitAi {
 public:
   virtual void AddStepsToPlan(const units::Unit& unit,
-                              actions::proto::Strategy* strategy,
+                              const actions::proto::Strategy& strategy,
                               actions::proto::Plan*) const = 0;
 };
 

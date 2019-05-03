@@ -12,7 +12,7 @@ namespace impl {
 class ShuttleTrader : public ai::UnitAi {
 public:
   void AddStepsToPlan(const units::Unit& unit,
-                      actions::proto::Strategy* strategy,
+                      const actions::proto::Strategy& strategy,
                       actions::proto::Plan* plan) const override;
 
 private:

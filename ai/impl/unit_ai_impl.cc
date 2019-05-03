@@ -109,55 +109,42 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
   }
 }
 
-// Adds transit, selling, and buying steps to plan; returns true if the state
-// should flip.
-bool GoBuySell(const units::Unit& unit, uint64 target_id, const std::string& buy,
+// Adds transit, selling, buying, and flipping steps to plan.
+void GoBuySell(const units::Unit& unit, uint64 target_id, const std::string& buy,
                const std::string& sell, actions::proto::Plan* plan) {
   if (unit.location().source_area_id() != target_id) {
     FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
-    return false;
   }
 
-  if (market::GetAmount(unit.resources(), sell) > 0) {
-    auto* step = plan->add_steps();
-    step->set_action(actions::proto::AA_SELL);
-    step->set_good(sell);
-  }
-  // TODO: Take actual cargo capacity into account here.
-  if (market::GetAmount(unit.resources(), buy) < micro::kOneInU) {
-    auto* step = plan->add_steps();
-    step->set_action(actions::proto::AA_BUY);
-    step->set_good(buy);
-    return false;
-  }
+  auto* step = plan->add_steps();
+  step->set_action(actions::proto::AA_SELL);
+  step->set_good(sell);
 
-  return true;
+  step = plan->add_steps();
+  step->set_action(actions::proto::AA_BUY);
+  step->set_good(buy);
+
+  step = plan->add_steps();
+  step->set_action(actions::proto::AA_SWITCH_STATE);
 }
 
 }
 
 void ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
-                                   actions::proto::Strategy* strategy,
+                                   const actions::proto::Strategy& strategy,
                                    actions::proto::Plan* plan) const {
-  if (!strategy->has_shuttle_trade()) {
+  if (!strategy.has_shuttle_trade()) {
     // TODO: Handle this as error? It seems to indicate something unexpected
     // anyway.
     return;
   }
-
-  const actions::proto::ShuttleTrade& info = strategy->shuttle_trade();
+  const actions::proto::ShuttleTrade& info = strategy.shuttle_trade();
   switch (info.state()) {
     case actions::proto::ShuttleTrade::STS_BUY_A:
-    if (GoBuySell(unit, info.area_a_id(), info.good_a(), info.good_z(), plan)) {
-        strategy->mutable_shuttle_trade()->set_state(
-            actions::proto::ShuttleTrade::STS_BUY_Z);
-      }
+      GoBuySell(unit, info.area_a_id(), info.good_a(), info.good_z(), plan);
       break;
     case actions::proto::ShuttleTrade::STS_BUY_Z:
-      if (GoBuySell(unit, info.area_z_id(), info.good_z(), info.good_a(), plan)) {
-        strategy->mutable_shuttle_trade()->set_state(
-            actions::proto::ShuttleTrade::STS_BUY_A);
-      }
+      GoBuySell(unit, info.area_z_id(), info.good_z(), info.good_a(), plan);
       break;
     default:
       break;

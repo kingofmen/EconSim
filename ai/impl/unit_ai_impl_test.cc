@@ -74,28 +74,23 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
   trade->set_area_z_id(area3_->id());
   trade->set_state(actions::proto::ShuttleTrade::STS_BUY_A);
 
-  actions::proto::Plan plan = ai::MakePlan(*unit_, &strategy_);
-  EXPECT_EQ(1, plan.steps_size());
-  EXPECT_EQ(actions::proto::AA_BUY, plan.steps(0).action());
-  EXPECT_EQ(kTestGood1, plan.steps(0).good());
-
-  market::SetAmount(kTestGood2, micro::kOneInU, unit_->mutable_resources());
-  plan = ai::MakePlan(*unit_, &strategy_);
-  EXPECT_EQ(2, plan.steps_size());
-  EXPECT_EQ(actions::proto::AA_SELL, plan.steps(0).action());
-  EXPECT_EQ(kTestGood2, plan.steps(0).good());
-  EXPECT_EQ(actions::proto::AA_BUY, plan.steps(1).action());
-  EXPECT_EQ(kTestGood1, plan.steps(1).good());
+  actions::proto::Plan plan = ai::MakePlan(*unit_, strategy_);
+  EXPECT_EQ(3, plan.steps_size());
+  if (plan.steps_size() == 3) {
+    EXPECT_EQ(actions::proto::AA_SELL, plan.steps(0).action());
+    EXPECT_EQ(kTestGood2, plan.steps(0).good());
+    EXPECT_EQ(actions::proto::AA_BUY, plan.steps(1).action());
+    EXPECT_EQ(kTestGood1, plan.steps(1).good());
+    EXPECT_EQ(actions::proto::AA_SWITCH_STATE, plan.steps(2).action());
+  }
 
   market::SetAmount(kTestGood1, micro::kOneInU, unit_->mutable_resources());
   market::SetAmount(kTestGood2, 0, unit_->mutable_resources());
-  plan = ai::MakePlan(*unit_, &strategy_);
-  EXPECT_EQ(0, plan.steps_size());
-  EXPECT_EQ(actions::proto::ShuttleTrade::STS_BUY_Z, trade->state());
+  trade->set_state(actions::proto::ShuttleTrade::STS_BUY_Z);
 
-  plan = ai::MakePlan(*unit_, &strategy_);
-  EXPECT_EQ(2, plan.steps_size());
-  if (plan.steps_size() == 2) {
+  plan = ai::MakePlan(*unit_, strategy_);
+  EXPECT_EQ(5, plan.steps_size());
+  if (plan.steps_size() >= 2) {
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(0).action());
     EXPECT_EQ(connection_12->ID(), plan.steps(0).connection_id());
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(1).action());

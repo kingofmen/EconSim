@@ -6,6 +6,7 @@ enum AtomicAction {
   AA_MOVE = 1;
   AA_SELL = 2;
   AA_BUY = 3;
+  AA_SWITCH_STATE = 4;
 }
 
 message Step {

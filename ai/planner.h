@@ -8,7 +8,7 @@
 namespace ai {
 
 actions::proto::Plan MakePlan(const units::Unit& unit,
-                              actions::proto::Strategy* strategy);
+                              const actions::proto::Strategy& strategy);
 
 } // namespace ai
 
