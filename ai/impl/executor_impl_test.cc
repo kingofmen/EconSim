@@ -72,5 +72,16 @@ TEST_F(ExecutorImplTest, TestBuy) {
   EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()));
 }
 
+TEST_F(ExecutorImplTest, TestSwitchState) {
+  auto* step = plan_.add_steps();
+  step->set_action(actions::proto::AA_SWITCH_STATE);
+  unit_->mutable_strategy()->mutable_shuttle_trade()->set_state(
+      actions::proto::ShuttleTrade::STS_BUY_A);
+
+  EXPECT_TRUE(SwitchState(*step, unit_.get()));
+  EXPECT_EQ(actions::proto::ShuttleTrade::STS_BUY_Z,
+            unit_->strategy().shuttle_trade().state());
+}
+
 } // namespace impl
 } // namespace ai

@@ -14,6 +14,8 @@ bool MoveUnit(const actions::proto::Step& step, units::Unit* unit);
 // isn't one, or the order otherwise fails.
 bool BuyOrSell(const actions::proto::Step& step, units::Unit* unit);
 
+// Flips the unit's Strategy into its next state.
+bool SwitchState(const actions::proto::Step& step, units::Unit* unit);
 
 } // namespace impl
 } // namespace ai

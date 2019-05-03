@@ -22,6 +22,7 @@ cc_library(
     hdrs = ["executor_impl.h"],
     deps = [
         "//actions/proto:plan_proto",
+        "//actions/proto:strategy_proto",
         "//geography:connection",
         "//geography:geography",
         "//market:goods_utils",

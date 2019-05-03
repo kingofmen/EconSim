@@ -1,6 +1,6 @@
 #include "executor_impl.h"
 
-
+#include "actions/proto/strategy.pb.h"
 #include "geography/connection.h"
 #include "geography/proto/geography.pb.h"
 #include "market/market.h"
@@ -63,15 +63,33 @@ bool BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {
     return false;
   }
 
-  // TODO: Cargo capacity.
   if (step.action() == actions::proto::AA_BUY) {
-    market->TryToBuy(step.good(), micro::kOneInU, unit->mutable_resources());
+    market->TryToBuy(step.good(), unit->Capacity(step.good()), unit->mutable_resources());
   } else {
     market->TryToSell(step.good(),
                       market::GetAmount(unit->resources(), step.good()),
                       unit->mutable_resources());
   }
   return true;
+}
+
+bool SwitchState(const actions::proto::Step& step, units::Unit* unit) {
+  actions::proto::Strategy* strat = unit->mutable_strategy();
+  switch(strat->strategy_case()) {
+    case actions::proto::Strategy::kShuttleTrade:
+      {
+        actions::proto::ShuttleTrade* info = strat->mutable_shuttle_trade();
+        if (info->state() == actions::proto::ShuttleTrade::STS_BUY_A) {
+          info->set_state(actions::proto::ShuttleTrade::STS_BUY_Z);
+        } else {
+          info->set_state(actions::proto::ShuttleTrade::STS_BUY_A);
+        }
+        return true;
+      }
+    default:
+      break;
+  }
+  return false;
 }
 
 } // namespace impl
