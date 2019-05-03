@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include "actions/proto/strategy.pb.h"
+#include "actions/proto/plan.pb.h"
+#include "ai/executer.h"
+#include "ai/planner.h"
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"
 #include "units/unit.h"
@@ -154,6 +158,9 @@ GameWorld::~GameWorld() {
 // TODO: This really needs to handle errors, e.g. in registering templates.
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   proto_.Swap(scenario);
+  for (const auto& good : proto_.trade_goods()) {
+    market::CreateTradeGood(good);
+  }
   auto_production_.insert(auto_production_.end(),
                           proto_.auto_production().pointer_begin(),
                           proto_.auto_production().pointer_end());
@@ -201,6 +208,7 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
 
 void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
   static PossibilityFilter possible;
+  std::cout << "Turn begins\n";
 
   for (auto& area: areas_) {
     auto* market = area->mutable_market();
@@ -244,14 +252,47 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
     }
 
     RunAreaIndustry(&contexts);
+  }
 
+  // Units all plan simultaneously.
+  for (auto& unit : units_) {
+    actions::proto::Strategy* strategy = unit->mutable_strategy();
+    if (strategy->strategy_case() ==
+        actions::proto::Strategy::STRATEGY_NOT_SET) {
+      // TODO: Strategic AI.
+      continue;
+    }
+    actions::proto::Plan* plan = unit->mutable_plan();
+    if (plan->steps_size() == 0) {
+      *plan = ai::MakePlan(*unit, unit->strategy());
+    }
+  }
+
+  // Execute in single steps.
+  while (true) {
+    int count = 0;
+    for (auto& unit : units_) {
+      if (ai::ExecuteStep(unit->plan(), unit.get())) {
+        ai::DeleteStep(unit->mutable_plan());
+        ++count;
+      }
+    }
+    if (count == 0) {
+      break;
+    }
+  }
+
+  // Must consume with levels in the outside loop, otherwise
+  // one POP may eat everything and leave nothing for others.
+  // Need to do by areas to get the markets.
+  for (auto& area: areas_) {
     for (const auto& level : scenario_.proto_.consumption()) {
       for (const auto pop_id : area->Proto()->pop_ids()) {
         auto* pop = population::PopUnit::GetPopId(pop_id);
         if (pop == nullptr) {
           continue;
         }
-        pop->Consume(level, market);
+        pop->Consume(level, area->mutable_market());
       }
     }
   }
@@ -288,6 +329,7 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
   }
 
   for (const auto& unit : units_) {
+    market::CleanContainer(unit->mutable_resources());
     auto& unit_proto = *proto->add_units();
     unit_proto = unit->Proto();
   }

@@ -11,9 +11,12 @@ import "units/proto/units.proto";
 message Scenario {
   repeated population.proto.AutoProduction auto_production = 1;
   repeated industry.proto.Production production_chains = 2;
-  market.proto.Container decay_rates = 3;
+  repeated market.proto.TradeGood trade_goods = 3;
   repeated population.proto.ConsumptionLevel consumption = 4;
   repeated units.proto.Template unit_templates = 5;
+  // This is redundant with TradeGood information above.
+  // TODO: Migrate all uses in the code, then remove.
+  market.proto.Container decay_rates = 6;
 }
 
 message GameWorld {

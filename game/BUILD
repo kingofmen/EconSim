@@ -3,6 +3,10 @@ cc_library(
     srcs = ["game_world.cc"],
     hdrs = ["game_world.h"],
     deps = [
+        "//actions/proto:plan_proto",
+        "//actions/proto:strategy_proto",
+        "//ai:executer",
+        "//ai:planner",
         "//game/proto:game_world_proto",
         "//geography:connection",
         "//geography:geography",
@@ -44,5 +48,9 @@ cc_test(
     data = [
         ":test_data/simple.pb.txt",
         ":test_data/simple_economy.pb.txt",
+        ":test_data/fixcap.pb.txt",
+        ":test_data/fixcap_economy.pb.txt",
+        ":test_data/trade.pb.txt",
+        ":test_data/trade_economy.pb.txt",
     ],
 )

@@ -26,6 +26,9 @@ const std::string kSimpleEconomy = "simple_economy.pb.txt";
 const std::string kFixcapSetup = "fixcap.pb.txt";
 const std::string kFixcapEconomy = "fixcap_economy.pb.txt";
 
+const std::string kTradeSetup = "trade.pb.txt";
+const std::string kTradeEconomy = "trade_economy.pb.txt";
+
 namespace {
 
 google::protobuf::util::Status ReadFile(const std::string filename,
@@ -55,7 +58,10 @@ protected:
 
   google::protobuf::util::Status SteadyStateTest() {
     game::GameWorld game_world(world_proto_, &scenario_);
-    auto initial_prices = world_proto_.areas(0).market().prices_u();
+    std::vector<market::proto::Container> initial_prices;
+    for (const auto& area : world_proto_.areas()) {
+      initial_prices.push_back(area.market().prices_u());
+    }
     std::unordered_map<geography::proto::Field*,
                        industry::decisions::proto::ProductionDecision>
         production_info;
@@ -66,21 +72,24 @@ protected:
       world_proto_.Clear();
       game_world.SaveToProto(&world_proto_);
 
-      auto current_prices = world_proto_.areas(0).market().prices_u();
-      for (const auto& good : initial_prices.quantities()) {
-        auto curr_price = market::GetAmount(current_prices, good.first);
-        if (good.second != curr_price) {
-          return util::FailedPreconditionError(
-              absl::Substitute("Turn $0: $1 price $2 does not match initial $3",
-                               i, good.first, curr_price, good.second));
+      for (int aa = 0; aa < world_proto_.areas_size(); ++aa) {
+        const auto& area = world_proto_.areas(aa);
+        auto& current_prices = area.market().prices_u();
+        for (const auto& good : initial_prices[aa].quantities()) {
+          auto curr_price = market::GetAmount(current_prices, good.first);
+          if (good.second != curr_price) {
+            return util::FailedPreconditionError(
+                absl::Substitute("Turn $0 area $4: $1 price $2 does not match initial $3",
+                                 i, good.first, curr_price, good.second, area.id()));
+          }
         }
-      }
-      for (const auto& good : current_prices.quantities()) {
-        auto init_price = market::GetAmount(initial_prices, good.first);
-        if (good.second != init_price) {
-          return util::FailedPreconditionError(
-              absl::Substitute("Turn $0: $1 price $2 does not match initial $3",
-                               i, good.first, good.second, init_price));
+        for (const auto& good : current_prices.quantities()) {
+          auto init_price = market::GetAmount(initial_prices[aa], good.first);
+          if (good.second != init_price) {
+            return util::FailedPreconditionError(
+                absl::Substitute("Turn $0 area $4: $1 price $2 does not match initial $3",
+                                 i, good.first, good.second, init_price, area.id()));
+          }
         }
       }
     }
@@ -98,6 +107,14 @@ TEST_F(EconomyTest, TestSimpleSteadyState) {
 
 TEST_F(EconomyTest, TestFixcapSteadyState) {
   auto status = ReadWorld(kFixcapSetup, kFixcapEconomy);
+  EXPECT_OK(status) << status.error_message();
+  status = SteadyStateTest();
+  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+                           << world_proto_.DebugString();
+}
+
+TEST_F(EconomyTest, TestTradingSteadyState) {
+  auto status = ReadWorld(kTradeSetup, kTradeEconomy);
   EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
