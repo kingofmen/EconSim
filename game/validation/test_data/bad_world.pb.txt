@@ -1,0 +1,5 @@
+# Game state with errors, for testing validation.
+
+areas {
+
+}

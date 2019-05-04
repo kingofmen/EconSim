@@ -1,0 +1,37 @@
+# Scenario with multiple errors, for testing validation.
+
+# Scenario with multiple errors, for testing validation.
+
+auto_production {
+  output {
+    quantities { key: "nonesuch" value: -1 }
+  }
+}
+auto_production {
+  output {
+    quantities { key: "labour" value: 1 }
+  }
+}
+
+trade_goods {
+  name: "labour"
+  decay_rate_u: 0
+  bulk_u: 1000000
+  weight_u: 1000000
+}
+trade_goods {
+  name: "unobtainium"
+  decay_rate_u: -1
+  bulk_u: 1000000
+  weight_u: 1000000
+}
+trade_goods {
+  name: "handwavium"
+  decay_rate_u: 0
+  weight_u: 1000000
+}
+trade_goods {
+  name: "phlebotinum"
+  decay_rate_u: 0
+  bulk_u: 1000000
+}
