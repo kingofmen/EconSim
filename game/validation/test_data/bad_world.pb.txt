@@ -50,3 +50,54 @@ connections {
   a: 5
   z: 6
 }
+
+units {}
+
+units {
+  unit_id {
+    type: 1
+  }
+}
+units {
+  unit_id {
+    type: 10
+    number: 1
+  }
+}
+units {
+  unit_id {
+    type: 1
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "iron"
+      value: 1
+    }
+  }
+  location {
+    source_area_id: 5
+  }
+}
+units {
+  unit_id {
+    type: 1
+    number: 2
+  }
+  location {
+    source_area_id: 1
+    connection_id: 12
+  }
+}
+units {
+  unit_id {
+    type: 1
+    number: 3
+  }
+  location {
+    source_area_id: 1
+    connection_id: 3
+  }
+}
+
+

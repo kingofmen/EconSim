@@ -100,3 +100,8 @@ consumption {
     }
   }
 }
+
+unit_templates {
+  id: 1
+  name: "Generic unit"
+}

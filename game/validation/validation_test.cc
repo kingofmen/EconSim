@@ -66,6 +66,14 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Connection 2 has bad width 0",
     "Connection 3 has A end 5, which doesn't exist",
     "Connection 3 has Z end 6, which doesn't exist",
+    "Unit {10, 1} has bad type",
+    "Unit {10, 1} has no location",
+    "Unit {1, 1}: Good iron does not exist.",
+    "Bad unit ID: unit_id {\n  type: 1\n}\n",
+    "Unit without ID: \"\"",
+    "Unit {1, 1} has nonexistent location 5",
+    "Unit {1, 2} has nonexistent connection 12",
+    "Unit {1, 3} is in connection 3 which does not connect source 1",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {

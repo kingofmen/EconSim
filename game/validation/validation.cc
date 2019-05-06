@@ -10,6 +10,8 @@
 
 std::unordered_map<std::string, market::proto::TradeGood> goods;
 std::unordered_map<uint64, geography::proto::Area> areas;
+std::unordered_map<uint64, units::proto::Template> templates;
+std::unordered_map<uint64, geography::proto::Connection> connections;
 
 namespace game {
 namespace validation {
@@ -125,9 +127,18 @@ void checkConsumption(const game::proto::Scenario& scenario,
   }
 }
 
-// TODO: Implement this when templates are more complete.
+// Sanity-checks templates.
 void checkTemplates(const game::proto::Scenario& scenario,
-                    std::vector<std::string>* errors) {}
+                    std::vector<std::string>* errors) {
+  for (const auto& temp : scenario.unit_templates()) {
+    if (!temp.has_id()) {
+      errors->push_back(
+          absl::Substitute("Template without ID: $0", temp.DebugString()));
+      continue;
+    }
+    templates[temp.id()] = temp;
+  }
+}
 
 // Checks that areas have valid IDs.
 void validateAreas(const game::proto::GameWorld& world,
@@ -170,6 +181,7 @@ void validateConnections(const game::proto::GameWorld& world,
     if (conn.id() < 1) {
       errors->push_back(absl::Substitute("Bad connection ID: $0", conn.id()));
     }
+    connections[conn.id()] = conn;
     if (!conn.has_a() || !conn.has_z()) {
       errors->push_back(
           absl::Substitute("Connection $0 does not connect", conn.id()));
@@ -196,8 +208,55 @@ void validateConnections(const game::proto::GameWorld& world,
   }
 }
 
+// Checks that units have locations and cargo that exist.
 void validateUnits(const game::proto::GameWorld& world,
-                   std::vector<std::string>* errors) {}
+                   std::vector<std::string>* errors) {
+  for (const auto& unit : world.units()) {
+    if (!unit.has_unit_id()) {
+      errors->push_back(absl::Substitute("Unit without ID: \"$0\"", unit.DebugString()));
+      continue;
+    }
+    const auto& unit_id = unit.unit_id();
+    if (!unit_id.has_type() || !unit_id.has_number()) {
+      errors->push_back(absl::Substitute("Bad unit ID: $0", unit.DebugString()));
+      continue;
+    }
+    if (templates.find(unit_id.type()) == templates.end()) {
+      errors->push_back(absl::Substitute("Unit {$0, $1} has bad type",
+                                         unit_id.type(), unit_id.number()));
+    }
+    checkGoodsExist(
+        unit.resources(),
+        absl::Substitute("Unit {$0, $1}", unit_id.type(), unit_id.number()),
+        errors);
+    const auto& location = unit.location();
+    if (!location.has_source_area_id()) {
+      errors->push_back(absl::Substitute("Unit {$0, $1} has no location",
+                                         unit_id.type(), unit_id.number()));
+    } else if (areas.find(location.source_area_id()) == areas.end()) {
+      errors->push_back(absl::Substitute(
+          "Unit {$0, $1} has nonexistent location $2", unit_id.type(),
+          unit_id.number(), location.source_area_id()));
+    }
+    if (location.has_connection_id()) {
+      uint64 conn_id = location.connection_id();
+      if (connections.find(conn_id) == connections.end()) {
+        errors->push_back(
+            absl::Substitute("Unit {$0, $1} has nonexistent connection $2",
+                             unit_id.type(), unit_id.number(), conn_id));
+      } else {
+        const auto& conn = connections[conn_id];
+        if (conn.a() != location.source_area_id() && conn.z() != location.source_area_id()) {
+          errors->push_back(
+              absl::Substitute("Unit {$0, $1} is in connection $2 which does "
+                               "not connect source $3",
+                               unit_id.type(), unit_id.number(), conn_id,
+                               location.source_area_id()));
+        }
+      }
+    }
+  }
+}
 
 std::vector<std::string> Validate(const game::proto::Scenario& scenario,
                                   const game::proto::GameWorld& world) {
