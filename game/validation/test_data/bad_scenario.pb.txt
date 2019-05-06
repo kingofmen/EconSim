@@ -35,3 +35,50 @@ trade_goods {
   decay_rate_u: 0
   bulk_u: 1000000
 }
+
+production_chains {
+  name: "bad_chain"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labor"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "handwaving"
+	  value: 1000000
+	}
+      }
+      fixed_capital {
+        quantities {
+	  key: "captal"
+	  value: 1000000
+	}
+      }
+      raw_materials {
+        quantities {
+	  key: "unobtanum"
+	  value: 1000000
+	}
+      }
+      install_cost {
+        quantities {
+	  key: "phlebotinium"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "output"
+      value: 1000000
+    }
+  }
+
+}

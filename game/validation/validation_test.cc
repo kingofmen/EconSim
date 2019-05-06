@@ -47,6 +47,12 @@ TEST_F(ValidationTest, TestAllValidations) {
     "unobtainium has bad decay rate -1",
     "handwavium has bad bulk 0",
     "phlebotinum has bad weight 0",
+    "Production bad_chain outputs: Good output does not exist.",
+    "Production bad_chain step 1 variant 1 consumables: Good labor does not exist.",
+    "Production bad_chain step 1 variant 1 movable capital: Good handwaving does not exist.",
+    "Production bad_chain step 1 variant 1 fixed capital: Good captal does not exist.",
+    "Production bad_chain step 1 variant 1 raw materials: Good unobtanum does not exist.",
+    "Production bad_chain step 1 variant 1 install cost: Good phlebotinium does not exist.",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {
