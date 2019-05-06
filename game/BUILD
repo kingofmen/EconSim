@@ -28,6 +28,7 @@ cc_binary(
     srcs = ["sinews_main.cc"],
     deps = [
         ":game_world",
+        "//game/validation:validation",
         "//util/proto:file",
         "//util/status:status",
     ],
@@ -38,12 +39,13 @@ cc_test(
     srcs = ["simple_econ_test.cc"],
     deps = [
         ":game_world",
-        "@com_google_absl//absl/strings:strings",
-        "@gtest//:gtest",
-        "@gtest//:gtest_main",
+        "//game/validation:validation",
         "//market:goods_utils",
         "//util/proto:file",
         "//util/status:status",
+        "@com_google_absl//absl/strings:strings",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
     ],
     data = [
         ":test_data/simple.pb.txt",

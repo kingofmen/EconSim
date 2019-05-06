@@ -296,5 +296,14 @@ std::vector<std::string> Validate(const game::proto::Scenario& scenario,
   return errors;
 }
 
+void Clear() {
+  goods.clear();
+  areas.clear();
+  templates.clear();
+  connections.clear();
+  pops.clear();
+  unit_map.clear();
+}
+
 }  // namespace validation
 }  // namespace game

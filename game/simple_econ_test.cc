@@ -7,6 +7,7 @@
 #include "absl/strings/substitute.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
+#include "game/validation/validation.h"
 #include "geography/proto/geography.pb.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/stubs/logging.h"
@@ -49,6 +50,8 @@ protected:
 
   google::protobuf::util::Status ReadWorld(const std::string& setup,
                                            const std::string& scenario) {
+    game::validation::Clear();
+    market::ClearGoods();
     auto status = ReadFile(setup, &world_proto_);
     if (!status.ok()) return status;
     status = ReadFile(scenario, &scenario_);
@@ -56,7 +59,17 @@ protected:
     return util::OkStatus();
   }
 
+  void validate() {
+    std::vector<std::string> errors =
+        game::validation::Validate(scenario_, world_proto_);
+    EXPECT_EQ(0, errors.size());
+    for (const auto& error : errors) {
+      std::cout << "Validation error: " << error << "\n";
+    }
+  }
+
   google::protobuf::util::Status SteadyStateTest() {
+    validate();
     game::GameWorld game_world(world_proto_, &scenario_);
     std::vector<market::proto::Container> initial_prices;
     for (const auto& area : world_proto_.areas()) {

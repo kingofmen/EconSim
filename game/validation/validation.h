@@ -13,6 +13,9 @@ namespace validation {
 std::vector<std::string> Validate(const game::proto::Scenario& scenario,
                                   const game::proto::GameWorld& world);
 
+// Resets the validation state, clearing the uniqueness maps.
+void Clear();
+
 }  // namespace validation
 }  // namespace game
 

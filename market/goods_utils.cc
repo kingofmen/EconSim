@@ -13,6 +13,10 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
+void ClearGoods() {
+  goods_map_.clear();
+}
+
 void CreateTradeGood(const market::proto::TradeGood& good) {
   // TODO: Handle these errors.
   if (good.name() == "") {

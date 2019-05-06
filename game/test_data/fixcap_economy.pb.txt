@@ -10,6 +10,25 @@ auto_production {
   }
 }
 
+trade_goods {
+  name: "labour"
+  decay_rate_u: 1000000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "capital"
+  decay_rate_u: 50000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "output"
+  decay_rate_u: 1000000
+  bulk_u: 1
+  weight_u: 1
+}
+
 decay_rates {
   quantities {
     key: "labour"

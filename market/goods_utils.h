@@ -10,6 +10,8 @@ typedef int64 Measure;
 
 // Registers a trade good.
 void CreateTradeGood(const market::proto::TradeGood& good);
+// Clears all good information.
+void ClearGoods();
 
 // Information about trade goods.
 Measure BulkU(const std::string& name);
