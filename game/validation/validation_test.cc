@@ -43,6 +43,7 @@ protected:
 
 TEST_F(ValidationTest, TestAllValidations) {
   std::unordered_set<std::string> expected = {
+    // Scenario errors:
     "Auto production: Good nonesuch does not exist.",
     "unobtainium has bad decay rate -1",
     "handwavium has bad bulk 0",
@@ -55,6 +56,11 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Production bad_chain step 1 variant 1 install cost: Good phlebotinium does not exist.",
     "Consumption bad_level package 1 consumption: Good phlebotinium does not exist.",
     "Consumption bad_level package 1 capital: Good handwaves does not exist.",
+    // World errors:
+    "Area without ID: \"\"",
+    "Bad area ID: 0",
+    "Pop without ID: \"\"",
+    "Pop unit 1: Good gold does not exist.",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {

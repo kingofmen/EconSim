@@ -6,8 +6,10 @@
 
 #include "absl/strings/substitute.h"
 #include "market/proto/goods.pb.h"
+#include "util/headers/int_types.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods;
+std::unordered_map<uint64, geography::proto::Area> areas;
 
 namespace game {
 namespace validation {
@@ -101,7 +103,7 @@ void checkProduction(const game::proto::Scenario& scenario,
 
 // Checks that all consumed goods actually exist.
 void checkConsumption(const game::proto::Scenario& scenario,
-                         std::vector<std::string>* errors) {
+                      std::vector<std::string>* errors) {
   for (const auto& con : scenario.consumption()) {
     std::string name = con.name();
     if (name == "") {
@@ -123,6 +125,44 @@ void checkConsumption(const game::proto::Scenario& scenario,
   }
 }
 
+// TODO: Implement this when templates are more complete.
+void checkTemplates(const game::proto::Scenario& scenario,
+                    std::vector<std::string>* errors) {}
+
+void validateAreas(const game::proto::GameWorld& world,
+                   std::vector<std::string>* errors) {
+  for (const auto& area : world.areas()) {
+    if (!area.has_id()) {
+      errors->push_back(
+          absl::Substitute("Area without ID: \"$0\"", area.DebugString()));
+    } else if (area.id() < 1) {
+      errors->push_back(absl::Substitute("Bad area ID: $0", area.id()));
+    } else {
+      areas[area.id()] = area;
+    }
+  }
+}
+
+void validatePops(const game::proto::GameWorld& world,
+                  std::vector<std::string>* errors) {
+  for (const auto& pop : world.pops()) {
+    if (pop.pop_id() == 0) {
+      errors->push_back(
+          absl::Substitute("Pop without ID: \"$0\"", pop.DebugString()));
+    }
+    checkGoodsExist(pop.wealth(), absl::Substitute("Pop unit $0", pop.pop_id()),
+                    errors);
+    // TODO: Area validation here when issue 9 is fixed.
+  }
+}
+
+
+void validateConnections(const game::proto::GameWorld& world,
+                         std::vector<std::string>* errors) {}
+
+void validateUnits(const game::proto::GameWorld& world,
+                   std::vector<std::string>* errors) {}
+
 std::vector<std::string> Validate(const game::proto::Scenario& scenario,
                                   const game::proto::GameWorld& world) {
   std::vector<std::string> errors;
@@ -130,6 +170,13 @@ std::vector<std::string> Validate(const game::proto::Scenario& scenario,
   checkAutoProduction(scenario, &errors);
   checkProduction(scenario, &errors);
   checkConsumption(scenario, &errors);
+  checkTemplates(scenario, &errors);
+
+  validateAreas(world, &errors);
+  validatePops(world, &errors);
+  validateConnections(world, &errors);
+  validateUnits(world, &errors);
+  
   return errors;
 }
 

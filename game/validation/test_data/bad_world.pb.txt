@@ -1,5 +1,23 @@
 # Game state with errors, for testing validation.
 
-areas {
+areas {}
 
+areas {
+  id: 0
+}
+
+areas {
+  id: 1
+}
+
+pops {}
+
+pops {
+  pop_id: 1
+  wealth {
+    quantities {
+      key: "gold"
+      value: 10
+    }
+  }
 }

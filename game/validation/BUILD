@@ -10,6 +10,7 @@ cc_library(
         "//population:population",
         "//population/proto:population_proto",
         "//util/arithmetic:microunits",
+        "//util/headers:int_types",
         "@com_google_absl//absl/strings:strings",
     ],
 )
