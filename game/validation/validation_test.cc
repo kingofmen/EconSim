@@ -61,6 +61,11 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Bad area ID: 0",
     "Pop without ID: \"\"",
     "Pop unit 1: Good gold does not exist.",
+    "Connection 2 does not connect",
+    "Connection 2 has bad length 0",
+    "Connection 2 has bad width 0",
+    "Connection 3 has A end 5, which doesn't exist",
+    "Connection 3 has Z end 6, which doesn't exist",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {

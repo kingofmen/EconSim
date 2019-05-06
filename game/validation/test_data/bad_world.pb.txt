@@ -10,6 +10,10 @@ areas {
   id: 1
 }
 
+areas {
+  id: 2
+}
+
 pops {}
 
 pops {
@@ -20,4 +24,29 @@ pops {
       value: 10
     }
   }
+}
+
+connections {
+  type: CT_OPEN
+  id: 1
+  distance_u: 1
+  width_u: 1
+  a: 1
+  z: 2
+}
+
+connections {
+  type: CT_OPEN
+  id: 2
+  distance_u: 0
+  width_u: 0
+}
+
+connections {
+  type: CT_OPEN
+  id: 3
+  distance_u: 1
+  width_u: 1
+  a: 5
+  z: 6
 }

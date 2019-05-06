@@ -129,6 +129,7 @@ void checkConsumption(const game::proto::Scenario& scenario,
 void checkTemplates(const game::proto::Scenario& scenario,
                     std::vector<std::string>* errors) {}
 
+// Checks that areas have valid IDs.
 void validateAreas(const game::proto::GameWorld& world,
                    std::vector<std::string>* errors) {
   for (const auto& area : world.areas()) {
@@ -143,6 +144,7 @@ void validateAreas(const game::proto::GameWorld& world,
   }
 }
 
+// Checks that POPs have valid IDs and wealth.
 void validatePops(const game::proto::GameWorld& world,
                   std::vector<std::string>* errors) {
   for (const auto& pop : world.pops()) {
@@ -156,9 +158,43 @@ void validatePops(const game::proto::GameWorld& world,
   }
 }
 
-
+// Checks that connections connect areas that exist, and have nonzero length.
 void validateConnections(const game::proto::GameWorld& world,
-                         std::vector<std::string>* errors) {}
+                         std::vector<std::string>* errors) {
+  for (const auto& conn : world.connections()) {
+    if (!conn.has_id()) {
+      errors->push_back(
+          absl::Substitute("Connection without ID: $0", conn.DebugString()));
+      continue;
+    }
+    if (conn.id() < 1) {
+      errors->push_back(absl::Substitute("Bad connection ID: $0", conn.id()));
+    }
+    if (!conn.has_a() || !conn.has_z()) {
+      errors->push_back(
+          absl::Substitute("Connection $0 does not connect", conn.id()));
+    } else {
+      if (areas.find(conn.a()) == areas.end()) {
+        errors->push_back(
+            absl::Substitute("Connection $0 has A end $1, which doesn't exist",
+                             conn.id(), conn.a()));
+      }
+      if (areas.find(conn.z()) == areas.end()) {
+        errors->push_back(
+            absl::Substitute("Connection $0 has Z end $1, which doesn't exist",
+                             conn.id(), conn.z()));
+      }
+    }
+    if (conn.distance_u() < 1) {
+      errors->push_back(absl::Substitute("Connection $0 has bad length $1",
+                                         conn.id(), conn.distance_u()));
+    }
+    if (conn.width_u() < 1) {
+      errors->push_back(absl::Substitute("Connection $0 has bad width $1",
+                                         conn.id(), conn.width_u()));
+    }
+  }
+}
 
 void validateUnits(const game::proto::GameWorld& world,
                    std::vector<std::string>* errors) {}
