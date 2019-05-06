@@ -82,3 +82,21 @@ production_chains {
   }
 
 }
+
+consumption {
+  name: "bad_level"
+  packages {
+    consumed {
+      quantities {
+        key: "phlebotinium"
+        value: 1000000
+      }
+    }
+    capital {
+      quantities {
+        key: "handwaves"
+        value: 1000000
+      }
+    }
+  }
+}

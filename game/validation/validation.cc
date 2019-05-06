@@ -8,7 +8,7 @@
 #include "market/proto/goods.pb.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods;
-#include <iostream>
+
 namespace game {
 namespace validation {
 
@@ -99,12 +99,37 @@ void checkProduction(const game::proto::Scenario& scenario,
   }
 }
 
+// Checks that all consumed goods actually exist.
+void checkConsumption(const game::proto::Scenario& scenario,
+                         std::vector<std::string>* errors) {
+  for (const auto& con : scenario.consumption()) {
+    std::string name = con.name();
+    if (name == "") {
+      errors->push_back(absl::Substitute("Consumption without name: $0", con.DebugString()));
+      name = "unnamed level";
+    }
+    int package_count = 0;
+    for (const auto& package : con.packages()) {
+      package_count++;
+      checkGoodsExist(package.consumed(),
+                      absl::Substitute("Consumption $0 package $1 consumption",
+                                       name, package_count),
+                      errors);
+      checkGoodsExist(package.capital(),
+                      absl::Substitute("Consumption $0 package $1 capital",
+                                       name, package_count),
+                      errors);
+    }
+  }
+}
+
 std::vector<std::string> Validate(const game::proto::Scenario& scenario,
                                   const game::proto::GameWorld& world) {
   std::vector<std::string> errors;
   checkGoods(scenario, &errors);
   checkAutoProduction(scenario, &errors);
   checkProduction(scenario, &errors);
+  checkConsumption(scenario, &errors);
   return errors;
 }
 

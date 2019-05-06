@@ -53,6 +53,8 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Production bad_chain step 1 variant 1 fixed capital: Good captal does not exist.",
     "Production bad_chain step 1 variant 1 raw materials: Good unobtanum does not exist.",
     "Production bad_chain step 1 variant 1 install cost: Good phlebotinium does not exist.",
+    "Consumption bad_level package 1 consumption: Good phlebotinium does not exist.",
+    "Consumption bad_level package 1 capital: Good handwaves does not exist.",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {
