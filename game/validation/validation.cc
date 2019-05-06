@@ -7,11 +7,14 @@
 #include "absl/strings/substitute.h"
 #include "market/proto/goods.pb.h"
 #include "util/headers/int_types.h"
+#include "util/proto/object_id.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods;
 std::unordered_map<uint64, geography::proto::Area> areas;
 std::unordered_map<uint64, units::proto::Template> templates;
 std::unordered_map<uint64, geography::proto::Connection> connections;
+std::unordered_map<uint64, population::proto::PopUnit> pops;
+std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
 
 namespace game {
 namespace validation {
@@ -149,9 +152,10 @@ void validateAreas(const game::proto::GameWorld& world,
           absl::Substitute("Area without ID: \"$0\"", area.DebugString()));
     } else if (area.id() < 1) {
       errors->push_back(absl::Substitute("Bad area ID: $0", area.id()));
-    } else {
+    } else if (areas.find(area.id()) != areas.end()) {
+        errors->push_back(absl::Substitute("Area ID $0 is not unique", area.id()));
+    } else
       areas[area.id()] = area;
-    }
   }
 }
 
@@ -163,6 +167,12 @@ void validatePops(const game::proto::GameWorld& world,
       errors->push_back(
           absl::Substitute("Pop without ID: \"$0\"", pop.DebugString()));
     }
+    if (pops.find(pop.pop_id()) != pops.end()) {
+      errors->push_back(
+          absl::Substitute("Pop ID $0 is not unique", pop.pop_id()));
+      continue;
+    }
+    pops[pop.pop_id()] = pop;
     checkGoodsExist(pop.wealth(), absl::Substitute("Pop unit $0", pop.pop_id()),
                     errors);
     // TODO: Area validation here when issue 9 is fixed.
@@ -180,6 +190,11 @@ void validateConnections(const game::proto::GameWorld& world,
     }
     if (conn.id() < 1) {
       errors->push_back(absl::Substitute("Bad connection ID: $0", conn.id()));
+    }
+    if (connections.find(conn.id()) != connections.end()) {
+      errors->push_back(
+          absl::Substitute("Connection ID $0 is not unique", conn.id()));
+      continue;
     }
     connections[conn.id()] = conn;
     if (!conn.has_a() || !conn.has_z()) {
@@ -225,6 +240,12 @@ void validateUnits(const game::proto::GameWorld& world,
       errors->push_back(absl::Substitute("Unit {$0, $1} has bad type",
                                          unit_id.type(), unit_id.number()));
     }
+    if (unit_map.find(unit_id) != unit_map.end()) {
+      errors->push_back(absl::Substitute("Unit {$0, $1} is not unique",
+                                         unit_id.type(), unit_id.number()));
+      continue;
+    }
+    unit_map[unit_id] = unit;
     checkGoodsExist(
         unit.resources(),
         absl::Substitute("Unit {$0, $1}", unit_id.type(), unit_id.number()),

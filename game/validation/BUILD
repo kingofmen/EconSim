@@ -11,6 +11,7 @@ cc_library(
         "//population/proto:population_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/proto:object_id",
         "@com_google_absl//absl/strings:strings",
     ],
 )

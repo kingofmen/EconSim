@@ -58,14 +58,17 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Consumption bad_level package 1 capital: Good handwaves does not exist.",
     // World errors:
     "Area without ID: \"\"",
+    "Area ID 2 is not unique",
     "Bad area ID: 0",
     "Pop without ID: \"\"",
+    "Pop ID 1 is not unique",
     "Pop unit 1: Good gold does not exist.",
     "Connection 2 does not connect",
     "Connection 2 has bad length 0",
     "Connection 2 has bad width 0",
     "Connection 3 has A end 5, which doesn't exist",
     "Connection 3 has Z end 6, which doesn't exist",
+    "Connection ID 3 is not unique",
     "Unit {10, 1} has bad type",
     "Unit {10, 1} has no location",
     "Unit {1, 1}: Good iron does not exist.",
@@ -74,6 +77,7 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Unit {1, 1} has nonexistent location 5",
     "Unit {1, 2} has nonexistent connection 12",
     "Unit {1, 3} is in connection 3 which does not connect source 1",
+    "Unit {1, 3} is not unique",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {
