@@ -18,6 +18,7 @@ std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
 
 namespace game {
 namespace validation {
+namespace {
 
 // Validates that goods have sensible values.
 void checkGoods(const game::proto::Scenario& scenario,
@@ -279,8 +280,20 @@ void validateUnits(const game::proto::GameWorld& world,
   }
 }
 
+void clear() {
+  goods.clear();
+  areas.clear();
+  templates.clear();
+  connections.clear();
+  pops.clear();
+  unit_map.clear();
+}
+
+}  // namespace
+
 std::vector<std::string> Validate(const game::proto::Scenario& scenario,
                                   const game::proto::GameWorld& world) {
+  clear();
   std::vector<std::string> errors;
   checkGoods(scenario, &errors);
   checkAutoProduction(scenario, &errors);
@@ -294,15 +307,6 @@ std::vector<std::string> Validate(const game::proto::Scenario& scenario,
   validateUnits(world, &errors);
   
   return errors;
-}
-
-void Clear() {
-  goods.clear();
-  areas.clear();
-  templates.clear();
-  connections.clear();
-  pops.clear();
-  unit_map.clear();
 }
 
 }  // namespace validation

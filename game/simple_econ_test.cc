@@ -50,7 +50,6 @@ protected:
 
   google::protobuf::util::Status ReadWorld(const std::string& setup,
                                            const std::string& scenario) {
-    game::validation::Clear();
     market::ClearGoods();
     auto status = ReadFile(setup, &world_proto_);
     if (!status.ok()) return status;
