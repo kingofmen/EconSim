@@ -28,11 +28,13 @@ void CreateTradeGood(const market::proto::TradeGood& good) {
 
   goods_map_[good.name()] = good;
   market::proto::TradeGood& copy = goods_map_[good.name()];
-  if (copy.bulk_u() < 1) {
-    copy.set_bulk_u(1);
-  }
-  if (copy.weight_u() < 1) {
-    copy.set_weight_u(1);
+  if (copy.transport_type() != market::proto::TradeGood::TTT_IMMOBILE) {
+    if (copy.bulk_u() < 1) {
+      copy.set_bulk_u(1);
+    }
+    if (copy.weight_u() < 1) {
+      copy.set_weight_u(1);
+    }
   }
 }
 
@@ -46,6 +48,10 @@ Measure DecayU(const std::string& name) {
 
 Measure WeightU(const std::string& name) {
   return goods_map_[name].weight_u();
+}
+
+proto::TradeGood::TransportType TransportType(const std::string& name) {
+  return goods_map_[name].transport_type();
 }
 
 void Add(const std::string& name, const Measure amount, Container* con) {

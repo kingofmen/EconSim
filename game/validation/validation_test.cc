@@ -46,8 +46,8 @@ TEST_F(ValidationTest, TestAllValidations) {
     // Scenario errors:
     "Auto production: Good nonesuch does not exist.",
     "unobtainium has bad decay rate -1",
-    "handwavium has bad bulk 0",
-    "phlebotinum has bad weight 0",
+    "handwavium has no bulk",
+    "phlebotinum has no weight",
     "Production bad_chain outputs: Good output does not exist.",
     "Production bad_chain step 1 variant 1 consumables: Good labor does not exist.",
     "Production bad_chain step 1 variant 1 movable capital: Good handwaving does not exist.",

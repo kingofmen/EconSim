@@ -28,20 +28,21 @@ decay_rates {
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000
-  bulk_u: 1000000000
-  weight_u: 1000000000
+  transport_type: TTT_IMMOBILE
 }
 trade_goods {
   name: "input"
   decay_rate_u: 0
   bulk_u: 2000000
   weight_u: 2000000
+  transport_type: TTT_STANDARD
 }
 trade_goods {
   name: "output"
   decay_rate_u: 0
   bulk_u: 1000000
   weight_u: 1000000
+  transport_type: TTT_STANDARD
 }
 
 production_chains {

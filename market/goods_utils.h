@@ -17,6 +17,7 @@ void ClearGoods();
 Measure BulkU(const std::string& name);
 Measure DecayU(const std::string& name);
 Measure WeightU(const std::string& name);
+proto::TradeGood::TransportType TransportType(const std::string& name);
 
 // Adds amount of name to con.
 void Add(const std::string& name, const Measure amount,

@@ -1,8 +1,7 @@
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000
-  bulk_u: 1000000000
-  weight_u: 1000000000
+  transport_type: TTT_IMMOBILE
 }
 trade_goods {
   name: "sheep"
@@ -61,8 +60,7 @@ trade_goods {
 trade_goods {
   name: "mana"
   decay_rate_u: 0
-  bulk_u: 1
-  weight_u: 1
+  transport_type: TTT_IMMOBILE
 }
 trade_goods {
   name: "trees"

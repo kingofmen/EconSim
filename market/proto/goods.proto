@@ -1,9 +1,9 @@
-syntax = "proto3";
+syntax = "proto2";
 package market.proto;
 
 message Quantity {
-  string kind = 1;
-  int64 amount = 2;
+  optional string kind = 1;
+  optional int64 amount = 2;
 }
 
 message Container {
@@ -11,9 +11,14 @@ message Container {
 }
 
 message TradeGood {
-  string name = 1;  // required
-  int64 decay_rate_u = 2;
-  int64 bulk_u = 3;
-  int64 weight_u = 4;
+  enum TransportType {
+    TTT_STANDARD = 0;
+    TTT_IMMOBILE = 1;
+  }
+  optional string name = 1;  // required
+  optional int64 decay_rate_u = 2;
+  optional int64 bulk_u = 3;
+  optional int64 weight_u = 4;
+  optional TransportType transport_type = 5;
 }
 

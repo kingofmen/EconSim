@@ -101,6 +101,9 @@ Unit::~Unit() {
 }
 
 market::Measure Unit::Capacity(const std::string& good) const {
+  if (market::TransportType(good) == market::proto::TradeGood::TTT_IMMOBILE) {
+    return 0;
+  }
   market::Measure current_bulk_u = 0;
   market::Measure current_weight_u = 0;
   for (const auto& quantity : resources().quantities()) {

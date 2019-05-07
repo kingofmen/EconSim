@@ -19,6 +19,8 @@ class UnitTest : public testing::Test {
   void SetUp() override {
     template_.set_id(1);
     template_.mutable_mobility()->set_speed_u(1);
+    template_.mutable_mobility()->set_max_bulk_u(micro::kOneInU);
+    template_.mutable_mobility()->set_max_weight_u(micro::kOneInU);
     template_.set_name("test_unit");
     Unit::RegisterTemplate(template_);
 
@@ -44,11 +46,13 @@ TEST_F(UnitTest, Capacity) {
   bulky.set_name("bulky");
   bulky.set_bulk_u(2 * micro::kOneInU);
   bulky.set_weight_u(micro::kHalfInU);
+  bulky.set_transport_type(market::proto::TradeGood::TTT_STANDARD);
   market::CreateTradeGood(bulky);
   market::proto::TradeGood heavy;
   heavy.set_name("heavy");
   heavy.set_bulk_u(micro::kHalfInU);
   heavy.set_weight_u(2 * micro::kOneInU);
+  heavy.set_transport_type(market::proto::TradeGood::TTT_STANDARD);
   market::CreateTradeGood(heavy);
 
   EXPECT_EQ(micro::kHalfInU, unit_->Capacity(bulky.name()));

@@ -25,13 +25,13 @@ void checkGoods(const game::proto::Scenario& scenario,
                 std::vector<std::string>* errors) {
   for (const market::proto::TradeGood& good : scenario.trade_goods()) {
     goods.emplace(good.name(), good);
-    if (0 >= good.bulk_u()) {
-      errors->push_back(
-          absl::Substitute("$0 has bad bulk $1", good.name(), good.bulk_u()));
-    }
-    if (0 >= good.weight_u()) {
-      errors->push_back(absl::Substitute("$0 has bad weight $1", good.name(),
-                                        good.weight_u()));
+    if (good.transport_type() != market::proto::TradeGood::TTT_IMMOBILE) {
+      if (!good.has_bulk_u()) {
+        errors->push_back(absl::Substitute("$0 has no bulk", good.name()));
+      }
+      if (0 >= good.weight_u()) {
+        errors->push_back(absl::Substitute("$0 has no weight", good.name()));
+      }
     }
     if (0 > good.decay_rate_u()) {
       errors->push_back(absl::Substitute("$0 has bad decay rate $1", good.name(),

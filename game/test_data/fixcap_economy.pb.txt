@@ -13,8 +13,7 @@ auto_production {
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000
-  bulk_u: 1
-  weight_u: 1
+  transport_type: TTT_IMMOBILE
 }
 trade_goods {
   name: "capital"
