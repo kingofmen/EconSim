@@ -110,5 +110,7 @@ unit_templates {
   id: 1
   mobility {
     speed_u: 1
+    max_bulk_u: 1000000
+    max_weight_u: 1000000
   }
 }

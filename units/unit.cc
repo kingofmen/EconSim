@@ -110,9 +110,10 @@ market::Measure Unit::Capacity(const std::string& good) const {
         micro::MultiplyU(market::WeightU(quantity.first), quantity.second);
   }
 
-  // TODO: Derive these from a Template instead of hardcoding.
-  market::Measure remaining_bulk_u = micro::kOneInU;
-  market::Measure remaining_weight_u = micro::kOneInU;
+  // TODO: Scaling effects - also elsewhere!
+  // TODO: Maybe this had better be cached?
+  market::Measure remaining_bulk_u = Template().mobility().max_bulk_u();
+  market::Measure remaining_weight_u = Template().mobility().max_weight_u();
 
   remaining_bulk_u -= current_bulk_u;
   remaining_weight_u -= current_weight_u;
