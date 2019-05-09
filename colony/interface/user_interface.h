@@ -6,7 +6,7 @@ namespace interface {
 // Abstract base class for all user interfaces.
 class UserInterface {
  public:
-  virtual void introScreen() const = 0;
+  virtual void IntroScreen() = 0;
 };
 
 }  // namespace interface

@@ -5,7 +5,7 @@
 int main(int /*argc*/, char** /*argv*/) {
   interface::UserInterface* ui =
       interface::factory::NewInterface(new controller::GameControl());
-  ui->introScreen();
+  ui->IntroScreen();
   return 0;
 }
 
