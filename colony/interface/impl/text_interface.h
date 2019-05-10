@@ -1,6 +1,7 @@
 #ifndef COLONY_INTERFACE_IMPL_TEXT_INTERFACE_H
 #define COLONY_INTERFACE_IMPL_TEXT_INTERFACE_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -18,7 +19,16 @@ class TextInterface : public interface::UserInterface {
 
  private:
   std::vector<std::string> display_;
+  bool quit_;
+  std::function<void(char)> handler_;
 
+  void introHandler(char inp);
+  void newGameHandler(char inp);
+
+  void mainMenu();
+  void newGameScreen();
+  
+  void awaitInput();
   void output(int x, int y, const std::string& words);
 };
 
