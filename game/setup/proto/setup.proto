@@ -1,0 +1,13 @@
+syntax = "proto2";
+package game.setup.proto;
+
+message ScenarioFiles {
+  repeated string auto_production = 1;
+  repeated string production_chains = 2;
+  repeated string trade_goods = 3;
+  repeated string consumption = 4;
+  repeated string unit_templates = 5;
+  repeated string saves = 6;
+  optional string description = 7;
+  optional string name = 8;
+}
