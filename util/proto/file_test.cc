@@ -25,5 +25,22 @@ TEST(ProtoUtils, TestParseProtoFile) {
       << proto.DebugString();
 }
 
+TEST(ProtoUtils, TestMergeProtoFile) {
+  industry::proto::Production proto;
+  const std::string filename = "industry.pb.txt";
+  auto status = MergeProtoFile(
+      absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), &proto);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(industry::proto::LT_FIELDS, proto.land_type())
+      << proto.DebugString();
+  EXPECT_EQ(1, proto.steps_size()) << proto.DebugString();
+  status = MergeProtoFile(
+      absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), &proto);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(industry::proto::LT_FIELDS, proto.land_type())
+      << proto.DebugString();
+  EXPECT_EQ(2, proto.steps_size()) << proto.DebugString();
+}
+
 }  // namespace proto
 }  // namespace util

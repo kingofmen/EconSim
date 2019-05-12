@@ -24,5 +24,20 @@ ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   return util::OkStatus();
 }
 
+google::protobuf::util::Status
+MergeProtoFile(const std::string& filename, google::protobuf::Message* proto) {
+  std::ifstream reader(filename);
+  if (!reader.good()) {
+    return util::InvalidArgumentError("Could not open file");
+  }
+  google::protobuf::io::IstreamInputStream input(&reader);
+  if (!google::protobuf::TextFormat::Merge(&input, proto)) {
+    return util::InvalidArgumentError("Error parsing file");
+  }
+
+  reader.close();
+  return util::OkStatus();
+}
+
 }  // namespace proto
 }  // namespace util
