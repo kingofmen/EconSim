@@ -7,5 +7,12 @@ cc_library(
     deps = [
         "//colony/controller:controller",
         "//colony/interface:user_interface",
+        "//game/proto:game_world_proto",
+        "//game/setup/proto:setup_proto",
+        "//game/validation:validation",
+        "//util/proto:file",
+        "//util/status",
+        "@com_google_absl//absl/strings:strings",
+        "@com_google_protobuf//:protobuf",
     ],
 )

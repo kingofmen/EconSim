@@ -7,7 +7,9 @@ message ScenarioFiles {
   repeated string trade_goods = 3;
   repeated string consumption = 4;
   repeated string unit_templates = 5;
-  repeated string saves = 6;
+  optional string world_file = 6;
   optional string description = 7;
   optional string name = 8;
+  optional string root_path = 9;
+  repeated string includes = 10;
 }
