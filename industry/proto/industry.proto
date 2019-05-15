@@ -10,6 +10,7 @@ enum LandType {
   LT_LIGHT_INDUSTRY = 3;
   LT_HEAVY_INDUSTRY = 4;
   LT_ORCHARDS = 5;
+  LT_FOREST = 6;
 }
 
 // Inputs to a production step, both consumed (eg labour, raw materials) and not
