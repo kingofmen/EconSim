@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "absl/strings/substitute.h"
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "util/status/status.h"
@@ -17,7 +18,7 @@ ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   }
   google::protobuf::io::IstreamInputStream input(&reader);
   if (!google::protobuf::TextFormat::Parse(&input, proto)) {
-    return util::InvalidArgumentError("Error parsing file");
+    return util::InvalidArgumentError(absl::Substitute("Error parsing file $0", filename));
   }
 
   reader.close();
@@ -32,7 +33,7 @@ MergeProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   }
   google::protobuf::io::IstreamInputStream input(&reader);
   if (!google::protobuf::TextFormat::Merge(&input, proto)) {
-    return util::InvalidArgumentError("Error parsing file");
+    return util::InvalidArgumentError(absl::Substitute("Error parsing file $0", filename));
   }
 
   reader.close();
