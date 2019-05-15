@@ -1,0 +1,47 @@
+areas {
+  id: 1
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+  }
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+  }
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+  }
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+  }
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+  }
+  market {
+    prices_u {
+      quantities { key: "labour" value: 1000000 }
+    }
+    goods {
+      quantities { key: "labour" value: 1 }
+    }
+    name: "area_1_market"
+    legal_tender: "silver"
+    credit_limit: 1000000000
+  }
+}
+
+pops {
+  pop_id: 1
+  males: 0
+  males: 0
+  males: 100
+  women: 0
+  women: 0
+  women: 50
+  wealth {
+  }
+}
+

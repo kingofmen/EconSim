@@ -1,0 +1,6 @@
+# Trade goods for the tutorial scenario.
+trade_goods {
+  name: "labour"
+  decay_rate_u: 1000000
+  transport_type: TTT_IMMOBILE
+}

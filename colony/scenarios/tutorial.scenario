@@ -1,2 +1,4 @@
 name: "Tutorial Island"
 description: "A small island suitable for learning the game."
+world_file: "tutorial/world.pb.txt"
+trade_goods: "tutorial/trade_goods.pb.txt"
