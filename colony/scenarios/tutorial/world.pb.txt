@@ -42,6 +42,7 @@ pops {
   women: 0
   women: 50
   wealth {
+    quantities { key: "silver" value: 100000000 }
   }
 }
 

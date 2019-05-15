@@ -4,3 +4,11 @@ trade_goods {
   decay_rate_u: 1000000
   transport_type: TTT_IMMOBILE
 }
+trade_goods {
+  name: "silver"
+  decay_rate_u: 0
+  transport_type: TTT_STANDARD
+  # One kg, 100 cubic cm
+  bulk_u: 100
+  weight_u: 1000000
+}
