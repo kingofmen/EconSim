@@ -1,5 +1,6 @@
 #include "colony/interface/impl/text_interface.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <conio.h>
 #include <experimental/filesystem>
@@ -8,6 +9,7 @@
 #include <string>
 
 #include "absl/strings/substitute.h"
+#include "absl/strings/str_join.h"
 #include "colony/controller/controller.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
@@ -24,24 +26,31 @@ namespace interface {
 namespace text {
 namespace {
 
-void clearLine(int line, std::vector<std::string>* display) {
-  (*display)[line] = std::string(columns, ' ');
-}
+constexpr int BOLD = 1;
+constexpr int FG_BLACK = 2;
+constexpr int FG_RED = 4;
+constexpr int FG_GREEN = 8;
+constexpr int FG_YELLOW = 16;
+constexpr int FG_BLUE = 32;
+constexpr int FG_MAGENTA = 64;
+constexpr int FG_CYAN = 128;
+constexpr int FG_WHITE = 256;
+constexpr int BG_BLACK = 512;
+constexpr int BG_RED = 1024;
+constexpr int BG_GREEN = 2048;
+constexpr int BG_YELLOW = 4096;
+constexpr int BG_BLUE = 8192;
+constexpr int BG_MAGENTA = 16384;
+constexpr int BG_CYAN = 32768;
+constexpr int BG_WHITE = 65536;
 
-void clear(std::vector<std::string>* display) {
-  for (auto& row : *display) {
-    row = std::string(columns, ' ');
-  }
-}
-
-void flip(const std::vector<std::string>& display) {
-  if (system("CLS")) {
-    system("clear");
-  }
-  for (const auto& c : display) {
-    std::cout << c << "\n";
-  }
-}
+std::unordered_map<int, std::string> ansiCodes = {
+    {BOLD, "1"},       {FG_BLACK, "30"}, {FG_RED, "31"},     {FG_GREEN, "32"},
+    {FG_YELLOW, "33"}, {FG_BLUE, "34"},  {FG_MAGENTA, "35"}, {FG_CYAN, "36"},
+    {FG_WHITE, "37"},  {BG_BLACK, "40"}, {BG_RED, "41"},     {BG_GREEN, "42"},
+    {BG_YELLOW, "43"}, {BG_BLUE, "44"},  {BG_MAGENTA, "45"}, {BG_CYAN, "46"},
+    {BG_WHITE, "47"},
+};
 
 template <typename T>
 bool select(char inp, const std::vector<T>& options, T& output) {
@@ -79,14 +88,15 @@ std::vector<std::experimental::filesystem::path> getScenarios() {
 }  // namespace
 
 TextInterface::TextInterface(controller::GameControl* c)
-    : display_(rows, std::string(columns, ' ')), quit_(false) {}
+    : display_(rows, std::string(columns, ' ')), colours_(rows, {}),
+      quit_(false) {}
 
 template <typename T>
 void TextInterface::addSelection(int x, int y, const std::vector<T>& options,
                                  std::function<std::string(const T&)> toString) {
   int idx = 0;
   for (const T& opt : options) {
-    output(x, y + idx, absl::Substitute("($0) $1", idx + 1, toString(opt)));
+    output(x, y + idx, 0, absl::Substitute("($0) $1", idx + 1, toString(opt)));
     idx++;
   }
 }
@@ -99,15 +109,56 @@ void TextInterface::awaitInput() {
   }
 }
 
+void TextInterface::clearLine(int line) {
+  display_[line] = std::string(columns, ' ');
+  colours_[line].clear();
+}
+
+void TextInterface::clear() {
+  for (int i = 0; i < rows; ++i) {
+    clearLine(i);
+  }
+}
+
 void TextInterface::drawWorld() {
-  clear(&display_);
-  flip(display_);
+  clear();
+  flip();
 }
 
 void TextInterface::errorMessage(const std::string& error) {
-  clearLine(messageLine, &display_);
-  output(1, messageLine, absl::Substitute("\033[31m$0\033[0m", error));
-  flip(display_);
+  clearLine(messageLine);
+  output(1, messageLine, FG_RED, error);
+  flip();
+}
+
+std::string escapeCode(int mask) {
+  if (mask == 0) {
+    return "\033[0m";
+  }
+  std::vector<std::string> codes;
+  for (const auto& code : ansiCodes) {
+    if (mask & code.first) {
+      codes.push_back(code.second);
+    }
+  }
+  return absl::Substitute("\033[$0m", absl::StrJoin(codes, ";"));
+}
+
+void TextInterface::flip() const {
+  if (system("CLS")) {
+    system("clear");
+  }
+  for (int line = 0; line < rows; ++line) {
+    int start = 0;
+    std::cout << "\033[0m";
+    for (const auto& col : colours_[line]) {
+      int end = std::get<0>(col);
+      std::cout << display_[line].substr(start, end - start);
+      std::cout << escapeCode(std::get<1>(col));
+      start = end;
+    }
+    std::cout << display_[line].substr(start) << "\n";
+  }
 }
 
 void TextInterface::introHandler(char inp) {
@@ -246,13 +297,25 @@ void TextInterface::runGameHandler(char inp) {
   }  
 }
 
-void TextInterface::output(int x, int y, const std::string& words) {
+void TextInterface::output(int x, int y, int mask, const std::string& words) {
   if (y >= rows) return;
+  if (x >= columns) return;
   for (int i = 0; i < words.size(); ++i) {
     if (i + x >= columns) {
       return;
     }
     display_[y][x+i] = words[i];
+  }
+  if (mask != 0) {
+    colours_[y].emplace_back(x, mask);
+    if (x + words.size() < columns) {
+      colours_[y].emplace_back(x + (int) words.size(), 0);
+    }
+    std::sort(
+        colours_[y].begin(), colours_[y].end(),
+        [](const std::tuple<int, int>& one, const std::tuple<int, int>& two) {
+          return std::get<0>(one) < std::get<0>(two);
+        });
   }
 }
 
@@ -262,17 +325,17 @@ void TextInterface::gameDisplay() {
 }
 
 void TextInterface::loadGameScreen() {
-  clear(&display_);
+  clear();
   handler_ = [&](char in) { this->loadGameHandler(in); };
-  flip(display_);
+  flip();
 }
 
 void TextInterface::newGameScreen() {
-  clear(&display_);
+  clear();
   handler_ = [&](char in) { this->newGameHandler(in); };
-  output(30, 2, "Select scenario to play:");
-  output(30, 10, "(B)ack");
-  output(30, 11, "(Q)uit");
+  output(30, 2, 0, "Select scenario to play:");
+  output(30, 10, 0, "(B)ack");
+  output(30, 11, 0, "(Q)uit");
   const auto filepaths = getScenarios();
   scenario_files_.clear();
 
@@ -290,7 +353,7 @@ void TextInterface::newGameScreen() {
     }
   }
   if (scenario_files_.empty()) {
-    output(30, 12, "No scenarios found");
+    output(30, 12, 0, "No scenarios found");
   } else {
     addSelection<game::setup::proto::ScenarioFiles>(
         30, 13, scenario_files_,
@@ -298,23 +361,23 @@ void TextInterface::newGameScreen() {
           return input.name();
         });
   }
-  flip(display_);
+  flip();
 }
 
 void TextInterface::mainMenu() {
-  clear(&display_);
+  clear();
   handler_ = [&](char in) { this->introHandler(in); };
-  output(20, 1, "    CCCCCCCCC      OOOOOOO     LLL           OOOOOOO     NNNNN     NNNN   YY       YY");
-  output(20, 2, "  CCCCC    CCC    OOO   OOO    LLL          OOO   OOO    NNN NN     NNN    YY     YY");
-  output(20, 3, " CCC             OOO     OOO   LLL         OOO     OOO   NNN  NN    NNN     YY   YY");
-  output(20, 4, " CCC             OOO     OOO   LLL         OOO     OOO   NNN   NN   NNN      YY YY");
-  output(20, 5, " CCC             OOO     OOO   LLL     L   OOO     OOO   NNN    NN  NNN       YYY");
-  output(20, 6, "  CCCCC    CCC    OOO   OOO    LLLLLLLLL    OOO   OOO    NNN     NN NNN       YYY");
-  output(20, 7, "   CCCCCCCCCC      OOOOOOO     LLLLLLLLL     OOOOOOO     NNNN     NNNNN       YYY");
-  output(50, 20, "(N)ew game");
-  output(50, 21, "(L)oad game (not implemented)");
-  output(50, 22, "(Q)uit");
-  flip(display_);
+  output(20, 1, 0, "    CCCCCCCCC      OOOOOOO     LLL           OOOOOOO     NNNNN     NNNN   YY       YY");
+  output(20, 2, 0, "  CCCCC    CCC    OOO   OOO    LLL          OOO   OOO    NNN NN     NNN    YY     YY");
+  output(20, 3, 0, " CCC             OOO     OOO   LLL         OOO     OOO   NNN  NN    NNN     YY   YY");
+  output(20, 4, 0, " CCC             OOO     OOO   LLL         OOO     OOO   NNN   NN   NNN      YY YY");
+  output(20, 5, 0, " CCC             OOO     OOO   LLL     L   OOO     OOO   NNN    NN  NNN       YYY");
+  output(20, 6, 0, "  CCCCC    CCC    OOO   OOO    LLLLLLLLL    OOO   OOO    NNN     NN NNN       YYY");
+  output(20, 7, 0, "   CCCCCCCCCC      OOOOOOO     LLLLLLLLL     OOOOOOO     NNNN     NNNNN       YYY");
+  output(50, 20, 0, "(N)ew game");
+  output(50, 21, 0, "(L)oad game (not implemented)");
+  output(50, 22, 0, "(Q)uit");
+  flip();
 }
 
 void TextInterface::IntroScreen() {

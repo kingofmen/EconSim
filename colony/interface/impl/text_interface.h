@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "colony/controller/controller.h"
@@ -24,6 +25,7 @@ class TextInterface : public interface::UserInterface {
 
  private:
   std::vector<std::string> display_;
+  std::vector<std::vector<std::tuple<int, int>>> colours_;
   bool quit_;
   std::function<void(char)> handler_;
   std::vector<game::setup::proto::ScenarioFiles> scenario_files_;
@@ -46,12 +48,15 @@ class TextInterface : public interface::UserInterface {
   void newGameScreen();
   
   void awaitInput();
+  void clear();
+  void clearLine(int line);
   void drawWorld();
   void errorMessage(const std::string& error);
+  void flip() const;
   google::protobuf::util::Status
   loadScenario(const game::setup::proto::ScenarioFiles& setup);
   void loadWorld(const std::string& filename);
-  void output(int x, int y, const std::string& words);
+  void output(int x, int y, int mask, const std::string& words);
 };
 
 }  // namespace text
