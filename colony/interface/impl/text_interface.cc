@@ -9,6 +9,7 @@
 
 #include "absl/strings/substitute.h"
 #include "colony/controller/controller.h"
+#include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
 #include "game/setup/proto/setup.pb.h"
 #include "game/validation/validation.h"
@@ -96,6 +97,11 @@ void TextInterface::awaitInput() {
     input = _getch();
     handler_(input);
   }
+}
+
+void TextInterface::drawWorld() {
+  clear(&display_);
+  flip(display_);
 }
 
 void TextInterface::errorMessage(const std::string& error) {
@@ -203,6 +209,7 @@ void TextInterface::newGameHandler(char inp) {
   if (select(inp, scenario_files_, setup)) {
     auto status = loadScenario(setup);
     if (status.ok()) {
+      world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
       gameDisplay();
     } else {
       errorMessage(status.error_message());
@@ -250,9 +257,8 @@ void TextInterface::output(int x, int y, const std::string& words) {
 }
 
 void TextInterface::gameDisplay() {
-  clear(&display_);
   handler_ = [&](char in) { this->runGameHandler(in); };
-  flip(display_); 
+  drawWorld();
 }
 
 void TextInterface::loadGameScreen() {

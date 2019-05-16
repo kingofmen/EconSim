@@ -2,11 +2,13 @@
 #define COLONY_INTERFACE_IMPL_TEXT_INTERFACE_H
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "colony/controller/controller.h"
 #include "colony/interface/user_interface.h"
+#include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
 #include "game/setup/proto/setup.pb.h"
 #include "src/google/protobuf/stubs/status.h"
@@ -27,6 +29,7 @@ class TextInterface : public interface::UserInterface {
   std::vector<game::setup::proto::ScenarioFiles> scenario_files_;
   game::proto::Scenario scenario_;
   game::proto::GameWorld game_world_;
+  std::unique_ptr<game::GameWorld> world_model_;
 
   template <typename T>
   void addSelection(int x, int y, const std::vector<T>& options,
@@ -43,6 +46,7 @@ class TextInterface : public interface::UserInterface {
   void newGameScreen();
   
   void awaitInput();
+  void drawWorld();
   void errorMessage(const std::string& error);
   google::protobuf::util::Status
   loadScenario(const game::setup::proto::ScenarioFiles& setup);

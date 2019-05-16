@@ -7,6 +7,7 @@ cc_library(
     deps = [
         "//colony/controller:controller",
         "//colony/interface:user_interface",
+        "//game:game_world",
         "//game/proto:game_world_proto",
         "//game/setup/proto:setup_proto",
         "//game/validation:validation",

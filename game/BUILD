@@ -1,4 +1,5 @@
 cc_library(
+    visibility = ["//visibility:public"],
     name = "game_world",
     srcs = ["game_world.cc"],
     hdrs = ["game_world.h"],
