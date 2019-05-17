@@ -159,9 +159,7 @@ std::string escapeCode(int mask) {
 }
 
 void TextInterface::flip() const {
-  if (system("CLS")) {
-    system("clear");
-  }
+  std::cout << "\033[H";
   for (int line = 0; line < rows; ++line) {
     int start = 0;
     std::cout << "\033[0m";
@@ -381,6 +379,9 @@ void TextInterface::newGameScreen() {
 }
 
 void TextInterface::mainMenu() {
+  if (system("CLS")) {
+    system("clear");
+  }
   clear();
   handler_ = [&](char in) { this->introHandler(in); };
   output(20, 1, 0, "    CCCCCCCCC      OOOOOOO     LLL           OOOOOOO     NNNNN     NNNN   YY       YY");
