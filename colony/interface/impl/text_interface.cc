@@ -21,6 +21,8 @@
 constexpr int rows = 60;
 constexpr int columns = 150;
 constexpr int messageLine = 59;
+constexpr int numMessageLines = 3;
+constexpr int firstMessageLine = 57;
 
 namespace interface {
 namespace text {
@@ -120,15 +122,27 @@ void TextInterface::clear() {
   }
 }
 
+void TextInterface::drawMessageBox() {
+  for (int i = 0; i < numMessageLines; ++i) {
+    if (i >= messages_.size()) {
+      break;
+    }
+    const auto& message = messages_[i];
+    clearLine(firstMessageLine + i);
+    output(1, firstMessageLine + i, std::get<0>(message), std::get<1>(message));
+  }
+}
+
 void TextInterface::drawWorld() {
   clear();
   flip();
 }
 
-void TextInterface::errorMessage(const std::string& error) {
-  clearLine(messageLine);
-  output(1, messageLine, FG_RED, error);
-  flip();
+void TextInterface::message(int mask, const std::string& error) {
+  messages_.emplace_back(mask, error);
+  if (messages_.size() > numMessageLines) {
+    messages_.pop_front();
+  }
 }
 
 std::string escapeCode(int mask) {
@@ -263,7 +277,9 @@ void TextInterface::newGameHandler(char inp) {
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
       gameDisplay();
     } else {
-      errorMessage(status.error_message());
+      message(FG_RED, status.error_message());
+      drawMessageBox();
+      flip();
     }
     return;
   }

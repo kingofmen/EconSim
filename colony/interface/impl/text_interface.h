@@ -1,6 +1,7 @@
 #ifndef COLONY_INTERFACE_IMPL_TEXT_INTERFACE_H
 #define COLONY_INTERFACE_IMPL_TEXT_INTERFACE_H
 
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
@@ -29,6 +30,7 @@ class TextInterface : public interface::UserInterface {
   bool quit_;
   std::function<void(char)> handler_;
   std::vector<game::setup::proto::ScenarioFiles> scenario_files_;
+  std::deque<std::tuple<int, std::string>> messages_;
   game::proto::Scenario scenario_;
   game::proto::GameWorld game_world_;
   std::unique_ptr<game::GameWorld> world_model_;
@@ -50,8 +52,9 @@ class TextInterface : public interface::UserInterface {
   void awaitInput();
   void clear();
   void clearLine(int line);
+  void drawMessageBox();
   void drawWorld();
-  void errorMessage(const std::string& error);
+  void message(int mask, const std::string& error);
   void flip() const;
   google::protobuf::util::Status
   loadScenario(const game::setup::proto::ScenarioFiles& setup);
