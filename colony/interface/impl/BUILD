@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["text_interface.h"],
     deps = [
         "//colony/controller:controller",
+        "//colony/graphics/proto:graphics_proto",
         "//colony/interface:user_interface",
         "//game:game_world",
         "//game/proto:game_world_proto",

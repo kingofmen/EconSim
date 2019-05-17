@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "colony/controller/controller.h"
+#include "colony/graphics/proto/graphics.pb.h"
 #include "colony/interface/user_interface.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
@@ -33,6 +34,7 @@ class TextInterface : public interface::UserInterface {
   std::deque<std::tuple<int, std::string>> messages_;
   game::proto::Scenario scenario_;
   game::proto::GameWorld game_world_;
+  colony::graphics::proto::WorldGraphics graphics_;
   std::unique_ptr<game::GameWorld> world_model_;
 
   template <typename T>

@@ -264,6 +264,15 @@ TextInterface::loadScenario(const game::setup::proto::ScenarioFiles& setup) {
     return util::InvalidArgumentError(errors[0]);
   }
 
+  graphics_.Clear();
+  for (const auto& filename : setup.graphics()) {
+    std::experimental::filesystem::path full_path = base_path / filename;
+    auto status = util::proto::MergeProtoFile(full_path.string(), &graphics_);
+    if (!status.ok()) {
+      return status;
+    }
+  }
+
   return util::OkStatus();
 }
 
