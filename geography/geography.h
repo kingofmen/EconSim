@@ -41,6 +41,7 @@ public:
   uint64 id() const { return proto_.id(); }
 
   proto::Area* Proto() { return &proto_; }
+  const proto::Area* Proto() const { return &proto_; }
   market::Market* mutable_market() { return &market_; }
 
   static Area* GetById(uint64 id);
