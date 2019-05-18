@@ -15,6 +15,9 @@
 #include "game/proto/game_world.pb.h"
 #include "game/setup/proto/setup.pb.h"
 #include "game/validation/validation.h"
+#include "geography/geography.h"
+#include "geography/proto/geography.pb.h"
+#include "industry/proto/industry.pb.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
 
@@ -28,7 +31,7 @@ namespace interface {
 namespace text {
 namespace {
 
-constexpr int BOLD = 1;
+constexpr int FG_BOLD = 1;
 constexpr int FG_BLACK = 2;
 constexpr int FG_RED = 4;
 constexpr int FG_GREEN = 8;
@@ -47,7 +50,7 @@ constexpr int BG_CYAN = 32768;
 constexpr int BG_WHITE = 65536;
 
 std::unordered_map<int, std::string> ansiCodes = {
-    {BOLD, "1"},       {FG_BLACK, "30"}, {FG_RED, "31"},     {FG_GREEN, "32"},
+    {FG_BOLD, "1"},    {FG_BLACK, "30"}, {FG_RED, "31"},     {FG_GREEN, "32"},
     {FG_YELLOW, "33"}, {FG_BLUE, "34"},  {FG_MAGENTA, "35"}, {FG_CYAN, "36"},
     {FG_WHITE, "37"},  {BG_BLACK, "40"}, {BG_RED, "41"},     {BG_GREEN, "42"},
     {BG_YELLOW, "43"}, {BG_BLUE, "44"},  {BG_MAGENTA, "45"}, {BG_CYAN, "46"},
@@ -133,8 +136,47 @@ void TextInterface::drawMessageBox() {
   }
 }
 
+const std::vector<std::pair<int, int>> field_offsets = {
+    {-1, 0}, {0, -1}, {1, 1},   {2, 0},   {-1, 1},
+    {0, -2}, {2, -1}, {-2, -2}, {-1, -1}, {1, 0}};
+const std::unordered_map<industry::proto::LandType,
+                         std::tuple<int, std::string>>
+    field_codes = {
+        {industry::proto::LT_PASTURE, {FG_WHITE | BG_GREEN, "P"}},
+        {industry::proto::LT_FIELDS, {FG_YELLOW | BG_BLACK, "W"}},
+        {industry::proto::LT_BUILT, {FG_CYAN, "B"}},
+        {industry::proto::LT_LIGHT_INDUSTRY, {FG_MAGENTA, "L"}},
+        {industry::proto::LT_HEAVY_INDUSTRY, {FG_MAGENTA, "H"}},
+        {industry::proto::LT_ORCHARDS, {FG_GREEN, "O"}},
+        {industry::proto::LT_FOREST, {FG_GREEN, "F"}},
+};
+
 void TextInterface::drawWorld() {
   clear();
+  for (const auto& ag : graphics_.areas()) {
+    const geography::Area* area = geography::Area::GetById(ag.area_id());
+    if (area == NULL) {
+      continue;
+    }
+    const geography::proto::Area* proto = area->Proto();
+    int x = ag.coord().x() + (columns / 2) - center_.x();
+    int y = ag.coord().y() + (rows / 2) - center_.y();
+    for (int f = 0; f < proto->fields_size(); ++f) {
+      std::string idString = absl::Substitute("$0", ag.area_id());
+      output(x, y, FG_BOLD, idString);
+      int offsetX = field_offsets[f].first;
+      int offsetY = field_offsets[f].second;
+      if (offsetY == 0) {
+        if (offsetX >= 0) {
+          offsetX += idString.size();
+        } else {
+          offsetX -= 1;
+        }
+      }
+      const auto& info = field_codes.at(proto->fields(f).land_type());
+      output(x + offsetX, y + offsetY, std::get<0>(info), std::get<1>(info));
+    }
+  }
   flip();
 }
 

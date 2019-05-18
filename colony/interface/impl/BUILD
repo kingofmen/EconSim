@@ -8,6 +8,7 @@ cc_library(
         "//colony/controller:controller",
         "//colony/graphics/proto:graphics_proto",
         "//colony/interface:user_interface",
+        "//industry/proto:industry_proto",
         "//game:game_world",
         "//game/proto:game_world_proto",
         "//game/setup/proto:setup_proto",

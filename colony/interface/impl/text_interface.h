@@ -35,6 +35,7 @@ class TextInterface : public interface::UserInterface {
   game::proto::Scenario scenario_;
   game::proto::GameWorld game_world_;
   colony::graphics::proto::WorldGraphics graphics_;
+  colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
 
   template <typename T>
