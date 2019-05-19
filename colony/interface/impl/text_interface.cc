@@ -22,10 +22,10 @@
 #include "util/status/status.h"
 
 constexpr int rows = 60;
-constexpr int columns = 150;
-constexpr int messageLine = 59;
+constexpr int columns = 250;
 constexpr int numMessageLines = 3;
 constexpr int firstMessageLine = 57;
+constexpr int sidebarLimit = 200;
 
 namespace interface {
 namespace text {
@@ -163,7 +163,9 @@ void TextInterface::drawWorld() {
     int y = ag.coord().y() + (rows / 2) - center_.y();
     for (int f = 0; f < proto->fields_size(); ++f) {
       std::string idString = absl::Substitute("$0", ag.area_id());
-      output(x, y, FG_BOLD, idString);
+      if (x >= 0 && x < sidebarLimit && y >= 0 && y < firstMessageLine) {
+        output(x, y, FG_BOLD, idString);
+      }
       int fieldX = field_offsets[f].first;
       int fieldY = field_offsets[f].second;
       if (fieldY == 0) {
@@ -175,15 +177,20 @@ void TextInterface::drawWorld() {
       }
       const auto& info = field_codes.at(proto->fields(f).land_type());
       fieldX += x;
-      if (fieldX < 0 || fieldX >= columns) {
+      if (fieldX < 0 || fieldX >= sidebarLimit) {
         continue;
       }
       fieldY += y;
-      if (fieldY < 0 || fieldY >= rows) {
+      if (fieldY < 0 || fieldY >= firstMessageLine) {
         continue;
       }
       output(fieldX, fieldY, std::get<0>(info), std::get<1>(info));
     }
+  }
+  output(0, firstMessageLine, 0, std::string(columns, '-'));
+  for (int i = 0; i < firstMessageLine; ++i) {
+    output(sidebarLimit, i, 0, "|");
+    output(columns-1, i, 0, "|");
   }
   flip();
 }
