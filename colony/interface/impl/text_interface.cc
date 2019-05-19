@@ -164,17 +164,25 @@ void TextInterface::drawWorld() {
     for (int f = 0; f < proto->fields_size(); ++f) {
       std::string idString = absl::Substitute("$0", ag.area_id());
       output(x, y, FG_BOLD, idString);
-      int offsetX = field_offsets[f].first;
-      int offsetY = field_offsets[f].second;
-      if (offsetY == 0) {
-        if (offsetX >= 0) {
-          offsetX += idString.size();
+      int fieldX = field_offsets[f].first;
+      int fieldY = field_offsets[f].second;
+      if (fieldY == 0) {
+        if (fieldX >= 0) {
+          fieldX += idString.size();
         } else {
-          offsetX -= 1;
+          fieldX -= 1;
         }
       }
       const auto& info = field_codes.at(proto->fields(f).land_type());
-      output(x + offsetX, y + offsetY, std::get<0>(info), std::get<1>(info));
+      fieldX += x;
+      if (fieldX < 0 || fieldX >= columns) {
+        continue;
+      }
+      fieldY += y;
+      if (fieldY < 0 || fieldY >= rows) {
+        continue;
+      }
+      output(fieldX, fieldY, std::get<0>(info), std::get<1>(info));
     }
   }
   flip();
@@ -352,14 +360,32 @@ void TextInterface::runGameHandler(char inp) {
     case 'b':
     case 'B':
       mainMenu();
-      break;
+      return;
     case 'q':
     case 'Q':
       quit_ = true;
+      return;
+    case 'a':
+    case 'A':
+      center_.set_x(center_.x() - 5);
       break;
+    case 'w':
+    case 'W':
+      center_.set_y(center_.y() - 5);
+      break;
+    case 's':
+    case 'S':
+      center_.set_y(center_.y() + 5);
+      break;
+    case 'd':
+    case 'D':
+      center_.set_x(center_.x() + 5);
+      break;
+      
     default:
       break;
-  }  
+  }
+  drawWorld();
 }
 
 void TextInterface::output(int x, int y, int mask, const std::string& words) {
