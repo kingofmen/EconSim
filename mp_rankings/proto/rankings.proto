@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package rankings.proto;
+
+message Player {
+  optional string name = 1;
+  optional float commitment = 2 [default = 1.0];
+}
+
+message Conflict {
+  repeated Player attackers = 1;
+  repeated Player defenders = 2;
+  optional double attacker_win = 3;
+  optional double vulture_factor = 4;
+  optional string name = 5;
+  optional int32 session = 6;
+}
+
+message Ranking {
+  repeated Conflict conflicts = 1;
+}
