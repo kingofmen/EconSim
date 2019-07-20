@@ -5,6 +5,7 @@ package rankings.proto;
 message Player {
   optional string name = 1;
   optional float commitment = 2 [default = 1.0];
+  optional string comment = 3;
 }
 
 message Conflict {
@@ -14,8 +15,16 @@ message Conflict {
   optional double vulture_factor = 4;
   optional string name = 5;
   optional int32 session = 6;
+  optional string comment = 7;
+}
+
+message PlayerInfo {
+  optional string name = 1;
+  optional bool active = 2 [default = true];
 }
 
 message Ranking {
   repeated Conflict conflicts = 1;
+  repeated PlayerInfo player_infos = 2;
 }
+

@@ -16,6 +16,7 @@ struct rating {
 };
 
 std::unordered_map<std::string, rating> scores;
+std::unordered_map<std::string, rankings::proto::PlayerInfo> player_info;
 
 constexpr double kNewPlayerScore = 1500.0;
 constexpr double kNewPlayerDeviation = 350.0;
@@ -173,6 +174,9 @@ int main(int argc, char** argv) {
     std::cout << status.error_message() << "\n";
     return 1;
   }
+  for (const auto& info : ranking.player_infos()) {
+    player_info[info.name()] = info;
+  }
 
   auto* sorted = ranking.mutable_conflicts();
   std::sort(sorted->begin(), sorted->end(),
@@ -195,6 +199,9 @@ int main(int argc, char** argv) {
             });
 
   for (const auto& name : names) {
+    if (!player_info[name].active()) {
+      continue;
+    }
     std::cout << formatName(name) << ": " << scores[name].score << " ("
               << scores[name].deviation << ")\n";
   }
