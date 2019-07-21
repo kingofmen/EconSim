@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -24,6 +25,33 @@ constexpr double kDecayConstantSq = 33.3 * 33.3;
 constexpr double kQ = 0.00575646273; // ln(10) / 400, from Wiki on Glicko system.
 constexpr double kQ2 = kQ * kQ;
 constexpr double kPi = 3.14159265;
+
+constexpr int FG_BOLD = 1;
+constexpr int FG_BLACK = 2;
+constexpr int FG_RED = 4;
+constexpr int FG_GREEN = 8;
+constexpr int FG_YELLOW = 16;
+constexpr int FG_BLUE = 32;
+constexpr int FG_MAGENTA = 64;
+constexpr int FG_CYAN = 128;
+constexpr int FG_WHITE = 256;
+constexpr int BG_BLACK = 512;
+constexpr int BG_RED = 1024;
+constexpr int BG_GREEN = 2048;
+constexpr int BG_YELLOW = 4096;
+constexpr int BG_BLUE = 8192;
+constexpr int BG_MAGENTA = 16384;
+constexpr int BG_CYAN = 32768;
+constexpr int BG_WHITE = 65536;
+
+std::unordered_map<int, std::string> ansiCodes = {
+    {FG_BOLD, "1"},    {FG_BLACK, "30"}, {FG_RED, "31"},     {FG_GREEN, "32"},
+    {FG_YELLOW, "33"}, {FG_BLUE, "34"},  {FG_MAGENTA, "35"}, {FG_CYAN, "36"},
+    {FG_WHITE, "37"},  {BG_BLACK, "40"}, {BG_RED, "41"},     {BG_GREEN, "42"},
+    {BG_YELLOW, "43"}, {BG_BLUE, "44"},  {BG_MAGENTA, "45"}, {BG_CYAN, "46"},
+    {BG_WHITE, "47"},
+};
+
 
 // Returns the weighted rating and weight for a player.
 std::pair<double, double>
@@ -87,7 +115,7 @@ double deltaGlicko(const rating& player, const rating& opponent, double score) {
   return (kQ / inverse) * grdi * (score - expect);
 }
 
-std::string formatName(const std::string name) {
+std::string formatName(const std::string name, int mask = 0) {
   static char buffer[10000];
   sprintf(buffer, "%-15s", name.c_str());
   return std::string(buffer);
@@ -198,11 +226,14 @@ int main(int argc, char** argv) {
               return scores[one].score > scores[two].score;
             });
 
+  std::cout << std::fixed;
   for (const auto& name : names) {
     if (!player_info[name].active()) {
       continue;
     }
-    std::cout << formatName(name) << ": " << scores[name].score << " ("
+    std::cout << formatName(name) << ": "
+              << std::setprecision(2)
+              << scores[name].score << " ("
               << scores[name].deviation << ")\n";
   }
 
