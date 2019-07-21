@@ -150,6 +150,10 @@ bool DefaultTraverser::Traverse(const Mobile& mobile,
     location->clear_progress_u();
     location->set_source_area_id(conn->OtherSide(location->source_area_id()));
     location->clear_connection_id();
+    if (location->source_area_id() == location->destination_area_id()) {
+      location->clear_destination_area_id();
+      return true;
+    }
   } else {
     location->set_progress_u(progress_u + distance_u);
   }

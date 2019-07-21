@@ -138,25 +138,29 @@ TEST_F(ConnectionTest, TestTraversing) {
     uint64 speed_u(geography::proto::ConnectionType type) const override {
       return 1;
     }
+    const proto::Location& location() const override { return location_; }
+    proto::Location* mutable_location() override { return &location_; }
+   private:
+    proto::Location location_;
   };
 
   TestMobile mobile;
   proto::Location location;
   location.set_source_area_id(a_end_->id());
-  location.set_target_area_id(z_end_->id());
+  location.set_destination_area_id(z_end_->id());
   location.set_connection_id(connection->ID());
   const DefaultTraverser traverser;
   traverser.Traverse(mobile, &location);
   EXPECT_EQ(1, attempts);
   EXPECT_EQ(a_end_->id(), location.source_area_id());
-  EXPECT_EQ(z_end_->id(), location.target_area_id());
+  EXPECT_EQ(z_end_->id(), location.destination_area_id());
   EXPECT_EQ(1, location.progress_u());
 
   connection->UnRegister(unit1);
-  traverser.Traverse(mobile, &location);
+  EXPECT_TRUE(traverser.Traverse(mobile, &location));
   EXPECT_EQ(1, attempts);
   EXPECT_EQ(z_end_->id(), location.source_area_id());
-  EXPECT_FALSE(location.has_target_area_id());
+  EXPECT_FALSE(location.has_destination_area_id());
   EXPECT_EQ(0, location.progress_u());
 }
 

@@ -130,4 +130,9 @@ void Area::Update() {
   }
 }
 
+const std::vector<uint64> Area::pop_ids() const {
+  return std::vector<uint64>(proto_.pop_ids().begin(), proto_.pop_ids().end());
+}
+
+
 } // namespace geography
