@@ -14,6 +14,7 @@ struct rating {
   double score;
   double deviation;
   int recentConflict;
+  double mostRecentDelta;
 };
 
 std::unordered_map<std::string, rating> scores;
@@ -72,7 +73,7 @@ initialise(const google::protobuf::RepeatedPtrField<rankings::proto::Player>& pl
   for (const auto& player : players) {
     std::string name = player.name();
     if (scores.find(name) == scores.end()) {
-      scores[name] = {kNewPlayerScore, kNewPlayerDeviation, session};
+      scores[name] = {kNewPlayerScore, kNewPlayerDeviation, session, 0};
     }
 
     auto& rate = scores[name];
@@ -91,7 +92,7 @@ initialise(const google::protobuf::RepeatedPtrField<rankings::proto::Player>& pl
 
   avgRating /= totalCommit;
   avgDev /= players.size();
-  return {avgRating, avgDev, 0};
+  return {avgRating, avgDev, 0, 0};
 }
 
 double g(double RDi) { return 1.0 / sqrt(1 + 3 * pow(kQ * RDi / kPi, 2)); }
@@ -115,9 +116,13 @@ double deltaGlicko(const rating& player, const rating& opponent, double score) {
   return (kQ / inverse) * grdi * (score - expect);
 }
 
-std::string formatName(const std::string name, int mask = 0) {
+std::string formatName(const std::string name, int rank = 0) {
   static char buffer[10000];
-  sprintf(buffer, "%-15s", name.c_str());
+  if (rank > 0) {
+    sprintf(buffer, "%2d. %-15s", rank, name.c_str());
+  } else {
+    sprintf(buffer, "%-15s", name.c_str());
+  }
   return std::string(buffer);
 }
 
@@ -167,6 +172,11 @@ void calculateRank(const rankings::proto::Conflict& conflict) {
               << rank.score + playerDelta << "\n";
     double dSquare = d2(rank.score, avgDefRate.score, avgDefRate.deviation);
     rank.score += playerDelta;
+    if (conflict.session() > rank.recentConflict) {
+      rank.mostRecentDelta = playerDelta;
+    } else if (conflict.session() == rank.recentConflict) {
+      rank.mostRecentDelta += playerDelta;
+    }
     rank.recentConflict = conflict.session();
     rank.deviation = sqrt(pow(pow(rank.deviation, -2) + pow(dSquare, -1), -1));
   }
@@ -185,6 +195,11 @@ void calculateRank(const rankings::proto::Conflict& conflict) {
               << rank.score + playerDelta << "\n";
     double dSquare = d2(rank.score, avgAttRate.score, avgAttRate.deviation);
     rank.score += playerDelta;
+    if (conflict.session() > rank.recentConflict) {
+      rank.mostRecentDelta = playerDelta;
+    } else if (conflict.session() == rank.recentConflict) {
+      rank.mostRecentDelta += playerDelta;
+    }
     rank.recentConflict = conflict.session();    
     rank.deviation = sqrt(pow(pow(rank.deviation, -2) + pow(dSquare, -1), -1));
   }
@@ -207,12 +222,16 @@ int main(int argc, char** argv) {
   }
 
   auto* sorted = ranking.mutable_conflicts();
+  int latestSession = 0;
   std::sort(sorted->begin(), sorted->end(),
             [](const rankings::proto::Conflict& one,
                const rankings::proto::Conflict& two) {
               return one.session() < two.session();
             });
   for (const auto& conflict : ranking.conflicts()) {
+    if (conflict.session() > latestSession) {
+      latestSession = conflict.session();
+    }
     calculateRank(conflict);
   }
 
@@ -226,15 +245,20 @@ int main(int argc, char** argv) {
               return scores[one].score > scores[two].score;
             });
 
-  std::cout << std::fixed;
+  std::cout << std::fixed << std::setprecision(2);
+  int rank = 0;
   for (const auto& name : names) {
     if (!player_info[name].active()) {
       continue;
     }
-    std::cout << formatName(name) << ": "
-              << std::setprecision(2)
+    std::cout << formatName(name, ++rank) << ": "
               << scores[name].score << " ("
-              << scores[name].deviation << ")\n";
+              << scores[name].deviation << ")";
+    if (scores[name].recentConflict == latestSession) {
+      std::cout << (scores[name].mostRecentDelta > 0 ? " +" : " ")
+                << scores[name].mostRecentDelta;
+    }
+    std::cout << "\n";
   }
 
   return 0;
