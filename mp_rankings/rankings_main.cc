@@ -15,6 +15,7 @@ struct rating {
   double deviation;
   int recentConflict;
   double mostRecentDelta;
+  int previousRank;
 };
 
 std::unordered_map<std::string, rating> scores;
@@ -116,10 +117,37 @@ double deltaGlicko(const rating& player, const rating& opponent, double score) {
   return (kQ / inverse) * grdi * (score - expect);
 }
 
-std::string formatName(const std::string name, int rank = 0) {
+std::string escapeCode(int mask) {
+  if (mask == 0) {
+    return "\033[0m";
+  }
+  std::vector<std::string> codes;
+  for (const auto& code : ansiCodes) {
+    if (code.first & mask) {
+      codes.push_back(code.second);
+    }
+  }
+  std::string ret = "\033[";
+  for (int i = 0; i < codes.size(); ++i) {
+    ret += codes[i];
+    ret += (i == codes.size() - 1 ? 'm' : ';');
+  }
+  return ret;
+}
+
+std::string formatName(const std::string name, int rank = 0, int priorRank = 0) {
   static char buffer[10000];
   if (rank > 0) {
-    sprintf(buffer, "%2d. %-15s", rank, name.c_str());
+    if (priorRank > 0) {
+      int delta = priorRank - rank;
+      if (delta == 0) {
+        sprintf(buffer, "%2d      %-15s", rank, name.c_str());
+      } else {
+        sprintf(buffer, "%2d (%+d) %-15s", rank, delta, name.c_str());
+      }
+    } else {
+      sprintf(buffer, "%2d. %-15s", rank, name.c_str());
+    }
   } else {
     sprintf(buffer, "%-15s", name.c_str());
   }
@@ -236,8 +264,24 @@ int main(int argc, char** argv) {
   }
 
   std::vector<std::string> names;
-  for (const auto& it : scores) {
+  for (auto& it : scores) {
+    if (it.second.recentConflict != latestSession) {
+      it.second.mostRecentDelta = 0;
+    }
     names.push_back(it.first);
+  }
+
+  std::sort(names.begin(), names.end(),
+            [](const std::string& one, const std::string& two) {
+              return scores[one].score - scores[one].mostRecentDelta >
+                     scores[two].score - scores[two].mostRecentDelta;
+            });
+  int rank = 0;
+  for (const auto& name : names) {
+    if (!player_info[name].active()) {
+      continue;
+    }
+    scores[name].previousRank = ++rank;
   }
 
   std::sort(names.begin(), names.end(),
@@ -246,18 +290,23 @@ int main(int argc, char** argv) {
             });
 
   std::cout << std::fixed << std::setprecision(2);
-  int rank = 0;
+  rank = 0;
   for (const auto& name : names) {
     if (!player_info[name].active()) {
       continue;
     }
-    std::cout << formatName(name, ++rank) << ": "
-              << scores[name].score << " ("
-              << scores[name].deviation << ")";
-    if (scores[name].recentConflict == latestSession) {
-      std::cout << (scores[name].mostRecentDelta > 0 ? " +" : " ")
-                << scores[name].mostRecentDelta;
+    ++rank;
+    auto& currScore = scores[name];
+    if (currScore.previousRank != rank) {
+      std::cout << escapeCode(currScore.previousRank > rank ? FG_GREEN : FG_RED);
     }
+    std::cout << formatName(name, rank, currScore.previousRank) << ": "
+              << currScore.score << " (" << currScore.deviation << ")";
+    if (currScore.recentConflict == latestSession) {
+      std::cout << (currScore.mostRecentDelta > 0 ? " +" : " ")
+                << currScore.mostRecentDelta;
+    }
+    std::cout << escapeCode(0);
     std::cout << "\n";
   }
 
