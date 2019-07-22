@@ -48,6 +48,8 @@ public:
 
   static Area* GetById(uint64 id);
   static std::unique_ptr<Area> FromProto(const proto::Area& area);
+  static uint64 MaxId() { return max_id_; }
+  static uint64 MinId() { return min_id_; }
 
 private:
   Area() = delete;
@@ -56,6 +58,8 @@ private:
   market::Market market_;
 
   static std::unordered_map<uint64, Area*> id_map_;
+  static uint64 max_id_;
+  static uint64 min_id_;
 };
 
 } // namespace geography

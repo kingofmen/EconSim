@@ -1,6 +1,7 @@
 #include "geography/geography.h"
 
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "industry/proto/industry.pb.h"
@@ -11,6 +12,8 @@
 namespace geography {
 
 std::unordered_map<uint64, Area*> Area::id_map_;
+uint64 Area::max_id_ = 0;
+uint64 Area::min_id_ = std::numeric_limits<uint64>::max();
 
 bool HasFixedCapital(const proto::Field& field,
                      const industry::Production& production) {
@@ -101,10 +104,31 @@ Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
     // TODO: Handle error here.
   }
   id_map_[id()] = this;
+  if (id() > max_id_) {
+    max_id_ = id();
+  }
+  if (id() < min_id_) {
+    min_id_ = id();
+  }
 }
 
 Area::~Area() {
-  id_map_.erase(id());
+  uint64 erased = id();
+  id_map_.erase(erased);
+  if (erased == max_id_ || erased == min_id_) {
+    uint64 least = std::numeric_limits<uint64>::max();
+    uint64 most = 0;
+    for (const auto& area : id_map_) {
+      if (area.first > most) {
+        most = area.first;
+      }
+      if (area.first < least) {
+        least = area.first;
+      }
+    }
+    max_id_ = most;
+    min_id_ = least;
+  }
 }
 
 Area* Area::GetById(uint64 id) {
@@ -133,6 +157,5 @@ void Area::Update() {
 const std::vector<uint64> Area::pop_ids() const {
   return std::vector<uint64>(proto_.pop_ids().begin(), proto_.pop_ids().end());
 }
-
 
 } // namespace geography
