@@ -37,6 +37,7 @@ class TextInterface : public interface::UserInterface {
   colony::graphics::proto::WorldGraphics graphics_;
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
+  uint64 selected_area_id_;
 
   template <typename T>
   void addSelection(int x, int y, const std::vector<T>& options,
@@ -55,6 +56,7 @@ class TextInterface : public interface::UserInterface {
   void awaitInput();
   void clear();
   void clearLine(int line);
+  void drawInfoBox();
   void drawMessageBox();
   void drawWorld();
   void message(int mask, const std::string& error);

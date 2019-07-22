@@ -48,13 +48,15 @@ constexpr int BG_BLUE = 8192;
 constexpr int BG_MAGENTA = 16384;
 constexpr int BG_CYAN = 32768;
 constexpr int BG_WHITE = 65536;
+// Powershell doesn't respect blink, alas.
+constexpr int FG_BLINK = 131072;
 
 std::unordered_map<int, std::string> ansiCodes = {
     {FG_BOLD, "1"},    {FG_BLACK, "30"}, {FG_RED, "31"},     {FG_GREEN, "32"},
     {FG_YELLOW, "33"}, {FG_BLUE, "34"},  {FG_MAGENTA, "35"}, {FG_CYAN, "36"},
     {FG_WHITE, "37"},  {BG_BLACK, "40"}, {BG_RED, "41"},     {BG_GREEN, "42"},
     {BG_YELLOW, "43"}, {BG_BLUE, "44"},  {BG_MAGENTA, "45"}, {BG_CYAN, "46"},
-    {BG_WHITE, "47"},
+    {BG_WHITE, "47"},  {FG_BLINK, "5"},
 };
 
 template <typename T>
@@ -125,6 +127,17 @@ void TextInterface::clear() {
   }
 }
 
+// Draws information about the selected Area.
+void TextInterface::drawInfoBox() {
+  geography::Area* area = geography::Area::GetById(selected_area_id_);
+  if (area == NULL) {
+    return;
+  }
+  output(sidebarLimit + 22, 1, 0,
+         absl::Substitute("Area $0", selected_area_id_));
+}
+
+// Draws the most recent messages at the bottom of the screen.
 void TextInterface::drawMessageBox() {
   for (int i = 0; i < numMessageLines; ++i) {
     if (i >= messages_.size()) {
@@ -164,7 +177,11 @@ void TextInterface::drawWorld() {
     for (int f = 0; f < proto->fields_size(); ++f) {
       std::string idString = absl::Substitute("$0", ag.area_id());
       if (x >= 0 && x < sidebarLimit && y >= 0 && y < firstMessageLine) {
-        output(x, y, FG_BOLD, idString);
+        int code = FG_BOLD;
+        if (ag.area_id() == selected_area_id_) {
+          code |= BG_RED;
+        }
+        output(x, y, code, idString);
       }
       int fieldX = field_offsets[f].first;
       int fieldY = field_offsets[f].second;
@@ -192,6 +209,8 @@ void TextInterface::drawWorld() {
     output(sidebarLimit, i, 0, "|");
     output(columns-1, i, 0, "|");
   }
+  drawMessageBox();
+  drawInfoBox();
   flip();
 }
 
@@ -339,6 +358,7 @@ void TextInterface::newGameHandler(char inp) {
     auto status = loadScenario(setup);
     if (status.ok()) {
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
+      selected_area_id_ = geography::Area::MinId();
       gameDisplay();
     } else {
       message(FG_RED, status.error_message());
@@ -387,6 +407,21 @@ void TextInterface::runGameHandler(char inp) {
     case 'd':
     case 'D':
       center_.set_x(center_.x() + 5);
+      break;
+    case '`':
+      selected_area_id_ = geography::Area::MaxId() + 1;
+      break;
+    case '+':
+      ++selected_area_id_;
+      if (selected_area_id_ > geography::Area::MaxId()) {
+        selected_area_id_ = geography::Area::MinId();
+      }
+      break;
+    case '-':
+      --selected_area_id_;
+      if (selected_area_id_ < geography::Area::MinId()) {
+        selected_area_id_ = geography::Area::MaxId();
+      }
       break;
       
     default:
