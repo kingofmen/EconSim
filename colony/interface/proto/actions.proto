@@ -1,0 +1,15 @@
+syntax = "proto2";
+package colony.interface.proto;
+
+message SetProduction {
+  optional uint64 area_id = 1;
+  optional uint64 field_idx = 2;
+  optional string process_name = 3;
+}
+
+message PlayerAction {
+  oneof action {
+    SetProduction set_production = 1;
+  }
+}
+
