@@ -11,6 +11,7 @@
 #include "absl/strings/substitute.h"
 #include "absl/strings/str_join.h"
 #include "colony/controller/controller.h"
+#include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
 #include "game/setup/proto/setup.pb.h"
@@ -127,6 +128,15 @@ void TextInterface::clear() {
   }
 }
 
+// Draws information about the given Field.
+void TextInterface::drawFieldDetails(const geography::proto::Field& field,
+                                     int& line) {
+  output(sidebarLimit + 5, line++, 0,
+         absl::Substitute("Owned by $0", field.owner_id()));
+  output(sidebarLimit + 5, line++, 0,
+         field.has_progress() ? field.progress().name() : "No process");
+}
+
 // Draws information about the selected Area.
 void TextInterface::drawInfoBox() {
   geography::Area* area = geography::Area::GetById(selected_area_id_);
@@ -135,6 +145,29 @@ void TextInterface::drawInfoBox() {
   }
   output(sidebarLimit + 22, 1, 0,
          absl::Substitute("Area $0", selected_area_id_));
+  const std::vector<uint64>& pop_ids = area->pop_ids();
+  int line = 3;
+  for (const auto& id : pop_ids) {
+    auto* pop = population::PopUnit::GetPopId(id);
+    if (pop == NULL) {
+      continue;
+    }
+    output(sidebarLimit + 10, line++, 0,
+           absl::Substitute("$0: $1", id, pop->GetSize()));
+  }
+
+  line += 3;
+  int number = 0;
+  for (const geography::proto::Field* field : area->fields()) {
+    number++;
+    output(
+        sidebarLimit + 3, line++, 0,
+        absl::Substitute("$0. $1", number,
+                         industry::proto::LandType_Name(field->land_type())));
+    if (number - 1 == selected_field_idx_) {
+      drawFieldDetails(*field, line);
+    }
+  }
 }
 
 // Draws the most recent messages at the bottom of the screen.
@@ -359,6 +392,7 @@ void TextInterface::newGameHandler(char inp) {
     if (status.ok()) {
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
       selected_area_id_ = geography::Area::MinId();
+      selected_field_idx_ = 0;
       gameDisplay();
     } else {
       message(FG_RED, status.error_message());
@@ -393,41 +427,72 @@ void TextInterface::runGameHandler(char inp) {
       quit_ = true;
       return;
     case 'a':
-    case 'A':
       center_.set_x(center_.x() - 5);
       break;
+    case 'A':
+      center_.set_x(center_.x() - 50);
+      break;
     case 'w':
-    case 'W':
       center_.set_y(center_.y() - 5);
       break;
+    case 'W':
+      center_.set_y(center_.y() - 50);
+      break;
     case 's':
-    case 'S':
       center_.set_y(center_.y() + 5);
       break;
+    case 'S':
+      center_.set_y(center_.y() + 50);
+      break;
     case 'd':
-    case 'D':
       center_.set_x(center_.x() + 5);
+      break;
+    case 'D':
+      center_.set_x(center_.x() + 50);
       break;
     case '`':
       selected_area_id_ = geography::Area::MaxId() + 1;
       break;
     case '+':
       ++selected_area_id_;
+      selected_field_idx_ = 0;
       if (selected_area_id_ > geography::Area::MaxId()) {
         selected_area_id_ = geography::Area::MinId();
       }
       break;
     case '-':
       --selected_area_id_;
+      selected_field_idx_ = 0;
       if (selected_area_id_ < geography::Area::MinId()) {
         selected_area_id_ = geography::Area::MaxId();
       }
+      break;
+    case '6':
+      changeField(true);
+      break;
+    case '4':
+      changeField(false);
       break;
       
     default:
       break;
   }
   drawWorld();
+}
+
+void TextInterface::changeField(bool pos) {
+  geography::Area* area = geography::Area::GetById(selected_area_id_);
+  if (area == NULL) {
+    return;
+  }
+  if (!pos && selected_field_idx_ == 0) {
+    selected_field_idx_ = area->num_fields() - 1;
+  } else {
+    selected_field_idx_ += pos ? 1 : -1;
+    if (selected_field_idx_ >= area->num_fields()) {
+      selected_field_idx_ = 0;
+    }
+  }
 }
 
 void TextInterface::output(int x, int y, int mask, const std::string& words) {

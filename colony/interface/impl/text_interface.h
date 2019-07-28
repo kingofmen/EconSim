@@ -38,6 +38,7 @@ class TextInterface : public interface::UserInterface {
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
   uint64 selected_area_id_;
+  uint64 selected_field_idx_;
 
   template <typename T>
   void addSelection(int x, int y, const std::vector<T>& options,
@@ -52,10 +53,12 @@ class TextInterface : public interface::UserInterface {
   void loadGameScreen();
   void mainMenu();
   void newGameScreen();
-  
+
   void awaitInput();
   void clear();
   void clearLine(int line);
+  void changeField(bool pos);
+  void drawFieldDetails(const geography::proto::Field& field, int& line);
   void drawInfoBox();
   void drawMessageBox();
   void drawWorld();
