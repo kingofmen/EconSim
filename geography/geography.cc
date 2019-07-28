@@ -158,4 +158,12 @@ const std::vector<uint64> Area::pop_ids() const {
   return std::vector<uint64>(proto_.pop_ids().begin(), proto_.pop_ids().end());
 }
 
+const std::vector<const proto::Field*> Area::fields() const {
+  std::vector<const proto::Field*> ret;
+  for (const auto& field : proto_.fields()) {
+    ret.push_back(&field);
+  }
+  return ret;
+}
+
 } // namespace geography

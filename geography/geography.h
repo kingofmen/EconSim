@@ -45,6 +45,8 @@ public:
   market::Market* mutable_market() { return &market_; }
   const market::Market& market() const { return market_; }
   const std::vector<uint64> pop_ids() const;
+  int num_fields() const { return proto_.fields_size(); }
+  const std::vector<const proto::Field*> fields() const;
 
   static Area* GetById(uint64 id);
   static std::unique_ptr<Area> FromProto(const proto::Area& area);
