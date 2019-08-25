@@ -277,20 +277,7 @@ void CalculateProductionCosts(const Production& chain,
 void SelectProduction(const decisions::ProductionEvaluator& evaluator,
                       decisions::ProductionContext* context,
                       geography::proto::Field* field) {
-  auto& entry = context->decisions->find(field);
-  if (entry == context->decisions->end()) {
-    // This should never happen.
-    return;
-  }
-  decisions::proto::ProductionDecision& decision = entry->second;
-  auto& cands = context->candidates.find(field);
-  if (cands == context->candidates.end()) {
-    // This, too, should never happen.
-    return;
-  }
-
-  decision.Clear();
-  evaluator.SelectCandidate(*context, cands->second, &decision);
+  evaluator.SelectCandidate(context, field);
 }
 
 bool InstallFixedCapital(const proto::Input& production,

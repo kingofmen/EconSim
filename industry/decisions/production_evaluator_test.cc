@@ -29,6 +29,7 @@ protected:
     market::SetAmount(gold_, market_.Proto()->mutable_prices_u());
   }
 
+  geography::proto::Field field_;
   market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity salt_;
@@ -39,9 +40,13 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
   ProductionContext context;
   context.market = &market_;
-  proto::ProductionDecision decision;
-
-  std::vector<std::unique_ptr<proto::ProductionInfo>> candidates;
+  DecisionMap decisionMap;
+  context.decisions = &decisionMap;
+  decisionMap[&field_] = proto::ProductionDecision();
+  auto& decision = context.decisions->at(&field_);
+  context.candidates.insert(
+      {&field_, std::vector<std::unique_ptr<proto::ProductionInfo>>()});
+  auto& candidates = context.candidates[&field_];
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
@@ -88,7 +93,7 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   var_info->set_possible_scale_u(micro::kOneInU);
 
   LocalProfitMaximiser evaluator;
-  evaluator.SelectCandidate(context, candidates, &decision);
+  evaluator.SelectCandidate(&context, &field_);
   EXPECT_EQ("gold", decision.selected().name()) << decision.DebugString();
   EXPECT_EQ(2, decision.rejected_size()) << decision.DebugString();
   const proto::ProductionInfo& rejected1 = decision.rejected(0);

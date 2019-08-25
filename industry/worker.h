@@ -31,6 +31,7 @@ void CalculateProductionCosts(
     industry::decisions::proto::ProductionInfo* production_info);
 
 // Uses evaluator to select a production chain for the field.
+// DEPRECATED. Use the evaluator's SelectCandidate method directly instead.
 void SelectProduction(const decisions::ProductionEvaluator& evaluator,
                       decisions::ProductionContext* context,
                       geography::proto::Field* field);

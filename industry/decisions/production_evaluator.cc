@@ -15,12 +15,34 @@ constexpr market::Measure kMinPracticalScale = micro::kOneInU / 10;
 
 } // namespace
 
-void LocalProfitMaximiser::SelectCandidate(
-    const ProductionContext& context,
-    const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
-    proto::ProductionDecision* decision) const {
-  market::Measure max_profit_u = 0;
+const std::vector<std::unique_ptr<proto::ProductionInfo>>&
+getCands(ProductionContext* context, geography::proto::Field* field) {
+  auto& cands = context->candidates.find(field);
+  if (cands == context->candidates.end()) {
+    static std::vector<std::unique_ptr<proto::ProductionInfo>> dummy;
+    return dummy;
+  }
+  return cands->second;
+}
 
+proto::ProductionDecision* getDecision(ProductionContext* context, geography::proto::Field* field) {
+  if (context->decisions->find(field) == context->decisions->end()) {
+    (*context->decisions)[field] = proto::ProductionDecision();
+  }
+  return &(*context->decisions)[field];
+}
+
+void LocalProfitMaximiser::SelectCandidate(
+    ProductionContext* context, geography::proto::Field* field) const {
+  market::Measure max_profit_u = 0;
+  proto::ProductionDecision* decision = getDecision(context, field);
+  decision->Clear();
+  const auto& candidates = getCands(context, field);
+  if (candidates.empty()) {
+    // This should never happen.
+    return;
+  }
+  
   for (const auto& prod_info : candidates) {
     market::Measure scale_u = prod_info->max_scale_u();
     auto* reject = decision->add_rejected();
@@ -30,7 +52,7 @@ void LocalProfitMaximiser::SelectCandidate(
       continue;
     }
 
-    market::Measure reven_u = context.market->GetPriceU(
+    market::Measure reven_u = context->market->GetPriceU(
         prod_info->expected_output(), prod_info->step_info_size());
     market::Measure cost_u = 0;
     market::Measure current_scale_u = scale_u;

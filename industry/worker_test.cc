@@ -293,23 +293,27 @@ TEST_F(WorkerTest, SelectProduction) {
   class TestSelector : public decisions::ProductionEvaluator {
    public:
      void SelectCandidate(
-         const decisions::ProductionContext& context,
-         const std::vector<std::unique_ptr<decisions::proto::ProductionInfo>>&
-             candidates,
-         decisions::proto::ProductionDecision* decision) const override {
+         decisions::ProductionContext* context,
+         geography::proto::Field* field) const override {
+       if (context->candidates.find(field) == context->candidates.end()) {
+         return;
+       }
+       auto& candidates = context->candidates.at(field);
+       auto& decision = context->decisions->at(field);
        for (const auto& cand : candidates) {
          if (cand->name() != chain_name) {
-           auto* reject = decision->add_rejected();
+           auto* reject = decision.add_rejected();
            *reject = *cand;
            reject->set_reject_reason("Wrong name");
            continue;
          }
-         *decision->mutable_selected() = *cand;
+         *decision.mutable_selected() = *cand;
        }
     }
 
-    void set_name(const std::string name) {chain_name = name;}
-   private:
+    void set_name(const std::string name) { chain_name = name; }
+
+  private:
     std::string chain_name;
   };
 

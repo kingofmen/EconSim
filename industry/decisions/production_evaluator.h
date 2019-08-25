@@ -25,22 +25,18 @@ struct ProductionContext {
 
 class ProductionEvaluator {
 public:
-  // Fills in the 'selected' and 'rejected' fields of decision. Assumes all
-  // candidates are possible.
-  virtual void SelectCandidate(
-      const ProductionContext& context,
-      const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
-      proto::ProductionDecision* decision) const = 0;
+  // Fills in the 'selected' and 'rejected' fields of the decision for field in
+  // the context DecisionMap.
+  virtual void SelectCandidate(ProductionContext* context,
+                               geography::proto::Field* field) const = 0;
 };
 
 // Evaluates the profit the chain will make, assuming all inputs can be bought
 // and all outputs sold at the quoted market prices. Ignores the context.
 class LocalProfitMaximiser : public ProductionEvaluator {
 public:
-  void SelectCandidate(
-      const ProductionContext& context,
-      const std::vector<std::unique_ptr<proto::ProductionInfo>>& candidates,
-      proto::ProductionDecision* decision) const override;
+  void SelectCandidate(ProductionContext* context,
+                       geography::proto::Field* field) const override;
 };
 
 }  // namespace decisions
