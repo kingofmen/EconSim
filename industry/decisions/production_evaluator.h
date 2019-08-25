@@ -39,6 +39,21 @@ public:
                        geography::proto::Field* field) const override;
 };
 
+// Decides based on outside sources, e.g. player input; if there is none,
+// falls back on an algorithmic evaluator.
+class FieldSpecifier : public ProductionEvaluator {
+public:
+  FieldSpecifier(ProductionEvaluator* f) : fallback_(f) {}
+  void SelectCandidate(ProductionContext* context,
+                       geography::proto::Field* field) const override;
+  void SetFieldProduction(const geography::proto::Field* field,
+                          const std::string& chain);
+
+private:
+  ProductionEvaluator* fallback_;
+  std::unordered_map<const geography::proto::Field*, std::string> chains_;
+};
+
 }  // namespace decisions
 }  // namespace industry
 

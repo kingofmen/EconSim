@@ -18,6 +18,12 @@ protected:
     market_.RegisterGood(fish_.kind());
     market_.RegisterGood(salt_.kind());
     market_.RegisterGood(gold_.kind());
+
+    context_.market = &market_;
+    context_.decisions = &decisionMap_;
+    decisionMap_[&field_] = proto::ProductionDecision();
+    context_.candidates.insert(
+        {&field_, std::vector<std::unique_ptr<proto::ProductionInfo>>()});
   }
 
   void SetPrices(market::Measure fish, market::Measure salt, market::Measure gold) {
@@ -29,24 +35,20 @@ protected:
     market::SetAmount(gold_, market_.Proto()->mutable_prices_u());
   }
 
+  ProductionContext context_;
+  DecisionMap decisionMap;
   geography::proto::Field field_;
   market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity salt_;
   market::proto::Quantity gold_;
+  DecisionMap decisionMap_;
 };
 
 TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
-  ProductionContext context;
-  context.market = &market_;
-  DecisionMap decisionMap;
-  context.decisions = &decisionMap;
-  decisionMap[&field_] = proto::ProductionDecision();
-  auto& decision = context.decisions->at(&field_);
-  context.candidates.insert(
-      {&field_, std::vector<std::unique_ptr<proto::ProductionInfo>>()});
-  auto& candidates = context.candidates[&field_];
+  auto& decision = context_.decisions->at(&field_);
+  auto& candidates = context_.candidates[&field_];
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
@@ -93,7 +95,7 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   var_info->set_possible_scale_u(micro::kOneInU);
 
   LocalProfitMaximiser evaluator;
-  evaluator.SelectCandidate(&context, &field_);
+  evaluator.SelectCandidate(&context_, &field_);
   EXPECT_EQ("gold", decision.selected().name()) << decision.DebugString();
   EXPECT_EQ(2, decision.rejected_size()) << decision.DebugString();
   const proto::ProductionInfo& rejected1 = decision.rejected(0);
@@ -106,6 +108,46 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   EXPECT_EQ("salt", rejected2.name()) << decision.DebugString();
   EXPECT_EQ("Less profit than gold", rejected2.reject_reason())
       << decision.DebugString();
+}
+
+TEST_F(ProductionEvaluatorTest, FieldSpecifier) {
+  SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
+  auto& decision = context_.decisions->at(&field_);
+  auto& candidates = context_.candidates[&field_];
+  candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
+  candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
+
+  proto::ProductionInfo* candidate;
+  candidate = candidates[0].get();
+  candidate->set_name("fish");
+  candidate = candidates[1].get();
+  candidate->set_name("salt");
+
+  class Fallback : public ProductionEvaluator {
+   public:
+    void SelectCandidate(ProductionContext* context,
+                         geography::proto::Field* field) const override {
+      auto& decision = context->decisions->at(field);
+      decision.mutable_selected()->set_name("fallback");
+    }
+  };
+
+  Fallback fallback;
+  FieldSpecifier evaluator(&fallback);
+  evaluator.SelectCandidate(&context_, &field_);
+  EXPECT_EQ(decision.selected().name(), "fallback");
+  evaluator.SetFieldProduction(&field_, "salt");
+  evaluator.SelectCandidate(&context_, &field_);
+  EXPECT_EQ(decision.selected().name(), "salt");
+  evaluator.SetFieldProduction(&field_, "fish");
+  evaluator.SelectCandidate(&context_, &field_);
+  EXPECT_EQ(decision.selected().name(), "fish");
+  evaluator.SetFieldProduction(&field_, "nonesuch");
+  evaluator.SelectCandidate(&context_, &field_);
+  EXPECT_EQ(decision.selected().name(), "fallback");
+  evaluator.SetFieldProduction(&field_, "");
+  evaluator.SelectCandidate(&context_, &field_);
+  EXPECT_EQ(decision.selected().name(), "fallback");
 }
 
 } // namespace decisions

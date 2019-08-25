@@ -117,5 +117,45 @@ void LocalProfitMaximiser::SelectCandidate(
   }
 }
 
+void FieldSpecifier::SelectCandidate(ProductionContext* context,
+                                     geography::proto::Field* field) const {
+  if (chains_.find(field) == chains_.end()) {
+    fallback_->SelectCandidate(context, field);
+    return;
+  }
+  proto::ProductionDecision* decision = getDecision(context, field);
+  decision->Clear();
+  const auto& candidates = getCands(context, field);
+  if (candidates.empty()) {
+    // This should never happen.
+    fallback_->SelectCandidate(context, field);
+    return;
+  }
+  for (const auto& cand : candidates) {
+    if (cand->name() == chains_.at(field)) {
+      *decision->mutable_selected() = *cand;
+    } else {
+      auto* reject = decision->add_rejected();
+      *reject = *cand;
+      reject->set_reject_reason("Not the Chosen One");
+    }
+  }
+  if (!decision->has_selected()) {
+    fallback_->SelectCandidate(context, field);
+  }
+}
+
+void FieldSpecifier::SetFieldProduction(const geography::proto::Field* field,
+                                        const std::string& chain) {
+  if (field == nullptr) {
+    return;
+  }
+  if (chain.empty()) {
+    chains_.erase(field);
+    return;
+  }
+  chains_[field] = chain;
+}
+
 } // namespace decisions
 } // namespace industry
