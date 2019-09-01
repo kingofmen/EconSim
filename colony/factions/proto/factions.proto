@@ -1,0 +1,6 @@
+syntax = "proto2";
+package factions.proto;
+
+message Faction {
+  optional uint64 id = 1;
+}
