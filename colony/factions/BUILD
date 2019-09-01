@@ -10,3 +10,14 @@ cc_library(
         "//util/headers:int_types",
     ],
 )
+
+cc_test(
+    name = "factions_test",
+    srcs = ["factions_test.cc"],
+    deps = [
+        ":factions",
+        "//util/arithmetic:microunits",
+        "@gtest",
+        "@gtest//:gtest_main",
+    ],
+)

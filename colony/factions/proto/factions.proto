@@ -2,5 +2,8 @@ syntax = "proto2";
 package factions.proto;
 
 message Faction {
+  // Faction ID.
   optional uint64 id = 1;
+  // IDs of full citizens.
+  repeated uint64 pop_ids = 2;
 }

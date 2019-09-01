@@ -57,7 +57,12 @@ class TextInterface : public interface::UserInterface {
   void awaitInput();
   void clear();
   void clearLine(int line);
+
+  // Changes which field is displayed in detail.
   void changeField(bool pos);
+
+  // Changes the player-set process for the displayed field.
+  void changeFieldProcess(bool pos);
   void drawFieldDetails(const geography::proto::Field& field, int& line);
   void drawInfoBox();
   void drawMessageBox();

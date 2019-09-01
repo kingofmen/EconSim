@@ -467,17 +467,27 @@ void TextInterface::runGameHandler(char inp) {
         selected_area_id_ = geography::Area::MaxId();
       }
       break;
-    case '6':
+    case '2':
       changeField(true);
       break;
-    case '4':
+    case '8':
       changeField(false);
+      break;
+    case '6':
+      changeFieldProcess(true);
+      break;
+    case '4':
+      changeFieldProcess(false);
       break;
       
     default:
       break;
   }
   drawWorld();
+}
+
+void TextInterface::changeFieldProcess(bool pos) {
+  
 }
 
 void TextInterface::changeField(bool pos) {
