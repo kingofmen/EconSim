@@ -1,4 +1,4 @@
-#include "colony/factions/factions.h"
+#include "factions/factions.h"
 
 #include "gtest/gtest.h"
 

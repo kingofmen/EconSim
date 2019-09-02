@@ -1,4 +1,4 @@
-package(default_visibility = ["//colony:__subpackages__"])
+package(default_visibility = ["//visibility:public"])
 
 cc_proto_library(
     name = "factions_proto",

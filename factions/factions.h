@@ -1,5 +1,5 @@
-#ifndef COLONY_FACTIONS_FACTIONS_H
-#define COLONY_FACTIONS_FACTIONS_H
+#ifndef FACTIONS_FACTIONS_H
+#define FACTIONS_FACTIONS_H
 
 #include <unordered_set>
 
@@ -20,7 +20,10 @@ class FactionController {
   // Returns true if the POP is a direct member of the faction, a full citizen.
   bool IsFullCitizen(uint64 pop_id) const;
 
- private:
+  // Read access to the protobuf.
+  const proto::Faction& proto() { return proto_; }
+
+private:
   // Wire format.
   proto::Faction proto_;
   // Citizen IDs.
