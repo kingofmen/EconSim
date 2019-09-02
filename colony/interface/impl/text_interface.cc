@@ -360,19 +360,19 @@ TextInterface::loadScenario(const game::setup::proto::ScenarioFiles& setup) {
       return status;
     }
   }
-  for (const auto& filename : setup.factions()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
 
   game_world_.Clear();
   std::experimental::filesystem::path world_path = base_path / setup.world_file();
   auto status = util::proto::ParseProtoFile(world_path.string(), &game_world_);
   if (!status.ok()) {
     return status;
+  }
+  for (const auto& filename : setup.factions()) {
+    std::experimental::filesystem::path full_path = base_path / filename;
+    auto status = util::proto::MergeProtoFile(full_path.string(), &game_world_);
+    if (!status.ok()) {
+      return status;
+    }
   }
 
   std::vector<std::string> errors = game::validation::Validate(scenario_, game_world_);
