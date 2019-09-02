@@ -13,4 +13,5 @@ message ScenarioFiles {
   optional string root_path = 9;
   repeated string includes = 10;
   repeated string graphics = 11;
+  repeated string factions = 12;
 }
