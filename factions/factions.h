@@ -21,7 +21,7 @@ class FactionController {
   bool IsFullCitizen(uint64 pop_id) const;
 
   // Read access to the protobuf.
-  const proto::Faction& proto() { return proto_; }
+  const proto::Faction& Proto() { return proto_; }
 
 private:
   // Wire format.

@@ -13,6 +13,7 @@ proto_library(
         "game_world.proto",
     ],
     deps = [
+        "//factions/proto:factions_proto_lib",
         "//geography/proto:geography_proto_lib",
         "//industry/proto:industry_proto_lib",
         "//market/proto:goods_proto_lib",

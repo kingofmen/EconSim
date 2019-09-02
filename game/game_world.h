@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include "factions/factions.h"
+#include "factions/proto/factions.pb.h"
 #include "game/proto/game_world.pb.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
@@ -41,6 +43,7 @@ private:
   Scenario scenario_;
 
   // World-state information.
+  std::vector<std::unique_ptr<factions::FactionController>> factions_;
   std::vector<std::unique_ptr<population::PopUnit>> pops_;
   std::vector<std::unique_ptr<geography::Area>> areas_;
   std::vector<std::unique_ptr<geography::Connection>> connections_;

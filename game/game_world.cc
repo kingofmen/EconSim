@@ -333,6 +333,11 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
     auto& unit_proto = *proto->add_units();
     unit_proto = unit->Proto();
   }
+
+  for (const auto& faction : factions_) {
+    auto* faction_proto = proto->add_factions();
+    *faction_proto = faction->Proto();
+  }
 }
 
 } // namespace game

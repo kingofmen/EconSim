@@ -8,6 +8,8 @@ cc_library(
         "//actions/proto:strategy_proto",
         "//ai:executer",
         "//ai:planner",
+        "//factions/proto:factions_proto",
+        "//factions:factions",
         "//game/proto:game_world_proto",
         "//geography:connection",
         "//geography:geography",
