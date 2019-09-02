@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "colony/factions/proto/factions.pb.h"
+#include "factions/proto/factions.pb.h"
 #include "util/headers/int_types.h"
 
 namespace factions {

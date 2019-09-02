@@ -16,6 +16,7 @@ cc_test(
     srcs = ["factions_test.cc"],
     deps = [
         ":factions",
+        "//factions/proto:factions_proto",
         "//util/arithmetic:microunits",
         "@gtest",
         "@gtest//:gtest_main",
