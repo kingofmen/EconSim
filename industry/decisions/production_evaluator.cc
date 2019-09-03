@@ -157,5 +157,13 @@ void FieldSpecifier::SetFieldProduction(const geography::proto::Field* field,
   chains_[field] = chain;
 }
 
+std::string FieldSpecifier::CurrentFieldProduction(const geography::proto::Field* field) const {
+  const auto& curr = chains_.find(field);
+  if (curr == chains_.end()) {
+    return "";
+  }
+  return curr->second;
+}
+
 } // namespace decisions
 } // namespace industry

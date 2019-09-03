@@ -48,6 +48,8 @@ public:
                        geography::proto::Field* field) const override;
   void SetFieldProduction(const geography::proto::Field* field,
                           const std::string& chain);
+  std::string
+  CurrentFieldProduction(const geography::proto::Field* field) const;
 
 private:
   ProductionEvaluator* fallback_;
