@@ -32,11 +32,15 @@ public:
     proto::Scenario proto_;
   };
 
+  // Moves the simulation forward one step.
   void TimeStep(industry::decisions::DecisionMap* production_decisions);
 
   // Copies the current game state (not scenario) into the proto, which must not
   // be null.
   void SaveToProto(proto::GameWorld* proto) const;
+
+  // Returns the names of the known production chains.
+  const std::vector<std::string>& chain_names() const { return chain_names_; }
 
 private:
   // 'Setup' information that does not change in the simulation.
@@ -50,6 +54,9 @@ private:
   std::vector<std::unique_ptr<units::Unit>> units_;
   std::unordered_map<std::string, const industry::Production*> production_map_;
   industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
+
+  // Cached scenario information.
+  std::vector<std::string> chain_names_;
 };
 
 } // namespace game

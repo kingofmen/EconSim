@@ -199,6 +199,7 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
 
   for (const auto* prod_proto : scenario_.production_chains_) {
     production_map_.emplace(prod_proto->name(), new industry::Production(*prod_proto));
+    chain_names_.push_back(prod_proto->name());
   }
 
   for (const auto& unit : world.units()) {
