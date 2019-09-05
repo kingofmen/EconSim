@@ -42,6 +42,12 @@ public:
   // Returns the names of the known production chains.
   const std::vector<std::string>& chain_names() const { return chain_names_; }
 
+  // Returns the chain.
+  // TODO: Error handling on a bad name being provided.
+  const industry::Production& chain(const std::string& name) const {
+    return *(production_map_.at(name));
+  }
+
 private:
   // 'Setup' information that does not change in the simulation.
   Scenario scenario_;

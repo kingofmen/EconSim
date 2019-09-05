@@ -205,6 +205,10 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   for (const auto& unit : world.units()) {
     units_.emplace_back(units::Unit::FromProto(unit));
   }
+
+  for (const auto& faction : world.factions()) {
+    factions_.emplace_back(factions::FactionController::FromProto(faction));
+  }
 }
 
 void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
