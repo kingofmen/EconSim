@@ -1,6 +1,8 @@
 name: "Tutorial Island"
 description: "A small island suitable for learning the game."
+auto_production: "tutorial/auto_prod.pb.txt"
 world_file: "tutorial/world.pb.txt"
 trade_goods: "tutorial/trade_goods.pb.txt"
 graphics: "tutorial/graphics.pb.txt"
+production_chains: "tutorial/production_chains.pb.txt"
 factions: "tutorial/factions.pb.txt"

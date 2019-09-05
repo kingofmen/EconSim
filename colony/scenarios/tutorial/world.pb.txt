@@ -1,24 +1,44 @@
 areas {
   id: 1
-  fields {
-    land_type: LT_FOREST
-    owner_id: 1
+  limits {
+    maximum {
+      quantities { key: "trees" value: 1000000000 }
+    }
   }
   fields {
     land_type: LT_FOREST
     owner_id: 1
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
   }
   fields {
     land_type: LT_FOREST
     owner_id: 1
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
   }
   fields {
     land_type: LT_FOREST
     owner_id: 1
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
   }
   fields {
     land_type: LT_FOREST
     owner_id: 1
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
+  }
+  fields {
+    land_type: LT_FOREST
+    owner_id: 1
+    resources {
+      quantities { key: "trees" value: 1000000000 }
+    }
   }
   market {
     prices_u {

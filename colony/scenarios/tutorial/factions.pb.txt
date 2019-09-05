@@ -1,0 +1,7 @@
+factions {
+  id: 1
+  pop_ids: 1
+}
+factions {
+  id: 2
+}

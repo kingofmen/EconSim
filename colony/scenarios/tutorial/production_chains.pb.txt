@@ -1,0 +1,56 @@
+production_chains {
+  name: "hunting"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "meat"
+      value: 2000000
+    }
+  }
+  land_type: LT_FOREST
+}
+production_chains {
+  name: "logging"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 1000000
+	}
+      }
+      raw_materials {
+        quantities {
+	  key: "trees"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "lumber"
+      value: 10000000
+    }
+  }
+  land_type: LT_FOREST
+}

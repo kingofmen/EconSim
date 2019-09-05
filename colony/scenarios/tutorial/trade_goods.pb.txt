@@ -1,4 +1,5 @@
 # Trade goods for the tutorial scenario.
+# Weight is in kilograms per unit, bulk is in cubic metres.
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000
@@ -11,4 +12,34 @@ trade_goods {
   # One kg, 100 cubic cm
   bulk_u: 100
   weight_u: 1000000
+}
+trade_goods {
+  name: "lumber"
+  decay_rate_u: 10
+  transport_type: TTT_STANDARD
+  # Unit is board-foot, 0.002 cubic metres.
+  # Density of oak about 750 kg / m^3.
+  bulk_u: 2000
+  weight_u: 1500000
+}
+trade_goods {
+  name: "meat"
+  decay_rate_u: 250000
+  transport_type: TTT_STANDARD
+  # Basically water; unit is kilograms
+  bulk_u: 1000
+  weight_u: 1000000
+}
+trade_goods {
+  name: "trees"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "tools"
+  decay_rate_u: 1
+  transport_type: TTT_STANDARD
+  # Basically iron, and weigh maybe half a kilogram each.
+  bulk_u: 75
+  weight_u: 500000
 }
