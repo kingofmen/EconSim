@@ -47,6 +47,7 @@ public:
   const std::vector<uint64> pop_ids() const;
   int num_fields() const { return proto_.fields_size(); }
   const std::vector<const proto::Field*> fields() const;
+  proto::Field* mutable_field(int idx) { return proto_.mutable_fields(idx); }
 
   static Area* GetById(uint64 id);
   static std::unique_ptr<Area> FromProto(const proto::Area& area);
