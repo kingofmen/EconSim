@@ -11,6 +11,7 @@
 #include "colony/controller/controller.h"
 #include "colony/graphics/proto/graphics.pb.h"
 #include "colony/interface/user_interface.h"
+#include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
 #include "game/setup/proto/setup.pb.h"
@@ -39,6 +40,9 @@ class TextInterface : public interface::UserInterface {
   std::unique_ptr<game::GameWorld> world_model_;
   uint64 selected_area_id_;
   uint64 selected_field_idx_;
+  uint64 player_faction_id_;
+  std::unordered_map<const geography::proto::Field*, uint64> field_overrides_;
+  std::vector<colony::interface::proto::PlayerAction> actions_;
 
   template <typename T>
   void addSelection(int x, int y, const std::vector<T>& options,

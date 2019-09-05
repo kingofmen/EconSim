@@ -97,7 +97,10 @@ std::vector<std::experimental::filesystem::path> getScenarios() {
 
 TextInterface::TextInterface(controller::GameControl* c)
     : display_(rows, std::string(columns, ' ')), colours_(rows, {}),
-      quit_(false) {}
+      quit_(false) {
+  // TODO: Get this from actual input.
+  player_faction_id_ = 1;
+}
 
 template <typename T>
 void TextInterface::addSelection(int x, int y, const std::vector<T>& options,
@@ -133,8 +136,19 @@ void TextInterface::drawFieldDetails(const geography::proto::Field& field,
                                      int& line) {
   output(sidebarLimit + 5, line++, 0,
          absl::Substitute("Owned by $0", field.owner_id()));
-  output(sidebarLimit + 5, line++, 0,
-         field.has_progress() ? field.progress().name() : "No process");
+  std::string current = field.has_progress() ? field.progress().name() : "No process";
+  std::string next = "AI decision";
+  if (current != "No process") {
+    next = absl::Substitute("continue $0", current);
+  }
+
+  if (field_overrides_.find(&field) != field_overrides_.end()) {
+    const auto& action = actions_[field_overrides_.at(&field)].set_production();
+    if (action.has_process_name() && !action.process_name().empty()) {
+      next = absl::Substitute("override to $0", action.process_name());
+    }
+  }
+  output(sidebarLimit + 5, line++, 0, absl::Substitute("$0 -> $1", current, next));
 }
 
 // Draws information about the selected Area.
@@ -237,8 +251,8 @@ void TextInterface::drawWorld() {
       output(fieldX, fieldY, std::get<0>(info), std::get<1>(info));
     }
   }
-  output(0, firstMessageLine, 0, std::string(columns, '-'));
-  for (int i = 0; i < firstMessageLine; ++i) {
+  output(0, firstMessageLine-1, 0, std::string(columns, '-'));
+  for (int i = 0; i < firstMessageLine-1; ++i) {
     output(sidebarLimit, i, 0, "|");
     output(columns-1, i, 0, "|");
   }
@@ -493,8 +507,87 @@ void TextInterface::runGameHandler(char inp) {
   drawWorld();
 }
 
+// Returns false if the field cannot do the chain due to missing fixed capital
+// or raw materials, or being the wrong type.
+bool possible(const geography::proto::Field& field, const industry::Production& chain) {
+  if (!geography::HasFixedCapital(field, chain)) {
+    return false;
+  }
+  if (!geography::HasLandType(field, chain)) {
+    return false;
+  }
+  if (!geography::HasRawMaterials(field, chain)) {
+    return false;
+  }
+  return true;
+}
+
 void TextInterface::changeFieldProcess(bool pos) {
-  
+  geography::Area* area = geography::Area::GetById(selected_area_id_);
+  if (area == NULL) {
+    return;
+  }
+  if (selected_field_idx_ >= area->num_fields()) {
+    return;
+  }
+
+  geography::proto::Field* field = area->mutable_field(selected_field_idx_);
+  if (field == NULL) {
+    return;
+  }
+  auto* playerFaction = factions::FactionController::GetByID(player_faction_id_);
+  if (playerFaction == NULL) {
+    // This should never happen.
+    return;
+  }
+
+  if (!playerFaction->IsFullCitizen(field->owner_id())) {
+    return;
+  }
+
+  std::vector<std::string> possibles = {""};
+  for (const auto& name : world_model_->chain_names()) {
+    const auto& chain = world_model_->chain(name);
+    if (possible(*field, chain)) {
+      possibles.push_back(name);
+    }
+  }
+
+  colony::interface::proto::SetProduction* setProduction = NULL;
+  int field_action_idx = 0;
+  if (field_overrides_.find(field) != field_overrides_.end()) {
+    field_action_idx = field_overrides_[field];
+    setProduction = actions_[field_action_idx].mutable_set_production();
+  } else {
+    field_action_idx = actions_.size();
+    actions_.emplace_back();
+    setProduction = actions_.back().mutable_set_production();
+    setProduction->set_area_id(selected_area_id_);
+    setProduction->set_field_idx(selected_field_idx_);
+    field_overrides_[field] = field_action_idx;
+  }
+
+  int override_idx = 0;
+  for (int i = 0; i < possibles.size(); ++i) {
+    if (possibles[i] != setProduction->process_name()) {
+      continue;
+    }
+    override_idx = i;
+    break;
+  }
+  override_idx += pos ? 1 : -1;
+  if (override_idx < 0) {
+    override_idx = possibles.size() - 1;
+  } else if (override_idx >= possibles.size()) {
+    override_idx = 0;
+  }
+
+  if (override_idx == 0) {
+    setProduction->clear_process_name();
+    return;
+  }
+
+  setProduction->set_process_name(possibles[override_idx]);
 }
 
 void TextInterface::changeField(bool pos) {
