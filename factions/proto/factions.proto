@@ -1,9 +1,16 @@
 syntax = "proto2";
 package factions.proto;
 
+enum Privilege {
+  P_NONE = 0;
+  P_OVERRIDE_PRODUCTION = 1;
+  P_MIGRATE = 2;
+}
+
 message Faction {
   // Faction ID.
   optional uint64 id = 1;
   // IDs of full citizens.
   repeated uint64 pop_ids = 2;
+  map<uint64, int32> privileges = 3;
 }

@@ -7,3 +7,4 @@
 using google::protobuf::uint64;
 using google::protobuf::int64;
 using google::protobuf::uint128;
+using google::protobuf::int32;
