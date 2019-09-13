@@ -541,7 +541,8 @@ void TextInterface::changeFieldProcess(bool pos) {
     return;
   }
 
-  if (!playerFaction->IsFullCitizen(field->owner_id())) {
+  if (!playerFaction->HasPrivileges(field->owner_id(),
+                                    factions::proto::P_OVERRIDE_PRODUCTION)) {
     return;
   }
 

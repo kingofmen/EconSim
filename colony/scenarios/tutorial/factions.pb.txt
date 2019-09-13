@@ -1,6 +1,10 @@
 factions {
   id: 1
   pop_ids: 1
+  privileges {
+    key: 1
+    value: 1
+  }
 }
 factions {
   id: 2
