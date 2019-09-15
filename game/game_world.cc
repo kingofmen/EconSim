@@ -213,7 +213,6 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
 
 void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
   static PossibilityFilter possible;
-  std::cout << "Turn begins\n";
 
   for (auto& area: areas_) {
     auto* market = area->mutable_market();
@@ -304,7 +303,6 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
 
   for (auto& pop : pops_) {
     pop->EndTurn(scenario_.proto_.decay_rates());
-    std::cout << pop->Proto()->DebugString();
   }
   for (auto& area: areas_) {
     market::proto::Container volumes =
@@ -315,7 +313,6 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
       micro::MultiplyU(*field.mutable_fixed_capital(),
                        scenario_.proto_.decay_rates());
     }
-    PrintMarket(*area->mutable_market()->Proto(), volumes);
   }
 }
 
