@@ -12,10 +12,12 @@ namespace decisions {
 typedef std::unordered_map<geography::proto::Field*, proto::ProductionDecision>
     DecisionMap;
 
+class ProductionEvaluator;
+
 struct ProductionContext {
   const std::unordered_map<std::string, const industry::Production*>*
       production_map;
-  std::unordered_set<geography::proto::Field*> fields;
+  std::unordered_map<geography::proto::Field*, ProductionEvaluator*> evaluators;
   std::unordered_map<geography::proto::Field*,
                      std::vector<std::unique_ptr<proto::ProductionInfo>>>
       candidates;

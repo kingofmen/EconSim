@@ -1,0 +1,107 @@
+\documentclass[12pt]{book}
+\begin{document}
+\chapter{Production}
+
+\emph{This section must be basically rewritten as I changed how it
+  works, abstracting installation time entirely into the cost}.
+
+Some production variants have \verb|fixed_capital|, goods attached to the
+Field object. These are intended to model, for example, heavy
+machinery, drainage systems, or fences: Enabling tools not easily
+moved, and usually taking considerable effort to install or
+create. Generally such variants will require less labour or other
+input. Fixed capital - sometimes 'fixcap', as opposed to movable
+capital or 'mobcap' - is installed in the 'capex' phase of production
+step execution. The installation cost is stored in the
+\verb|capex_cost| field of the Input; this is the amount it costs to
+create one full scale's worth of fixcap. Lesser amounts, as for
+maintenance, scale proportionally. In addition, installing fixcap
+reduces the efficiency of the process as a whole. There are two ways
+one could model this: First, suppose that in seven days the process
+builds seven units, one per day. Then taking one day to install
+capital will reduce the output to six - still one per day. On the
+other hand, suppose that in seven days the process outputs seven
+units, each of which took the whole seven days to make; then taking a
+day for fixcap will give you seven units each six-sevenths complete,
+which is not at all the same thing as six units. 
+
+I deal with this by completely ignoring the parallel-production issue;
+production is assumed to be so granular that it is exactly linear in
+the time available. Production is thus modelled as an area, time on
+the X axis, working space on the Y axis. Capex for a unit of working
+space takes up some of the time available, reducing the amount
+produced by that working space. So, if you have half a unit of fixcap,
+and you add another fourth of a unit at the price of half the
+available time, then you will produce half a scale, plus one-fourth of
+a scale times one-half. The time cost of capex install is given by 
+\verb|capex_time|, while the amount of fixcap installed for a specific
+Progress is given by \verb|installed_fixcap_u|.
+
+\chapter{Transport}
+
+An Area models a collection of economic activity whose logistics can
+reasonably be abstracted into production costs; for example, a city
+and its immediate hinterland. The farmers, clearly, are expending some
+labour and using some capital to bring their produce to market; but
+for purposes of the economic model, this is taken as part of the cost
+of producing the grain and fruit in the first place. When the area
+grows large enough that this
+abstraction becomes unreasonable, we split economic activity into two
+Areas and explicitly model transport, logistics, and infrastructure
+between them, in the shape of a Connection.
+
+A Connection models a set of routes between two points which are
+sufficiently close together and interconnected to be considered as one
+logistical or tactical unit. If the area between two cities is an
+obstacle-less plain, across which humans may wander at will in any
+direction, it can be considered a single Connection even if there are
+a large number of routes they may take. Conversely, if the cities are
+separated by a mountain range, then each pass through that range,
+however close together as the lammergeier flies, is a
+separate Connection, because there is no easy way of switching from
+one route to another.
+
+In addition to the distance between the endpoints, a Connection also
+models a width, roughly speaking the amount of space a unit has to
+maneuver laterally. A mountain pass has a small amount of width, an
+open plain has a lot, the Atlantic is the epitome of width. One can
+think of width as the value of mobility and maneuverability, or as how
+much choice an army has in whether to accept battle at a defending
+army's chosen spot. If an army marches through the Brenner Pass, and is
+opposed, it must either engage the defending army head-on, or give up
+reaching Italy. On the other hand, an army seeking to reach Warsaw can
+do a lot of probing for flanks or attempting to steal a march, and is
+certainly under no obligation to engage at any particular point; just
+go fifteen miles north and head for Warsaw again; the defenders can
+sit in their chosen spot and watch you go, or they can march north to
+match you.
+
+In addition to width, the amount of Infrastructure in a Connection
+also matters for the importance of maneuver. If we think of two US
+freeways close enough together to form a single Connection, it will be
+a lot easier to switch forces from one to the other in Kansas, where
+there's plenty of lateral back roads connecting the two, than in the
+Rocky Mountains. The Infrastructure, then, represents internal
+communications in the Connection - lateral roads, railroad spurs,
+small regional airports, canals connecting rivers. The more of it
+there is, the more easily troops can maneuver within the Connection,
+and the more important the general's skill and the troops' mobility
+becomes.
+
+Connections also have a ruggedness, affecting the speed at which units
+may move through it, a terrain type, such as marsh or forest, and a
+number of defensible points. They may specify their local weather and
+similar effects such as icebergs. Connections may be raided from
+specified locations with a given range; for example a Mid-Atlantic
+route might be vulnerable to naval units based at Brest and at various
+British harbours, but not at Toulon. Similarly a Rhine connection
+might be vulnerable to any number of hilltop castles.
+
+
+
+
+
+
+
+
+\end{document}

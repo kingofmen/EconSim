@@ -32,6 +32,10 @@ public:
     proto::Scenario proto_;
   };
 
+  // Sets the production evaluator for the field.
+  void SetProductionEvaluator(uint64 area_id, uint64 field_idx,
+                              industry::decisions::ProductionEvaluator* eval);
+
   // Moves the simulation forward one step.
   void TimeStep(industry::decisions::DecisionMap* production_decisions);
 
@@ -59,7 +63,12 @@ private:
   std::vector<std::unique_ptr<geography::Connection>> connections_;
   std::vector<std::unique_ptr<units::Unit>> units_;
   std::unordered_map<std::string, const industry::Production*> production_map_;
-  industry::decisions::LocalProfitMaximiser local_profit_maximiser_;
+  industry::decisions::ProductionEvaluator* default_evaluator_;
+
+  // Player information.
+  std::unordered_map<geography::proto::Field*,
+                     industry::decisions::ProductionEvaluator*>
+      production_evaluators_;
 
   // Cached scenario information.
   std::vector<std::string> chain_names_;

@@ -6,6 +6,7 @@
 #include "actions/proto/plan.pb.h"
 #include "ai/executer.h"
 #include "ai/planner.h"
+#include "geography/geography.h"
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"
 #include "units/unit.h"
@@ -53,7 +54,6 @@ void PrintMarket(const market::proto::MarketProto& market,
 // progress.
 void RunAreaIndustry(
     std::unordered_map<population::PopUnit*, ProductionContext>* contexts) {
-  static industry::decisions::LocalProfitMaximiser evaluator;
 
   std::unordered_set<Field*> progressed;
   std::unordered_map<Field*, int> attempts;
@@ -67,12 +67,14 @@ void RunAreaIndustry(
       population::PopUnit* pop = pop_context.first;
       ProductionContext& context = pop_context.second;
 
-      for (auto* field : context.fields) {
+      for (auto& eval : context.evaluators) {
+        auto* field = eval.first;
         if (progressed.count(field) != 0) {
           continue;
         }
         industry::CalculateProductionScale(pop->wealth(), &context, field);
-        industry::SelectProduction(evaluator, &context, field);
+        eval.second->SelectCandidate(&context, field);
+        //industry::SelectProduction(local_profit_maximiser_, &context, field);
 
         const auto& decision = context.decisions->at(field);
         if (!decision.has_selected()) {
@@ -183,7 +185,8 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
 }
 
 GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
-    : scenario_(scenario), local_profit_maximiser_() {
+    : scenario_(scenario),
+      default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
 
   for (const auto& pop : world.pops()) {
     pops_.emplace_back(new population::PopUnit(pop));
@@ -225,7 +228,6 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
       pop->AutoProduce(scenario_.auto_production_, market);
     }
 
-    std::unordered_set<Field*> fields;
     std::unordered_map<population::PopUnit*, ProductionContext> contexts;
     for (auto& field : *area->Proto()->mutable_fields()) {
       auto* pop = population::PopUnit::GetPopId(field.owner_id());
@@ -237,8 +239,12 @@ void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
         contexts[pop].market = market;
         contexts[pop].decisions = decisions;
       }
-      contexts[pop].fields.emplace(&field);
-      fields.emplace(&field);
+      if (production_evaluators_.find(&field) != production_evaluators_.end()) {
+        contexts[pop].evaluators[&field] = production_evaluators_[&field];
+      } else {
+        contexts[pop].evaluators[&field] = default_evaluator_;
+      }
+
       decisions->emplace(&field,
                          industry::decisions::proto::ProductionDecision());
       for(const auto& chain : production_map_) {
@@ -339,6 +345,27 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
   for (const auto& faction : factions_) {
     auto* faction_proto = proto->add_factions();
     *faction_proto = faction->Proto();
+  }
+}
+
+void GameWorld::SetProductionEvaluator(
+    uint64 area_id, uint64 field_idx,
+    industry::decisions::ProductionEvaluator* eval) {
+  geography::Area* area = geography::Area::GetById(area_id);
+  if (area == NULL) {
+    // TODO: Maybe a better handling?
+    return;
+  }
+
+  if (field_idx >= area->num_fields()) {
+    // TODO: Error handling!
+    return;
+  }
+  auto* field = area->mutable_field(field_idx);
+  if (eval == NULL) {
+    production_evaluators_.erase(field);
+  } else {
+    production_evaluators_[field] = eval;
   }
 }
 
