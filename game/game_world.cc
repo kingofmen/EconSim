@@ -67,16 +67,16 @@ void RunAreaIndustry(
       population::PopUnit* pop = pop_context.first;
       ProductionContext& context = pop_context.second;
 
-      for (auto& eval : context.evaluators) {
-        auto* field = eval.first;
+      for (auto& field_info : context.fields) {
+        auto* field = field_info.first;
+        auto& info = field_info.second;
         if (progressed.count(field) != 0) {
           continue;
         }
         industry::CalculateProductionScale(pop->wealth(), &context, field);
-        eval.second->SelectCandidate(&context, field);
-        //industry::SelectProduction(local_profit_maximiser_, &context, field);
+        info.evaluator->SelectCandidate(&context, field);
 
-        const auto& decision = context.decisions->at(field);
+        const auto& decision = info.decision;
         if (!decision.has_selected()) {
           continue;
         }
@@ -110,7 +110,7 @@ void RunAreaIndustry(
     attempts[best_field]++;
 
     ProductionContext& context = contexts->at(best_pop);
-    const auto& decision = context.decisions->at(best_field);
+    const auto& decision = context.fields[best_field].decision;
     const auto& selected = decision.selected();
     const industry::Production* chain =
         context.production_map->at(selected.name());
@@ -239,31 +239,39 @@ void GameWorld::TimeStep(
       if (contexts.find(pop) == contexts.end()) {
         contexts[pop].production_map = &production_map_;
         contexts[pop].market = market;
-        contexts[pop].decisions = decisions;
+        contexts[pop].fields[&field] = industry::decisions::FieldInfo();
       }
       if (production_evaluators_.find(&field) != production_evaluators_.end()) {
-        contexts[pop].evaluators[&field] = production_evaluators_[&field];
+        contexts[pop].fields[&field].evaluator = production_evaluators_[&field];
       } else {
-        contexts[pop].evaluators[&field] = default_evaluator_;
+        contexts[pop].fields[&field].evaluator = default_evaluator_;
       }
 
-      decisions->emplace(&field,
-                         industry::decisions::proto::ProductionDecision());
       for(const auto& chain : production_map_) {
         const industry::Production& prod = *chain.second;
         if (!possible.Filter(field, prod)) {
           continue;
         }
 
-        contexts[pop].candidates[&field].emplace_back(
+        auto& field_info = contexts[pop].fields[&field];
+        field_info.candidates.emplace_back(
             std::make_unique<industry::decisions::proto::ProductionInfo>());
-        auto* info = contexts[pop].candidates[&field].back().get();
+        auto* info = field_info.candidates.back().get();
         info->set_name(chain.first);
         industry::CalculateProductionCosts(prod, *market, field, info);
       }
     }
 
     RunAreaIndustry(&contexts);
+
+    // Copy decisions into output map.
+    for (auto& field : *area->Proto()->mutable_fields()) {
+      auto* pop = population::PopUnit::GetPopId(field.owner_id());
+      if (pop == nullptr) {
+        continue;
+      }
+      decisions->emplace(&field, contexts[pop].fields[&field].decision);
+    }
   }
 
   // Units all plan simultaneously.

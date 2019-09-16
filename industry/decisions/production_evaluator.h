@@ -15,12 +15,16 @@ using FieldMap = std::unordered_map<geography::proto::Field*, T>;
 
 class ProductionEvaluator;
 
+struct FieldInfo {
+  ProductionEvaluator* evaluator;
+  proto::ProductionDecision decision;
+  std::vector<std::unique_ptr<proto::ProductionInfo>> candidates;
+};
+
 struct ProductionContext {
   const std::unordered_map<std::string, const industry::Production*>*
       production_map;
-  FieldMap<ProductionEvaluator*> evaluators;
-  FieldMap<std::vector<std::unique_ptr<proto::ProductionInfo>>> candidates;
-  FieldMap<proto::ProductionDecision>* decisions;
+  FieldMap<FieldInfo> fields;
   market::Market* market;
 };
 

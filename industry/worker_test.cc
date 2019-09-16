@@ -75,20 +75,19 @@ protected:
 TEST_F(WorkerTest, CalculateProductionScale) {
   const Production labour = LabourToGrain();
   const Production capital = CapitalToGrain();
-  decisions::FieldMap<decisions::proto::ProductionDecision> decisions = {
-      {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}, {kCapitalToGrain, &capital}};
 
-  decisions::ProductionContext context = {
-    &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
-  context.candidates[&field_].emplace_back(
+  decisions::ProductionContext context = {&prod_map, {}, &market_};
+
+  auto& field_info = context.fields[&field_];
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
-  context.candidates[&field_].emplace_back(
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
 
-  auto* labour_info = context.candidates[&field_][0].get();
-  auto* capital_info = context.candidates[&field_][1].get();
+  auto* labour_info = field_info.candidates[0].get();
+  auto* capital_info = field_info.candidates[1].get();
 
   market::proto::Container wealth;
   labour_info->set_name(kLabourToGrain);
@@ -129,11 +128,11 @@ TEST_F(WorkerTest, OverlappingInputs) {
       {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}};
-  decisions::ProductionContext context = {
-    &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
-  context.candidates[&field_].emplace_back(
+  decisions::ProductionContext context = {&prod_map, {}, &market_};
+  auto& field_info = context.fields[&field_];
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
-  auto* labour_info = context.candidates[&field_][0].get();
+  auto* labour_info = field_info.candidates[0].get();
 
   labour_info->set_name(kLabourToGrain);
   CalculateProductionCosts(labour, market_, field_, labour_info);
@@ -188,15 +187,13 @@ TEST_F(WorkerTest, DistinctInputs) {
   market::SetAmount(labour_, input->mutable_install_cost());
 
   Production labour(prod_proto);
-  decisions::FieldMap<decisions::proto::ProductionDecision> decisions = {
-      {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}};
-  decisions::ProductionContext context = {
-      &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
-  context.candidates[&field_].emplace_back(
+  decisions::ProductionContext context = {&prod_map, {}, &market_};
+  auto& field_info = context.fields[&field_];
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
-  auto* labour_info = context.candidates[&field_][0].get();
+  auto* labour_info = field_info.candidates[0].get();
   labour_info->set_name(kLabourToGrain);
   CalculateProductionCosts(labour, market_, field_, labour_info);
 
@@ -297,11 +294,11 @@ TEST_F(WorkerTest, SelectProduction) {
   public:
     void SelectCandidate(decisions::ProductionContext* context,
                          geography::proto::Field* field) const override {
-      if (context->candidates.find(field) == context->candidates.end()) {
+      if (context->fields.find(field) == context->fields.end()) {
         return;
       }
-      auto& candidates = context->candidates.at(field);
-      auto& decision = context->decisions->at(field);
+      auto& candidates = context->fields[field].candidates;
+      auto& decision = context->fields[field].decision;
       for (const auto& cand : candidates) {
         if (cand->name() != chain_name) {
           auto* reject = decision.add_rejected();
@@ -320,32 +317,28 @@ TEST_F(WorkerTest, SelectProduction) {
   };
 
   TestSelector evaluator;
-  decisions::FieldMap<decisions::proto::ProductionDecision> decisions;
-  decisions::ProductionContext context;
-  context.decisions = &decisions;
+  decisions::ProductionContext context = {NULL, {}, &market_};
 
   // Check that all-empty inputs does nothing.
   SelectProduction(evaluator, &context, &field_);
-  EXPECT_TRUE(decisions.empty());
+  EXPECT_TRUE(context.fields[&field_].decision.DebugString().empty());
 
-  context = {NULL, {{&field_, NULL}}, {}, &decisions, &market_};
-  decisions[&field_] = {};
-  context.candidates[&field_].emplace_back(
+  auto& field_info = context.fields[&field_];
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
-  context.candidates[&field_].back()->set_name(kLabourToGrain);
-  context.candidates[&field_].emplace_back(
+  field_info.candidates.back()->set_name(kLabourToGrain);
+  field_info.candidates.emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
-  context.candidates[&field_].back()->set_name(kCapitalToGrain);
+  field_info.candidates.back()->set_name(kCapitalToGrain);
   evaluator.set_name(kLabourToGrain);
   SelectProduction(evaluator, &context, &field_);
-  decisions::proto::ProductionDecision& decision = decisions[&field_];
+  auto& decision = context.fields[&field_].decision;
   EXPECT_EQ(kLabourToGrain, decision.selected().name());
 
-  decisions[&field_].clear_rejected();
-  decisions[&field_].clear_selected();
+  decision.clear_rejected();
+  decision.clear_selected();
   evaluator.set_name(kCapitalToGrain);
   SelectProduction(evaluator, &context, &field_);
-  decision = decisions[&field_];
   EXPECT_EQ(kCapitalToGrain, decision.selected().name());
 }
 

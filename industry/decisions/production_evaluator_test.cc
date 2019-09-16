@@ -20,10 +20,9 @@ protected:
     market_.RegisterGood(gold_.kind());
 
     context_.market = &market_;
-    context_.decisions = &decisionMap_;
     decisionMap_[&field_] = proto::ProductionDecision();
-    context_.candidates.insert(
-        {&field_, std::vector<std::unique_ptr<proto::ProductionInfo>>()});
+
+    context_.fields[&field_] = FieldInfo();
   }
 
   void SetPrices(market::Measure fish, market::Measure salt, market::Measure gold) {
@@ -46,8 +45,8 @@ protected:
 
 TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
   SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
-  auto& decision = context_.decisions->at(&field_);
-  auto& candidates = context_.candidates[&field_];
+  auto& decision = context_.fields[&field_].decision;
+  auto& candidates = context_.fields[&field_].candidates;
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
@@ -111,8 +110,8 @@ TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {
 
 TEST_F(ProductionEvaluatorTest, FieldSpecifier) {
   SetPrices(micro::kOneInU, micro::kOneInU * 5, micro::kOneInU * 10);
-  auto& decision = context_.decisions->at(&field_);
-  auto& candidates = context_.candidates[&field_];
+  auto& decision = context_.fields[&field_].decision;
+  auto& candidates = context_.fields[&field_].candidates;
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
   candidates.emplace_back(std::make_unique<proto::ProductionInfo>());
 
@@ -126,7 +125,7 @@ TEST_F(ProductionEvaluatorTest, FieldSpecifier) {
    public:
     void SelectCandidate(ProductionContext* context,
                          geography::proto::Field* field) const override {
-      auto& decision = context->decisions->at(field);
+      auto& decision = context->fields[field].decision;
       decision.mutable_selected()->set_name("fallback");
     }
   };

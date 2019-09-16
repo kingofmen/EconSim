@@ -149,8 +149,7 @@ market::Measure CalculatePossibleScale(market::Measure available_A_u,
 void CalculateProductionScale(const market::proto::Container& wealth,
                               decisions::ProductionContext* context,
                               geography::proto::Field* field) {
-  std::vector<std::unique_ptr<decisions::proto::ProductionInfo>>& cands =
-      context->candidates.at(field);
+  auto& cands = context->fields.at(field).candidates;
   for (auto& cand : cands) {
     const Production* chain = context->production_map->at(cand->name());
     auto overall_scale = chain->MaxScaleU();

@@ -17,19 +17,19 @@ constexpr market::Measure kMinPracticalScale = micro::kOneInU / 10;
 
 const std::vector<std::unique_ptr<proto::ProductionInfo>>&
 getCands(ProductionContext* context, geography::proto::Field* field) {
-  auto& cands = context->candidates.find(field);
-  if (cands == context->candidates.end()) {
+  auto& info = context->fields.find(field);
+  if (info == context->fields.end()) {
     static std::vector<std::unique_ptr<proto::ProductionInfo>> dummy;
     return dummy;
   }
-  return cands->second;
+  return info->second.candidates;
 }
 
 proto::ProductionDecision* getDecision(ProductionContext* context, geography::proto::Field* field) {
-  if (context->decisions->find(field) == context->decisions->end()) {
-    (*context->decisions)[field] = proto::ProductionDecision();
+  if (context->fields.find(field) == context->fields.end()) {
+    context->fields[field] = FieldInfo();
   }
-  return &(*context->decisions)[field];
+  return &(context->fields[field].decision);
 }
 
 void LocalProfitMaximiser::SelectCandidate(
