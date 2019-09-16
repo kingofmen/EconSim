@@ -47,11 +47,6 @@ public:
 
   int GetSize() const;
 
-  // Attempt to continue existing production chains and start new ones. Returns
-  // true if any chain makes progress.
-  bool Produce(const industry::decisions::ProductionContext& context,
-               industry::decisions::DecisionMap* production_info_map);
-
   // Start-of-turn setup. Finds the cheapest packages within levels to add up to
   // one unit of 'subsistence', and reserves that amount for internal use.
   void StartTurn(const std::vector<const proto::ConsumptionLevel*>& levels,

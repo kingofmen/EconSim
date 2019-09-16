@@ -37,7 +37,9 @@ public:
                               industry::decisions::ProductionEvaluator* eval);
 
   // Moves the simulation forward one step.
-  void TimeStep(industry::decisions::DecisionMap* production_decisions);
+  void TimeStep(industry::decisions::FieldMap<
+                industry::decisions::proto::ProductionDecision>*
+                    production_decisions);
 
   // Copies the current game state (not scenario) into the proto, which must not
   // be null.

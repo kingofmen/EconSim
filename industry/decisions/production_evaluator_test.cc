@@ -36,13 +36,12 @@ protected:
   }
 
   ProductionContext context_;
-  DecisionMap decisionMap;
   geography::proto::Field field_;
   market::Market market_;
   market::proto::Quantity fish_;
   market::proto::Quantity salt_;
   market::proto::Quantity gold_;
-  DecisionMap decisionMap_;
+  FieldMap<proto::ProductionDecision> decisionMap_;
 };
 
 TEST_F(ProductionEvaluatorTest, LocalProfitMaximiser) {

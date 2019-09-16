@@ -18,7 +18,6 @@ constexpr char kLabourToGrain[] = "labour_to_grain";
 constexpr char kCapitalToGrain[] = "capital_to_grain";
 } // namespace
 
-
 class WorkerTest : public testing::Test {
 protected:
   void SetUp() override {
@@ -76,12 +75,13 @@ protected:
 TEST_F(WorkerTest, CalculateProductionScale) {
   const Production labour = LabourToGrain();
   const Production capital = CapitalToGrain();
-  decisions::DecisionMap decisions = {{&field_, {}}};
+  decisions::FieldMap<decisions::proto::ProductionDecision> decisions = {
+      {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}, {kCapitalToGrain, &capital}};
 
   decisions::ProductionContext context = {
-      &prod_map, {&field_}, {}, &decisions, &market_};
+    &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
   context.candidates[&field_].emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
   context.candidates[&field_].emplace_back(
@@ -125,11 +125,12 @@ TEST_F(WorkerTest, OverlappingInputs) {
   proto::Input* input = labour.Proto()->mutable_steps(0)->mutable_variants(0);
   market::proto::Container wealth;
 
-  decisions::DecisionMap decisions = {{&field_, {}}};
+  decisions::FieldMap<decisions::proto::ProductionDecision> decisions = {
+      {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}};
   decisions::ProductionContext context = {
-      &prod_map, {&field_}, {}, &decisions, &market_};
+    &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
   context.candidates[&field_].emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
   auto* labour_info = context.candidates[&field_][0].get();
@@ -187,11 +188,12 @@ TEST_F(WorkerTest, DistinctInputs) {
   market::SetAmount(labour_, input->mutable_install_cost());
 
   Production labour(prod_proto);
-  decisions::DecisionMap decisions = {{&field_, {}}};
+  decisions::FieldMap<decisions::proto::ProductionDecision> decisions = {
+      {&field_, {}}};
   std::unordered_map<std::string, const Production*> prod_map = {
       {kLabourToGrain, &labour}};
   decisions::ProductionContext context = {
-      &prod_map, {&field_}, {}, &decisions, &market_};
+      &prod_map, {{&field_, NULL}}, {}, &decisions, &market_};
   context.candidates[&field_].emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
   auto* labour_info = context.candidates[&field_][0].get();
@@ -206,7 +208,8 @@ TEST_F(WorkerTest, DistinctInputs) {
   EXPECT_EQ(micro::kHalfInU,
             labour_info->step_info(0).variant(0).possible_scale_u());
   // Capital costs 2, not 1, unit.
-  EXPECT_EQ(3 * micro::kHalfInU, labour_info->step_info(0).variant(0).cap_cost_u());
+  EXPECT_EQ(3 * micro::kHalfInU,
+            labour_info->step_info(0).variant(0).cap_cost_u());
 
   market::SetAmount(labour_.kind(), micro::kHundredInU, &wealth);
   market::SetAmount(grain_.kind(), micro::kOneFourthInU, &wealth);
@@ -291,24 +294,23 @@ TEST_F(WorkerTest, CalculateProductionCosts) {
 TEST_F(WorkerTest, SelectProduction) {
   // Test class that selects a Production chain based on its name.
   class TestSelector : public decisions::ProductionEvaluator {
-   public:
-     void SelectCandidate(
-         decisions::ProductionContext* context,
-         geography::proto::Field* field) const override {
-       if (context->candidates.find(field) == context->candidates.end()) {
-         return;
-       }
-       auto& candidates = context->candidates.at(field);
-       auto& decision = context->decisions->at(field);
-       for (const auto& cand : candidates) {
-         if (cand->name() != chain_name) {
-           auto* reject = decision.add_rejected();
-           *reject = *cand;
-           reject->set_reject_reason("Wrong name");
-           continue;
-         }
-         *decision.mutable_selected() = *cand;
-       }
+  public:
+    void SelectCandidate(decisions::ProductionContext* context,
+                         geography::proto::Field* field) const override {
+      if (context->candidates.find(field) == context->candidates.end()) {
+        return;
+      }
+      auto& candidates = context->candidates.at(field);
+      auto& decision = context->decisions->at(field);
+      for (const auto& cand : candidates) {
+        if (cand->name() != chain_name) {
+          auto* reject = decision.add_rejected();
+          *reject = *cand;
+          reject->set_reject_reason("Wrong name");
+          continue;
+        }
+        *decision.mutable_selected() = *cand;
+      }
     }
 
     void set_name(const std::string name) { chain_name = name; }
@@ -318,7 +320,7 @@ TEST_F(WorkerTest, SelectProduction) {
   };
 
   TestSelector evaluator;
-  decisions::DecisionMap decisions;
+  decisions::FieldMap<decisions::proto::ProductionDecision> decisions;
   decisions::ProductionContext context;
   context.decisions = &decisions;
 
@@ -326,7 +328,7 @@ TEST_F(WorkerTest, SelectProduction) {
   SelectProduction(evaluator, &context, &field_);
   EXPECT_TRUE(decisions.empty());
 
-  context = {NULL, {&field_}, {}, &decisions, &market_};
+  context = {NULL, {{&field_, NULL}}, {}, &decisions, &market_};
   decisions[&field_] = {};
   context.candidates[&field_].emplace_back(
       std::make_unique<decisions::proto::ProductionInfo>());
@@ -362,8 +364,8 @@ TEST_F(WorkerTest, TryLabourToGrain) {
 
   // First try without labour, expect no result.
   EXPECT_FALSE(TryProductionStep(prod, step_info, &field_,
-                                field_.mutable_progress(), &source, &target,
-                                &used_capital, &market_));
+                                 field_.mutable_progress(), &source, &target,
+                                 &used_capital, &market_));
   EXPECT_EQ(0, market::GetAmount(source, grain_));
   EXPECT_EQ(0, market::GetAmount(source, labour_));
   EXPECT_EQ(0, market::GetAmount(target, labour_));
@@ -411,7 +413,6 @@ TEST_F(WorkerTest, InstallFixedCapital) {
   EXPECT_EQ(market::GetAmount(input.fixed_capital(), "capital"),
             market::GetAmount(field_.fixed_capital(), "capital"));
 
-
   market::Clear(field_.mutable_fixed_capital());
   proto::Input with_install_cost = input;
   capital_ += micro::kOneInU;
@@ -428,4 +429,4 @@ TEST_F(WorkerTest, InstallFixedCapital) {
   EXPECT_EQ(0, market::GetAmount(field_.fixed_capital(), "labour"));
 }
 
-}  // namespace industry
+} // namespace industry

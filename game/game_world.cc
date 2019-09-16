@@ -214,7 +214,9 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   }
 }
 
-void GameWorld::TimeStep(industry::decisions::DecisionMap* decisions) {
+void GameWorld::TimeStep(
+    industry::decisions::FieldMap<
+        industry::decisions::proto::ProductionDecision>* decisions) {
   static PossibilityFilter possible;
 
   for (auto& area: areas_) {
