@@ -93,11 +93,22 @@ std::vector<std::experimental::filesystem::path> getScenarios() {
   return scenarios;
 }
 
+TextInterface::InputArea next(TextInterface::InputArea a) {
+  switch (a) {
+    case TextInterface::IA_POP:
+      return TextInterface::IA_FIELD;
+    case TextInterface::IA_FIELD:
+      return TextInterface::IA_POP;
+    default:
+      return TextInterface::IA_POP;
+  }
+}
+
 }  // namespace
 
 TextInterface::TextInterface(controller::GameControl* c)
     : display_(rows, std::string(columns, ' ')), colours_(rows, {}),
-      quit_(false) {
+      quit_(false), selected_input_area_(IA_POP) {
   // TODO: Get this from actual input.
   player_faction_id_ = 1;
 }
@@ -131,6 +142,9 @@ void TextInterface::clear() {
   }
 }
 
+// Draws details of the given POP.
+void TextInterface::drawPopDetails(const population::PopUnit& pop, int& line) {}
+
 // Draws information about the given Field.
 void TextInterface::drawFieldDetails(const geography::proto::Field& field,
                                      int& line) {
@@ -161,26 +175,32 @@ void TextInterface::drawInfoBox() {
          absl::Substitute("Area $0", selected_area_id_));
   const std::vector<uint64>& pop_ids = area->pop_ids();
   int line = 3;
+
+  int number = 0;
   for (const auto& id : pop_ids) {
     auto* pop = population::PopUnit::GetPopId(id);
     if (pop == NULL) {
       continue;
     }
-    output(sidebarLimit + 10, line++, 0,
+    output(sidebarLimit + 5, line++, 0,
            absl::Substitute("$0: $1", id, pop->GetSize()));
+    if (selected_input_area_ == IA_POP && number == selected_detail_idx_) {
+      drawPopDetails(*pop, line);
+    }
+    number++;
   }
 
   line += 3;
-  int number = 0;
+  number = 0;
   for (const geography::proto::Field* field : area->fields()) {
-    number++;
     output(
         sidebarLimit + 3, line++, 0,
-        absl::Substitute("$0. $1", number,
+        absl::Substitute("$0. $1", number + 1,
                          industry::proto::LandType_Name(field->land_type())));
-    if (number - 1 == selected_field_idx_) {
+    if (selected_input_area_ == IA_FIELD && number == selected_detail_idx_) {
       drawFieldDetails(*field, line);
     }
+    number++;
   }
 }
 
@@ -413,7 +433,7 @@ void TextInterface::newGameHandler(char inp) {
     if (status.ok()) {
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
       selected_area_id_ = geography::Area::MinId();
-      selected_field_idx_ = 0;
+      selected_detail_idx_ = 0;
       gameDisplay();
     } else {
       message(FG_RED, status.error_message());
@@ -503,34 +523,42 @@ void TextInterface::runGameHandler(char inp) {
       break;
     case '`':
       selected_area_id_ = geography::Area::MaxId() + 1;
+      selected_detail_idx_ = 0;
       break;
     case '+':
       ++selected_area_id_;
-      selected_field_idx_ = 0;
+      selected_detail_idx_ = 0;
       if (selected_area_id_ > geography::Area::MaxId()) {
         selected_area_id_ = geography::Area::MinId();
       }
+      selected_detail_idx_ = 0;
       break;
     case '-':
       --selected_area_id_;
-      selected_field_idx_ = 0;
+      selected_detail_idx_ = 0;
       if (selected_area_id_ < geography::Area::MinId()) {
         selected_area_id_ = geography::Area::MaxId();
       }
+      selected_detail_idx_ = 0;
       break;
     case '2':
-      changeField(true);
+      changeDetailIndex(true);
       break;
     case '8':
-      changeField(false);
+      changeDetailIndex(false);
       break;
     case '6':
-      changeFieldProcess(true);
+      changeCurrentElement(true);
       break;
     case '4':
-      changeFieldProcess(false);
+      changeCurrentElement(false);
       break;
-      
+
+    case '\t':
+      selected_input_area_ = next(selected_input_area_);
+      selected_detail_idx_ = 0;
+      break;
+
     default:
       break;
   }
@@ -552,16 +580,32 @@ bool possible(const geography::proto::Field& field, const industry::Production& 
   return true;
 }
 
-void TextInterface::changeFieldProcess(bool pos) {
+geography::Area* TextInterface::getArea() {
   geography::Area* area = geography::Area::GetById(selected_area_id_);
   if (area == NULL) {
-    return;
+    message(FG_RED, absl::Substitute("Unknown area $0, this should never happen."));
+    selected_area_id_ = geography::Area::MinId();
+    return NULL;
   }
-  if (selected_field_idx_ >= area->num_fields()) {
-    return;
-  }
+}
 
-  geography::proto::Field* field = area->mutable_field(selected_field_idx_);
+geography::proto::Field* TextInterface::getField() {
+  auto* area = getArea();
+  if (area == NULL) {
+    return NULL;
+  }
+  if (selected_detail_idx_ >= area->num_fields()) {
+    message(FG_RED,
+            absl::Substitute("Bad field index $0 in area $1",
+                             selected_detail_idx_, selected_area_id_));
+    selected_detail_idx_ = 0;
+    return NULL;
+  }
+  return area->mutable_field(selected_detail_idx_);
+}
+
+void TextInterface::changeFieldProcess(bool pos) {
+  geography::proto::Field* field = getField();
   if (field == NULL) {
     return;
   }
@@ -594,7 +638,7 @@ void TextInterface::changeFieldProcess(bool pos) {
     actions_.emplace_back();
     setProduction = actions_.back().mutable_set_production();
     setProduction->set_area_id(selected_area_id_);
-    setProduction->set_field_idx(selected_field_idx_);
+    setProduction->set_field_idx(selected_detail_idx_);
     field_overrides_[field] = field_action_idx;
   }
 
@@ -621,17 +665,34 @@ void TextInterface::changeFieldProcess(bool pos) {
   setProduction->set_process_name(possibles[override_idx]);
 }
 
-void TextInterface::changeField(bool pos) {
+void TextInterface::changeCurrentElement(bool pos) {
+  switch (selected_input_area_) {
+    case IA_POP:
+      // Cannot change anything for POPs at the moment, ignore.
+      break;
+    case IA_FIELD:
+      changeFieldProcess(pos);
+      break;
+    default:
+      message(FG_RED,
+              absl::Substitute("Unknown input area $0; this can't happen.",
+                               selected_input_area_));
+      selected_input_area_ = IA_POP;
+      return;
+  }
+}
+
+void TextInterface::changeDetailIndex(bool pos) {
   geography::Area* area = geography::Area::GetById(selected_area_id_);
   if (area == NULL) {
     return;
   }
-  if (!pos && selected_field_idx_ == 0) {
-    selected_field_idx_ = area->num_fields() - 1;
+  if (!pos && selected_detail_idx_ == 0) {
+    selected_detail_idx_ = area->num_fields() - 1;
   } else {
-    selected_field_idx_ += pos ? 1 : -1;
-    if (selected_field_idx_ >= area->num_fields()) {
-      selected_field_idx_ = 0;
+    selected_detail_idx_ += pos ? 1 : -1;
+    if (selected_detail_idx_ >= area->num_fields()) {
+      selected_detail_idx_ = 0;
     }
   }
 }

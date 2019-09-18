@@ -23,10 +23,15 @@ namespace text {
 // Text implementation of UserInterface.
 class TextInterface : public interface::UserInterface {
  public:
+  enum InputArea {
+    IA_POP = 0,
+    IA_FIELD = 1,
+  };
+
   TextInterface(controller::GameControl* c);
   void IntroScreen() override;
 
- private:
+ private: 
   std::vector<std::string> display_;
   std::vector<std::vector<std::tuple<int, int>>> colours_;
   bool quit_;
@@ -39,7 +44,8 @@ class TextInterface : public interface::UserInterface {
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
   uint64 selected_area_id_;
-  uint64 selected_field_idx_;
+  InputArea selected_input_area_;
+  uint64 selected_detail_idx_;
   uint64 player_faction_id_;
   std::unordered_map<const geography::proto::Field*, uint64> field_overrides_;
   std::vector<colony::interface::proto::PlayerAction> actions_;
@@ -64,10 +70,16 @@ class TextInterface : public interface::UserInterface {
   void clear();
   void clearLine(int line);
 
-  // Changes which field is displayed in detail.
-  void changeField(bool pos);
+  // Finders for current selections.
+  geography::Area* getArea();
+  geography::proto::Field* getField();
+  
+  // Changes which element is displayed in detail.
+  void changeDetailIndex(bool pos);
 
-  // Changes the player-set process for the displayed field.
+  // Changes an aspect of the currently detail-displayed element; for example,
+  // the player-set process for the displayed field.
+  void changeCurrentElement(bool pos);
   void changeFieldProcess(bool pos);
 
   // Mark readiness to advance the world state by a timestep.
@@ -75,6 +87,7 @@ class TextInterface : public interface::UserInterface {
 
   // Draw various bits of the screen.
   void drawFieldDetails(const geography::proto::Field& field, int& line);
+  void drawPopDetails(const population::PopUnit& pop, int& line);
   void drawInfoBox();
   void drawMessageBox();
   void drawWorld();
