@@ -48,11 +48,13 @@ class TextInterface : public interface::UserInterface {
   void addSelection(int x, int y, const std::vector<T>& options,
                     std::function<std::string(const T&)> toString);
 
+  // Input handlers for different game states.
   void introHandler(char inp);
   void loadGameHandler(char inp);
   void newGameHandler(char inp);
   void runGameHandler(char inp);
 
+  // Draw and await input for various game states.
   void gameDisplay();
   void loadGameScreen();
   void mainMenu();
@@ -67,12 +69,19 @@ class TextInterface : public interface::UserInterface {
 
   // Changes the player-set process for the displayed field.
   void changeFieldProcess(bool pos);
+
+  // Mark readiness to advance the world state by a timestep.
+  void endPlayerTurn();
+
+  // Draw various bits of the screen.
   void drawFieldDetails(const geography::proto::Field& field, int& line);
   void drawInfoBox();
   void drawMessageBox();
   void drawWorld();
   void message(int mask, const std::string& error);
   void flip() const;
+
+  // Load scenario into memory.
   google::protobuf::util::Status
   loadScenario(const game::setup::proto::ScenarioFiles& setup);
   void loadWorld(const std::string& filename);

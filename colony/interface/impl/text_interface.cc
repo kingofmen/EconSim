@@ -437,6 +437,32 @@ void TextInterface::newGameHandler(char inp) {
   }
 }
 
+void TextInterface::endPlayerTurn() {
+  industry::decisions::LocalProfitMaximiser fallback;
+  industry::decisions::FieldSpecifier override(&fallback);
+  for (const auto& action : actions_) {
+    if (action.has_set_production()) {
+      const auto& prod = action.set_production();
+      geography::Area* area = geography::Area::GetById(prod.area_id());
+      if (area == NULL || prod.field_idx() > area->num_fields()) {
+        continue;
+      }
+      geography::proto::Field* field = area->mutable_field(prod.area_id());
+      if (field == NULL) {
+        continue;
+      }
+
+      override.SetFieldProduction(field, prod.process_name());
+      world_model_->SetProductionEvaluator(prod.area_id(), prod.field_idx(),
+                                           &override);
+    }
+  }
+
+  industry::decisions::FieldMap<industry::decisions::proto::ProductionDecision>
+      decisions;
+  world_model_->TimeStep(&decisions);
+}
+
 void TextInterface::runGameHandler(char inp) {
   switch (inp) {
     case 'b':
@@ -447,6 +473,10 @@ void TextInterface::runGameHandler(char inp) {
     case 'Q':
       quit_ = true;
       return;
+    case 'n':
+    case 'N':
+      endPlayerTurn();
+      break;
     case 'a':
       center_.set_x(center_.x() - 5);
       break;
