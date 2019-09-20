@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 
+
 #include "absl/strings/substitute.h"
 #include "absl/strings/str_join.h"
 #include "colony/controller/controller.h"
@@ -19,6 +20,7 @@
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
+#include "util/arithmetic/microunits.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
 
@@ -143,7 +145,12 @@ void TextInterface::clear() {
 }
 
 // Draws details of the given POP.
-void TextInterface::drawPopDetails(const population::PopUnit& pop, int& line) {}
+void TextInterface::drawPopDetails(const population::PopUnit& pop, int& line) {
+  for (const auto& q : pop.wealth().quantities()) {
+    output(sidebarLimit + 8, line++, 0,
+           absl::Substitute("$0 : $1", q.first, micro::DisplayString(q.second, 2)));
+  }
+}
 
 // Draws information about the given Field.
 void TextInterface::drawFieldDetails(const geography::proto::Field& field,
@@ -587,6 +594,7 @@ geography::Area* TextInterface::getArea() {
     selected_area_id_ = geography::Area::MinId();
     return NULL;
   }
+  return area;
 }
 
 geography::proto::Field* TextInterface::getField() {
@@ -687,11 +695,22 @@ void TextInterface::changeDetailIndex(bool pos) {
   if (area == NULL) {
     return;
   }
-  if (!pos && selected_detail_idx_ == 0) {
-    selected_detail_idx_ = area->num_fields() - 1;
-  } else {
+
+  if (selected_input_area_ == IA_FIELD) {
+    if (!pos && selected_detail_idx_ == 0) {
+      selected_detail_idx_ = area->num_fields() - 1;
+    } else {
+      selected_detail_idx_ += pos ? 1 : -1;
+      if (selected_detail_idx_ >= area->num_fields()) {
+        selected_detail_idx_ = 0;
+      }
+    }
+  } else if (selected_input_area_ == IA_POP) {
+    int numPops = area->numPops();
     selected_detail_idx_ += pos ? 1 : -1;
-    if (selected_detail_idx_ >= area->num_fields()) {
+    if (selected_detail_idx_ < 0) {
+      selected_detail_idx_ = numPops - 1;
+    } else if (selected_detail_idx_ >= numPops) {
       selected_detail_idx_ = 0;
     }
   }

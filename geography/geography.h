@@ -44,6 +44,7 @@ public:
   const proto::Area* Proto() const { return &proto_; }
   market::Market* mutable_market() { return &market_; }
   const market::Market& market() const { return market_; }
+  int numPops() const { return proto_.pop_ids_size(); }
   const std::vector<uint64> pop_ids() const;
   int num_fields() const { return proto_.fields_size(); }
   const std::vector<const proto::Field*> fields() const;
