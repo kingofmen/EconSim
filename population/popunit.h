@@ -60,7 +60,7 @@ public:
   void SellSurplus(market::Market* market);
 
   market::proto::Container* mutable_wealth() { return proto_.mutable_wealth(); }
-  const market::proto::Container& wealth() { return proto_.wealth(); }
+  const market::proto::Container& wealth() const { return proto_.wealth(); }
 
   void ReturnCapital(market::proto::Container* caps);
 
