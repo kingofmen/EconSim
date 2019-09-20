@@ -1,5 +1,10 @@
 #include "util/arithmetic/microunits.h"
 
+#include <string>
+#include <vector>
+
+#include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
 #include "src/google/protobuf/stubs/int128.h"
 
 namespace micro {
@@ -76,5 +81,28 @@ int64 DivideU(int64 val1, int64 val2_u, uint64* overflow) {
   ret *= sign;
   return ret;
 }
+
+std::string DisplayString(market::Measure amount, int digits) {
+  int64 divisor = micro::kOneInU;
+  int units = amount / divisor;
+  if (digits > 6 || digits < 0) {
+    digits = 6;
+  }
+
+  std::vector<std::string> nums;
+  for (int i = 0; i < digits; ++i) {
+    amount %= divisor;
+    divisor /= 10;
+    nums.push_back(absl::StrFormat("%d", amount / divisor));
+  }
+
+  return absl::StrFormat("%d.%s", units, absl::StrJoin(nums, ""));
+}
+
+
+std::string DisplayString(const market::proto::Quantity& q, int digits) {
+  return DisplayString(q.amount(), digits);
+}
+
 
 }  // namespace micro

@@ -121,4 +121,14 @@ TEST(MicroUnitsTest, Sanity) {
   EXPECT_EQ(kTenInU, MultiplyU(kHundredInU, kOneTenthInU));
 }
 
+TEST(MicroUnitsTest, DisplayString) {
+  EXPECT_EQ("1.00", DisplayString(kOneInU, 2));
+  EXPECT_EQ("1.000000", DisplayString(kOneInU, 8));
+  EXPECT_EQ("0.1", DisplayString(kOneTenthInU, 1));
+  EXPECT_EQ("0.25", DisplayString(kOneFourthInU, 2));
+  EXPECT_EQ("0.2", DisplayString(kOneFourthInU, 1));
+  EXPECT_EQ("10.25", DisplayString(kTenInU + kOneFourthInU, 2));
+  EXPECT_EQ("1.234567", DisplayString(1234567, 6));
+}
+
 }  // namespace micro

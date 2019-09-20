@@ -9,6 +9,8 @@ cc_library(
         "//market/proto:goods_proto",
         "//util/headers:int_types",
         "@com_google_protobuf//:protobuf_lite",
+        "@com_google_absl//absl/strings:str_format",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

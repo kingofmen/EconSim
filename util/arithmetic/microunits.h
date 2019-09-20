@@ -3,6 +3,7 @@
 #define UTIL_ARITHMETIC_MICROUNITS_H
 
 #include <limits>
+#include <string>
 
 #include "util/headers/int_types.h"
 #include "market/goods_utils.h"
@@ -51,6 +52,12 @@ void MultiplyU(market::proto::Container& lhs,
 // If val2_u is zero, zero will be returned; if overflow is non-null all its
 // bits will be set.
 int64 DivideU(int64 val1, int64 val2_u, uint64* overflow = nullptr);
+
+// Returns a human-readable string, that is, in units rather than micro-units.
+// Note that the rounding is truncation.
+std::string DisplayString(market::Measure amount, int digits);
+std::string DisplayString(const market::proto::Quantity& q, int digits);
+
 
 }  // namespace micro
 
