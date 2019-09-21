@@ -300,6 +300,10 @@ Measure Market::GetPriceU(const market::proto::Container& basket, int turns) con
   return ret;
 }
 
+Measure Market::GetStoredU(const std::string& name) const {
+  return GetAmount(proto_.warehouse(), name);
+}
+
 Measure Market::GetVolume(const std::string& name) const {
   if (!TradesIn(name)) {
     return -1;

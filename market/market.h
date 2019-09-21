@@ -119,6 +119,9 @@ public:
   // Returns the amount of the named good that was traded.
   Measure GetVolume(const std::string& name) const;
 
+  // Returns the currently stored amount of the named good.
+  Measure GetStoredU(const std::string& name) const;
+
   // The underlying protobuf.
   const proto::MarketProto& Proto() const { return proto_; }
   proto::MarketProto* Proto() { return &proto_; }
