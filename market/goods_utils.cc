@@ -7,6 +7,7 @@
 #include "market/proto/goods.pb.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods_map_;
+std::vector<std::string> goods_names_;
 
 namespace market {
 
@@ -36,7 +37,11 @@ void CreateTradeGood(const market::proto::TradeGood& good) {
       copy.set_weight_u(1);
     }
   }
+
+  goods_names_.push_back(good.name());
 }
+
+const std::vector<std::string>& ListGoods() { return goods_names_; }
 
 Measure BulkU(const std::string& name) {
   return goods_map_[name].bulk_u();

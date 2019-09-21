@@ -12,6 +12,8 @@ typedef int64 Measure;
 void CreateTradeGood(const market::proto::TradeGood& good);
 // Clears all good information.
 void ClearGoods();
+// Returns a list of all known goods.
+const std::vector<std::string>& ListGoods();
 
 // Information about trade goods.
 Measure BulkU(const std::string& name);
