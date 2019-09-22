@@ -318,6 +318,7 @@ void GameWorld::TimeStep(
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
+    PrintMarket(area->market().Proto(), volumes);
     area->mutable_market()->DecayGoods(scenario_.proto_.decay_rates());
     for (auto& field : *area->Proto()->mutable_fields()) {
       micro::MultiplyU(*field.mutable_fixed_capital(),

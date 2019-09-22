@@ -29,6 +29,7 @@ class TextInterface : public interface::UserInterface {
   };
 
   TextInterface(controller::GameControl* c);
+  ~TextInterface();
   void IntroScreen() override;
 
  private: 
@@ -89,6 +90,7 @@ class TextInterface : public interface::UserInterface {
   void drawFieldDetails(const geography::proto::Field& field, int& line);
   void drawPopDetails(const population::PopUnit& pop, int& line);
   void drawInfoBox();
+  void drawMarket(const market::Market& market, int& line);
   void drawMessageBox();
   void drawWorld();
   void message(int mask, const std::string& error);

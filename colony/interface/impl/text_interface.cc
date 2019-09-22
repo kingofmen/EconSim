@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <conio.h>
 #include <experimental/filesystem>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -20,7 +21,10 @@
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
+#include "market/goods_utils.h"
+#include "market/market.h"
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
 
@@ -29,6 +33,7 @@ constexpr int columns = 250;
 constexpr int numMessageLines = 3;
 constexpr int firstMessageLine = 57;
 constexpr int sidebarLimit = 200;
+std::ofstream* debugFile = NULL;
 
 namespace interface {
 namespace text {
@@ -113,6 +118,39 @@ TextInterface::TextInterface(controller::GameControl* c)
       quit_(false), selected_input_area_(IA_POP) {
   // TODO: Get this from actual input.
   player_faction_id_ = 1;
+
+  Log::Register(
+      [this](const std::string& m, Log::Priority p) {
+        int mask = 0;
+        switch (p) {
+        case Log::P_ERROR:
+          mask = FG_RED;
+          break;
+        case Log::P_WARN:
+          mask = BG_BLACK;
+          break;
+        default:
+          break;
+        }
+        this->message(mask, m);
+      },
+      Log::P_USER);
+  // TODO: Insert a debug-mode check here.
+  if (true) {
+    debugFile = new std::ofstream("debuglog", std::ios_base::trunc);
+    Log::Register([](const std::string& m, Log::Priority /*p*/) {
+        (*debugFile) << m << "\n";
+    });
+  }
+}
+
+TextInterface::~TextInterface() {
+  if (debugFile) {
+    debugFile->flush();
+    debugFile->close();
+    delete debugFile;
+    debugFile = NULL;
+  }
 }
 
 template <typename T>
@@ -208,6 +246,29 @@ void TextInterface::drawInfoBox() {
       drawFieldDetails(*field, line);
     }
     number++;
+  }
+
+  line += 3;
+  drawMarket(area->market(), line);
+}
+
+// Draws market information.
+void TextInterface::drawMarket(const market::Market& market, int& line) {
+  output(sidebarLimit + 3, line++, 0, "Good Price Volume Stored");
+  for (const auto& good : market::ListGoods()) {
+    if (!market.TradesIn(good)) {
+      continue;
+    }
+    auto amount = market.GetStoredU(good);
+    auto volume = market.GetVolume(good);
+    if (amount + volume == 0) {
+      continue;
+    }
+    output(sidebarLimit + 3, line++, 0,
+           absl::Substitute("$0: $1  $2  $3", good,
+                            micro::DisplayString(market.GetPriceU(good), 1),
+                            micro::DisplayString(volume, 1),
+                            micro::DisplayString(amount, 1)));
   }
 }
 
