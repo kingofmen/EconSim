@@ -57,6 +57,9 @@ void Warn(const std::string& message) {
 void Error(const std::string& message) {
   internal::Log(message, P_ERROR);
 }
+void User(const std::string& message) {
+  internal::Log(message, P_USER);
+}
 void Stream(const std::string& message, Priority p) {
   switch (p) {
     case P_TRACE:
@@ -73,6 +76,9 @@ void Stream(const std::string& message, Priority p) {
       break;
     case P_ERROR:
       Error(message);
+      break;
+    case P_USER:
+      User(message);
       break;
     default:
       break;

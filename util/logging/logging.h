@@ -15,6 +15,7 @@ enum Priority {
   P_INFO,
   P_WARN,
   P_ERROR,
+  P_USER,
 };
 
 typedef std::function<void(const std::string& message, Priority)> callback;
@@ -26,6 +27,7 @@ void Debug(const std::string& message);
 void Info(const std::string& message);
 void Warn(const std::string& message);
 void Error(const std::string& message);
+void User(const std::string& message);
 void Stream(Priority p, const std::string& message);
 
 template <typename... Args>
@@ -49,6 +51,10 @@ void Errorf(const absl::FormatSpec<Args...>& format, const Args&... args) {
   Error(absl::StrFormat(format, args...));
 }
 template <typename... Args>
+void Userf(const absl::FormatSpec<Args...>& format, const Args&... args) {
+  User(absl::StrFormat(format, args...));
+}
+template <typename... Args>
 void Streamf(Priority p, const absl::FormatSpec<Args...>& format, const Args&... args) {
   switch (p) {
     case P_TRACE:
@@ -65,6 +71,9 @@ void Streamf(Priority p, const absl::FormatSpec<Args...>& format, const Args&...
       break;
     case P_ERROR:
       Errorf(format, args...);
+      break;
+    case P_USER:
+      Userf(format, args...);
       break;
     default:
       break;
