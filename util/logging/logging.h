@@ -1,5 +1,5 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef UTIL_LOGGING_H
+#define UTIL_LOGGING_H
 
 #include <functional>
 #include <string>
