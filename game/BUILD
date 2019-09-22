@@ -22,6 +22,7 @@ cc_library(
         "//population/proto:population_proto",
         "//units:units",
         "//util/arithmetic:microunits",
+        "//util/logging:logging",
         "//util/keywords:keywords",
     ],
 )

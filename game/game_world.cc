@@ -1,7 +1,5 @@
 #include "game/game_world.h"
 
-#include <iostream>
-
 #include "actions/proto/strategy.pb.h"
 #include "actions/proto/plan.pb.h"
 #include "ai/executer.h"
@@ -10,6 +8,7 @@
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"
 #include "units/unit.h"
+#include "util/logging/logging.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 
@@ -32,21 +31,16 @@ class PossibilityFilter : public industry::ProductionFilter {
   }
 };
 
-void PrintContainer(const market::proto::Container& container) {
-  for (const auto& good : container.quantities()) {
-    std::cout << good.first << ":\t" << good.second << "\n";
-  }
-}
-
 void PrintMarket(const market::proto::MarketProto& market,
                  const market::proto::Container& volumes) {
-  std::cout << "Good\tprice\tstored\tvolume\tdebt\n";
+  Log::Info("Good\tprice\tstored\tvolume\tdebt");
   for (const auto& good : market.goods().quantities()) {
     const std::string& name = good.first;
-    std::cout << name << "\t" << market::GetAmount(market.prices_u(), name)
-              << "\t" << market::GetAmount(market.warehouse(), name) << "\t"
-              << market::GetAmount(volumes, name) << "\t"
-              << market::GetAmount(market.market_debt(), name) << "\n";
+    Log::Infof("%s\t%d\t%d\t%d\t%d", name,
+               market::GetAmount(market.prices_u(), name),
+               market::GetAmount(market.warehouse(), name),
+               market::GetAmount(volumes, name),
+               market::GetAmount(market.market_debt(), name));
   }
 }
 
