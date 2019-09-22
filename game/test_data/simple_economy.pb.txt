@@ -307,45 +307,7 @@ auto_production {
   }
 }
 
-decay_rates {
-  # Goods
-  quantities {
-    key: "labour"
-    value: 1000000
-  }
-  quantities {
-    key: "sheep"
-    value: 0
-  }
-  quantities {
-    key: "grain"
-    value: 50000
-  }
-  quantities {
-    key: "silver"
-    value: 0
-  }
-  quantities {
-    key: "cloth"
-    value: 25000
-  }
-  quantities {
-    key: "wool"
-    value: 20000
-  }
-  quantities {
-    key: "timber"
-    value: 10000
-  }
-  quantities {
-    key: "iron"
-    value: 0
-  }
-  quantities {
-    key: "tools"
-    value: 100000
-  }
-  # Tags
+tag_decay_rates {
   quantities {
     key: "life_support"
     value: 0

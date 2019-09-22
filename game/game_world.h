@@ -29,6 +29,7 @@ public:
     std::vector<const population::proto::AutoProduction*> auto_production_;
     std::vector<const industry::proto::Production*> production_chains_;
     std::vector<const population::proto::ConsumptionLevel*> subsistence_;
+    market::proto::Container decay_rates_;
     proto::Scenario proto_;
   };
 

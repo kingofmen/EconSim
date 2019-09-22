@@ -15,9 +15,9 @@ message Scenario {
   repeated market.proto.TradeGood trade_goods = 3;
   repeated population.proto.ConsumptionLevel consumption = 4;
   repeated units.proto.Template unit_templates = 5;
-  // This is redundant with TradeGood information above.
-  // TODO: Migrate all uses in the code, then remove.
-  market.proto.Container decay_rates = 6;
+  // All Pop tags that don't have a specified decay rate
+  // disappear at end of turn.
+  market.proto.Container tag_decay_rates = 6;
 }
 
 message GameWorld {

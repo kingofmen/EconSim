@@ -10,21 +10,6 @@ auto_production {
   }
 }
 
-decay_rates {
-  quantities {
-    key: "labour"
-    value: 1000000
-  }
-  quantities {
-    key: "input"
-    value: 0
-  }
-  quantities {
-    key: "output"
-    value: 0
-  }
-}
-
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000

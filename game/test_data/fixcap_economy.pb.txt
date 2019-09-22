@@ -28,21 +28,6 @@ trade_goods {
   weight_u: 1
 }
 
-decay_rates {
-  quantities {
-    key: "labour"
-    value: 1000000
-  }
-  quantities {
-    key: "capital"
-    value: 50000
-  }
-  quantities {
-    key: "output"
-    value: 1000000
-  }
-}
-
 production_chains {
   name: "industry"
   steps {

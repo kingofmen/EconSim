@@ -153,9 +153,15 @@ GameWorld::~GameWorld() {
 
 // TODO: This really needs to handle errors, e.g. in registering templates.
 GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
+  Log::Trace("Entering scenario builder");
   proto_.Swap(scenario);
   for (const auto& good : proto_.trade_goods()) {
+    auto& name = good.name();
     market::CreateTradeGood(good);
+    market::SetAmount(name, micro::kOneInU - good.decay_rate_u(),
+                      &decay_rates_);
+    Log::Debugf("Created %s with survival rate %d", good.name(),
+                market::GetAmount(decay_rates_, name));
   }
   auto_production_.insert(auto_production_.end(),
                           proto_.auto_production().pointer_begin(),
@@ -163,8 +169,12 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   production_chains_.insert(production_chains_.end(),
                             proto_.production_chains().pointer_begin(),
                             proto_.production_chains().pointer_end());
-  for (auto& decay_rate : *proto_.mutable_decay_rates()->mutable_quantities()) {
-    decay_rate.second = micro::kOneInU - decay_rate.second;
+
+  for (const auto& tag_decay_rate : proto_.tag_decay_rates().quantities()) {
+    market::SetAmount(tag_decay_rate.first,
+                      micro::kOneInU - tag_decay_rate.second, &decay_rates_);
+    Log::Debugf("%s tag survival rate: %d",
+                market::GetAmount(decay_rates_, tag_decay_rate.first));
   }
 
   for (const auto& level : proto_.consumption()) {
@@ -312,17 +322,16 @@ void GameWorld::TimeStep(
   }
 
   for (auto& pop : pops_) {
-    pop->EndTurn(scenario_.proto_.decay_rates());
+    pop->EndTurn(scenario_.decay_rates_);
   }
   for (auto& area: areas_) {
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
     PrintMarket(area->market().Proto(), volumes);
-    area->mutable_market()->DecayGoods(scenario_.proto_.decay_rates());
+    area->mutable_market()->DecayGoods(scenario_.decay_rates_);
     for (auto& field : *area->Proto()->mutable_fields()) {
-      micro::MultiplyU(*field.mutable_fixed_capital(),
-                       scenario_.proto_.decay_rates());
+      micro::MultiplyU(*field.mutable_fixed_capital(), scenario_.decay_rates_);
     }
   }
 }
