@@ -135,6 +135,25 @@ std::string escapeCode(int mask) {
   return ret;
 }
 
+std::string formatComment(const std::string comment) {
+  if (comment.empty()) {
+    return "";
+  }
+  static char buffer[10000];
+  sprintf(buffer, "  \"%s\"", comment.c_str());
+  return std::string(buffer);
+}
+
+std::string formatCommitment(double c) {
+  if (c > 0.99) {
+    return "";
+  }
+  static char buffer[100];
+  sprintf(buffer, " (%d%%) ", (int) floor(100*c + 0.5));
+  return std::string(buffer);
+  
+}
+
 std::string formatName(const std::string name, int rank = 0, int priorRank = 0) {
   static char buffer[10000];
   if (rank > 0) {
@@ -196,8 +215,10 @@ void calculateRank(const rankings::proto::Conflict& conflict) {
     }
     playerDelta *= ratio;
 
-    std::cout << "  " << formatName(player.name()) << ": " << rank.score << " -> "
-              << rank.score + playerDelta << "\n";
+    std::cout << "  " << formatName(player.name()) << ": " << rank.score
+              << " -> " << rank.score + playerDelta
+              << formatCommitment(player.commitment())
+              << formatComment(player.comment()) << "\n";
     double dSquare = d2(rank.score, avgDefRate.score, avgDefRate.deviation);
     rank.score += playerDelta;
     if (conflict.session() > rank.recentConflict) {
@@ -219,8 +240,10 @@ void calculateRank(const rankings::proto::Conflict& conflict) {
       ratio = defendingPlayers / attackingPlayers;
     }
     playerDelta *= ratio;
-    std::cout << "  " << formatName(player.name()) << ": " << rank.score << " -> "
-              << rank.score + playerDelta << "\n";
+    std::cout << "  " << formatName(player.name()) << ": " << rank.score
+              << " -> " << rank.score + playerDelta
+              << formatCommitment(player.commitment())
+              << formatComment(player.comment()) << "\n";
     double dSquare = d2(rank.score, avgAttRate.score, avgAttRate.deviation);
     rank.score += playerDelta;
     if (conflict.session() > rank.recentConflict) {
