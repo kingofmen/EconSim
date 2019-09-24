@@ -479,6 +479,9 @@ TextInterface::loadScenario(const game::setup::proto::ScenarioFiles& setup) {
 
   std::vector<std::string> errors = game::validation::Validate(scenario_, game_world_);
   if (!errors.empty()) {
+    for (const auto& error : errors) {
+      Log::Errorf("Validation error: %s", error);
+    }
     return util::InvalidArgumentError(errors[0]);
   }
 
@@ -499,6 +502,16 @@ void TextInterface::newGameHandler(char inp) {
   if (select(inp, scenario_files_, setup)) {
     auto status = loadScenario(setup);
     if (status.ok()) {
+      // TODO: Insert debug-mode check here.
+      if (true) {
+        for (int i = 0; i < game_world_.areas_size(); ++i) {
+          auto* area = game_world_.mutable_areas(i);
+          for (int f = 0; f < area->fields_size(); ++f) {
+            auto* field = area->mutable_fields(f);
+            field->set_name(absl::Substitute("Area $0 Field $1", area->id(), f+1));
+          }
+        }
+      }
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
       selected_area_id_ = geography::Area::MinId();
       selected_detail_idx_ = 0;
@@ -546,9 +559,23 @@ void TextInterface::endPlayerTurn() {
     }
   }
 
-  industry::decisions::FieldMap<industry::decisions::proto::ProductionDecision>
-      decisions;
-  world_model_->TimeStep(&decisions);
+  decisions_.clear();
+  world_model_->TimeStep(&decisions_);
+  for (const auto& d : decisions_) {
+    const auto* field = d.first;
+    const auto& decision = d.second;
+    if (decision.has_selected()) {
+      Log::Infof("%s: Decision %s", field->name(), decision.selected().name());
+    } else {
+      if (decision.rejected_size() == 0) {
+        Log::Infof("%s: No available chains", field->name());
+      } else {
+        const auto& rejected = decision.rejected(1);
+        Log::Infof("%s: Rejected %s due to %s", field->name(), rejected.name(),
+                   rejected.reject_reason());
+      }
+    }
+  }
 }
 
 void TextInterface::runGameHandler(char inp) {

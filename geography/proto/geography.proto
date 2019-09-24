@@ -17,6 +17,8 @@ message Field {
   optional market.proto.Container resources = 4;
   // ID of the field's owner.
   optional uint64 owner_id = 5;
+  // Identifier string for debug logging.
+  optional string name = 6;
 }
 
 message ResourceLimits {

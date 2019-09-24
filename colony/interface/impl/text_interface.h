@@ -50,6 +50,8 @@ class TextInterface : public interface::UserInterface {
   uint64 player_faction_id_;
   std::unordered_map<const geography::proto::Field*, uint64> field_overrides_;
   std::vector<colony::interface::proto::PlayerAction> actions_;
+  industry::decisions::FieldMap<industry::decisions::proto::ProductionDecision>
+      decisions_;
 
   template <typename T>
   void addSelection(int x, int y, const std::vector<T>& options,
