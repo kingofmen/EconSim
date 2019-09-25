@@ -379,6 +379,7 @@ void GameWorld::SetProductionEvaluator(
   if (eval == NULL) {
     production_evaluators_.erase(field);
   } else {
+    Log::Debugf("Override evaluator for %s: %p", field->name(), eval);
     production_evaluators_[field] = eval;
   }
 }
