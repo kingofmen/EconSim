@@ -6,6 +6,7 @@
 #include "market/goods_utils.h"
 #include "market/market.h"
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
 
 namespace industry {
 namespace decisions {
@@ -154,6 +155,7 @@ void FieldSpecifier::SetFieldProduction(const geography::proto::Field* field,
     chains_.erase(field);
     return;
   }
+  Log::Debugf("Player override in %p for %s: %s", this, field->name(), chain);
   chains_[field] = chain;
 }
 
