@@ -508,7 +508,9 @@ void TextInterface::newGameHandler(char inp) {
           auto* area = game_world_.mutable_areas(i);
           for (int f = 0; f < area->fields_size(); ++f) {
             auto* field = area->mutable_fields(f);
-            field->set_name(absl::Substitute("Area $0 Field $1", area->id(), f+1));
+            if (!field->has_name()) {
+              field->set_name(absl::Substitute("Area $0 Field $1", area->id(), f+1));
+            }
           }
         }
       }
@@ -548,7 +550,7 @@ void TextInterface::endPlayerTurn() {
       if (area == NULL || prod.field_idx() > area->num_fields()) {
         continue;
       }
-      geography::proto::Field* field = area->mutable_field(prod.area_id());
+      geography::proto::Field* field = area->mutable_field(prod.field_idx());
       if (field == NULL) {
         continue;
       }
@@ -560,6 +562,7 @@ void TextInterface::endPlayerTurn() {
   }
 
   decisions_.clear();
+  message(FG_YELLOW, "New turn");
   world_model_->TimeStep(&decisions_);
   for (const auto& d : decisions_) {
     const auto* field = d.first;
