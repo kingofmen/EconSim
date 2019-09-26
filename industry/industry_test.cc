@@ -227,7 +227,9 @@ TEST_F(IndustryTest, InstitutionalCapital) {
 TEST_F(IndustryTest, ScalingEffects) {
   AddWoolStep();
   AddClothOutput();
-  prod_proto_->add_scaling_effects_u(900000);
+  auto* scale = prod_proto_->add_scaling();
+  scale->set_size_u(micro::kOneInU);
+  scale->set_effect_u(900000);
   progress_ = production_->MakeProgress(2 * micro::kOneInU);
   wool_ += 1000;
   inputs_ << wool_;
@@ -245,7 +247,9 @@ TEST_F(IndustryTest, ScalingEffects) {
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1900);
 
-  prod_proto_->add_scaling_effects_u(800000);
+  scale = prod_proto_->add_scaling();
+  scale->set_size_u(micro::kOneInU);
+  scale->set_effect_u(800000);
   progress_.set_scaling_u(2500000);
   wool_ += 2000;
   inputs_ << wool_;
@@ -261,16 +265,7 @@ TEST_F(IndustryTest, ScalingEffects) {
                            &used_capital_, &progress_);
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
-  int64 last_scale_effect_u = (int64)floor(sqrt(500000) * 1000 + 0.5);
-  last_scale_effect_u *= 800000;
-  last_scale_effect_u /= 1000000;
-
-  int64 last_level = 1000;
-  last_level *= 1000000;
-  last_level *= last_scale_effect_u;
-  last_level /= 1000000;
-  last_level /= 1000000;
-  EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000 + 900 + last_level);
+  EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000 + 900 + 400);
 }
 
 TEST_F(IndustryTest, SkippingEffects) {

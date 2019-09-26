@@ -571,11 +571,11 @@ void TextInterface::endPlayerTurn() {
       Log::Infof("%s: Decision %s", field->name(), decision.selected().name());
     } else {
       if (decision.rejected_size() == 0) {
-        Log::Infof("%s: No available chains", field->name());
+        Log::Debugf("%s: No available chains", field->name());
       } else {
         const auto& rejected = decision.rejected(1);
-        Log::Infof("%s: Rejected %s due to %s", field->name(), rejected.name(),
-                   rejected.reject_reason());
+        Log::Debugf("%s: Rejected %s due to %s", field->name(), rejected.name(),
+                    rejected.reject_reason());
       }
     }
   }

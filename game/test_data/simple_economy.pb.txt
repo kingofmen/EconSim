@@ -114,7 +114,10 @@ production_chains {
     }
   }
   land_type: LT_FIELDS
-  scaling_effects_u: 1000000
+  scaling {
+    size_u: 1000000
+    effect_u: 1000000
+  }
   experience_effect_u: 100000
 }
 

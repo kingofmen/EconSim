@@ -12,11 +12,6 @@ using market::proto::Container;
 
 namespace {
 
-// Returns the maximum scaling in micro-units.
-int64 MaxScalingU(const proto::Production& production) {
-  return (1 + production.scaling_effects_u_size()) * micro::kOneInU;
-}
-
 } // namespace
 
 proto::Progress Production::MakeProgress(market::Measure scale_u) const {
@@ -24,7 +19,7 @@ proto::Progress Production::MakeProgress(market::Measure scale_u) const {
   progress.set_name(proto_.name());
   progress.set_step(0);
   progress.set_efficiency_u(micro::kOneInU);
-  progress.set_scaling_u(std::min(scale_u, MaxScalingU(proto_)));
+  progress.set_scaling_u(std::min(scale_u, MaxScaleU()));
   return progress;
 }
 
@@ -39,18 +34,18 @@ market::Measure Production::EfficiencyU(const proto::Progress& progress) const {
   market::Measure effect_u = micro::kOneInU;
   const market::Measure scaling_u = progress.scaling_u();
   if (scaling_u <= micro::kOneInU) {
-    effect_u = micro::SqrtU(scaling_u);
+    effect_u = scaling_u;
   } else {
-    int last_full_step = 1;
-    for (; (last_full_step + 1) * micro::kOneInU < scaling_u;
-         ++last_full_step) {
-      effect_u += proto_.scaling_effects_u(last_full_step - 1);
-    }
-    int64 fractional = scaling_u - last_full_step * micro::kOneInU;
-    if (fractional > 0) {
-      effect_u +=
-          micro::MultiplyU(micro::SqrtU(fractional),
-                           proto_.scaling_effects_u(last_full_step - 1));
+    market::Measure acc_u = micro::kOneInU;
+    for (const auto& s : proto_.scaling()) {
+      if (acc_u + s.size_u() < scaling_u) {
+        acc_u += s.size_u();
+        effect_u += s.effect_u();
+        continue;
+      }
+      market::Measure frac_u = micro::DivideU(scaling_u - acc_u, s.size_u());
+      effect_u += micro::MultiplyU(frac_u, s.effect_u());
+      break;
     }
   }
   return micro::MultiplyU(effect_u, progress.efficiency_u());
@@ -71,7 +66,11 @@ market::Measure Production::ExperienceEffectU(
 }
 
 market::Measure Production::MaxScaleU() const {
-  return (1 + proto_.scaling_effects_u_size()) * micro::kOneInU;
+  market::Measure ret = micro::kOneInU;
+  for (const auto& s : proto_.scaling()) {
+    ret += s.size_u();
+  }
+  return ret;
 }
 
 bool Production::StepPossible(const Container& fixed_capital,

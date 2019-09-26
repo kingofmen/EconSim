@@ -31,7 +31,10 @@ production_chains {
   }
   land_type: LT_FIELDS
   name: "wheat_fields"
-  scaling_effects_u: 1000000
+  scaling {
+    size_u: 1000000
+    effect_u: 1000000
+  }
   experience_effect_u: 100000
 }
 
@@ -60,7 +63,10 @@ production_chains {
       value: 330000
     }
   }
-  scaling_effects_u: 1000000
+  scaling {
+    size_u: 1000000
+    effect_u: 1000000
+  }
   land_type: LT_PASTURE
   name: "sheep_shearing"
   experience_effect_u: 100000
