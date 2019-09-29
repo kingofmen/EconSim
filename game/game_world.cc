@@ -84,11 +84,14 @@ void RunAreaIndustry(
         } else {
           max_scale_u = chain->MaxScaleU();
         }
-
         int var_idx = selected.step_info(0).best_variant();
-        auto scale_loss_u =
-            max_scale_u + attempts[field] -
+        auto possible_scale_u =
             selected.step_info(0).variant(var_idx).possible_scale_u();
+        auto scale_loss_u = max_scale_u + attempts[field] - possible_scale_u;
+        Log::Debugf("Found scale %s (%s) for %s in %s",
+                    micro::DisplayString(max_scale_u, 2),
+                    micro::DisplayString(possible_scale_u, 2), selected.name(),
+                    field->name());
         if (scale_loss_u < lowest_scale_loss_u) {
           best_field = field;
           best_pop = pop;
@@ -117,6 +120,9 @@ void RunAreaIndustry(
 
     if (!best_field->has_progress() ||
         best_field->progress().name() != chain->get_name()) {
+      Log::Debugf("Starting process %s at scale %s in %s", chain->get_name(),
+                  micro::DisplayString(chain->MaxScaleU(), 2),
+                  best_field->name());
       *best_field->mutable_progress() = chain->MakeProgress(chain->MaxScaleU());
     }
 

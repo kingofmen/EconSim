@@ -24,6 +24,7 @@ cc_library(
         "//market/proto:goods_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/logging:logging",
     ],
 )
 

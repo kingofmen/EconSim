@@ -568,7 +568,9 @@ void TextInterface::endPlayerTurn() {
     const auto* field = d.first;
     const auto& decision = d.second;
     if (decision.has_selected()) {
-      Log::Infof("%s: Decision %s", field->name(), decision.selected().name());
+      Log::Infof("%s: Decision %s at scale %s", field->name(),
+                 decision.selected().name(),
+                 micro::DisplayString(decision.selected().max_scale_u(), 2));
     } else {
       if (decision.rejected_size() == 0) {
         Log::Debugf("%s: No available chains", field->name());

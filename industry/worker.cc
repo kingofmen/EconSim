@@ -3,6 +3,7 @@
 #include "absl/strings/substitute.h"
 #include "market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
 
 namespace industry {
 namespace {
