@@ -349,7 +349,9 @@ void GameWorld::SaveToProto(proto::GameWorld* proto) const {
   for (const auto& area : areas_) {
     auto* area_proto = proto->add_areas();
     *area_proto = *area->Proto();
-    *area_proto->mutable_market() = *area->mutable_market()->Proto();
+    auto* market = area->mutable_market();
+    auto* market_proto = area_proto->mutable_market();
+    *market_proto = *market->Proto();
   }
   for (const auto& conn : connections_) {
     auto* conn_proto = proto->add_connections();
