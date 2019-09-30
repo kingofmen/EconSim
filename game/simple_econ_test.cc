@@ -98,9 +98,10 @@ protected:
         for (const auto& good : current_prices.quantities()) {
           auto init_price = market::GetAmount(initial_prices[aa], good.first);
           if (good.second != init_price) {
-            return util::FailedPreconditionError(
-                absl::Substitute("Turn $0 area $4: $1 price $2 does not match initial $3",
-                                 i, good.first, good.second, init_price, area.id()));
+            return util::FailedPreconditionError(absl::Substitute(
+                "Turn $0 area $4: $1 initial price $3 does not match current "
+                "$2",
+                i, good.first, good.second, init_price, area.id()));
           }
         }
       }
