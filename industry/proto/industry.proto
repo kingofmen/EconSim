@@ -39,11 +39,11 @@ message ProductionStep {
   int64 skip_effect_u = 3;
 }
 
-// An amount of scaling with constant efficiency effects.
+// An amount of scaling with linear efficiency effects.
 message Scale {
-  // The maximum scale still having the same efficiency effect.
+  // The maximum scale still having the same effect.
   int64 size_u = 1;
-  // The efficiency of working at this scale.
+  // The total output of maxing out this level.
   int64 effect_u = 2;
 }
 
