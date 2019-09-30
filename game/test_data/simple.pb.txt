@@ -59,17 +59,6 @@ areas {
       quantities { key: "cloth" value: 8500000 }
       quantities { key: "sheep" value: 100000 }
     }
-    goods {
-      quantities { key: "mana" value: 1 }
-      quantities { key: "food" value: 1 }
-      quantities { key: "labour" value: 1 }
-      quantities { key: "timber" value: 1 }
-      quantities { key: "tools" value: 1 }
-      quantities { key: "wool" value: 1 }
-      quantities { key: "iron" value: 1 }
-      quantities { key: "cloth" value: 1 }
-      quantities { key: "sheep" value: 1 }
-    }
     name: "area_1_market"
     legal_tender: "silver"
     credit_limit: 1000000000

@@ -46,11 +46,10 @@ TEST_F(MarketTest, FindPrices) {
   market.Proto()->set_legal_tender(kSilver);
   market.Proto()->set_name(kMarketName);
   market.Proto()->set_credit_limit(micro::kHundredInU);
-  EXPECT_EQ(-1, market.GetPriceU(kTestGood1));
+  EXPECT_EQ(micro::kOneInU, market.GetPriceU(kTestGood1));
 
   market.RegisterGood(kTestGood1);
   EXPECT_EQ(micro::kOneInU, market.GetPriceU(kTestGood1));
-  EXPECT_EQ(-1, market.GetPriceU(kTestGood2));
 
   // No bids or offer, price should be unchanged.
   market.FindPrices();

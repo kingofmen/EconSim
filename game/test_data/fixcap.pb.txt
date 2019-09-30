@@ -22,11 +22,6 @@ areas {
       quantities { key: "capital" value: 4000000 }
       quantities { key: "output" value: 2000000 }
     }
-    goods {
-      quantities { key: "labour" value: 1 }
-      quantities { key: "capital" value: 1 }
-      quantities { key: "output" value: 1 }
-    }
     name: "area_1_market"
     legal_tender: "silver"
     credit_limit: 1000000000

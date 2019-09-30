@@ -31,7 +31,6 @@ void Market::RegisterGood(const std::string& name) {
   if (TradesIn(name)) {
     return;
   }
-  *proto_.mutable_goods() << name;
   *proto_.mutable_volume() << name;
   *proto_.mutable_prices_u() << name;
   SetAmount(name, micro::kOneInU, proto_.mutable_prices_u());
@@ -65,12 +64,12 @@ void Market::DecayGoods(const market::proto::Container& decay_rates_u) {
 }
 
 void Market::FindPrices() {
-  for (const auto& good : proto_.goods().quantities()) {
+  for (const auto& good : proto_.prices_u().quantities()) {
     const std::string& name = good.first;
     Measure matched = GetAmount(proto_.volume(), name);
     Measure bid = matched;
     for (const auto& buy : buy_offers_[name]) {
-      // Effectual demand, ie demand backed up by money or credit.
+      // Effectual demand, i.e. demand backed up by money or credit.
       bid += std::min(buy.amount,
                       GetAmount(*buy.target, proto_.legal_tender()) +
                           MaxCredit(*buy.target));
@@ -116,7 +115,7 @@ void CancelDebt(const std::string& credit_token, const std::string& debt_token,
 }
 
 bool Market::TradesIn(const std::string& name) const {
-  return Contains(proto_.goods(), name);
+  return Contains(proto_.prices_u(), name);
 }
 
 void Market::TransferMoney(Measure amount, Container* from,
@@ -207,8 +206,12 @@ Measure Market::TryToBuy(const std::string& name, const Measure amount,
 }
 
 Measure Market::TryToSell(const Quantity& offer, Container* source) {
-  if (!TradesIn(offer.kind())) {
+  if (offer.kind() == credit_token() || offer.kind() == debt_token()) {
     return 0;
+  }
+  if (!TradesIn(offer.kind())) {
+    // It does now.
+    RegisterGood(offer.kind());
   }
 
   const Measure amount_to_sell =
@@ -276,17 +279,14 @@ Measure Market::TryToSell(const std::string& name, const Measure amount,
 
 Measure Market::GetPriceU(const std::string& name, int turns) const {
   if (!TradesIn(name)) {
-    return -1;
+    // Estimate.
+    return micro::kOneInU;
   }
   return GetAmount(proto_.prices_u(), name);
 }
 
 Measure Market::GetPriceU(const Quantity& quantity, int turns) const {
-  if (!TradesIn(quantity.kind())) {
-    return -1;
-  }
-  return micro::MultiplyU(GetAmount(proto_.prices_u(), quantity),
-                          quantity.amount());
+  return micro::MultiplyU(GetPriceU(quantity.kind(), turns), quantity.amount());
 }
 
 Measure Market::GetPriceU(const market::proto::Container& basket, int turns) const {
@@ -306,7 +306,7 @@ Measure Market::GetStoredU(const std::string& name) const {
 
 Measure Market::GetVolume(const std::string& name) const {
   if (!TradesIn(name)) {
-    return -1;
+    return 0;
   }
   return GetAmount(proto_.volume(), name);
 }
