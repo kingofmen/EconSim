@@ -1,0 +1,223 @@
+\documentclass[12pt]{book}
+\usepackage{ amssymb }
+\newcommand{\Lag}{\mathcal{L}}
+\begin{document}
+\chapter{Consumption Model}
+
+\section{Objective}
+
+This document describes the consumption model of the economics engine.
+
+\section{Motivation}
+
+POP consumption is, with decay and war damage, one of the great
+resource sinks of the economics engine. Unlike the other two, it is
+also the purpose of having a detailed economics engine in the first
+place. 
+
+\section{Goals}
+
+The consumption model has several desiderata:
+\begin{itemize}
+\item Allow POPs to trade off one consumption against another along
+  utility frontiers, e.g. apples and oranges - if one apple and one
+  orange give satisfaction, then so should three apples or three
+  oranges, or any combination along the implied curve of these three
+  points.
+\item Allow both prioritisation and parallel consumption. A POP faced
+  with the choice of doing without food, or doing without shelter,
+  should choose the latter; but a POP may still use shelter, if it is
+  available, if there is no food, and derive some benefit from doing
+  so. A POP with a house but no food is still better off than the one
+  who lacks both.
+\item Give POPs a time preference, so that they cease consuming when
+  the marginal utility of doing so is outweighed by the net present
+  value of having that money for future turns - not, for example, when
+  they run out of money (unless they are close to subsistence). In
+  particular, it should be possible for time preferences to vary, both
+  intrinsically and with the available investment opportunities.
+\end{itemize}
+
+\section{Model}
+
+POPs begin a turn with several irritants, for example hunger, cold,
+and boredom. (Some irritants may vary with external inputs, like cold;
+others are constant.) Each irritant has a weight to give its relievers
+a priority; thus hunger may have a higher weight than cold, and
+accordingly food will initially have a higher priority than shelter -
+but not infinitely higher; a POP that has eaten something but not all
+the available food may start looking for clothes. Each irritant
+contributes to \emph{fragility}, a measure of how vulnerable the POP
+is to endemic diseases and general malaise.
+
+The irritants are reduced, possibly to zero, by \emph{consumption
+  baskets}, collections of resources to be used. Within each basket,
+some resources are substitutable for others, such as apples and
+oranges; using only one of the options to meet that part of the basket
+will require more of the resource than the exchange rate at the
+midpoint would imply - three oranges or three apples, versus an orange
+plus an apple, for example. Additionally, each basket may define a
+nondiversity penalty, a separate irritant with its own fragility
+contribution, to be removed by consuming that basket in a diverse
+way. 
+
+Like industrial inputs, baskets may consist of consumables, movable
+capital, and fixed capital. POPs will seek to consume the basket that
+reduces their fragility the most; if they cannot buy all the goods
+that one requires, or if the cost of doing so is too high, they will
+attempt the next basket, and so on until they either consume one or
+run out of baskets (and presumably starve to death). 
+
+\section{Math}
+
+Given two substitutable goods, there is an indifference curve where
+any point on the curve satisfies the basket. Note that this cannot be
+linear, or even have linear parts, because for prices $p_x$, $p_y$,
+the cheapest point on a linear substitution curve is always at an
+endpoint. (If you move a distance $\delta x, \delta y$, you change the
+price by the same amount $p_x\delta x + p_y \delta y$ no matter where
+on the curve you are, so you always slide all the way to the end in
+the direction of negative price change). So, we need an inverse
+relationship, which we can parametrise fairly freely:
+\begin{eqnarray}
+(ax + o)^n = \frac{D^2}{(by +o)^n}
+\end{eqnarray}
+where $o$ is an offset showing how far the asymptotes are from the
+axes. Since we need to be able to reach the axes, i.e. have 0 of one
+or the other good, the offset must be positive, and it is the same on
+both sides of the equation to maintain symmetry. The constants $a$ and
+$b$ are substitution weights, and the distance $D$ gives the minimum
+distance from the origin, as shown below. We see that $n$ does not
+matter in this equation no matter what we're solving for, since we can take the
+$n$-th root of the equation and then just make the substitution
+$D^2\to D^{2/n}$. This leaves four parameters ($a,b,D,o$) to be found
+by the two constraints that the curve must pass through $(x_0,0)$ and
+$(0, y_0)$; here $x_0$ and $y_0$ have the intuitively clear meaning of
+being the amount of $x$ and $y$ to be consumed in the absence of the
+other resource, which is easy for a user to visualise and specify.
+We therefore take the offset, distance, and sole-resource amounts as
+to be specified, and solve for the substitution weights:
+\begin{eqnarray*}
+(ax + o)(by + o) &=& D^2\\
+(ax_0 + o)o &=& D^2 = o(by_0 + o)\\
+ax_0 &=& \frac{D^2}{o} - o = by_0\\
+a &=& \frac{D^2 - o^2}{ox_0}\\
+b &=& \frac{D^2 - o^2}{oy_0}
+\end{eqnarray*}
+We note that, if $x_0=y_0$, then $a=b$ and, given equal prices
+$p_x=p_y$, the cheapest point occurs at $(D, D)$ - which is also the
+closest point to the origin, hence labeling this quantity the
+`distance'. It could also be called the ``(half) minimum amount'', since with
+different prices that move the cheapest point away from $(D, D)$, the
+unweighted amount of resources to be consumed will be larger than the
+$2D$ consumed at $(D, D)$ - for example, if the prices are such as to
+make $x=2D<x_0$, $y$ will still be larger than zero.
+
+Extending to three or more dimensions is straightforward:
+\begin{eqnarray*}
+\prod_{i=i}^{n}(c_ix_i + o) &=& D^2\\
+c_ix_{i0} + o &=& \frac{D^2}{o^{n-1}}\\
+c_i &=& \frac{D^2-o^n}{o^{n-1}x_{i0}}.
+\end{eqnarray*}
+
+Now, given prices $p_x$ and $p_y$, we can determine the cheapest point
+on the curve:
+\begin{eqnarray*}
+P &=& p_xx + p_yy\\
+\frac{\partial P}{\partial x} = 0 &=& p_x + p_y\frac{\partial y}{\partial x}\\
+-p_x &=& p_y\frac{\partial }{\partial x}\left(\frac{D^2/b}{ax+o}-\frac{o}{b}\right)\\
+-p_x &=& \frac{p_yD^2}{b}\frac{\partial }{\partial x}\left(\frac{1}{ax+o}\right)\\
+p_x &=& \frac{p_yD^2}{b}\frac{a}{(ax+o)^2}\\
+(ax+o)^2 &=& \frac{ap_yD^2}{bp_x}\\
+a^2x^2 + 2axo + o^2 - \frac{ap_yD^2}{bp_x} &=& 0 \\
+ax^2 + 2xo + o^2 - \frac{p_yD^2}{bp_x} &=& 0 \\
+x &=& \frac{-2o\pm\sqrt{4o^2 - 4(o^2 - C)}}{2a} \\
+x &=& \frac{-o\pm\sqrt{C}}{a}
+\end{eqnarray*}
+where the quantity $C = \frac{p_yD^2}{bp_x}$ has been
+introduced for brevity. We see that $x$ is increasing in the price of
+$y$ and decreasing in its own price, which is reasonable. Extending to
+three dimensions is not entirely trivial by the substitution method
+above; it requires evaluating six partial derivatives, and although
+the symmetry of the problem let us find one and get the other five by
+permuting the subscripts, that's a lot of subscripts to keep track
+of. Instead we use the Lagrangian multiplier. We have the cost
+function
+\begin{equation}
+P(x,y,z) = p_xx+p_yy+p_zz
+\end{equation}
+to be minimised subject to the constraint
+\begin{equation}
+(ax+o)(by+o)(cz+o) = D^2
+\end{equation}
+giving the Lagrangian
+\begin{equation}
+\Lag(x,y,z,\lambda} = p_xx+p_yy+p_zz -
+\lambda\left((ax+o)(by+o)(cz+o)-D^2\right).
+\end{equation}
+Take the gradient and set it to zero:
+\begin{eqnarray*}
+p_x - a\lambda(by+o)(cz+o) &=& 0\\
+p_y - b\lambda(ax+o)(cz+o) &=& 0\\
+p_z - c\lambda(ax+o)(by+o) &=& 0\\
+(ax+o)(by+o)(cz+o)-D^2     &=& 0.
+\end{eqnarray*}
+Introduce for brevity $X=ax+o$, $Y=by+o$, $Z=cz+o$, and start solving:
+\begin{eqnarray*}
+a\lambda YZ &=& p_x \\
+b\lambda XZ &=& p_y \\
+c\lambda XY &=& p_z \\
+XYZ         &=& D^2 \\
+\\
+Z             &=& \frac{D^2}{XY} \\
+a\lambda YD^2 &=& XYp_x \\
+b\lambda XD^2 &=& XYp_y \\
+c\lambda XY   &=& p_z \\
+\\
+Z                        &=& \frac{D^2}{XY} \\
+a\lambda \frac{D^2}{p_x}  &=& X \\
+b\lambda \frac{D^2}{p_y}  &=& Y \\
+c\lambda XY              &=& p_z \\
+\\
+Z                        &=& \frac{D^2}{XY} \\
+X                        &=& a\lambda \frac{D^2}{p_x} \\
+Y                        &=& b\lambda \frac{D^2}{p_y} \\
+abcD^4\lambda^3          &=& p_xp_yp_z \\
+\\
+Z                        &=& \frac{D^2}{XY} \\
+X                        &=& a\lambda \frac{D^2}{p_x} \\
+Y                        &=& b\lambda \frac{D^2}{p_y} \\
+\lambda                  &=& \left(\frac{p_xp_yp_z}{abcD^4}\right)^{1/3}
+\\
+X                        &=& a\left(\frac{p_xp_yp_z}{abcD^4}\right)^{1/3} \frac{D^2}{p_x} \\
+Y                        &=& b\left(\frac{p_xp_yp_z}{abcD^4}\right)^{1/3} \frac{D^2}{p_y} \\
+Z                        &=& \frac{D^2}{XY} \\
+\\
+X                        &=& \left(\frac{a^2p_yp_zD^2}{bcp_x^2}\right)^{1/3}  \\
+Y                        &=& \left(\frac{b^2p_xp_zD^2}{acp_y^2}\right)^{1/3}  \\
+Z                        &=& \frac{D^2}{XY}\\
+\\
+X                        &=& \left(\frac{a^2D^2}{bc}\frac{p_yp_z}{p_x^2}\right)^{1/3} \\
+Y                        &=& \left(\frac{b^2D^2}{ac}\frac{p_xp_z}{p_y^2}\right)^{1/3} \\
+Z                        &=& \left(\frac{c^2D^2}{ab\frac{p_z^2}{p_xp_y}}\right)^{1/3} \\
+\\
+X                        &=& \left(\frac{a^2D^2}{bc}\frac{p_yp_z}{p_x^2}\right)^{1/3}  \\
+Y                        &=& \left(\frac{b^2D^2}{ac}\frac{p_xp_z}{p_y^2}\right)^{1/3}  \\
+Z                        &=& \left(\frac{c^2D^2}{ab}\frac{p_xp_y}{p_z^2}\right)^{1/3}.
+\end{eqnarray*}
+We see that each of $X, Y, Z$ decreases in its own price and increases
+in the other two, as we would expect, and that the symmetry is preserved.
+The extension to four dimensions is straightforward but tedious.
+
+
+
+
+
+
+
+
+\end{document}
+
+
+
+
