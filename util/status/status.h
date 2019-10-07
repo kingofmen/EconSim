@@ -9,9 +9,11 @@
 
 namespace util {
 
-const google::protobuf::util::Status& OkStatus();
-google::protobuf::util::Status InvalidArgumentError(const std::string& msg);
-google::protobuf::util::Status FailedPreconditionError(const std::string& msg);
+typedef google::protobuf::util::Status Status;
+
+const Status& OkStatus();
+Status InvalidArgumentError(const std::string& msg);
+Status FailedPreconditionError(const std::string& msg);
 
 } // namespace util
 

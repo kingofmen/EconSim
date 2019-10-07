@@ -3,7 +3,6 @@
 namespace util {
 
 using google::protobuf::util::error::Code;
-using google::protobuf::util::Status;
 
 const Status& OkStatus() {
   static Status ok_status;
