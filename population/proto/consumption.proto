@@ -1,0 +1,39 @@
+syntax = "proto2";
+package consumption.proto;
+
+import "market/proto/goods.proto";
+
+// A set of goods that can substitute for each other.
+message Substitutes {
+  // Resources used up. The values are the amount it takes of
+  // that resource if none of the others are available.
+  optional market.proto.Container consumed = 1;
+
+  // Resources that are not consumed.
+  optional market.proto.Container movable_capital = 2;
+
+  // An irritant acquired by consuming this set in a nondiverse way.
+  optional market.proto.Quantity nondiversity_penalty = 3;
+
+  // The fraction of its maximum that the plurality good must exceed
+  // to be considered nondiverse.
+  optional int64 diversity_threshold_u = 4;
+
+  // Distance of the asymptotes from the axes.
+  optional int64 offset_u = 5 [default = 500000];
+
+  // D^2, the half-minimum-amount.
+  optional int64 min_amount_square_u = 6 [default = 1000000];
+
+  // An identifying string.
+  optional string name = 7;
+}
+
+message Consumption {
+  // Sets of goods to be consumed to satisfy the basket.
+  repeated Substitutes goods = 1;
+
+  // The amount of irritants removed by consuming this basket.
+  optional market.proto.Container relief = 2;
+}
+

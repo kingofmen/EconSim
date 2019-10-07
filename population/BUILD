@@ -16,12 +16,40 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "consumption",
+    srcs = ["consumption.cc"],
+    hdrs = ["consumption.h"],
+    deps = [
+        "//market/proto:goods_proto",
+        "//market:goods_utils",
+        "//population/proto:consumption_proto",
+        "//util/arithmetic:microunits",
+        "//util/headers:int_types",
+        "//util/status:status",
+        "@com_google_absl//absl/strings:strings",
+    ],
+)
+
 cc_test(
     name = "population_test",
     size = "small",
     srcs = ["population_test.cc"],
     deps = [
         ":population",
+        "@gtest",
+        "@gtest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "consumption_test",
+    size = "small",
+    srcs = ["consumption_test.cc"],
+    deps = [
+        ":consumption",
+        "//market:goods_utils",
+        "//util/arithmetic:microunits",
         "@gtest",
         "@gtest//:gtest_main",
     ],

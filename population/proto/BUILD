@@ -12,3 +12,16 @@ proto_library(
         "//market/proto:goods_proto_lib",
     ],
 )
+
+cc_proto_library(
+    name = "consumption_proto",
+    deps = [":consumption_proto_lib"],
+)
+
+proto_library(
+    name = "consumption_proto_lib",
+    srcs = ["consumption.proto"],
+    deps = [
+        "//market/proto:goods_proto_lib",
+    ],
+)
