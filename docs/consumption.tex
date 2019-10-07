@@ -65,8 +65,8 @@ Like industrial inputs, baskets may consist of consumables, movable
 capital, and fixed capital. POPs will seek to consume the basket that
 reduces their fragility the most; if they cannot buy all the goods
 that one requires, or if the cost of doing so is too high, they will
-attempt the next basket, and so on until they either consume one or
-run out of baskets (and presumably starve to death). 
+attempt the next basket, and so on until they run out of irritants,
+baskets, or money.
 
 \section{Math}
 
@@ -111,7 +111,9 @@ closest point to the origin, hence labeling this quantity the
 different prices that move the cheapest point away from $(D, D)$, the
 unweighted amount of resources to be consumed will be larger than the
 $2D$ consumed at $(D, D)$ - for example, if the prices are such as to
-make $x=2D<x_0$, $y$ will still be larger than zero.
+make $x=2D<x_0$, $y$ will still be larger than zero. Note that, if
+$D^2=o^2$, there is a problem; we therefore require this not to be the
+case.
 
 Extending to three or more dimensions is straightforward:
 \begin{eqnarray*}
@@ -119,6 +121,12 @@ Extending to three or more dimensions is straightforward:
 c_ix_{i0} + o &=& \frac{D^2}{o^{n-1}}\\
 c_i &=& \frac{D^2-o^n}{o^{n-1}x_{i0}}.
 \end{eqnarray*}
+Note that this still has a Big Problem if $D^2=o^n$; hence, require this
+not to be the case. Moreover, there is also a Big Issue if any of the
+$c_i$ are less than 0, that is to say, if $D^2<o^n$; in that case the
+asymptotes will be on the wrong side of the crossing points and the
+curve will bend the wrong way. We therefore require, in full
+generality, $D^2>o^n$.
 
 Now, given prices $p_x$ and $p_y$, we can determine the cheapest point
 on the curve:
