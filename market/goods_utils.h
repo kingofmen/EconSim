@@ -2,6 +2,8 @@
 #ifndef MARKET_GOODS_UTILS_H
 #define MARKET_GOODS_UTILS_H
 
+#include <vector>
+
 #include "market/proto/goods.pb.h"
 #include "util/headers/int_types.h"
 
@@ -37,6 +39,10 @@ bool Contains(const market::proto::Container& con, const std::string& name);
 // Returns true if con has an entry for the good in qua. The amount is ignored.
 bool Contains(const market::proto::Container& con,
               const market::proto::Quantity& qua);
+
+// Returns a vector of the contained Quantities.
+std::vector<market::proto::Quantity>
+Expand(const market::proto::Container& con);
 
 // Returns the amount of name in con; zero if not set.
 Measure GetAmount(const market::proto::Container& con, const std::string& name);

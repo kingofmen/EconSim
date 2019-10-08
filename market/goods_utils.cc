@@ -89,6 +89,14 @@ bool Contains(const Container& con, const Quantity& qua) {
   return Contains(con, qua.kind());
 }
 
+std::vector<Quantity> Expand(const market::proto::Container& con) {
+  std::vector<Quantity> ret;
+  for (const auto& good : con.quantities()) {
+    ret.push_back(MakeQuantity(good.first, good.second));
+  }
+  return ret;
+}
+
 Measure GetAmount(const Container& con, const std::string& name) {
   if (!Contains(con, name)) {
     return 0;
