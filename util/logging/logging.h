@@ -20,6 +20,9 @@ enum Priority {
 
 typedef std::function<void(const std::string& message, Priority)> callback;
 
+// Log listener that prints to stdout, for testing.
+void coutLogger(const std::string& message, Priority);
+
 void Register(callback listener, Priority minimum = P_TRACE);
 void UnRegister(callback listener);
 void Trace(const std::string& message);

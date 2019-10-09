@@ -1,11 +1,17 @@
 #include "util/logging/logging.h"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace Log{
+namespace Log {
+
+void coutLogger(const std::string& message, Priority) {
+  std::cout << message << std::endl;
+}
+
 namespace internal {
 
 std::unordered_map<std::string, int> verbosity;
