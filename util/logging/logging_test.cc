@@ -70,4 +70,20 @@ TEST_F(LogTest, Levels) {
   EXPECT_THAT(messages, testing::ElementsAre("Info", "Error"));
 }
 
+TEST_F(LogTest, Verbosity) {
+  VLOG(5, "5");
+  SetVerbosity(__FILE__, 3);
+  VLOG(1, "1");
+  VLOG(4, "4");
+  EXPECT_THAT(messages, testing::ElementsAre("util/logging/logging_test.cc:76 : 1"));
+}
+
+TEST_F(LogTest, FormatVerbosity) {
+  VLOGF(5, "%s %d", "Verbosity", 5);
+  SetVerbosity(__FILE__, 3);
+  VLOGF(1, "%s %d", "Verbosity", 1);
+  VLOGF(4, "%s %d", "Verbosity", 4);
+  EXPECT_THAT(messages, testing::ElementsAre("util/logging/logging_test.cc:84 : Verbosity 1"));
+}
+
 } // namespace Log

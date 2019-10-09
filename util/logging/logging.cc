@@ -2,10 +2,13 @@
 
 #include <algorithm>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace Log{
 namespace internal {
+
+std::unordered_map<std::string, int> verbosity;
 
 struct listener {
   listener(callback h, Priority m) : hear(h), minimum(m) {}
@@ -25,6 +28,10 @@ void Log(const std::string& message, Priority p) {
 }
 
 }  // namespace internal
+
+void SetVerbosity(const std::string& file, int level) {
+  internal::verbosity[file] = level;
+}
 
 void UnRegister(callback c) {
   auto newend =
@@ -83,6 +90,14 @@ void Stream(const std::string& message, Priority p) {
     default:
       break;
   }
+}
+
+void Verbose(int level, const char* file, int line,
+             const std::string& message) {
+  if (internal::verbosity[file] < level) {
+    return;
+  }
+  Infof("%s:%d : %s", file, line, message);
 }
 
 }  // namespace Log

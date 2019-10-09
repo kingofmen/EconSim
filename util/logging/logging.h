@@ -29,6 +29,8 @@ void Warn(const std::string& message);
 void Error(const std::string& message);
 void User(const std::string& message);
 void Stream(Priority p, const std::string& message);
+void Verbose(int level, const char* file, int line, const std::string& message);
+void SetVerbosity(const std::string& file, int level);
 
 template <typename... Args>
 void Tracef(const absl::FormatSpec<Args...>& format, const Args&... args) {
@@ -79,7 +81,15 @@ void Streamf(Priority p, const absl::FormatSpec<Args...>& format, const Args&...
       break;
   }
 }
+template <typename... Args>
+void Verbosef(int level, const char* file, int line,
+              const absl::FormatSpec<Args...>& format, const Args&... args) {
+  Verbose(level, file, line, absl::StrFormat(format, args...));
+}
 
 } // namespace Log
+
+#define VLOG(level, m) Log::Verbose(level, __FILE__, __LINE__, m);
+#define VLOGF(level, format, ...) Log::Verbosef(level, __FILE__, __LINE__, format, __VA_ARGS__);
 
 #endif
