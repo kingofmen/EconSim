@@ -137,17 +137,19 @@ P &=& p_xx + p_yy\\
 -p_x &=& \frac{p_yD^2}{b}\frac{\partial }{\partial x}\left(\frac{1}{ax+o}\right)\\
 p_x &=& \frac{p_yD^2}{b}\frac{a}{(ax+o)^2}\\
 (ax+o)^2 &=& \frac{ap_yD^2}{bp_x}\\
-a^2x^2 + 2axo + o^2 - \frac{ap_yD^2}{bp_x} &=& 0 \\
-ax^2 + 2xo + o^2 - \frac{p_yD^2}{bp_x} &=& 0 \\
-x &=& \frac{-2o\pm\sqrt{4o^2 - 4(o^2 - C)}}{2a} \\
-x &=& \frac{-o\pm\sqrt{C}}{a}
+a^2x^2 + 2axo + o^2 - a\frac{p_yD^2}{bp_x} &=& 0 \\
+x &=& \frac{-2ao\pm\sqrt{4a^2o^2 - 4a^2(o^2 - aC)}}{2a^2} \\
+x &=& \frac{-o\pm\sqrt{o^2 - (o^2 - aC)}}{a} \\
+x &=& \frac{-o\pm\sqrt{aC}}{a}
 \end{eqnarray*}
 where the quantity $C = \frac{p_yD^2}{bp_x}$ has been
 introduced for brevity. We see that $x$ is increasing in the price of
-$y$ and decreasing in its own price, which is reasonable. Extending to
+$y$ and decreasing in its own price, which is reasonable.
+
+Extending to
 three dimensions is not entirely trivial by the substitution method
 above; it requires evaluating six partial derivatives, and although
-the symmetry of the problem let us find one and get the other five by
+the symmetry of the problem lets us find one and get the other five by
 permuting the subscripts, that's a lot of subscripts to keep track
 of. Instead we use the Lagrangian multiplier. We have the cost
 function
