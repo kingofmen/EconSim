@@ -179,6 +179,9 @@ void calculateRank(const rankings::proto::Conflict& conflict) {
     name = conflict.name();
   }
   std::cout << name << "\n";
+  if (conflict.has_comment()) {
+    std::cout << "  " << conflict.comment() << "\n";
+  }
 
   auto avgAttRate = initialise(conflict.attackers(), conflict.session());
   if (avgAttRate.score < 0) {
