@@ -14,6 +14,7 @@ typedef google::protobuf::util::Status Status;
 const Status& OkStatus();
 Status InvalidArgumentError(const std::string& msg);
 Status FailedPreconditionError(const std::string& msg);
+Status NotImplementedError(const std::string& msg);
 
 } // namespace util
 

@@ -17,4 +17,8 @@ Status FailedPreconditionError(const std::string& msg) {
   return Status(Code::FAILED_PRECONDITION, msg);
 }
 
+Status NotImplementedError(const std::string& msg) {
+  return Status(Code::UNIMPLEMENTED, msg);
+}
+
 } // namespace util
