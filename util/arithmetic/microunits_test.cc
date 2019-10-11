@@ -131,4 +131,16 @@ TEST(MicroUnitsTest, DisplayString) {
   EXPECT_EQ("1.234567", DisplayString(1234567, 6));
 }
 
+TEST(MicroUnitsTest, NthRoot) {
+  EXPECT_EQ(kOneInU, NRootU(0, 317928));
+  EXPECT_EQ(kOneInU, NRootU(1, kOneInU));
+  EXPECT_EQ(kTenInU, NRootU(1, kTenInU));
+  EXPECT_EQ(kOneInU, NRootU(-1, kOneInU));
+  EXPECT_EQ(kOneTenthInU, NRootU(-1, kTenInU));
+
+  EXPECT_EQ(3 * kOneInU, NRootU(3, 27 * kOneInU));
+  EXPECT_EQ(2100000, NRootU(3, 9261000));
+  EXPECT_EQ(333333, NRootU(-3, 27 * kOneInU));
+}
+
 }  // namespace micro

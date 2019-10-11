@@ -33,6 +33,23 @@ int64 SqrtU(int64 value_u) {
   return (int64)floor(sqrt(value_u) * kSqrtScale + 0.5);
 }
 
+int64 NRootU(int n, int64 value_u) {
+  if (n < 0) {
+    return DivideU(kOneInU, NRootU(-n, value_u));
+  }
+  if (n == 0) {
+    return kOneInU;
+  }
+  if (n == 1) {
+    return value_u;
+  }
+
+  // log(x) - log(1e6)
+  auto power = log10(value_u) - 6;
+  power /= n;
+  return (int64)floor(0.5 + pow(10, power) * kOneInU);
+}
+
 int64 MultiplyU(int64 val1, int64 val2_u) {
   val1 *= val2_u;
   val1 /= kOneInU;
