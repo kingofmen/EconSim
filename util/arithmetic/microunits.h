@@ -20,6 +20,7 @@ constexpr int64 kMaxU        = std::numeric_limits<int64>::max();
 
 // Some fractions.
 constexpr int64 kOneTenthInU     = kOneInU * 1 / 10;
+constexpr int64 kOneHundredthInU = kOneInU * 1 / 100;
 constexpr int64 kOneFourthInU    = kOneInU * 1 / 4;
 constexpr int64 kHalfInU         = kOneInU * 1 / 2;
 constexpr int64 kThreeFourthsInU = kOneInU * 3 / 4;
@@ -29,6 +30,9 @@ int64 SqrtU(int64 value_u);
 
 // Returns the nth root of value_u.
 int64 NRootU(int n, int64 value_u);
+
+// Returns b_u raised to the nth power.
+int64 PowU(int64 b_u, int n);
 
 // The MultiplyU methods return products that maintain the scale of the
 // left-hand value.

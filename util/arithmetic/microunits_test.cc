@@ -143,4 +143,17 @@ TEST(MicroUnitsTest, NthRoot) {
   EXPECT_EQ(333333, NRootU(-3, 27 * kOneInU));
 }
 
+TEST(MicroUnitsTest, Power) {
+  EXPECT_EQ(0, PowU(0, 10));
+  EXPECT_EQ(kOneInU, PowU(0, 0));
+  EXPECT_EQ(kOneInU, PowU(kTenInU, 0));
+  EXPECT_EQ(kTenInU, PowU(kTenInU, 1));
+  EXPECT_EQ(kOneTenthInU, PowU(kTenInU, -1));
+  EXPECT_EQ(kOneHundredthInU, PowU(kTenInU, -2));
+
+  EXPECT_EQ(kHundredInU, PowU(kTenInU, 2));
+  EXPECT_EQ(kThousandInU, PowU(kTenInU, 3));
+  EXPECT_EQ(kOneFourthInU, PowU(kHalfInU, 2));
+}
+
 }  // namespace micro

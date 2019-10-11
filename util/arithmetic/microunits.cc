@@ -50,6 +50,24 @@ int64 NRootU(int n, int64 value_u) {
   return (int64)floor(0.5 + pow(10, power) * kOneInU);
 }
 
+int64 PowU(int64 b_u, int n) {
+  if (n == 0) {
+    return kOneInU;
+  }
+  if (b_u == 0) {
+    return 0;
+  }
+  if (n < 0) {
+    return DivideU(kOneInU, PowU(b_u, -n));
+  }
+
+  int64 ret_u = kOneInU;
+  for (int i = 0; i < n; ++i) {
+    ret_u = MultiplyU(ret_u, b_u);
+  }
+  return ret_u;
+}
+
 int64 MultiplyU(int64 val1, int64 val2_u) {
   val1 *= val2_u;
   val1 /= kOneInU;
