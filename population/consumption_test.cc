@@ -66,6 +66,40 @@ TEST(ConsumptionTest, Optimum) {
   EXPECT_EQ(154700, market::GetAmount(result, kApples));
   // (-1 + 2\sqrt{3})/3.
   EXPECT_EQ(821367, market::GetAmount(result, kOranges));
+
+  // Three goods.
+  market::SetAmount(kApples, 3*micro::kOneInU, subs.mutable_consumed());
+  market::SetAmount(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
+  market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
+  market::SetAmount(kApples, micro::kOneInU, &prices);
+  market::SetAmount(kOranges, micro::kOneInU, &prices);
+  market::SetAmount(kBananas, micro::kOneInU, &prices);
+  EXPECT_OK(Validate(subs));
+  EXPECT_OK(Optimum(subs, prices, &result));
+  // Three sevenths.
+  EXPECT_EQ(428571, market::GetAmount(result, kApples));
+  EXPECT_EQ(428571, market::GetAmount(result, kOranges));
+  EXPECT_EQ(428571, market::GetAmount(result, kBananas));
+
+  // Asymmetric prices.
+  market::SetAmount(kOranges, 3*micro::kOneInU, &prices);
+  EXPECT_OK(Validate(subs));
+  EXPECT_OK(Optimum(subs, prices, &result));
+  // Cube-root of either 3, or one-ninth; minus one-half, divide by
+  // seven-sixths.
+  EXPECT_EQ(807643, market::GetAmount(result, kApples));
+  EXPECT_EQ(-16500, market::GetAmount(result, kOranges));
+  EXPECT_EQ(807643, market::GetAmount(result, kBananas));  
+
+  // Asymmetric crossing points.
+  market::SetAmount(kOranges, micro::kOneInU, &prices);
+  market::SetAmount(kOranges, 1*micro::kOneInU, subs.mutable_consumed());
+  EXPECT_OK(Validate(subs));
+  EXPECT_OK(Optimum(subs, prices, &result));
+  // One coefficient is 7/2 instead of 7/6, otherwise the same.
+  EXPECT_EQ(165738, market::GetAmount(result, kApples));
+  EXPECT_EQ(451452, market::GetAmount(result, kOranges));
+  EXPECT_EQ(165738, market::GetAmount(result, kBananas));  
 }
 
 TEST(ConsumptionTest, Validation) {

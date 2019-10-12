@@ -52,6 +52,13 @@ util::Status calcX(int64 a, int64 b, int64 px, int64 py, int64 dsquared_u,
   return util::OkStatus();
 }
 
+int64 calcCoefficient(int64 dsquared_u, int64 offset_u, int numGoods,
+                      int64 crossing_u) {
+  auto nom = dsquared_u - micro::PowU(offset_u, numGoods);
+  auto denom = micro::MultiplyU(crossing_u, micro::PowU(offset_u, numGoods - 1));
+  return micro::DivideU(nom, denom);
+}
+
 util::Status
 internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
                    const market::proto::Container& prices, int64 offset_u,
@@ -63,23 +70,10 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
 
   market::proto::Container coeffs;
   // TODO: Coefficients are constant, so can be calculated once and cached.
-  int64 a = -1;
-  int64 b = -1;
-  int64 px = -1;
-  int64 py = -1;
-  int64 oSquare = micro::MultiplyU(offset_u, offset_u);
-  for (const auto& good : goods) {
-    auto nom = dsquared_u - oSquare;
-    auto denom = micro::MultiplyU(good.amount(), offset_u);
-    auto ratio = micro::DivideU(nom, denom);
-    if (a < 0) {
-      a = ratio;
-      px = market::GetAmount(prices, good.kind());
-    } else {
-      b = ratio;
-      py = market::GetAmount(prices, good.kind());
-    }
-  }
+  int64 a = calcCoefficient(dsquared_u, offset_u, 2, goods[0].amount());
+  int64 b = calcCoefficient(dsquared_u, offset_u, 2, goods[1].amount());
+  int64 px = market::GetAmount(prices, goods[0].kind());
+  int64 py = market::GetAmount(prices, goods[1].kind());
   VLOGF(5, "Calculating %s/%s with prices %d, %d", goods[0].kind(), goods[1].kind(), px, py);
 
   int64 xValue = 0;
@@ -98,15 +92,56 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
 
   return util::OkStatus();
 }
-util::Status internal_optimum_3(const market::proto::Container& goods,
-                                const market::proto::Container& prices,
-                                int64 offset_u, int64 dsquared_u,
-                                market::proto::Container* result) {
-  if (goods.quantities().size() != 3) {
+
+util::Status
+internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
+                   const market::proto::Container& prices, int64 offset_u,
+                   int64 dsquared_u, market::proto::Container* result) {
+  if (goods.size() != 3) {
     return util::InvalidArgumentError(
-        absl::Substitute("Optimum expected 3 goods, got $0: $1",
-                         goods.quantities().size(), goods.DebugString()));
+        absl::Substitute("Optimum expected 3 goods, got $0", goods.size()));
   }
+
+  int64 coefficients[3];
+  for (int i = 0; i < 3; ++i) {
+    coefficients[i] =
+        calcCoefficient(dsquared_u, offset_u, 3, goods[i].amount());
+  }
+
+  uint64 overflow;
+  for (int i = 0; i < 3; ++i) {
+    int j = (i + 1) % 3;
+    int k = (i + 2) % 3;
+    int64 priceI = market::GetAmount(prices, goods[i].kind());
+    int64 priceJ = market::GetAmount(prices, goods[j].kind());
+    int64 priceK = market::GetAmount(prices, goods[k].kind());
+    int64 priceFrac = micro::MultiplyU(priceJ, priceK);
+    priceFrac = micro::DivideU(priceFrac, micro::SquareU(priceI), &overflow);
+    if (overflow != 0) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Overflow in price-ratio calculation $0: $1, $2, $3",
+                           i, priceI, priceJ, priceK));
+    }
+    int64 coefFrac =
+        micro::MultiplyU(dsquared_u, micro::SquareU(coefficients[i]));
+    coefFrac = micro::DivideU(
+        coefFrac, micro::MultiplyU(coefficients[j], coefficients[k]),
+        &overflow);
+    if (overflow != 0) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Overflow in coefficient-ratio calculation $0: $1, $2, $3",
+                           i, coefficients[i], coefficients[j], coefficients[k]));
+    }
+    int64 root = micro::NRootU(3, micro::MultiplyU(coefFrac, priceFrac));
+    root -= offset_u;
+    int64 xValue = micro::DivideU(root, coefficients[i], &overflow);
+    if (overflow != 0) {
+      return util::InvalidArgumentError(absl::Substitute(
+          "Overflow in final division $0: $1 / $2", i, root, coefficients[i]));
+    }
+    market::SetAmount(goods[i].kind(), xValue, result);
+  }  
+
   return util::OkStatus();
 }
 
@@ -122,7 +157,8 @@ util::Status internal_optimum(const market::proto::Container& goods,
       return internal_optimum_2(market::Expand(goods), prices, offset_u,
                                 dsquared_u, result);
     case 3:
-      return internal_optimum_3(goods, prices, offset_u, dsquared_u, result);
+      return internal_optimum_3(market::Expand(goods), prices, offset_u,
+                                dsquared_u, result);
     default:
       return util::InvalidArgumentError(
           absl::Substitute("Optimum for $0 goods, can handle at most $1",
