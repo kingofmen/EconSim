@@ -28,6 +28,12 @@ constexpr int64 kThreeFourthsInU = kOneInU * 3 / 4;
 // Returns the square root of value_u in micro-units.
 int64 SqrtU(int64 value_u);
 
+// Returns the square of value_u in micro-units.
+int64 SquareU(int64 value_u);
+
+// Returns the cube of value_u in micro-units.
+int64 CubeU(int64 value_u);
+
 // Returns the nth root of value_u.
 int64 NRootU(int n, int64 value_u);
 

@@ -68,6 +68,9 @@ int64 PowU(int64 b_u, int n) {
   return ret_u;
 }
 
+int64 SquareU(int64 value_u) { return MultiplyU(value_u, value_u); }
+int64 CubeU(int64 value_u) { return MultiplyU(value_u, SquareU(value_u)); }
+
 int64 MultiplyU(int64 val1, int64 val2_u) {
   val1 *= val2_u;
   val1 /= kOneInU;
