@@ -86,10 +86,11 @@ TEST(ConsumptionTest, Optimum) {
   EXPECT_OK(Validate(subs));
   EXPECT_OK(Optimum(subs, prices, &result));
   // Cube-root of either 3, or one-ninth; minus one-half, divide by
-  // seven-sixths.
-  EXPECT_EQ(807643, market::GetAmount(result, kApples));
-  EXPECT_EQ(-16500, market::GetAmount(result, kOranges));
-  EXPECT_EQ(807643, market::GetAmount(result, kBananas));  
+  // seven-sixths. This gives a negative number for oranges, which
+  // the algorithm will clamp.
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));  
 
   // Asymmetric crossing points.
   market::SetAmount(kOranges, micro::kOneInU, &prices);

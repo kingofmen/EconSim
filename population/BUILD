@@ -23,6 +23,7 @@ cc_library(
     deps = [
         "//market/proto:goods_proto",
         "//market:goods_utils",
+        "//market:market",
         "//population/proto:consumption_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",

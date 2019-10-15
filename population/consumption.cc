@@ -13,21 +13,6 @@ namespace consumption {
 
 const int kMaxSubstitutables = 3;
 
-util::Status internal_optimum_1(const market::proto::Container& goods,
-                                const market::proto::Container& prices,
-                                int64 offset_u, int64 dsquared_u,
-                                market::proto::Container* result) {
-  if (goods.quantities().size() != 1) {
-    return util::InvalidArgumentError(
-        absl::Substitute("Optimum expected 1 good, got $0: $1",
-                         goods.quantities().size(), goods.DebugString()));
-  }
-  result->Clear();
-  *result += goods;
-
-  return util::OkStatus();
-}
-
 util::Status calcX(int64 a, int64 b, int64 px, int64 py, int64 dsquared_u,
             int64 offset_u, int64* value) {
   uint64 overflow = 0;
@@ -59,6 +44,15 @@ int64 calcCoefficient(int64 dsquared_u, int64 offset_u, int numGoods,
   return micro::DivideU(nom, denom);
 }
 
+util::Status internal_optimum_1(const market::proto::Quantity& good,
+                                const market::proto::Container& prices,
+                                int64 offset_u, int64 dsquared_u,
+                                market::proto::Container* result) {
+  result->Clear();
+  *result += good;
+  return util::OkStatus();
+}
+
 util::Status
 internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
                    const market::proto::Container& prices, int64 offset_u,
@@ -68,6 +62,7 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
         absl::Substitute("Optimum expected 2 goods, got $0", goods.size()));
   }
 
+  result->Clear();
   market::proto::Container coeffs;
   // TODO: Coefficients are constant, so can be calculated once and cached.
   int64 a = calcCoefficient(dsquared_u, offset_u, 2, goods[0].amount());
@@ -87,6 +82,19 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
     return status;
   }
 
+  if (xValue < 0 && yValue < 0) {
+    // This should never happen.
+    return util::InvalidArgumentError(
+        absl::Substitute("Two negative amounts for $0 and $1", goods[0].kind(),
+                         goods[1].kind()));
+  }
+  if (xValue < 0) {
+    return internal_optimum_1(goods[1], prices, offset_u, dsquared_u, result);
+  }
+  if (yValue < 0) {
+    return internal_optimum_1(goods[0], prices, offset_u, dsquared_u, result);
+  }
+
   market::SetAmount(goods[0].kind(), xValue, result);
   market::SetAmount(goods[1].kind(), yValue, result);
 
@@ -102,6 +110,7 @@ internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
         absl::Substitute("Optimum expected 3 goods, got $0", goods.size()));
   }
 
+  result->Clear();
   int64 coefficients[3];
   for (int i = 0; i < 3; ++i) {
     coefficients[i] =
@@ -139,6 +148,14 @@ internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
       return util::InvalidArgumentError(absl::Substitute(
           "Overflow in final division $0: $1 / $2", i, root, coefficients[i]));
     }
+
+    if (xValue < 0) {
+      std::vector<market::proto::Quantity> copy;
+      copy.push_back(goods[j]);
+      copy.push_back(goods[k]);
+      return internal_optimum_2(copy, prices, offset_u, dsquared_u, result);
+    }
+
     market::SetAmount(goods[i].kind(), xValue, result);
   }  
 
@@ -149,16 +166,16 @@ namespace {
 util::Status internal_optimum(const market::proto::Container& goods,
                               const market::proto::Container& prices,
                               int64 offset_u, int64 dsquared_u,
-                              market::proto::Container* result) {  
-  switch (goods.quantities().size()) {
+                              market::proto::Container* result) {
+  auto expanded = market::Expand(goods);
+  switch (expanded.size()) {
     case 1:
-      return internal_optimum_1(goods, prices, offset_u, dsquared_u, result);
+      return internal_optimum_1(expanded[0], prices, offset_u, dsquared_u,
+                                result);
     case 2:
-      return internal_optimum_2(market::Expand(goods), prices, offset_u,
-                                dsquared_u, result);
+      return internal_optimum_2(expanded, prices, offset_u, dsquared_u, result);
     case 3:
-      return internal_optimum_3(market::Expand(goods), prices, offset_u,
-                                dsquared_u, result);
+      return internal_optimum_3(expanded, prices, offset_u, dsquared_u, result);
     default:
       return util::InvalidArgumentError(
           absl::Substitute("Optimum for $0 goods, can handle at most $1",
@@ -182,6 +199,26 @@ util::Status Optimum(const proto::Substitutes& subs,
   return internal_optimum(subs.consumed(), prices, subs.offset_u(),
                           subs.min_amount_square_u(), result);
 }
+
+util::Status Consumption(const proto::Substitutes& subs,
+                         const market::proto::Container& prices,
+                         const market::AvailabilityEstimator& available,
+                         market::proto::Container* result) {
+  for (const auto& price : prices.quantities()) {
+    if (price.second < 1) {
+      return util::InvalidArgumentError(
+          absl::Substitute("$0: Prices must be positive, found $1 for $2",
+                           subs.name(), price.second, price.first));
+    }
+  }
+
+
+  auto status = internal_optimum(subs.consumed(), prices, subs.offset_u(),
+                                 subs.min_amount_square_u(), result);
+
+  return status;
+}
+
 
 util::Status Validate(const proto::Substitutes& subs) {
   if (subs.offset_u() <= 0) {
