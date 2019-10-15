@@ -40,6 +40,16 @@ bool Contains(const market::proto::Container& con, const std::string& name);
 bool Contains(const market::proto::Container& con,
               const market::proto::Quantity& qua);
 
+// Adds to target those goods from source which exist in mask.
+void Copy(const market::proto::Container& source,
+          const market::proto::Container& mask,
+          market::proto::Container* target);
+void Copy(const market::proto::Container& source,
+          const market::proto::Quantity& mask,
+          market::proto::Container* target);
+void Copy(const market::proto::Container& source, const std::string& mask,
+          market::proto::Container* target);
+
 // Returns a vector of the contained Quantities.
 std::vector<market::proto::Quantity>
 Expand(const market::proto::Container& con);

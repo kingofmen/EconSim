@@ -391,4 +391,30 @@ TEST(GoodsUtilsTest, SubtractFloor) {
   EXPECT_EQ(std::numeric_limits<int64>::max(), GetAmount(diff, gold));
 }
 
+TEST(GoodsUtilsTest, Copy) {
+  Container source;
+  Container target;
+  Container mask;
+
+  SetAmount(kTestGood1, 10, &source);
+  SetAmount(kTestGood2, 10, &source);
+  Copy(source, mask, &target);
+  EXPECT_EQ(0, GetAmount(target, kTestGood1));
+  EXPECT_EQ(0, GetAmount(target, kTestGood2));
+  EXPECT_EQ(10, GetAmount(source, kTestGood1));
+  EXPECT_EQ(10, GetAmount(source, kTestGood2));
+
+  SetAmount(kTestGood1, 10, &mask);
+  Copy(source, mask, &target);
+  EXPECT_EQ(10, GetAmount(target, kTestGood1));
+  EXPECT_EQ(0, GetAmount(target, kTestGood2));
+  EXPECT_EQ(10, GetAmount(source, kTestGood1));
+  EXPECT_EQ(10, GetAmount(source, kTestGood2));
+  Copy(source, mask, &target);
+  EXPECT_EQ(20, GetAmount(target, kTestGood1));
+  EXPECT_EQ(0, GetAmount(target, kTestGood2));
+  EXPECT_EQ(10, GetAmount(source, kTestGood1));
+  EXPECT_EQ(10, GetAmount(source, kTestGood2));
+}
+
 } // namespace market

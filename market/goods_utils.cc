@@ -89,6 +89,20 @@ bool Contains(const Container& con, const Quantity& qua) {
   return Contains(con, qua.kind());
 }
 
+void Copy(const Container& source, const Container& mask, Container* target) {
+  for (const auto& m : mask.quantities()) {
+    Copy(source, m.first, target);
+  }
+}
+
+void Copy(const Container& source, const Quantity& mask, Container* target) {
+  Copy(source, mask.kind(), target);
+}
+
+void Copy(const Container& source, const std::string& mask, Container* target) {
+  Add(mask, GetAmount(source, mask), target);
+}
+
 std::vector<Quantity> Expand(const market::proto::Container& con) {
   std::vector<Quantity> ret;
   for (const auto& good : con.quantities()) {
