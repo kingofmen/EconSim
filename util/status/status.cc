@@ -17,6 +17,10 @@ Status FailedPreconditionError(const std::string& msg) {
   return Status(Code::FAILED_PRECONDITION, msg);
 }
 
+Status NotFoundError(const std::string& msg) {
+  return Status(Code::NOT_FOUND, msg);
+}
+
 Status NotImplementedError(const std::string& msg) {
   return Status(Code::UNIMPLEMENTED, msg);
 }
