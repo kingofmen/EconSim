@@ -95,6 +95,10 @@ int64 DivideU(int64 val1, int64 val2_u, uint64* overflow) {
     }
     return 0;
   }
+  // Reset in case the user reused the address from a previous call.
+  if (overflow != nullptr) {
+    *overflow = 0;
+  }
   google::protobuf::uint128 bignum1(Unsigned64Abs(val1));
   google::protobuf::uint128 bignum2(Unsigned64Abs(val2_u));
   bignum1 *= google::protobuf::uint128((uint64)kOneInU);
