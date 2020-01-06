@@ -21,6 +21,8 @@ constexpr int64 kMaxU        = std::numeric_limits<int64>::max();
 // Some fractions.
 constexpr int64 kOneTenthInU     = kOneInU * 1 / 10;
 constexpr int64 kOneHundredthInU = kOneInU * 1 / 100;
+constexpr int64 kOneThirdInU     = 333333;
+constexpr int64 kTwoThirdsInU    = 666667;
 constexpr int64 kOneFourthInU    = kOneInU * 1 / 4;
 constexpr int64 kHalfInU         = kOneInU * 1 / 2;
 constexpr int64 kThreeFourthsInU = kOneInU * 3 / 4;
