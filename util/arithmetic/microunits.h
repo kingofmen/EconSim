@@ -45,6 +45,7 @@ int64 PowU(int64 b_u, int n);
 
 // Integer multiplication.
 int64 MultiplyU(int64 val1, int64 val2_u);
+int64 MultiplyU(int64 val1, int64 val2_u, int64 val3_u);
 
 // In-place scaling a container.
 void MultiplyU(market::proto::Container& lhs, int64 scale_u);

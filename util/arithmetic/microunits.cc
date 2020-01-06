@@ -77,6 +77,10 @@ int64 MultiplyU(int64 val1, int64 val2_u) {
   return val1;
 }
 
+int64 MultiplyU(int64 val1, int64 val2_u, int64 val3_u) {
+  return MultiplyU(MultiplyU(val1, val2_u), val3_u);
+}
+
 void MultiplyU(market::proto::Container& lhs, int64 scale_u) {
   lhs *= scale_u;
   lhs /= kOneInU;
