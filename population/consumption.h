@@ -21,10 +21,15 @@ util::Status Optimum(const proto::Substitutes& subs,
                      market::proto::Container* result);
 
 // Calculates the amount to actually consume in the current state of the market
-// and with the given resources. This is not the same as the optimum.
+// and with the given resources. This is not the same as the optimum. It is also
+// not the same as the amount that will actually be consumed - for example, the
+// caller may not be able to afford the amounts. An OK return status indicates
+// that the calculation reached a result which the estimator believes is
+// available.
 util::Status Consumption(const proto::Substitutes& subs,
                          const market::proto::Container& prices,
-                         const market::AvailabilityEstimator& available);
+                         const market::AvailabilityEstimator& available,
+                         market::proto::Container* result);
 
 // Checks that subs does not violate the constraints derived in the doc.
 util::Status Validate(const proto::Substitutes& subs);

@@ -12,10 +12,10 @@
 namespace consumption {
 
 const int kMaxSubstitutables = 3;
+uint64 overflow;
 
 util::Status calcX(int64 a, int64 b, int64 px, int64 py, int64 dsquared_u,
             int64 offset_u, int64* value) {
-  uint64 overflow = 0;
   int64 aC = micro::MultiplyU(py, dsquared_u);
   aC = micro::MultiplyU(aC, a);
   aC = micro::DivideU(aC, micro::MultiplyU(b, px), &overflow);
@@ -28,7 +28,7 @@ util::Status calcX(int64 a, int64 b, int64 px, int64 py, int64 dsquared_u,
 
   int64 radical = micro::SqrtU(aC);
   VLOGF(5, "Square root %d", radical);
-  *value = micro::DivideU(radical - offset_u, a);
+  *value = micro::DivideU(radical - offset_u, a, &overflow);
   if (overflow != 0) {
     return util::InvalidArgumentError(absl::Substitute(
         "Division overflow with radical=$0, offset = $1, a = $2", radical,
@@ -41,7 +41,7 @@ int64 calcCoefficient(int64 dsquared_u, int64 offset_u, int numGoods,
                       int64 crossing_u) {
   auto nom = dsquared_u - micro::PowU(offset_u, numGoods);
   auto denom = micro::MultiplyU(crossing_u, micro::PowU(offset_u, numGoods - 1));
-  return micro::DivideU(nom, denom);
+  return micro::DivideU(nom, denom, &overflow);
 }
 
 util::Status internal_optimum_1(const market::proto::Quantity& good,
@@ -49,7 +49,12 @@ util::Status internal_optimum_1(const market::proto::Quantity& good,
                                 int64 offset_u, int64 dsquared_u,
                                 market::proto::Container* result) {
   result->Clear();
-  *result += good;
+  // Calculate coefficient here because the dsquared may be a reduced one due to
+  // constraints.
+  auto coef = calcCoefficient(dsquared_u, offset_u, 1, good.amount());
+  market::Measure amount = dsquared_u - offset_u;
+  amount = micro::DivideU(amount, coef);
+  market::Add(good.kind(), amount, result);
   return util::OkStatus();
 }
 
@@ -64,7 +69,8 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
 
   result->Clear();
   market::proto::Container coeffs;
-  // TODO: Coefficients are constant, so can be calculated once and cached.
+  // Coefficients are constant unless this is a constrained rebound from a
+  // three-good problem or higher. So, calculate them anyway.
   int64 a = calcCoefficient(dsquared_u, offset_u, 2, goods[0].amount());
   int64 b = calcCoefficient(dsquared_u, offset_u, 2, goods[1].amount());
   int64 px = market::GetAmount(prices, goods[0].kind());
@@ -117,7 +123,6 @@ internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
         calcCoefficient(dsquared_u, offset_u, 3, goods[i].amount());
   }
 
-  uint64 overflow;
   for (int i = 0; i < 3; ++i) {
     int j = (i + 1) % 3;
     int k = (i + 2) % 3;
@@ -184,6 +189,91 @@ util::Status internal_optimum(const market::proto::Container& goods,
   return util::OkStatus();
 }
 
+util::Status constrained_optimum(const market::proto::Container& goods,
+                                 const market::proto::Container& constraints,
+                                 const market::proto::Container& prices,
+                                 int64 offset_u, int64 dsquared_u,
+                                 market::proto::Container* result) {
+  result->Clear();
+  int numGoods = goods.quantities().size();
+  if (constraints.quantities().size() >= numGoods) {
+    return util::NotFoundError("Not enough goods available");
+  }
+
+  market::proto::Container free;
+  market::Measure reduced_dsquared_u = dsquared_u;
+  for (const auto& good : goods.quantities()) {
+    if (!market::Contains(constraints, good.first)) {
+      market::SetAmount(good.first, good.second, &free);
+      continue;
+    }
+    auto con = market::GetAmount(constraints, good.first);
+    auto coef = calcCoefficient(dsquared_u, offset_u, numGoods, good.second);
+    coef = micro::MultiplyU(coef, con);
+    coef += offset_u;
+    reduced_dsquared_u = micro::DivideU(reduced_dsquared_u, coef);
+    VLOG(3,
+         absl::Substitute("Max $0 $1 available, reduced D^2 to $2", con,
+                          good.first, reduced_dsquared_u));
+  }
+
+  auto status = internal_optimum(free, prices, offset_u, reduced_dsquared_u, result);
+  *result += constraints;
+  return status;
+}
+
+// Greedy-local algorithm simply takes everything available of each good in
+// succession until constraints are satisfied or no more goods remain.
+util::Status greedyLocal(const std::vector<market::proto::Quantity>& toConsume,
+                         const market::AvailabilityEstimator& available,
+                         int64 dsquared_u, int64 offset_u,
+                         market::proto::Container* result) {
+  result->Clear();
+  market::Measure product_u = micro::kOneInU;
+  for (int i = 0; i < toConsume.size(); ++i) {
+    const auto& tc = toConsume[i];
+    auto av = available.AvailableImmediately(tc.kind());
+    // Roundoff error in coefficients may cause us to miss that we definitely
+    // have enough, so store this fact if it's true.
+    bool sufficient = false;
+    if (av >= tc.amount()) {
+      av = tc.amount();
+      sufficient = true;
+    }
+
+    auto remainingOffsets = micro::PowU(offset_u, toConsume.size() - i - 1);
+    auto coef =
+        calcCoefficient(dsquared_u, offset_u, toConsume.size(), tc.amount());
+    market::Measure current_u = micro::MultiplyU(coef, av) + offset_u;
+    if (micro::MultiplyU(current_u, product_u, remainingOffsets) > dsquared_u) {
+      current_u = micro::DivideU(dsquared_u,
+                                 micro::MultiplyU(product_u, remainingOffsets));
+      current_u -= offset_u;
+      current_u = micro::DivideU(current_u, coef);
+      av = current_u;
+    }
+
+    market::SetAmount(tc.kind(), av, result);
+    if (sufficient) {
+      return util::OkStatus();
+    }
+
+    current_u = micro::MultiplyU(coef, av) + offset_u;
+    product_u = micro::MultiplyU(product_u, current_u);
+    // Allow for some roundoff error in coefficient or amount.
+    static const int64 tolerance = 10;
+    if (micro::MultiplyU(product_u, remainingOffsets) + tolerance >= dsquared_u) {
+      return util::OkStatus();
+    }
+  }
+
+  // If we get here the constraints are not satisfiable with the available
+  // goods.
+  result->Clear();
+  return util::NotFoundError(
+      "Not enough goods available to satisfy greedy-local.");
+}
+
 } // namespace
 
 util::Status Optimum(const proto::Substitutes& subs,
@@ -212,11 +302,53 @@ util::Status Consumption(const proto::Substitutes& subs,
     }
   }
 
+  // Sanity-check that there is something available, before we begin expensive
+  // calculations.
+  auto toConsume = market::Expand(subs.consumed());
+  int avCount = 0;
+  for (const auto& tc : toConsume) {
+    if (available.AvailableImmediately(tc.kind()) > 1) {
+      avCount++;
+    }
+  }
+  if (avCount == 0) {
+    return util::NotFoundError(
+        absl::Substitute("Literally no goods of $0 requested kinds available",
+                         toConsume.size()));
+  }
+  // If only one good is available, no need for fancy optimisation.
+  if (avCount == 1) {
+    return greedyLocal(toConsume, available, subs.min_amount_square_u(),
+                       subs.offset_u(), result);
+  }
 
   auto status = internal_optimum(subs.consumed(), prices, subs.offset_u(),
                                  subs.min_amount_square_u(), result);
+  if (status.ok()) {
+    if (available.AvailableImmediately(*result)) {
+      return util::OkStatus();
+    }
 
-  return status;
+    auto goods = market::Expand(*result);
+    market::proto::Container constraints;
+    for (const auto& good : goods) {
+      auto canGet = available.AvailableImmediately(good.kind());
+      if (canGet < good.amount()) {
+        market::SetAmount(good.kind(), canGet, &constraints);
+      }
+    }
+
+    status = constrained_optimum(subs.consumed(), constraints, prices,
+                               subs.offset_u(), subs.min_amount_square_u(),
+                               result);
+    if (status.ok()) {
+      return status;
+    }
+  }
+
+  // Final fallback.
+  return greedyLocal(toConsume, available, subs.min_amount_square_u(),
+                     subs.offset_u(), result);
 }
 
 
@@ -268,7 +400,6 @@ util::Status Validate(const proto::Substitutes& subs) {
   for (const auto& good : subs.consumed().quantities()) {
     auto nom = dsquared_u - micro::MultiplyU(offset_u, offset_u);
     auto denom = micro::MultiplyU(good.second, offset_u);
-    uint64 overflow = 0;
     auto ratio = micro::DivideU(nom, denom, &overflow);
     if (overflow != 0) {
       return util::InvalidArgumentError(absl::Substitute(
@@ -288,7 +419,6 @@ util::Status Validate(const proto::Substitutes& subs) {
   for (const auto& good : subs.movable_capital().quantities()) {
     auto nom = dsquared_u - micro::MultiplyU(offset_u, offset_u);
     auto denom = micro::MultiplyU(good.second, offset_u);
-    uint64 overflow = 0;
     auto ratio = micro::DivideU(nom, denom, &overflow);
     if (overflow != 0) {
       return util::InvalidArgumentError(absl::Substitute(

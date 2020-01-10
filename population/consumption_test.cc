@@ -1,6 +1,8 @@
 // Tests for consumption math.
 #include "population/consumption.h"
 
+#include <functional>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "market/goods_utils.h"
@@ -14,19 +16,28 @@ constexpr char kApples[] = "apples";
 constexpr char kOranges[] = "oranges";
 constexpr char kBananas[] = "bananas";
 
+void VerbLog(int level) {
+  Log::SetVerbosity("population/consumption.cc", level);
+  static bool registered = false;
+  if (!registered) {
+    Log::Register(Log::coutLogger);
+    registered = true;
+  }
+}
+
 } // namespace
 
 TEST(ConsumptionTest, Optimum) {
   proto::Substitutes subs;
   market::proto::Container result;
   market::proto::Container prices;
-  Log::SetVerbosity("population/consumption.cc", 10);
-  Log::Register(Log::coutLogger);
+  VerbLog(10);
 
   market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
   EXPECT_OK(Validate(subs));
   EXPECT_OK(Optimum(subs, prices, &result));
-  EXPECT_EQ(3*micro::kOneInU, market::GetAmount(result, kApples));
+  // Some roundoff error from calculating the coefficient.
+  EXPECT_EQ(3*micro::kOneInU + 12, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
 
   // Initially test symmetric case.
@@ -149,6 +160,200 @@ TEST(ConsumptionTest, Validation) {
   status = Validate(subs);
   EXPECT_THAT(status.error_message(), testing::HasSubstr("handle at most"));
   EXPECT_THAT(status.error_message(), testing::HasSubstr("found 4"));
+}
+
+TEST(ConsumptionTest, Consumption) {
+  proto::Substitutes subs;
+  subs.set_name("Consumption");
+  market::proto::Container result;
+  market::proto::Container prices;
+  VerbLog(3);
+
+  struct FakeMarket : public market::AvailabilityEstimator {
+    market::Measure Available(const std::string& name, int ahead) const override {
+      if (available.find(name) == available.end()) {
+        return 0;
+      }
+      return available.at(name);
+    }
+
+    bool Available(const market::proto::Container& basket,
+                   int ahead) const override {
+      for (const auto& good : basket.quantities()) {
+        if (Available(good.first, ahead) < good.second) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    void Set(const std::string name, market::Measure amount) {
+      available[name] = amount;
+    }
+
+    std::unordered_map<std::string, market::Measure> available;
+  };
+
+  FakeMarket available;
+  market::SetAmount(kApples, 0, &prices);
+  auto status = Consumption(subs, prices, available, &result);
+  EXPECT_THAT(status.error_message(), testing::HasSubstr("Prices must be positive"));
+  market::SetAmount(kApples, micro::kOneInU, &prices);
+  market::SetAmount(kOranges, micro::kOneInU, &prices);
+  market::SetAmount(kBananas, micro::kOneInU, &prices);
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_THAT(status.error_message(), testing::HasSubstr("Literally no goods"));
+  available.Set(kApples, micro::kTenInU);
+
+  market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
+  EXPECT_OK(Validate(subs));
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(3*micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
+
+  available.Set(kApples, micro::kOneInU);
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_THAT(status.error_message(), testing::HasSubstr("Not enough goods"));
+
+  market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
+  available.Set(kOranges, micro::kTenInU);
+  EXPECT_OK(Validate(subs));
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kOranges));
+
+  available.Set(kApples, micro::kHalfInU);
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
+  // Some roundoff error.
+  EXPECT_EQ(3*micro::kOneInU+7, market::GetAmount(result, kOranges));
+
+  available.Set(kApples, micro::kOneInU);
+  available.Set(kOranges, micro::kOneInU);
+  available.Set(kBananas, micro::kOneInU);
+  market::SetAmount(kApples, 7*micro::kOneInU, subs.mutable_consumed());
+  market::SetAmount(kOranges, 7*micro::kOneInU, subs.mutable_consumed());
+  market::SetAmount(kBananas, 7*micro::kOneInU, subs.mutable_consumed());
+  EXPECT_OK(Validate(subs));
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kOranges));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));
+
+  available.Set(kApples, micro::kTenInU);
+  available.Set(kOranges, micro::kTenInU);
+  available.Set(kBananas, 0);
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(1828428, market::GetAmount(result, kApples));
+  EXPECT_EQ(1828428, market::GetAmount(result, kOranges));
+  EXPECT_EQ(0, market::GetAmount(result, kBananas));
+
+  available.Set(kOranges, 0);
+  available.Set(kBananas, micro::kTenInU);
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(1828428, market::GetAmount(result, kApples));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
+  EXPECT_EQ(1828428, market::GetAmount(result, kBananas));
+
+  available.Set(kBananas, 0);
+  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_EQ(7 * micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
+  EXPECT_EQ(0, market::GetAmount(result, kBananas));
+}
+
+TEST(ConsumptionTest, GreedyLocal) {
+  proto::Substitutes subs;
+  subs.set_name("GreedyLocal");
+  market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
+  market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
+  market::proto::Container result;
+  market::proto::Container prices;
+  // If prices are not set optimum calculations will fail and skipcount, below,
+  // will be off.
+  market::SetAmount(kApples, micro::kOneInU, &prices);
+  market::SetAmount(kOranges, micro::kOneInU, &prices);
+  market::SetAmount(kBananas, micro::kOneInU, &prices);
+  VerbLog(3);
+
+  struct GreedyLocalMarket : public market::AvailabilityEstimator {
+    market::Measure Available(const std::string& name, int ahead) const override {
+      if (available.find(name) == available.end()) {
+        return 0;
+      }
+      if (skipfunc(name)) {
+        return 0;
+      }
+
+      return available.at(name);
+    }
+
+    bool Available(const market::proto::Container& basket,
+                   int ahead) const override {
+      // Only the initial optimum result uses this method, and we don't want
+      // that to succeed.
+      return false;
+    }
+
+    void Set(const std::string& name, market::Measure amount) {
+      available[name] = amount;
+    }
+    void SetCustomFunction(std::function<bool(const std::string&)> f) {
+      skipfunc = f;
+    }
+
+    std::unordered_map<std::string, market::Measure> available;
+    std::function<bool(const std::string&)> skipfunc;
+  };
+  GreedyLocalMarket greedy;
+  std::unordered_map<std::string, int> count;
+  int countToSkip = 3;
+  auto counter = [&count, &countToSkip](const std::string& n) -> bool {
+    // Custom to make things available for sanity check and for
+    // greedy-local, but not available for constrained-optimum.
+    count[n]++;
+    return count[n] == countToSkip;
+  };
+  greedy.SetCustomFunction(counter);
+
+  greedy.Set(kApples, 2 * micro::kOneInU);
+  greedy.Set(kOranges, 0);
+  greedy.Set(kBananas, 0);
+  auto status = Consumption(subs, prices, greedy, &result);
+  EXPECT_THAT(status.error_message(),
+              testing::HasSubstr("Not enough goods available"));
+  count = {};
+
+  greedy.Set(kApples, 3 * micro::kOneInU);
+  status = Consumption(subs, prices, greedy, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(market::GetAmount(subs.consumed(), kApples),
+            market::GetAmount(result, kApples));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
+  count = {};
+
+  // As there are now two goods, the first greedy-local won't fire, so change
+  // the skipcount to account for that.
+  countToSkip = 2;
+  greedy.Set(kApples, 2 * micro::kOneInU);
+  greedy.Set(kOranges, 2 * micro::kOneInU);
+  status = Consumption(subs, prices, greedy, &result);
+  EXPECT_OK(status) << status.error_message();
+  // Some roundoff error here.
+  EXPECT_EQ(micro::kOneThirdInU - 1, market::GetAmount(result, kApples));
+  EXPECT_EQ(2 * micro::kOneInU, market::GetAmount(result, kOranges));
+  count = {};
+  
+  market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
+  greedy.Set(kApples, 1 * micro::kOneInU);
+  greedy.Set(kOranges, 1 * micro::kOneInU);
+  greedy.Set(kBananas, 1 * micro::kOneInU);
+  status = Consumption(subs, prices, greedy, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(0, market::GetAmount(result, kApples));
+  EXPECT_EQ(600000, market::GetAmount(result, kOranges));
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));
 }
 
 } // namespace consumption
