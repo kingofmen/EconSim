@@ -80,11 +80,13 @@ on the curve you are, so you always slide all the way to the end in
 the direction of negative price change). So, we need an inverse
 relationship, which we can parametrise fairly freely:
 \begin{eqnarray}
-(ax + o)^n = \frac{D^2}{(by +o)^n}
+(ax + o)^n = \frac{D^2}{(by + o)^n}
 \end{eqnarray}
 where $o$ is an offset showing how far the asymptotes are from the
 axes. Since we need to be able to reach the axes, i.e. have 0 of one
-or the other good, the offset must be positive, and it is the same on
+or the other good, the offset must be positive\footnote{It would be
+  possible to use negative offsets to represent required minimum
+  amounts, but then the other parameters become hard to interpret.}, and it is the same on
 both sides of the equation to maintain symmetry. The constants $a$ and
 $b$ are substitution weights, and the distance $D$ gives the minimum
 distance from the origin, as shown below. We see that $n$ does not
@@ -117,7 +119,7 @@ case.
 
 Extending to three or more dimensions is straightforward:
 \begin{eqnarray*}
-\prod_{i=i}^{n}(c_ix_i + o) &=& D^2\\
+\prod_{i=1}^{n}(c_ix_i + o) &=& D^2\\
 c_ix_{i0} + o &=& \frac{D^2}{o^{n-1}}\\
 c_i &=& \frac{D^2-o^n}{o^{n-1}x_{i0}}.
 \end{eqnarray*}
