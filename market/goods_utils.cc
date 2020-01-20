@@ -103,6 +103,14 @@ void Copy(const Container& source, const std::string& mask, Container* target) {
   Add(mask, GetAmount(source, mask), target);
 }
 
+void Erase(const std::string& kind, Container* con) {
+  con->mutable_quantities()->erase(kind);
+}
+
+void Erase(const Quantity& qua, Container* con) {
+  con->mutable_quantities()->erase(qua.kind());
+}
+
 std::vector<Quantity> Expand(const market::proto::Container& con) {
   std::vector<Quantity> ret;
   for (const auto& good : con.quantities()) {

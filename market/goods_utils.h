@@ -50,6 +50,11 @@ void Copy(const market::proto::Container& source,
 void Copy(const market::proto::Container& source, const std::string& mask,
           market::proto::Container* target);
 
+// Erases the provided kind from the container; not setting the amount
+// to zero but entirely removing it from the map.
+void Erase(const std::string& kind, market::proto::Container* con);
+void Erase(const market::proto::Quantity& kind, market::proto::Container* con);
+
 // Returns a vector of the contained Quantities.
 std::vector<market::proto::Quantity>
 Expand(const market::proto::Container& con);
