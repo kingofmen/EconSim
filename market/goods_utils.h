@@ -66,6 +66,8 @@ Measure GetAmount(const market::proto::Container& con, const std::string& name);
 // Returns the amount of qua.kind() in con; zero if not set.
 Measure GetAmount(const market::proto::Container& con,
                   const market::proto::Quantity& qua);
+Measure GetAmount(const market::proto::Container& con,
+                  const std::pair<std::string, Measure>& qua);
 
 // Returns a quantity with the given values.
 market::proto::Quantity MakeQuantity(const std::string& name,

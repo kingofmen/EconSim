@@ -134,6 +134,11 @@ Measure GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
+Measure GetAmount(const Container& con,
+                  const std::pair<std::string, Measure>& qua) {
+  return GetAmount(con, qua.first);
+}
+
 Quantity MakeQuantity(const std::string& name, const Measure amount) {
   Quantity ret;
   ret.set_kind(name);
