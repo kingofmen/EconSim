@@ -110,6 +110,10 @@ void Erase(const std::string& kind, Container* con) {
 void Erase(const Quantity& qua, Container* con) {
   con->mutable_quantities()->erase(qua.kind());
 }
+void Erase(const std::pair<std::string, Measure> amount,
+               market::proto::Container* con) {
+  Erase(amount.first, con);
+}
 
 std::vector<Quantity> Expand(const market::proto::Container& con) {
   std::vector<Quantity> ret;

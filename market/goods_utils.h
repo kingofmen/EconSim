@@ -54,6 +54,8 @@ void Copy(const market::proto::Container& source, const std::string& mask,
 // to zero but entirely removing it from the map.
 void Erase(const std::string& kind, market::proto::Container* con);
 void Erase(const market::proto::Quantity& kind, market::proto::Container* con);
+void Erase(const std::pair<std::string, Measure> amount,
+           market::proto::Container* con);
 
 // Returns a vector of the contained Quantities.
 std::vector<market::proto::Quantity>
