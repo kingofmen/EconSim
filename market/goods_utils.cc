@@ -159,6 +159,11 @@ void SetAmount(const Quantity& qua, Container* con) {
   SetAmount(qua.kind(), qua.amount(), con);
 }
 
+void SetAmount(const std::pair<std::string, Measure> amount,
+               market::proto::Container* con) {
+  SetAmount(amount.first, amount.second, con);
+}
+
 market::proto::Container
 SubtractFloor(const market::proto::Container& minuend,
               const market::proto::Container& subtrahend,
