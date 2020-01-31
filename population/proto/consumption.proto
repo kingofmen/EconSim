@@ -27,6 +27,10 @@ message Substitutes {
 
   // An identifying string.
   optional string name = 7;
+
+  // Minimum amounts, if there are any. A good that does not have
+  // a minimum set can go to zero.
+  optional market.proto.Container minimum = 8;
 }
 
 message Consumption {

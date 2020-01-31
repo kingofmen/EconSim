@@ -98,10 +98,11 @@ TEST(ConsumptionTest, Optimum) {
   EXPECT_OK(Optimum(subs, prices, &result));
   // Cube-root of either 3, or one-ninth; minus one-half, divide by
   // seven-sixths. This gives a negative number for oranges, which
-  // the algorithm will clamp.
-  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
+  // the algorithm will clamp; the other two then come out to
+  // six-sevenths of (sqrt(2) - 1/2).
+  EXPECT_EQ(783612, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
-  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));  
+  EXPECT_EQ(783612, market::GetAmount(result, kBananas));
 
   // Asymmetric crossing points.
   market::SetAmount(kOranges, micro::kOneInU, &prices);
@@ -162,37 +163,37 @@ TEST(ConsumptionTest, Validation) {
   EXPECT_THAT(status.error_message(), testing::HasSubstr("found 4"));
 }
 
+struct FakeMarket : public market::AvailabilityEstimator {
+  market::Measure Available(const std::string& name, int ahead) const override {
+    if (available.find(name) == available.end()) {
+      return 0;
+    }
+    return available.at(name);
+  }
+
+  bool Available(const market::proto::Container& basket,
+                 int ahead) const override {
+    for (const auto& good : basket.quantities()) {
+      if (Available(good.first, ahead) < good.second) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void Set(const std::string name, market::Measure amount) {
+    available[name] = amount;
+  }
+
+  std::unordered_map<std::string, market::Measure> available;
+};
+
 TEST(ConsumptionTest, Consumption) {
   proto::Substitutes subs;
   subs.set_name("Consumption");
   market::proto::Container result;
   market::proto::Container prices;
   VerbLog(3);
-
-  struct FakeMarket : public market::AvailabilityEstimator {
-    market::Measure Available(const std::string& name, int ahead) const override {
-      if (available.find(name) == available.end()) {
-        return 0;
-      }
-      return available.at(name);
-    }
-
-    bool Available(const market::proto::Container& basket,
-                   int ahead) const override {
-      for (const auto& good : basket.quantities()) {
-        if (Available(good.first, ahead) < good.second) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    void Set(const std::string name, market::Measure amount) {
-      available[name] = amount;
-    }
-
-    std::unordered_map<std::string, market::Measure> available;
-  };
 
   FakeMarket available;
   market::SetAmount(kApples, 0, &prices);
@@ -214,7 +215,7 @@ TEST(ConsumptionTest, Consumption) {
 
   available.Set(kApples, micro::kOneInU);
   status = Consumption(subs, prices, available, &result);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("Not enough goods"));
+  EXPECT_THAT(status.error_message(), testing::HasSubstr("enough goods available"));
 
   market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
   available.Set(kOranges, micro::kTenInU);
@@ -226,8 +227,7 @@ TEST(ConsumptionTest, Consumption) {
   available.Set(kApples, micro::kHalfInU);
   EXPECT_OK(Consumption(subs, prices, available, &result));
   EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
-  // Some roundoff error.
-  EXPECT_EQ(3*micro::kOneInU+7, market::GetAmount(result, kOranges));
+  EXPECT_EQ(1666666, market::GetAmount(result, kOranges));
 
   available.Set(kApples, micro::kOneInU);
   available.Set(kOranges, micro::kOneInU);
@@ -354,6 +354,53 @@ TEST(ConsumptionTest, GreedyLocal) {
   EXPECT_EQ(0, market::GetAmount(result, kApples));
   EXPECT_EQ(600000, market::GetAmount(result, kOranges));
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));
+}
+
+TEST(ConsumptionTest, Minima) {
+  proto::Substitutes subs;
+  subs.set_name("Minimum");
+  market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
+  market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
+  market::proto::Container result;
+  market::proto::Container prices;
+  market::SetAmount(kApples, micro::kOneInU, &prices);
+  market::SetAmount(kOranges, micro::kOneInU, &prices);
+  market::SetAmount(kBananas, micro::kOneInU, &prices);
+  VerbLog(3);
+
+  FakeMarket available;
+  available.Set(kOranges, 4*micro::kOneInU);
+
+  auto status = Consumption(subs, prices, available, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(3*micro::kOneInU, market::GetAmount(result, kOranges));
+
+  market::Add(kApples, micro::kHalfInU, subs.mutable_minimum());
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_THAT(status.error_message(), testing::HasSubstr(": Minimum "));
+
+  available.Set(kApples, 4*micro::kOneInU);
+  market::SetAmount(kOranges, micro::kHalfInU, &prices);
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
+  // Coefficients are one-half, y comes out to five thirds.
+  EXPECT_EQ(1666666, market::GetAmount(result, kOranges));
+
+  // Three goods, minimum 0.5 apples.
+  market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
+  available.Set(kBananas, 4*micro::kOneInU);
+  status = Consumption(subs, prices, available, &result);
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
+
+  // Oranges are cheap so expect more of them. Coefficients are seven-sixths;
+  // orange amount is root-2 minus one-half, divide seven-sixths. However that
+  // is with D^2=1, and in fact it is slightly reduced due to apple constraint,
+  // so the number below is correct. Then, banana amount is root one-half minus
+  // one-half, divide the same seven-sixths, and again adjust for reduced D^2.
+  EXPECT_EQ(736056, market::GetAmount(result, kOranges));
+  EXPECT_EQ(153741, market::GetAmount(result, kBananas));
 }
 
 } // namespace consumption
