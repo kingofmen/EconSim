@@ -417,4 +417,51 @@ TEST(GoodsUtilsTest, Copy) {
   EXPECT_EQ(10, GetAmount(source, kTestGood2));
 }
 
+TEST(GoodsUtilsTest, Erase) {
+  Container source;
+  Container target;
+
+  source << kTestGood1;
+  EXPECT_TRUE(Contains(source, kTestGood1));
+  EXPECT_FALSE(Contains(source, kTestGood2));
+  target << source;
+  EXPECT_FALSE(Contains(source, kTestGood1));
+  EXPECT_FALSE(Contains(source, kTestGood2));
+  EXPECT_TRUE(Contains(target, kTestGood1));
+  EXPECT_FALSE(Contains(target, kTestGood2));
+
+  SetAmount(kTestGood1, 1, &source);
+  SetAmount(kTestGood2, 0, &source);
+  EXPECT_TRUE(Contains(source, kTestGood1));
+  EXPECT_TRUE(Contains(source, kTestGood2));
+
+  Erase(kTestGood1, &source);
+  EXPECT_FALSE(Contains(source, kTestGood1));
+  EXPECT_TRUE(Contains(source, kTestGood2));
+  Erase(kTestGood2, &source);
+  EXPECT_FALSE(Contains(source, kTestGood1));
+  EXPECT_FALSE(Contains(source, kTestGood2));
+}
+
+TEST(GoodsUtilsTest, Iterators) {
+  Container source;
+  Container target;
+  SetAmount(kTestGood1, 1, &source);
+  SetAmount(kTestGood2, 2, &source);
+
+  for (const auto& good : source.quantities()) {
+    SetAmount(good, &target);
+    EXPECT_EQ(GetAmount(target, good), good.second);
+  }
+  EXPECT_EQ(GetAmount(target, kTestGood1), GetAmount(source, kTestGood1));
+  EXPECT_EQ(GetAmount(target, kTestGood2), GetAmount(source, kTestGood2));
+
+  for (const auto& good : source.quantities()) {
+    Erase(good, &target);
+    EXPECT_EQ(0, GetAmount(target, good));
+  }
+  EXPECT_FALSE(Contains(target, kTestGood1));
+  EXPECT_FALSE(Contains(target, kTestGood2));
+}
+
 } // namespace market
