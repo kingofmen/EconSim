@@ -6,6 +6,7 @@ cc_binary(
     deps = [
         "//game/proto:game_world_proto",
         "//game/setup/proto:setup_proto",
+        "//game/validation:validation",
         "//util/proto:file",
         "//util/logging:logging",
         "//util/status",

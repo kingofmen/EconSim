@@ -5,6 +5,7 @@
 #include "absl/strings/substitute.h"
 #include "game/setup/proto/setup.pb.h"
 #include "game/proto/game_world.pb.h"
+#include "game/validation/validation.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
@@ -81,6 +82,14 @@ loadScenario(const game::setup::proto::ScenarioFiles& setup) {
   status = util::proto::ParseProtoFile(world_path.string(), &game_world);
   if (!status.ok()) {
     return status;
+  }
+
+  std::vector<std::string> errors = game::validation::Validate({}, game_world);
+  if (!errors.empty()) {
+    for (const auto err : errors) {
+      Log::Error(err);
+    }
+    return util::InvalidArgumentError("Validation errors in scenario");
   }
 
   return util::OkStatus();
