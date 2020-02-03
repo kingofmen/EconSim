@@ -56,5 +56,9 @@ production_chains {
       value: 10000000
     }
   }
+  scaling {
+    size_u: 99000000
+    effect_u: 99000000
+  }
   land_type: LT_FOREST
 }

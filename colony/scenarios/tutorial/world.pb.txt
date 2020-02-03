@@ -44,9 +44,6 @@ areas {
     prices_u {
       quantities { key: "labour" value: 1000000 }
     }
-    goods {
-      quantities { key: "labour" value: 1 }
-    }
     name: "area_1_market"
     legal_tender: "silver"
     credit_limit: 1000000000
@@ -64,6 +61,7 @@ pops {
   women: 50
   wealth {
     quantities { key: "silver" value: 100000000 }
+    quantities { key: "tools" value: 100000000 }
   }
 }
 
