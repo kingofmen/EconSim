@@ -4,7 +4,9 @@ cc_binary(
     name = "sevenyears",
     srcs = ["sevenyears_main.cc"],
     deps = [
+        "//game/proto:game_world_proto",
         "//game/setup/proto:setup_proto",
+        "//util/proto:file",
         "//util/logging:logging",
         "//util/status",
         "@com_google_absl//absl/strings:strings",
