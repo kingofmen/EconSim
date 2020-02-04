@@ -12,5 +12,6 @@ cc_binary(
         "//util/status",
         "@com_google_absl//absl/strings:strings",
         "@com_google_protobuf//:protobuf",
+        "@sdl2//:SDL2",
     ],
 )

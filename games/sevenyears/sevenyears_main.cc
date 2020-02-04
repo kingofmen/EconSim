@@ -10,6 +10,8 @@
 #include "util/proto/file.h"
 #include "util/status/status.h"
 
+#include "SDL.h"
+
 google::protobuf::util::Status
 validateSetup(const game::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_name()) {
@@ -113,9 +115,33 @@ int main(int /*argc*/, char** /*argv*/) {
     auto status = loadScenario(scenarios[0]);
     if (!status.ok()) {
       Log::Errorf("Error loading scenario: %s", status.error_message());
-      return 3;
+      //return 3;
     }
   }
+
+  SDL_Window* window = NULL;
+  SDL_Surface* screenSurface = NULL;
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    Log::Errorf("Could not initialise SDL: %s", SDL_GetError());
+    return 4;
+  }
+  window =
+      SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+  if (window == NULL) {
+    Log::Errorf("Could not create window: %s", SDL_GetError());
+    return 4;
+  }
+
+  screenSurface = SDL_GetWindowSurface(window);
+  SDL_FillRect(screenSurface, NULL,
+               SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+  SDL_UpdateWindowSurface(window);
+
+  // Wait two seconds, then cleanup.
+  SDL_Delay(2000);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 
   return 0;
 }
