@@ -49,3 +49,9 @@ new_local_repository(
     path = "C:\\Users\\Rolf\\base\\third_party\\Horde3D",
     build_file = "C:\\Users\\Rolf\\base\\third_party\\Horde3D\\horde3d.BUILD",
 )
+
+new_local_repository(
+    name = "sdl2",
+    path = "C:\\Users\\Rolf\\base\\third_party\sdl2",
+    build_file = "C:\\Users\\Rolf\\base\\third_party\sdl2\BUILD.bazel",
+)
