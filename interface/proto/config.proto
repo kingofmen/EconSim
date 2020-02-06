@@ -1,0 +1,8 @@
+syntax = "proto2";
+package interface.proto;
+
+message Config {
+  // Screen width, height.
+  optional uint32 width = 1;
+  optional uint32 height = 2;
+}
