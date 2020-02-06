@@ -2,6 +2,7 @@
 #define INTERFACE_INTERFACE_H
 
 #include "interface/proto/config.pb.h"
+#include "util/status/status.h"
 
 namespace interface {
 
@@ -19,7 +20,7 @@ class Base {
    Base() = default;
    ~Base() = default;
 
-   virtual void Initialise(const interface::proto::Config& config) = 0;
+   virtual util::Status Initialise(const interface::proto::Config& config) = 0;
    virtual void Cleanup() = 0;
    void SetReceiver(Receiver* c) { receiver_ = c; }
 
