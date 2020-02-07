@@ -1,2 +1,54 @@
 # World file for dev work.
 
+areas {
+  id: 1
+}
+areas {
+  id: 2
+}
+areas {
+  id: 3
+}
+areas {
+  id: 4
+}
+areas {
+  id: 5
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 1
+  distance_u: 1000000
+  width_u: 1000000
+  a: 1
+  z: 2
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 2
+  distance_u: 1000000
+  width_u: 1000000
+  a: 1
+  z: 3
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 3
+  distance_u: 1000000
+  width_u: 1000000
+  a: 1
+  z: 4
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 4
+  distance_u: 1000000
+  width_u: 1000000
+  a: 1
+  z: 5
+}
+
