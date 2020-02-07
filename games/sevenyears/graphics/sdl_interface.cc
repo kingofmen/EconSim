@@ -56,7 +56,7 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
   int width = 640;
   int height = 480;
   widthAndHeight(config.screen_size(), width, height);
-  window_.reset(SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED,
+  window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
                                  SDL_WINDOWPOS_UNDEFINED, width, height,
                                  SDL_WINDOW_SHOWN));
   if (!window_) {
@@ -74,6 +74,15 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
 void SDLInterface::Cleanup() {
   window_.reset(nullptr); // Also calls deleter.
   SDL_Quit();
+}
+
+void SDLInterface::EventLoop() {
+  SDL_Event e;
+  while (SDL_PollEvent(&e) != 0) {
+    if (e.type == SDL_QUIT) {
+      receiver_->QuitToDesktop();
+    }
+  }
 }
 
 }  // namespace graphics

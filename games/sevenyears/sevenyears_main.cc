@@ -104,6 +104,20 @@ interface::Base* createInterface() {
   return new sevenyears::graphics::SDLInterface();
 }
 
+class EventHandler : public interface::Receiver {
+public:
+  EventHandler() : quit_(false) {}
+
+  void QuitToDesktop() override {
+    quit_ = true;
+  }
+
+  bool quit() const { return quit_; }
+
+private:
+  bool quit_;
+};
+
 int main(int /*argc*/, char** /*argv*/) {
   Log::Register(Log::coutLogger);
   auto paths = getScenarioPaths();
@@ -127,17 +141,22 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   interface::proto::Config config;
-  config.set_screen_size(interface::proto::Config::SS_1920_1080);
+  config.set_screen_size(interface::proto::Config::SS_1440_900);
+  EventHandler handler;
 
   interface::Base* graphics = createInterface();
+  graphics->SetReceiver(&handler);
+
   auto status = graphics->Initialise(config);
   if (!status.ok()) {
     Log::Errorf("Error creating graphics: %s", status.error_message());
     return 4;
   }
 
-  // Wait two seconds, then cleanup.
-  SDL_Delay(2000);
+  while (!handler.quit()) {
+    graphics->EventLoop();
+  }
+
   graphics->Cleanup();
 
   return 0;

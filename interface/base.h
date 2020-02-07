@@ -11,6 +11,8 @@ class Receiver {
  public:
    Receiver() = default;
    ~Receiver() = default;
+
+  virtual void QuitToDesktop() = 0;
 };
 
 // Base is an abstract class exposing a minimal set of interactions.
@@ -22,6 +24,7 @@ class Base {
 
    virtual util::Status Initialise(const interface::proto::Config& config) = 0;
    virtual void Cleanup() = 0;
+   virtual void EventLoop() = 0;
    void SetReceiver(Receiver* c) { receiver_ = c; }
 
  protected:
