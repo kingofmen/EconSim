@@ -127,8 +127,7 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   interface::proto::Config config;
-  config.set_width(640);
-  config.set_height(480);
+  config.set_screen_size(interface::proto::Config::SS_1920_1080);
 
   interface::Base* graphics = createInterface();
   auto status = graphics->Initialise(config);

@@ -2,7 +2,15 @@ syntax = "proto2";
 package interface.proto;
 
 message Config {
-  // Screen width, height.
-  optional uint32 width = 1;
-  optional uint32 height = 2;
+  enum ScreenSize {
+    // Width, height.
+    SS_DEFAULT = 0;
+    SS_1280_800 = 1;
+    SS_1280_1024 = 2;
+    SS_1366_768 = 3;
+    SS_1440_900 = 4;
+    SS_1600_900 = 5;
+    SS_1920_1080 = 6;
+  }
+  optional ScreenSize screen_size = 1;
 }
