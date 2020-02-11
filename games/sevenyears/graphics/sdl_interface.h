@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "interface/base.h"
+#include "games/sevenyears/graphics/sevenyears_interface.h"
 #include "interface/proto/config.pb.h"
 #include "util/status/status.h"
 #include "SDL.h"
@@ -12,7 +12,7 @@
 namespace sevenyears {
 namespace graphics {
 
-class SDLInterface : public interface::Base {
+class SDLInterface : public SevenYearsInterface {
 public:
   util::Status Initialise(const interface::proto::Config& config) override;
   void Cleanup() override;

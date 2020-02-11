@@ -100,7 +100,7 @@ loadScenario(const game::setup::proto::ScenarioFiles& setup) {
   return util::OkStatus();
 }
 
-interface::Base* createInterface() {
+sevenyears::graphics::SevenYearsInterface* createInterface() {
   return new sevenyears::graphics::SDLInterface();
 }
 
