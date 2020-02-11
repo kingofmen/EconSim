@@ -43,6 +43,27 @@ void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width, 
   }
 }
 
+util::Status validate(const proto::Scenario& scenario) {
+  if (scenario.maps().empty()) {
+    return util::NotFoundError("Scenario has no maps.");
+  }
+
+  int counter = 0;
+  for (const auto& map : scenario.maps()) {
+    counter++;
+    if (map.filename().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no filename.", counter));
+    }
+    if (map.area_ids().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no areas.", map.filename()));
+    }
+  }
+
+  return util::OkStatus();
+}
+
 
 }  // namespace
 
@@ -86,6 +107,11 @@ void SDLInterface::EventLoop() {
 }
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
+  auto status = validate(scenario);
+  if (!status.ok()) {
+    return status;
+  }
+  
   return util::OkStatus();
 }
 
