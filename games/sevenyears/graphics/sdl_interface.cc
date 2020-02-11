@@ -85,5 +85,9 @@ void SDLInterface::EventLoop() {
   }
 }
 
+util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
+  return util::OkStatus();
+}
+
 }  // namespace graphics
 }  // namespace sevenyears

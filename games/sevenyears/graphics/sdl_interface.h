@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 
+#include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/sevenyears/graphics/sevenyears_interface.h"
 #include "interface/proto/config.pb.h"
 #include "util/status/status.h"
@@ -17,6 +18,9 @@ public:
   util::Status Initialise(const interface::proto::Config& config) override;
   void Cleanup() override;
   void EventLoop() override;
+
+  util::Status ScenarioGraphics(
+      const sevenyears::graphics::proto::Scenario& scenario) override;
 
 private:
   struct SDLWindowCleaner {

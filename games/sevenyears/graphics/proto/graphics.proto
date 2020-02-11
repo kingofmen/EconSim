@@ -1,0 +1,19 @@
+syntax = "proto2";
+package sevenyears.graphics.proto;
+
+message LatLong {
+  optional int32 degrees_north = 1;
+  optional int32 minutes_north = 2;
+  optional int32 degrees_east = 3;
+  optional int32 minutes_east = 4;
+}
+
+message Map {
+  optional string filename = 1;
+  repeated uint64 area_ids = 2;
+  optional LatLong left_top_corner = 3;
+}
+
+message Scenario {
+  repeated Map maps = 1;
+}

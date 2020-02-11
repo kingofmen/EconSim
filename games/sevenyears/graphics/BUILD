@@ -5,6 +5,7 @@ cc_library(
     srcs = ["sevenyears_interface.cc"],
     hdrs = ["sevenyears_interface.h"],
     deps = [
+        "//games/sevenyears/graphics/proto:graphics_proto",
         "//interface:base",
         "//interface/proto:config_proto",
         "//util/status",
@@ -17,6 +18,7 @@ cc_library(
     hdrs = ["sdl_interface.h"],
     deps = [
         ":sevenyears_interface",
+        "//games/sevenyears/graphics/proto:graphics_proto",
         "//interface:base",
         "//interface/proto:config_proto",
         "//util/status",
