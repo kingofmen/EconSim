@@ -58,13 +58,17 @@ util::Status validate(const proto::Scenario& scenario) {
   int counter = 0;
   for (const auto& map : scenario.maps()) {
     counter++;
+    if (map.name().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no name.", counter));
+    }
     if (map.filename().empty()) {
       return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no filename.", counter));
+          absl::Substitute("Map $0 has no filename.", map.name()));
     }
     if (map.area_ids().empty()) {
       return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no areas.", map.filename()));
+          absl::Substitute("Map $0 has no areas.", map.name()));
     }
   }
 

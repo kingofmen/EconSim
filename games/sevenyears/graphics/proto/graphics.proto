@@ -12,6 +12,7 @@ message Map {
   optional string filename = 1;
   repeated uint64 area_ids = 2;
   optional LatLong left_top_corner = 3;
+  optional string name = 4;
 }
 
 message Scenario {

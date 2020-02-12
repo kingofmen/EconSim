@@ -1,5 +1,6 @@
 root_gfx_path: "gfx/dev/"
 maps {
+  name: "WestEurope"
   filename: "WesternEurope_792_900.bmp"
   area_ids: 1
   area_ids: 2
