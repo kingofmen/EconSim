@@ -73,8 +73,7 @@ getScenarios(const std::vector<std::experimental::filesystem::path> paths) {
   return scenarios;
 }
 
-google::protobuf::util::Status
-loadScenario(const game::setup::proto::ScenarioFiles& setup) {
+util::Status loadScenario(const game::setup::proto::ScenarioFiles& setup) {
   auto status = validateSetup(setup);
   if (!status.ok()) {
     return status;
@@ -102,6 +101,24 @@ loadScenario(const game::setup::proto::ScenarioFiles& setup) {
 
 sevenyears::graphics::SevenYearsInterface* createInterface() {
   return new sevenyears::graphics::SDLInterface();
+}
+
+util::Status
+loadGraphicsInfo(sevenyears::graphics::SevenYearsInterface* interface) {
+  auto exe_path = std::experimental::filesystem::current_path();
+  auto graphics_path = exe_path / "gfx/dev_graphics.pb.txt";
+  if (!std::experimental::filesystem::exists(graphics_path)) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find scenario graphics file $0", graphics_path.string()));
+  }
+
+  sevenyears::graphics::proto::Scenario graphics;
+  auto status = util::proto::ParseProtoFile(graphics_path.string(), &graphics);
+  if (!status.ok()) {
+    return status;
+  }
+
+  return interface->ScenarioGraphics(graphics);
 }
 
 class EventHandler : public interface::Receiver {
@@ -144,13 +161,19 @@ int main(int /*argc*/, char** /*argv*/) {
   config.set_screen_size(interface::proto::Config::SS_1440_900);
   EventHandler handler;
 
-  interface::Base* graphics = createInterface();
+  sevenyears::graphics::SevenYearsInterface* graphics = createInterface();
   graphics->SetReceiver(&handler);
 
   auto status = graphics->Initialise(config);
   if (!status.ok()) {
-    Log::Errorf("Error creating graphics: %s", status.error_message());
+    Log::Errorf("Error initialising interface: %s", status.error_message());
     return 4;
+  }
+
+  status = loadGraphicsInfo(graphics);
+  if (!status.ok()) {
+    Log::Errorf("Error loading graphics info: %s", status.error_message());
+    return 5;
   }
 
   while (!handler.quit()) {
