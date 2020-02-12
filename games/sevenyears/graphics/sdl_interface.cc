@@ -1,7 +1,10 @@
 #include "games/sevenyears/graphics/sdl_interface.h"
 
+#include <experimental/filesystem>
+
 #include "absl/strings/substitute.h"
 #include "interface/proto/config.pb.h"
+#include "games/sevenyears/graphics/bitmap.h"
 #include "util/status/status.h"
 #include "SDL.h"
 
@@ -46,6 +49,10 @@ void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width, 
 util::Status validate(const proto::Scenario& scenario) {
   if (scenario.maps().empty()) {
     return util::NotFoundError("Scenario has no maps.");
+  }
+
+  if (!scenario.has_root_gfx_path() || scenario.root_gfx_path().empty()) {
+    return util::NotFoundError("Scenario has no root graphics path.");
   }
 
   int counter = 0;
@@ -111,7 +118,23 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   if (!status.ok()) {
     return status;
   }
-  
+
+  auto base_path = std::experimental::filesystem::current_path();
+  base_path /= scenario.root_gfx_path();
+  if (!std::experimental::filesystem::exists(base_path)) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find base graphics path $0", base_path.string()));
+  }
+
+  for (const proto::Map& map : scenario.maps()) {
+    auto current_path = base_path / map.filename();
+    SDL_Surface* curr = NULL;
+    status = bitmap::LoadForSdl(current_path, curr);
+    if (!status.ok()) {
+      return status;
+    }
+  }
+
   return util::OkStatus();
 }
 

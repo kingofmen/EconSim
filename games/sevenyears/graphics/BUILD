@@ -29,6 +29,7 @@ cc_library(
     hdrs = ["sdl_interface.h"],
     deps = [
         ":sevenyears_interface",
+        ":bitmap",
         "//games/sevenyears/graphics/proto:graphics_proto",
         "//interface:base",
         "//interface/proto:config_proto",
