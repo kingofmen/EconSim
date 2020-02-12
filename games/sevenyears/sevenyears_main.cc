@@ -167,12 +167,14 @@ int main(int /*argc*/, char** /*argv*/) {
   auto status = graphics->Initialise(config);
   if (!status.ok()) {
     Log::Errorf("Error initialising interface: %s", status.error_message());
+    graphics->Cleanup();
     return 4;
   }
 
   status = loadGraphicsInfo(graphics);
   if (!status.ok()) {
     Log::Errorf("Error loading graphics info: %s", status.error_message());
+    graphics->Cleanup();
     return 5;
   }
 
