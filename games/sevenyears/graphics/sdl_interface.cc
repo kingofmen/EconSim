@@ -96,16 +96,32 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
         absl::Substitute("Could not create window: $0", SDL_GetError()));
   }
 
-  SDL_Surface* screenSurface = SDL_GetWindowSurface(window_.get());
-  SDL_FillRect(screenSurface, NULL,
-               SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+  clearScreen();
   SDL_UpdateWindowSurface(window_.get());
   return util::OkStatus();
 }
 
 void SDLInterface::Cleanup() {
+  for (auto map : maps_) {
+    SDL_FreeSurface(map.second);
+  }
   window_.reset(nullptr); // Also calls deleter.
   SDL_Quit();
+}
+
+void SDLInterface::clearScreen() {
+  SDL_Surface* screenSurface = SDL_GetWindowSurface(window_.get());
+  SDL_FillRect(screenSurface, NULL,
+               SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+}
+
+void SDLInterface::drawMap() {
+  clearScreen();
+  if (current_map_.empty()) {
+    return;
+  }
+  SDL_Surface* screen = SDL_GetWindowSurface(window_.get());
+  SDL_BlitSurface(maps_[current_map_], NULL, screen, NULL);
 }
 
 void SDLInterface::EventLoop() {
@@ -115,6 +131,10 @@ void SDLInterface::EventLoop() {
       receiver_->QuitToDesktop();
     }
   }
+
+  // TODO: Put this in a separate thread, like a big boy.
+  drawMap();
+  SDL_UpdateWindowSurface(window_.get());
 }
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
@@ -137,6 +157,12 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
     if (!status.ok()) {
       return status;
     }
+    if (maps_.find(map.name()) != maps_.end()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Duplicate map $0", map.name()));
+    }
+    maps_[map.name()] = curr;
+    current_map_ = map.name();
   }
 
   return util::OkStatus();

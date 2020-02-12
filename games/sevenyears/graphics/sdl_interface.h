@@ -3,6 +3,8 @@
 
 #include <functional>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/sevenyears/graphics/sevenyears_interface.h"
@@ -23,10 +25,15 @@ public:
       const sevenyears::graphics::proto::Scenario& scenario) override;
 
 private:
+  void clearScreen();
+  void drawMap();
+
   struct SDLWindowCleaner {
     void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
   };
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
+  std::unordered_map<std::string, SDL_Surface*> maps_;
+  std::string current_map_;
 };
 
 }  // namespace graphics
