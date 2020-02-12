@@ -1,6 +1,17 @@
 package(default_visibility = ["//games/sevenyears:__subpackages__"])
 
 cc_library(
+    name = "bitmap",
+    srcs = ["bitmap.cc"],
+    hdrs = ["bitmap.h"],
+    deps = [
+        "//util/status",
+        "@com_google_absl//absl/strings:strings",
+        "@sdl2//:SDL2",
+    ],
+)
+
+cc_library(
     name = "sevenyears_interface",
     srcs = ["sevenyears_interface.cc"],
     hdrs = ["sevenyears_interface.h"],
