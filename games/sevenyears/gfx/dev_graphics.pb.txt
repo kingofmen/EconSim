@@ -2,6 +2,34 @@ root_gfx_path: "gfx/dev/"
 maps {
   name: "WestEurope"
   filename: "WesternEurope_792_900.bmp"
-  area_ids: 1
-  area_ids: 2
+  left_top_corner {
+    north {
+      degrees: 62
+      minutes: 22
+      seconds: 40
+    }
+    east {
+      degrees: 9
+      minutes: 2
+      seconds: 3
+    }
+  }
+  areas {
+    area_id: 1
+    position {
+      north {
+        degrees: 48
+	minutes: 22
+        seconds: 31
+      }
+      west {
+        degrees: 4
+	minutes: 28
+        seconds: 54
+      }
+    }
+    display_name: "Brest"
+  }
 }
+
+

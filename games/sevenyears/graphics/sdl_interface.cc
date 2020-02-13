@@ -66,9 +66,23 @@ util::Status validate(const proto::Scenario& scenario) {
       return util::InvalidArgumentError(
           absl::Substitute("Map $0 has no filename.", map.name()));
     }
-    if (map.area_ids().empty()) {
+    if (!map.has_left_top_corner()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no left-top coordinate.", map.name()));
+    }
+    if (map.areas().empty()) {
       return util::InvalidArgumentError(
           absl::Substitute("Map $0 has no areas.", map.name()));
+    }
+    for (const auto& area : map.areas()) {
+      if (!area.has_area_id()) {
+        continue;
+      }
+      if (!area.has_position()) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 has no coordinates.",
+                             area.area_id(), map.name()));
+      }
     }
   }
 

@@ -1,16 +1,29 @@
 syntax = "proto2";
 package sevenyears.graphics.proto;
 
+message Coord {
+  optional int32 degrees = 1;
+  optional int32 minutes = 2;
+  optional int32 seconds = 3;
+  optional int32 adjust = 4;
+}
+
 message LatLong {
-  optional int32 degrees_north = 1;
-  optional int32 minutes_north = 2;
-  optional int32 degrees_east = 3;
-  optional int32 minutes_east = 4;
+  optional Coord north = 1;
+  optional Coord south = 2;
+  optional Coord west = 3;
+  optional Coord east = 4;
+}
+
+message Area {
+  optional uint64 area_id = 1;
+  optional LatLong position = 2;
+  optional string display_name = 3 [default = "UNKNOWN"];
 }
 
 message Map {
   optional string filename = 1;
-  repeated uint64 area_ids = 2;
+  repeated Area areas = 2;
   optional LatLong left_top_corner = 3;
   optional string name = 4;
 }
