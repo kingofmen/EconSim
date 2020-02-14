@@ -23,9 +23,10 @@ message Area {
 
 message Map {
   optional string filename = 1;
-  repeated Area areas = 2;
-  optional LatLong left_top_corner = 3;
-  optional string name = 4;
+  optional string name = 2;
+  repeated Area areas = 3;
+  optional LatLong left_top = 4;
+  optional LatLong right_bottom = 5;
 }
 
 message Scenario {

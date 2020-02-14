@@ -25,15 +25,37 @@ public:
       const sevenyears::graphics::proto::Scenario& scenario) override;
 
 private:
-  void clearScreen();
-  void drawMap();
-
   struct SDLWindowCleaner {
     void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
   };
+  struct SDLRendererCleaner {
+    void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
+  };
+
+  struct Area {
+    Area(const sevenyears::graphics::proto::Area& proto,
+         const sevenyears::graphics::proto::LatLong& topleft, int width,
+         int height);
+    // From top-left of screen.
+    int xpos_;
+    int ypos_;
+  };
+
+  struct Map {
+    Map(const sevenyears::graphics::proto::Map& proto);
+    SDL_Texture* background_;
+    std::vector<Area> areas_;
+  };
+
+  void clearScreen();
+  void drawArea(const Area& area);
+  void drawMap();
+
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
-  std::unordered_map<std::string, SDL_Surface*> maps_;
+  std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
+  std::unordered_map<std::string, Map> maps_;
   std::string current_map_;
+  SDL_Rect map_rectangle_;
 };
 
 }  // namespace graphics

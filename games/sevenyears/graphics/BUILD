@@ -34,6 +34,7 @@ cc_library(
         "//interface:base",
         "//interface/proto:config_proto",
         "//util/status",
+        "//util/logging:logging",
         "@com_google_absl//absl/strings:strings",
         "@sdl2//:SDL2",
     ],

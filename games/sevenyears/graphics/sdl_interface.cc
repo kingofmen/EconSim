@@ -1,6 +1,7 @@
 #include "games/sevenyears/graphics/sdl_interface.h"
 
 #include <experimental/filesystem>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 #include "interface/proto/config.pb.h"
@@ -8,12 +9,33 @@
 #include "util/status/status.h"
 #include "SDL.h"
 
+#include "util/logging/logging.h"
 
 namespace sevenyears {
 namespace graphics {
 namespace {
 
-void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width, int& height) {
+int seconds(const proto::Coord& coord) {
+  return 3600 * coord.degrees() + 60 * coord.minutes() + coord.seconds() +
+         coord.adjust();
+}
+
+int seconds_north(const proto::LatLong& coord) {
+  if (coord.has_north()) {
+    return seconds(coord.north());
+  }
+  return -seconds(coord.south());
+}
+
+int seconds_east(const proto::LatLong& coord) {
+  if (coord.has_east()) {
+    return seconds(coord.east());
+  }
+  return -seconds(coord.west());
+}
+
+void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width,
+                    int& height, SDL_Rect* map_rectangle) {
   switch (ss) {
     case interface::proto::Config::SS_1280_800:
       width = 1280;
@@ -44,6 +66,10 @@ void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width, 
     default:
       break;
   }
+
+  map_rectangle->h = height;
+  // TODO: Actually derive some values for this.
+  map_rectangle->w = 792;
 }
 
 util::Status validate(const proto::Scenario& scenario) {
@@ -56,6 +82,7 @@ util::Status validate(const proto::Scenario& scenario) {
   }
 
   int counter = 0;
+  std::unordered_map<int, std::string> area_ids;
   for (const auto& map : scenario.maps()) {
     counter++;
     if (map.name().empty()) {
@@ -66,22 +93,67 @@ util::Status validate(const proto::Scenario& scenario) {
       return util::InvalidArgumentError(
           absl::Substitute("Map $0 has no filename.", map.name()));
     }
-    if (!map.has_left_top_corner()) {
+    if (!map.has_left_top()) {
       return util::InvalidArgumentError(
           absl::Substitute("Map $0 has no left-top coordinate.", map.name()));
+    }
+    if (!map.has_right_bottom()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no right-bottom coordinate.", map.name()));
+    }
+    if (seconds_north(map.left_top()) <= seconds_north(map.right_bottom())) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has left top south of right bottom.", map.name()));
+    }
+    if (seconds_east(map.left_top()) >= seconds_east(map.right_bottom())) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has left top east of right bottom.", map.name()));
     }
     if (map.areas().empty()) {
       return util::InvalidArgumentError(
           absl::Substitute("Map $0 has no areas.", map.name()));
     }
+
+    int top_seconds = seconds_north(map.left_top());
+    int left_seconds = seconds_east(map.left_top());
+    int bottom_seconds = seconds_north(map.right_bottom());
+    int right_seconds = seconds_east(map.right_bottom());
     for (const auto& area : map.areas()) {
       if (!area.has_area_id()) {
         continue;
       }
-      if (!area.has_position()) {
+      int curr_id = area.area_id();
+      if (area_ids.find(curr_id) != area_ids.end()) {
         return util::InvalidArgumentError(
-            absl::Substitute("Area $0 in map $1 has no coordinates.",
-                             area.area_id(), map.name()));
+            absl::Substitute("Duplicate area $0 in map $1, previous was in $2",
+                             curr_id, map.name(), area_ids[curr_id]));
+      }
+      area_ids[curr_id] = map.name();
+
+      if (!area.has_position()) {
+        return util::InvalidArgumentError(absl::Substitute(
+            "Area $0 in map $1 has no coordinates.", curr_id, map.name()));
+      }
+      const auto& pos = area.position();
+      if (seconds_north(pos) > top_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is north of the map top edge.",
+                             curr_id, map.name()));
+      }
+      if (seconds_east(pos) < left_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is west of the map left edge.",
+                             curr_id, map.name()));
+      }
+      if (seconds_north(pos) < bottom_seconds) {
+        return util::InvalidArgumentError(absl::Substitute(
+            "Area $0 in map $1 is south of the map bottom edge.", curr_id,
+            map.name()));
+      }
+      if (seconds_east(pos) > right_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is east of the map right edge.",
+                             curr_id, map.name()));
       }
     }
   }
@@ -101,13 +173,20 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
 
   int width = 640;
   int height = 480;
-  widthAndHeight(config.screen_size(), width, height);
+  widthAndHeight(config.screen_size(), width, height, &map_rectangle_);
   window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
                                  SDL_WINDOWPOS_UNDEFINED, width, height,
                                  SDL_WINDOW_SHOWN));
   if (!window_) {
     return util::FailedPreconditionError(
         absl::Substitute("Could not create window: $0", SDL_GetError()));
+  }
+
+  renderer_.reset(
+      SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED));
+  if (!renderer_) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not create renderer: $0", SDL_GetError()));
   }
 
   clearScreen();
@@ -117,16 +196,22 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
 
 void SDLInterface::Cleanup() {
   for (auto map : maps_) {
-    SDL_FreeSurface(map.second);
+    SDL_DestroyTexture(map.second.background_);
   }
   window_.reset(nullptr); // Also calls deleter.
+  renderer_.reset(nullptr);
   SDL_Quit();
 }
 
 void SDLInterface::clearScreen() {
-  SDL_Surface* screenSurface = SDL_GetWindowSurface(window_.get());
-  SDL_FillRect(screenSurface, NULL,
-               SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+  SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_RenderClear(renderer_.get());
+}
+
+void SDLInterface::drawArea(const Area& area) {
+  SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
+  SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
+  SDL_RenderFillRect(renderer_.get(), &fillRect);
 }
 
 void SDLInterface::drawMap() {
@@ -134,8 +219,11 @@ void SDLInterface::drawMap() {
   if (current_map_.empty()) {
     return;
   }
-  SDL_Surface* screen = SDL_GetWindowSurface(window_.get());
-  SDL_BlitSurface(maps_[current_map_], NULL, screen, NULL);
+  const Map& currMap = maps_.at(current_map_);
+  SDL_RenderCopy(renderer_.get(), currMap.background_, NULL, &map_rectangle_);
+  for (const Area& area : currMap.areas_) {
+    drawArea(area);
+  }
 }
 
 void SDLInterface::EventLoop() {
@@ -149,6 +237,78 @@ void SDLInterface::EventLoop() {
   // TODO: Put this in a separate thread, like a big boy.
   drawMap();
   SDL_UpdateWindowSurface(window_.get());
+  SDL_RenderPresent(renderer_.get());
+}
+
+// TODO: Ok get this in a library, with the other obvious operators, and unit
+// tests.
+proto::LatLong operator-(const proto::LatLong& lhs, const proto::LatLong& rhs) {
+  int seconds = 0;
+  if (lhs.has_north()) {
+    seconds += lhs.north().seconds();
+    seconds += lhs.north().minutes() * 60;
+    seconds += lhs.north().degrees() * 60 * 60;
+  }
+  if (lhs.has_south()) {
+    seconds -= lhs.south().seconds();
+    seconds -= lhs.south().minutes() * 60;
+    seconds -= lhs.south().degrees() * 60 * 60;
+  }
+
+  proto::LatLong ret;
+  proto::Coord* target = NULL;
+  if (seconds >= 0) {
+    target = ret.mutable_north();
+  } else {
+    target = ret.mutable_south();
+    seconds *= -1;
+  }
+
+  target->set_degrees(seconds / 3600);
+  seconds -= target->degrees() * 3600;
+  target->set_minutes(seconds / 60);
+  seconds -= target->minutes() * 60;
+  target->set_seconds(seconds);
+
+  seconds = 0;
+  if (lhs.has_east()) {
+    seconds += lhs.east().seconds();
+    seconds += lhs.east().minutes() * 60;
+    seconds += lhs.east().degrees() * 60 * 60;
+  }
+  if (lhs.has_west()) {
+    seconds -= lhs.west().seconds();
+    seconds -= lhs.west().minutes() * 60;
+    seconds -= lhs.west().degrees() * 60 * 60;
+  }
+
+  if (seconds >= 0) {
+    target = ret.mutable_east();
+  } else {
+    target = ret.mutable_west();
+    seconds *= -1;
+  }
+
+  target->set_degrees(seconds / 3600);
+  seconds -= target->degrees() * 3600;
+  target->set_minutes(seconds / 60);
+  seconds -= target->minutes() * 60;
+  target->set_seconds(seconds);
+
+  return ret;
+}
+
+SDLInterface::Area::Area(const proto::Area& proto,
+                         const proto::LatLong& topleft,
+                         int seconds_per_pixel_high,
+                         int seconds_per_pixel_wide) {
+  int seconds = seconds_north(topleft) - seconds_north(proto.position());
+  ypos_ = seconds / seconds_per_pixel_high;
+  seconds = seconds_east(proto.position()) - seconds_east(topleft);
+  xpos_ = seconds / seconds_per_pixel_wide;
+}
+
+SDLInterface::Map::Map(const proto::Map& proto) : background_(NULL) {
 }
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
@@ -165,17 +325,37 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   }
 
   for (const proto::Map& map : scenario.maps()) {
+    if (maps_.find(map.name()) != maps_.end()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Duplicate map name $0", map.name()));
+    }
+
+    Map curr(map);
     auto current_path = base_path / map.filename();
-    SDL_Surface* curr = NULL;
-    status = bitmap::LoadForSdl(current_path, curr);
+    SDL_Surface* surface = NULL;
+    status = bitmap::LoadForSdl(current_path, surface);
     if (!status.ok()) {
       return status;
     }
-    if (maps_.find(map.name()) != maps_.end()) {
+    curr.background_ = SDL_CreateTextureFromSurface(renderer_.get(), surface);
+    if (!curr.background_) {
       return util::InvalidArgumentError(
-          absl::Substitute("Duplicate map $0", map.name()));
+          absl::Substitute("Could not convert $0 to texture: $1",
+                           current_path.string(), SDL_GetError()));
     }
-    maps_[map.name()] = curr;
+    SDL_FreeSurface(surface);
+
+    int seconds_per_pixel_high =
+        seconds_north(map.left_top()) - seconds_north(map.right_bottom());
+    seconds_per_pixel_high /= map_rectangle_.h;
+    int seconds_per_pixel_wide =
+        seconds_east(map.right_bottom()) - seconds_east(map.left_top());
+    seconds_per_pixel_wide /= map_rectangle_.w;
+    for (const auto& area_proto : map.areas()) {
+      curr.areas_.emplace_back(area_proto, map.left_top(),
+                               seconds_per_pixel_high, seconds_per_pixel_wide);
+    }
+    maps_.emplace(map.name(), std::move(curr));
     current_map_ = map.name();
   }
 

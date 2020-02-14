@@ -2,16 +2,28 @@ root_gfx_path: "gfx/dev/"
 maps {
   name: "WestEurope"
   filename: "WesternEurope_792_900.bmp"
-  left_top_corner {
+  left_top {
     north {
       degrees: 62
       minutes: 22
       seconds: 40
     }
-    east {
-      degrees: 9
+    west {
+      degrees: 20
       minutes: 2
       seconds: 3
+    }
+  }
+  right_bottom {
+    north {
+      degrees: 36
+      minutes: 30
+      seconds: 37
+    }
+    east {
+      degrees: 11
+      minutes: 37
+      seconds: 58
     }
   }
   areas {
@@ -21,15 +33,50 @@ maps {
         degrees: 48
 	minutes: 22
         seconds: 31
+	adjust: 1200
       }
       west {
         degrees: 4
 	minutes: 28
         seconds: 54
+	adjust: 600
       }
     }
     display_name: "Brest"
   }
+  areas {
+    area_id: 2
+    position {
+      north {
+        degrees: 51
+	minutes: 32
+        seconds: 47
+      }
+      west {
+        degrees: 0
+	minutes: 2
+        seconds: 48
+      }
+    }
+    display_name: "London"
+  }
+  areas {
+    area_id: 3
+    position {
+      north {
+        degrees: 60
+	minutes: 22
+        seconds: 59
+	adjust: -1200
+      }
+      east {
+        degrees: 5
+	minutes: 23
+        seconds: 26
+	adjust: -1500
+      }
+    }
+    display_name: "Bergen"
+  }
 }
-
 
