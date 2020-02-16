@@ -1,6 +1,14 @@
 syntax = "proto2";
 package games.setup.proto;
 
+import "factions/proto/factions.proto";
+import "geography/proto/geography.proto";
+import "industry/proto/industry.proto";
+import "market/proto/goods.proto";
+import "population/proto/population.proto";
+import "units/proto/templates.proto";
+import "units/proto/units.proto";
+
 message ScenarioFiles {
   repeated string auto_production = 1;
   repeated string production_chains = 2;
@@ -14,4 +22,21 @@ message ScenarioFiles {
   repeated string includes = 10;
   repeated string graphics = 11;
   repeated string factions = 12;
+}
+
+message Scenario {
+  repeated population.proto.AutoProduction auto_production = 1;
+  repeated industry.proto.Production production_chains = 2;
+  repeated market.proto.TradeGood trade_goods = 3;
+  repeated population.proto.ConsumptionLevel consumption = 4;
+  repeated units.proto.Template unit_templates = 5;
+  optional market.proto.Container tag_decay_rates = 6;
+}
+
+message GameWorld {
+  repeated geography.proto.Area areas = 1;
+  repeated population.proto.PopUnit pops = 2;
+  repeated geography.proto.Connection connections = 3;
+  repeated units.proto.Unit units = 4;
+  repeated factions.proto.Faction factions = 5;
 }
