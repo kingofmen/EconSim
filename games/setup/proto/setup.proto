@@ -1,5 +1,5 @@
 syntax = "proto2";
-package game.setup.proto;
+package games.setup.proto;
 
 message ScenarioFiles {
   repeated string auto_production = 1;

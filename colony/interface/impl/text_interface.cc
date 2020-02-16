@@ -16,7 +16,7 @@
 #include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
-#include "game/setup/proto/setup.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "game/validation/validation.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
@@ -419,7 +419,7 @@ void TextInterface::loadGameHandler(char inp) {
 }
 
 google::protobuf::util::Status
-TextInterface::loadScenario(const game::setup::proto::ScenarioFiles& setup) {
+TextInterface::loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_world_file()) {
     return util::InvalidArgumentError(
         absl::Substitute("$0 has no world_file", setup.name()));
@@ -498,7 +498,7 @@ TextInterface::loadScenario(const game::setup::proto::ScenarioFiles& setup) {
 }
 
 void TextInterface::newGameHandler(char inp) {
-  game::setup::proto::ScenarioFiles setup;
+  games::setup::proto::ScenarioFiles setup;
   if (select(inp, scenario_files_, setup)) {
     auto status = loadScenario(setup);
     if (status.ok()) {
@@ -867,9 +867,9 @@ void TextInterface::newGameScreen() {
   if (scenario_files_.empty()) {
     output(30, 12, 0, "No scenarios found");
   } else {
-    addSelection<game::setup::proto::ScenarioFiles>(
+    addSelection<games::setup::proto::ScenarioFiles>(
         30, 13, scenario_files_,
-        [](const game::setup::proto::ScenarioFiles& input) {
+        [](const games::setup::proto::ScenarioFiles& input) {
           return input.name();
         });
   }

@@ -14,7 +14,7 @@
 #include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
-#include "game/setup/proto/setup.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "src/google/protobuf/stubs/status.h"
 
 namespace interface {
@@ -37,7 +37,7 @@ class TextInterface : public interface::UserInterface {
   std::vector<std::vector<std::tuple<int, int>>> colours_;
   bool quit_;
   std::function<void(char)> handler_;
-  std::vector<game::setup::proto::ScenarioFiles> scenario_files_;
+  std::vector<games::setup::proto::ScenarioFiles> scenario_files_;
   std::deque<std::tuple<int, std::string>> messages_;
   game::proto::Scenario scenario_;
   game::proto::GameWorld game_world_;
@@ -100,7 +100,7 @@ class TextInterface : public interface::UserInterface {
 
   // Load scenario into memory.
   google::protobuf::util::Status
-  loadScenario(const game::setup::proto::ScenarioFiles& setup);
+  loadScenario(const games::setup::proto::ScenarioFiles& setup);
   void loadWorld(const std::string& filename);
   void output(int x, int y, int mask, const std::string& words);
 };

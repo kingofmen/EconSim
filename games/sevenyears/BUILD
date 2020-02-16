@@ -5,7 +5,7 @@ cc_binary(
     srcs = ["sevenyears_main.cc"],
     deps = [
         "//game/proto:game_world_proto",
-        "//game/setup/proto:setup_proto",
+        "//games/setup/proto:setup_proto",
         "//game/validation:validation",
         "//games/sevenyears/graphics:sdl_interface",
         "//interface:base",

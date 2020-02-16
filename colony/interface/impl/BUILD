@@ -12,7 +12,7 @@ cc_library(
         "//industry/proto:industry_proto",
         "//game:game_world",
         "//game/proto:game_world_proto",
-        "//game/setup/proto:setup_proto",
+        "//games/setup/proto:setup_proto",
         "//game/validation:validation",
         "//market:goods_utils",
         "//market:market",

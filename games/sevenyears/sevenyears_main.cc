@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "absl/strings/substitute.h"
-#include "game/setup/proto/setup.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "game/proto/game_world.pb.h"
 #include "game/validation/validation.h"
 #include "interface/base.h"
@@ -16,7 +16,7 @@
 #include "SDL.h"
 
 google::protobuf::util::Status
-validateSetup(const game::setup::proto::ScenarioFiles& setup) {
+validateSetup(const games::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_name()) {
     return util::InvalidArgumentError(
         absl::Substitute("Setup file has no name"));
@@ -52,9 +52,9 @@ std::vector<std::experimental::filesystem::path> getScenarioPaths() {
   return scenarios;
 }
 
-std::vector<game::setup::proto::ScenarioFiles>
+std::vector<games::setup::proto::ScenarioFiles>
 getScenarios(const std::vector<std::experimental::filesystem::path> paths) {
-  std::vector<game::setup::proto::ScenarioFiles> scenarios;
+  std::vector<games::setup::proto::ScenarioFiles> scenarios;
   for (const auto& path : paths) {
     scenarios.emplace_back();
     auto status = util::proto::ParseProtoFile(path.string(), &scenarios.back());
@@ -73,7 +73,7 @@ getScenarios(const std::vector<std::experimental::filesystem::path> paths) {
   return scenarios;
 }
 
-util::Status loadScenario(const game::setup::proto::ScenarioFiles& setup) {
+util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   auto status = validateSetup(setup);
   if (!status.ok()) {
     return status;
