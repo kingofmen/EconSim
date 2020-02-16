@@ -32,7 +32,7 @@ cc_binary(
     srcs = ["sinews_main.cc"],
     deps = [
         ":game_world",
-        "//game/validation:validation",
+        "//games/setup/validation:validation",
         "//util/proto:file",
         "//util/status:status",
     ],
@@ -43,7 +43,7 @@ cc_test(
     srcs = ["simple_econ_test.cc"],
     deps = [
         ":game_world",
-        "//game/validation:validation",
+        "//games/setup/validation:validation",
         "//market:goods_utils",
         "//util/proto:file",
         "//util/status:status",

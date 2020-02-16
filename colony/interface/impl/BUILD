@@ -13,7 +13,7 @@ cc_library(
         "//game:game_world",
         "//game/proto:game_world_proto",
         "//games/setup/proto:setup_proto",
-        "//game/validation:validation",
+        "//games/setup/validation:validation",
         "//market:goods_utils",
         "//market:market",
         "//util/arithmetic:microunits",

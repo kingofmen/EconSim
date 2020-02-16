@@ -1,4 +1,4 @@
-#include "game/validation/validation.h"
+#include "games/setup/validation/validation.h"
 
 #include <iostream>
 #include <unordered_set>
@@ -8,7 +8,8 @@
 #include "gtest/gtest.h"
 #include "util/proto/file.h"
 
-namespace game {
+namespace games {
+namespace setup {
 namespace validation {
 namespace {
 
@@ -17,7 +18,7 @@ google::protobuf::util::Status ReadFile(const std::string filename,
   // This is a workaround for Bazel issues 4102 and 4292. When they are
   // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
   const std::string kTestDir = "C:/Users/Rolf/base";
-  const std::string kTestDataLocation = "game/validation/test_data";
+  const std::string kTestDataLocation = "games/setup/validation/test_data";
   return util::proto::ParseProtoFile(
       absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), proto);
 }
@@ -93,4 +94,5 @@ TEST_F(ValidationTest, TestAllValidations) {
 }
 
 }  // namespace validation
-}  // namespace game
+}  // namespace setup
+}  // namespace games

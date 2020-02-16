@@ -1,7 +1,5 @@
 # Scenario with multiple errors, for testing validation.
 
-# Scenario with multiple errors, for testing validation.
-
 auto_production {
   output {
     quantities { key: "nonesuch" value: -1 }

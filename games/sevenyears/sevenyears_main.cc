@@ -5,7 +5,7 @@
 #include "absl/strings/substitute.h"
 #include "games/setup/proto/setup.pb.h"
 #include "game/proto/game_world.pb.h"
-#include "game/validation/validation.h"
+#include "games/setup/validation/validation.h"
 #include "interface/base.h"
 #include "interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/sdl_interface.h"
@@ -88,7 +88,8 @@ util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup) {
     return status;
   }
 
-  std::vector<std::string> errors = game::validation::Validate({}, game_world);
+  std::vector<std::string> errors =
+      games::setup::validation::Validate({}, game_world);
   if (!errors.empty()) {
     for (const auto err : errors) {
       Log::Error(err);

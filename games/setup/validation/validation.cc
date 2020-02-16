@@ -1,4 +1,4 @@
-#include "game/validation/validation.h"
+#include "games/setup/validation/validation.h"
 
 #include <string>
 #include <unordered_map>
@@ -16,7 +16,8 @@ std::unordered_map<uint64, geography::proto::Connection> connections;
 std::unordered_map<uint64, population::proto::PopUnit> pops;
 std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
 
-namespace game {
+namespace games {
+namespace setup {
 namespace validation {
 namespace {
 
@@ -310,4 +311,5 @@ std::vector<std::string> Validate(const game::proto::Scenario& scenario,
 }
 
 }  // namespace validation
-}  // namespace game
+}  // namespace setup
+}  // namespace games

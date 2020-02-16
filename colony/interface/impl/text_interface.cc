@@ -17,7 +17,7 @@
 #include "game/game_world.h"
 #include "game/proto/game_world.pb.h"
 #include "games/setup/proto/setup.pb.h"
-#include "game/validation/validation.h"
+#include "games/setup/validation/validation.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
 #include "industry/proto/industry.pb.h"
@@ -477,7 +477,8 @@ TextInterface::loadScenario(const games::setup::proto::ScenarioFiles& setup) {
     }
   }
 
-  std::vector<std::string> errors = game::validation::Validate(scenario_, game_world_);
+  std::vector<std::string> errors =
+      games::setup::validation::Validate(scenario_, game_world_);
   if (!errors.empty()) {
     for (const auto& error : errors) {
       Log::Errorf("Validation error: %s", error);

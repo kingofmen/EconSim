@@ -6,7 +6,7 @@ cc_binary(
     deps = [
         "//game/proto:game_world_proto",
         "//games/setup/proto:setup_proto",
-        "//game/validation:validation",
+        "//games/setup/validation:validation",
         "//games/sevenyears/graphics:sdl_interface",
         "//interface:base",
         "//interface/proto:config_proto",
