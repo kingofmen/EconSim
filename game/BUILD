@@ -10,7 +10,7 @@ cc_library(
         "//ai:planner",
         "//factions/proto:factions_proto",
         "//factions:factions",
-        "//game/proto:game_world_proto",
+        "//games/setup/proto:setup_proto",
         "//geography:connection",
         "//geography:geography",
         "//industry:industry",

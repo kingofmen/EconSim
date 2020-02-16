@@ -4,7 +4,6 @@
 
 #include "absl/strings/substitute.h"
 #include "games/setup/proto/setup.pb.h"
-#include "game/proto/game_world.pb.h"
 #include "games/setup/validation/validation.h"
 #include "interface/base.h"
 #include "interface/proto/config.pb.h"
@@ -81,7 +80,7 @@ util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
 
   std::experimental::filesystem::path base_path = setup.root_path();
-  game::proto::GameWorld game_world;
+  games::setup::proto::GameWorld game_world;
   std::experimental::filesystem::path world_path = base_path / setup.world_file();
   status = util::proto::ParseProtoFile(world_path.string(), &game_world);
   if (!status.ok()) {

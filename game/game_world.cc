@@ -1,16 +1,16 @@
 #include "game/game_world.h"
 
-#include "actions/proto/strategy.pb.h"
 #include "actions/proto/plan.pb.h"
+#include "actions/proto/strategy.pb.h"
 #include "ai/executer.h"
 #include "ai/planner.h"
 #include "geography/geography.h"
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"
 #include "units/unit.h"
-#include "util/logging/logging.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
+#include "util/logging/logging.h"
 
 using geography::proto::Field;
 using industry::decisions::ProductionContext;
@@ -19,8 +19,9 @@ namespace game {
 namespace {
 
 class PossibilityFilter : public industry::ProductionFilter {
- public:
-  bool Filter(const geography::proto::Field& field, const industry::Production& prod) const {
+public:
+  bool Filter(const geography::proto::Field& field,
+              const industry::Production& prod) const {
     if (!geography::HasLandType(field, prod)) {
       return false;
     }
@@ -148,7 +149,7 @@ void RunAreaIndustry(
   }
 }
 
-}  // namespace
+} // namespace
 
 GameWorld::~GameWorld() {
   for (auto& production : production_map_) {
@@ -158,7 +159,7 @@ GameWorld::~GameWorld() {
 }
 
 // TODO: This really needs to handle errors, e.g. in registering templates.
-GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
+GameWorld::Scenario::Scenario(games::setup::proto::Scenario* scenario) {
   Log::Trace("Entering scenario builder");
   proto_.Swap(scenario);
   for (const auto& good : proto_.trade_goods()) {
@@ -194,7 +195,8 @@ GameWorld::Scenario::Scenario(proto::Scenario* scenario) {
   }
 }
 
-GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
+GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
+                     games::setup::proto::Scenario* scenario)
     : scenario_(scenario),
       default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
 
@@ -211,7 +213,8 @@ GameWorld::GameWorld(const proto::GameWorld& world, proto::Scenario* scenario)
   }
 
   for (const auto* prod_proto : scenario_.production_chains_) {
-    production_map_.emplace(prod_proto->name(), new industry::Production(*prod_proto));
+    production_map_.emplace(prod_proto->name(),
+                            new industry::Production(*prod_proto));
     chain_names_.push_back(prod_proto->name());
   }
 
@@ -229,7 +232,7 @@ void GameWorld::TimeStep(
         industry::decisions::proto::ProductionDecision>* decisions) {
   static PossibilityFilter possible;
 
-  for (auto& area: areas_) {
+  for (auto& area : areas_) {
     auto* market = area->mutable_market();
     for (const auto pop_id : area->Proto()->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
@@ -257,7 +260,7 @@ void GameWorld::TimeStep(
         contexts[pop].fields[&field].evaluator = default_evaluator_;
       }
 
-      for(const auto& chain : production_map_) {
+      for (const auto& chain : production_map_) {
         const industry::Production& prod = *chain.second;
         if (!possible.Filter(field, prod)) {
           continue;
@@ -315,7 +318,7 @@ void GameWorld::TimeStep(
   // Must consume with levels in the outside loop, otherwise
   // one POP may eat everything and leave nothing for others.
   // Need to do by areas to get the markets.
-  for (auto& area: areas_) {
+  for (auto& area : areas_) {
     for (const auto& level : scenario_.proto_.consumption()) {
       for (const auto pop_id : area->Proto()->pop_ids()) {
         auto* pop = population::PopUnit::GetPopId(pop_id);
@@ -330,7 +333,7 @@ void GameWorld::TimeStep(
   for (auto& pop : pops_) {
     pop->EndTurn(scenario_.decay_rates_);
   }
-  for (auto& area: areas_) {
+  for (auto& area : areas_) {
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
@@ -342,8 +345,8 @@ void GameWorld::TimeStep(
   }
 }
 
-void GameWorld::SaveToProto(proto::GameWorld* proto) const {
-  for (const auto& pop: pops_) {
+void GameWorld::SaveToProto(games::setup::proto::GameWorld* proto) const {
+  for (const auto& pop : pops_) {
     *proto->add_pops() = *pop->Proto();
   }
   for (const auto& area : areas_) {

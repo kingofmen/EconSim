@@ -7,7 +7,7 @@
 
 #include "factions/factions.h"
 #include "factions/proto/factions.pb.h"
-#include "game/proto/game_world.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
@@ -21,16 +21,16 @@ namespace game {
 
 class GameWorld {
 public:
-  GameWorld(const proto::GameWorld& world, proto::Scenario* scenario);
+  GameWorld(const games::setup::proto::GameWorld& world, games::setup::proto::Scenario* scenario);
   ~GameWorld();
 
   struct Scenario {
-    Scenario(proto::Scenario* scenario);
+    Scenario(games::setup::proto::Scenario* scenario);
     std::vector<const population::proto::AutoProduction*> auto_production_;
     std::vector<const industry::proto::Production*> production_chains_;
     std::vector<const population::proto::ConsumptionLevel*> subsistence_;
     market::proto::Container decay_rates_;
-    proto::Scenario proto_;
+    games::setup::proto::Scenario proto_;
   };
 
   // Sets the production evaluator for the field.
@@ -44,7 +44,7 @@ public:
 
   // Copies the current game state (not scenario) into the proto, which must not
   // be null.
-  void SaveToProto(proto::GameWorld* proto) const;
+  void SaveToProto(games::setup::proto::GameWorld* proto) const;
 
   // Returns the names of the known production chains.
   const std::vector<std::string>& chain_names() const { return chain_names_; }

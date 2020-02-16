@@ -4,7 +4,7 @@
 #include <unordered_set>
 
 #include "absl/strings/str_join.h"
-#include "game/proto/game_world.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "gtest/gtest.h"
 #include "util/proto/file.h"
 
@@ -38,8 +38,8 @@ protected:
     }
   }
 
-  game::proto::GameWorld world_proto_;
-  game::proto::Scenario scenario_;
+  games::setup::proto::GameWorld world_proto_;
+  games::setup::proto::Scenario scenario_;
 };
 
 TEST_F(ValidationTest, TestAllValidations) {

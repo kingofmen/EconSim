@@ -7,7 +7,7 @@ cc_library(
     deps = [
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
-        "//game/proto:game_world_proto",
+        "//games/setup/proto:setup_proto",
         "//market/proto:goods_proto",
         "//population:population",
         "//population/proto:population_proto",

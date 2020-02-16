@@ -15,7 +15,6 @@
 #include "colony/controller/controller.h"
 #include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
-#include "game/proto/game_world.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/validation/validation.h"
 #include "geography/geography.h"

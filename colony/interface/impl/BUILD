@@ -11,7 +11,6 @@ cc_library(
         "//colony/interface/proto:actions_proto",
         "//industry/proto:industry_proto",
         "//game:game_world",
-        "//game/proto:game_world_proto",
         "//games/setup/proto:setup_proto",
         "//games/setup/validation:validation",
         "//market:goods_utils",

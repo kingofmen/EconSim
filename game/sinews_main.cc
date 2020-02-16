@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "game/proto/game_world.pb.h"
+#include "games/setup/proto/setup.pb.h"
 #include "game/game_world.h"
 #include "geography/proto/geography.pb.h"
 #include "google/protobuf/stubs/logging.h"
@@ -13,7 +13,7 @@
 #include "util/proto/file.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-  game::proto::GameWorld world_proto;
+  games::setup::proto::GameWorld world_proto;
   auto status =
       util::proto::ParseProtoFile(".\\test_data\\simple.pb.txt", &world_proto);
   if (!status.ok()) {
@@ -21,7 +21,7 @@ int main(int /*argc*/, char** /*argv*/) {
     return 1;
   }
 
-  game::proto::Scenario scenario;
+  games::setup::proto::Scenario scenario;
   status = util::proto::ParseProtoFile(".\\test_data\\simple_economy.pb.txt",
                                        &scenario);
   if (!status.ok()) {

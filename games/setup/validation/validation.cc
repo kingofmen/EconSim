@@ -22,7 +22,7 @@ namespace validation {
 namespace {
 
 // Validates that goods have sensible values.
-void checkGoods(const game::proto::Scenario& scenario,
+void checkGoods(const games::setup::proto::Scenario& scenario,
                 std::vector<std::string>* errors) {
   for (const market::proto::TradeGood& good : scenario.trade_goods()) {
     goods.emplace(good.name(), good);
@@ -35,8 +35,8 @@ void checkGoods(const game::proto::Scenario& scenario,
       }
     }
     if (0 > good.decay_rate_u()) {
-      errors->push_back(absl::Substitute("$0 has bad decay rate $1", good.name(),
-                                        good.decay_rate_u()));
+      errors->push_back(absl::Substitute("$0 has bad decay rate $1",
+                                         good.name(), good.decay_rate_u()));
     }
   }
 }
@@ -48,26 +48,29 @@ void checkGoodsExist(const market::proto::Container& con,
   for (const auto& q : con.quantities()) {
     const std::string& name = q.first;
     if (goods.find(name) == goods.end()) {
-      errors->push_back(absl::Substitute("$0: Good $1 does not exist.", prefix, name));
+      errors->push_back(
+          absl::Substitute("$0: Good $1 does not exist.", prefix, name));
     }
   }
 }
 
 // Checks that all autoproduction output exists.
-void checkAutoProduction(const game::proto::Scenario& scenario,
+void checkAutoProduction(const games::setup::proto::Scenario& scenario,
                          std::vector<std::string>* errors) {
-  for (const population::proto::AutoProduction& ap : scenario.auto_production()) {
+  for (const population::proto::AutoProduction& ap :
+       scenario.auto_production()) {
     checkGoodsExist(ap.output(), "Auto production", errors);
   }
 }
 
 // Checks that all production inputs, outputs, and capital exist.
-void checkProduction(const game::proto::Scenario& scenario,
-                         std::vector<std::string>* errors) {
+void checkProduction(const games::setup::proto::Scenario& scenario,
+                     std::vector<std::string>* errors) {
   for (const auto& prod : scenario.production_chains()) {
     std::string name = prod.name();
     if (name == "") {
-      errors->push_back(absl::Substitute("Chain without name: $0", prod.DebugString()));
+      errors->push_back(
+          absl::Substitute("Chain without name: $0", prod.DebugString()));
       name = "unnamed chain";
     }
     checkGoodsExist(prod.outputs(),
@@ -109,12 +112,13 @@ void checkProduction(const game::proto::Scenario& scenario,
 }
 
 // Checks that all consumed goods actually exist.
-void checkConsumption(const game::proto::Scenario& scenario,
+void checkConsumption(const games::setup::proto::Scenario& scenario,
                       std::vector<std::string>* errors) {
   for (const auto& con : scenario.consumption()) {
     std::string name = con.name();
     if (name == "") {
-      errors->push_back(absl::Substitute("Consumption without name: $0", con.DebugString()));
+      errors->push_back(
+          absl::Substitute("Consumption without name: $0", con.DebugString()));
       name = "unnamed level";
     }
     int package_count = 0;
@@ -133,7 +137,7 @@ void checkConsumption(const game::proto::Scenario& scenario,
 }
 
 // Sanity-checks templates.
-void checkTemplates(const game::proto::Scenario& scenario,
+void checkTemplates(const games::setup::proto::Scenario& scenario,
                     std::vector<std::string>* errors) {
   for (const auto& temp : scenario.unit_templates()) {
     if (!temp.has_id()) {
@@ -146,7 +150,7 @@ void checkTemplates(const game::proto::Scenario& scenario,
 }
 
 // Checks that areas have valid IDs.
-void validateAreas(const game::proto::GameWorld& world,
+void validateAreas(const games::setup::proto::GameWorld& world,
                    std::vector<std::string>* errors) {
   for (const auto& area : world.areas()) {
     if (!area.has_id()) {
@@ -155,14 +159,15 @@ void validateAreas(const game::proto::GameWorld& world,
     } else if (area.id() < 1) {
       errors->push_back(absl::Substitute("Bad area ID: $0", area.id()));
     } else if (areas.find(area.id()) != areas.end()) {
-        errors->push_back(absl::Substitute("Area ID $0 is not unique", area.id()));
+      errors->push_back(
+          absl::Substitute("Area ID $0 is not unique", area.id()));
     } else
       areas[area.id()] = area;
   }
 }
 
 // Checks that POPs have valid IDs and wealth.
-void validatePops(const game::proto::GameWorld& world,
+void validatePops(const games::setup::proto::GameWorld& world,
                   std::vector<std::string>* errors) {
   for (const auto& pop : world.pops()) {
     if (pop.pop_id() == 0) {
@@ -182,7 +187,7 @@ void validatePops(const game::proto::GameWorld& world,
 }
 
 // Checks that connections connect areas that exist, and have nonzero length.
-void validateConnections(const game::proto::GameWorld& world,
+void validateConnections(const games::setup::proto::GameWorld& world,
                          std::vector<std::string>* errors) {
   for (const auto& conn : world.connections()) {
     if (!conn.has_id()) {
@@ -226,16 +231,18 @@ void validateConnections(const game::proto::GameWorld& world,
 }
 
 // Checks that units have locations and cargo that exist.
-void validateUnits(const game::proto::GameWorld& world,
+void validateUnits(const games::setup::proto::GameWorld& world,
                    std::vector<std::string>* errors) {
   for (const auto& unit : world.units()) {
     if (!unit.has_unit_id()) {
-      errors->push_back(absl::Substitute("Unit without ID: \"$0\"", unit.DebugString()));
+      errors->push_back(
+          absl::Substitute("Unit without ID: \"$0\"", unit.DebugString()));
       continue;
     }
     const auto& unit_id = unit.unit_id();
     if (!unit_id.has_type() || !unit_id.has_number()) {
-      errors->push_back(absl::Substitute("Bad unit ID: $0", unit.DebugString()));
+      errors->push_back(
+          absl::Substitute("Bad unit ID: $0", unit.DebugString()));
       continue;
     }
     if (templates.find(unit_id.type()) == templates.end()) {
@@ -269,7 +276,8 @@ void validateUnits(const game::proto::GameWorld& world,
                              unit_id.type(), unit_id.number(), conn_id));
       } else {
         const auto& conn = connections[conn_id];
-        if (conn.a() != location.source_area_id() && conn.z() != location.source_area_id()) {
+        if (conn.a() != location.source_area_id() &&
+            conn.z() != location.source_area_id()) {
           errors->push_back(
               absl::Substitute("Unit {$0, $1} is in connection $2 which does "
                                "not connect source $3",
@@ -290,10 +298,10 @@ void clear() {
   unit_map.clear();
 }
 
-}  // namespace
+} // namespace
 
-std::vector<std::string> Validate(const game::proto::Scenario& scenario,
-                                  const game::proto::GameWorld& world) {
+std::vector<std::string> Validate(const games::setup::proto::Scenario& scenario,
+                                  const games::setup::proto::GameWorld& world) {
   clear();
   std::vector<std::string> errors;
   checkGoods(scenario, &errors);
@@ -306,10 +314,10 @@ std::vector<std::string> Validate(const game::proto::Scenario& scenario,
   validatePops(world, &errors);
   validateConnections(world, &errors);
   validateUnits(world, &errors);
-  
+
   return errors;
 }
 
-}  // namespace validation
-}  // namespace setup
-}  // namespace games
+} // namespace validation
+} // namespace setup
+} // namespace games

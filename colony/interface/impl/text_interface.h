@@ -13,7 +13,6 @@
 #include "colony/interface/user_interface.h"
 #include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
-#include "game/proto/game_world.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "src/google/protobuf/stubs/status.h"
 
@@ -39,8 +38,8 @@ class TextInterface : public interface::UserInterface {
   std::function<void(char)> handler_;
   std::vector<games::setup::proto::ScenarioFiles> scenario_files_;
   std::deque<std::tuple<int, std::string>> messages_;
-  game::proto::Scenario scenario_;
-  game::proto::GameWorld game_world_;
+  games::setup::proto::Scenario scenario_;
+  games::setup::proto::GameWorld game_world_;
   colony::graphics::proto::WorldGraphics graphics_;
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
