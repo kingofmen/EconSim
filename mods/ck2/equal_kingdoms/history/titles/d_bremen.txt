@@ -1,0 +1,4 @@
+936.1.1 = {
+	holder = 260573
+	liege = k_germany
+}

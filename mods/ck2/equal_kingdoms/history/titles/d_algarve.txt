@@ -1,0 +1,7 @@
+867.1.1={
+	holder=73684 # al-Mundir Umayyad
+	liege=k_andalusia
+}
+886.1.1={
+	holder=0
+}
