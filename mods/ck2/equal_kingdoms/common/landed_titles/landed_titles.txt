@@ -31236,55 +31236,283 @@ e_spain = {
 		
 		catholic = 250 # Crusade target weight
 		muslim = 25 # Crusade target weight
-	}
-
-	k_badajoz = {
-		color={ 138 243 51 }
-		color2={ 255 255 255 }
-
-		capital = 184 # Badajoz
-
-		visigothic = "Lusitania"
-		roman = "Lusitania"
-		greek = "Lusitania"
-		basque = "Lusitania"
-		castillan = "Lusitania"
-		catalan = "Lusitania"
-		portuguese = "Lusitania"
-
-		muslim = 25 # Crusade target weight
-
-		d_badajoz = {
-			color = { 138 243 51 }
+		d_navarra = {
+			color = { 230 198 90 }
 			color2={ 255 255 255 }
 			
-			capital = 184 # Badajoz
-
-			visigothic = "Extramedura"
-			basque = "Extramedura"
-			castillan = "Extramedura"
-			catalan = "Extramedura"
-			portuguese = "Extramedura"
+			capital = 152 # Navarra
 			
-			c_plasencia = {
-				color = { 228 230 23 }
+			c_viscaya = {
+				color = { 244 198 14 }
 				color2={ 255 255 255 }
 				
-				b_hervas = {
+				b_irun = {
 				}
-				b_plasencia = {
+				b_sansebastian = {
 				}
-				b_jaraiz = {
+				b_eibar = {
 				}
-				b_lazarza = {
+				b_onate = {
 				}
-				b_montehermoso = {
+				b_tolosa = {
 				}
-				b_ventadelmoral = {
+				b_bilbao = {
 				}
-				b_jarandilla = {
+				b_vitoria = {
 				}
-				b_talayuela = {
+				b_guernica = {
+				}
+			}
+			
+			c_navarra = {
+				color = { 255 200 2 }
+				color2={ 255 255 255 }
+				
+				b_pamplona = {
+				}
+				b_leyre = {
+				}
+				b_tudela = {
+				} 
+				b_tafalla = {
+				}
+				b_olite = {
+				}
+				b_carcastillo = {
+				}
+				b_sanguesa = {
+				}
+				b_estella = {
+				}
+			}
+			c_najera = {
+				color = { 255 202 3 }
+				color2={ 255 255 255 }
+	
+				b_haro = {
+				}
+				b_logrone = {
+				}
+				b_calahorra = {
+				}
+				b_najera = {
+				}
+				b_arnedo = {
+				}
+				b_alfara = {
+				}
+				b_zizurmayor = {
+				}
+				b_santodomingodelacalzada = {
+				}
+			}
+			c_soria = {
+				color = { 250 204 20 }
+				color2={ 255 255 255 }
+				
+				b_soria = {
+				}
+				b_almazan = {
+				}
+				b_gormaz = {
+				}
+				b_castromoro = {
+				}
+				b_medinacelli = {
+				}
+				b_sanleonardodeyague = {
+				}
+				b_covaleda = {
+				}
+			}
+		}
+		d_galicia = {
+			color={ 255 224 94 }
+			color2={ 255 255 255 }
+			
+			capital = 156 # Coruna
+			
+			c_coruna = {
+				color = { 183 118 51 }
+				color2={ 255 255 255 }
+				
+				b_corunna = {
+				}
+				b_mondonedo = {
+				}
+				b_ferrol = {
+				}
+				b_villalba = {
+				}
+				b_viveiro = {
+				}
+				b_burela = {
+				}
+				b_triacastela = {
+				}
+			}
+			c_santiago = {
+				color = { 243 158 51}
+				color2={ 255 255 255 }
+				
+				holy_site = catholic
+				
+				b_santiago = {
+				}
+				b_vigo = {
+				}
+				b_pontevedra = {
+				}
+				b_tuy = {
+				}
+				b_verin = {
+				}
+				b_padron = {
+				}
+				b_vilagarcia = {
+				}
+			}
+			c_lugo = {
+				color={ 200 130 51 }
+				color2={ 255 255 255 }
+
+				b_lugo = {}
+				b_orense = {}
+				b_ribadeo = {}
+				b_navilubio = {}
+				b_mino = {}
+				b_burgas_orense = {}
+				b_sil = {}
+			}
+			c_asturias_de_oviedo = {
+				color = { 233 158 51 }
+				color2={ 255 255 255 }
+				
+				b_oviedo = {
+				}
+				b_gijon = {
+				}
+				b_cangasdeonis = {
+				}
+				b_tineo = {
+				}
+				b_cangasdelnarcea = {
+				}
+				b_villaviciosa = {
+				}
+				b_luarca = {
+				}
+				b_norena = {
+				}
+			}
+		}
+		d_leon = {
+			color = { 253 158 51 }
+			color2={ 255 255 255 }
+			
+			capital = 190 # Leon
+			
+			c_leon = {
+				color = { 253 158 51 }
+				color2={ 255 255 255 }
+				
+				b_leon = {
+				}
+				b_valenciadecampos = {
+				}
+				b_villablino = {
+				}
+				b_sanpedrodeperix = {
+				}
+				b_saldana = {
+				}
+				b_sahagun = {
+				}
+				b_larobla = {
+				}
+				b_cistierna = {
+				}
+			}
+			c_palencia = { 
+				color={ 253 148 40 }
+				color2={ 255 255 255 }
+
+				b_palencia = {}
+				b_saint_antolin = {}
+				b_san_salvador = {}
+				b_paredes = {}
+				b_olmeda_palencia = {}
+				b_monte_el_viejo = {}
+				b_vaccaei = {}
+			}
+			c_zamora = {
+				color = { 253 138 51 }
+				color2={ 255 255 255 }
+				
+				b_zamora = {
+				}
+				b_benavente = {
+				}
+				b_fermoselle = {
+				}
+				b_toro = {
+				}
+				b_sanabria = {
+				}
+				b_corrales = {
+				}
+				b_fuentesauco = {
+				}
+				b_polvorosa = {
+				}
+			}
+			c_astorga = {
+				color = { 243 158 51 }
+				color2={ 255 255 255 }
+				
+				b_ponferrada = {
+				}
+				b_bembibre = {
+				}
+				b_ribadelago = {
+				}
+				b_cacabelos = {
+				}
+				b_fabero = {
+				}
+				b_camponaraya = {
+				}
+				b_toreno = {
+				}
+				b_astorga = {
+				}
+			}
+		}
+		d_asturias = {
+			color = { 233 188 91 }
+			color2={ 255 255 255 }
+			
+			capital = 192 # Salamanca
+			
+			c_salamanca = {
+				color = { 253 128 31 }
+				color2={ 255 255 255 }
+				
+				b_salbejar = {
+				}
+				b_salamanca = {
+				}
+				b_ciudadrodrigo = {
+				}
+				b_bracamonte = {
+				}
+				b_albadetormes = {
+				}
+				b_terradillos = {
+				}
+				b_carbajosadelasagrada = {
+				}
+				b_lumbrales = {
 				}
 			}
 			c_alcantara = {
@@ -31308,173 +31536,383 @@ e_spain = {
 				b_ceclavin = {
 				}
 			}
-			c_caceres = {
-				color = { 232 234 27 }
+			c_plasencia = {
+				color = { 228 230 23 }
 				color2={ 255 255 255 }
 				
-				b_caceres = {
+				b_hervas = {
 				}
-				b_guadalupe = {
+				b_plasencia = {
 				}
-				b_trujillo = {
+				b_jaraiz = {
 				}
-				b_alburquerque = {
+				b_lazarza = {
 				}
-				b_alia = {
+				b_montehermoso = {
 				}
-				b_arroyodelalluz = {
+				b_ventadelmoral = {
 				}
-				b_logrosan = {
+				b_jarandilla = {
 				}
-				b_alcuescar = {
+				b_talayuela = {
 				}
 			}
-			c_badajoz = {
-				color = { 234 236 29 }
+			c_toledo = {
+				color = { 245 204 15 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Tulaytulah"
+				maghreb_arabic = "Tulaytulah"
+				levantine_arabic = "Tulaytulah"
+				egyptian_arabic = "Tulaytulah"
+				andalusian_arabic = "Tulaytulah"
+				
+				b_madrid = {
+				}
+				b_toledo = {
+					bedouin_arabic = "Tulaytulah"
+					maghreb_arabic = "Tulaytulah"
+					levantine_arabic = "Tulaytulah"
+					egyptian_arabic = "Tulaytulah"
+					andalusian_arabic = "Tulaytulah"
+				}
+				b_orgaz = {
+				}
+				b_tolemora = {
+				}
+				b_talavera = {
+				}
+				b_consuegra = {
+				}
+				b_fuensalida = {
+				}
+				b_illescas = {
+				}
+			}
+		}
+		d_castilla = {
+			color = { 242 196 12 }
+			color2={ 255 255 255 }
+			
+			capital = 199 # Burgos
+			
+			c_burgos = {
+				color = { 246 200 16 }
+				color2={ 255 255 255 }
+				
+				b_aguilardecampo = {
+				}
+				b_burgos = {
+				}
+				b_silos = {
+				}
+				b_castrobarte = {
+				}
+				b_mirandadeebro = {
+				}
+				b_arandadeduero = {
+				}
+				b_carrion = {
+				}
+			}
+			c_valladolid = {
+				color = { 248 202 18 }
+				color2={ 255 255 255 }
+				
+				b_valladolid = {
+				}
+				b_tordesillas = {
+				}
+				b_segovia = {
+				}
+				b_medinadelcampo = {
+				}
+				b_simancas = {
+				}
+				b_penafiel = {
+				}
+				b_iscar = {
+				}
+				b_avila = {
+				}
+			}
+			c_osma = {
+				color={ 252 190 25 }
 				color2={ 255 255 255 }
 
-				visigothic = "Mérida"
-				basque = "Mérida"
-				castillan = "Mérida"
-				catalan = "Mérida"
-				portuguese = "Mérida"
+				b_osma = {}
+				b_ucero = {}
+				b_el_burgo = {}
+				b_duero = {}
+				b_uxama = {}
+				b_san_esteban = {}
+				b_calatanazor = {}
+			}
+			c_asturias_de_santillana = {
+				color = { 232 205 25 }
+				color2={ 255 255 255 }
 				
-				b_jerezdeloscaballeros = {
+				b_santander = {
 				}
-				b_badajoz = {
+				b_santillanadelmar = {
 				}
-				b_merida = {
+				b_laredo = {
 				}
-				b_zafra = {
+				b_castrourdiales = {
 				}
-				b_almendralejo = {
+				b_santona = {
 				}
-				b_villalbadelosbarros = {
+				b_reinosa = {
 				}
-				b_guarena = {
+				b_suances = {
 				}
-				b_fuentedelmaestre = {
+				b_camargo = {
+				}
+				b_sanvicente = {
 				}
 			}
 		}
-		d_beja = {
-			color = { 182 98 5 }
+	}
+	d_toledo = {
+		color = { 212 151 12 }
+		color2={ 255 255 255 }
+		
+		capital = 187 # La Mancha
+		
+		c_molina = {
+			color = { 248 207 18 }
 			color2={ 255 255 255 }
 			
-			capital = 185 # Mertola
-			
-			c_evora = {
-				color = { 182 68 5 }
-				color2={ 255 255 255 }
-				
-				b_avis = {
-				} 
-				b_evora = {
-				} 
-				b_portalegre = {
-				} 
-				b_marvao = {
-				} 
-				b_castelodevide = {
-				} 
-				b_crato = {
-				} 
-				b_monforte = {
-				} 
-				b_ouguela = {
-				}
+			b_hinojosa = {
 			}
-			c_alcacer_do_sal = {
-				color = { 182 105 5 }
-				color2={ 255 255 255 }
-				
-				b_alcacerdosal = {}
-				b_santiagodocacem = {}
-				b_aljustrel = {}
-				b_castroverde = {}
-				b_ourique = {}
-				b_odemira = {}
-				b_alvalade = {}
+			b_molina = {
 			}
-			c_mertola = {
-				color = { 182 60 5 }
-				color2={ 255 255 255 }
-				
-				b_mertola = {}
-				b_monsaraz = {}
-				b_beja = {}
-				b_serpa = {}
-				b_noudal = {}
-				b_mourao = {}
-				b_portel = {}
-				b_moura = {}
+			b_elpedregal = {
 			}
-			c_egitanea = {
-				color={ 175 105 5 }
-				color2={ 255 255 255 }
-
-				b_rodao = {}
-				b_idanha = {}
-				b_covilha = {}
-				b_castelobranco = {}
-				b_alcains = {}
-				b_penha = {}
-				b_belver = {}
+			b_pinilla = {
+			}
+			b_cabanillasdelcampo = {
+			}
+			b_elcasar = {
+			}
+			b_maranchon = {
+			}
+			b_olmeda = {
 			}
 		}
-		d_algarve = {
-			color = { 202 88 5 }
+		c_cuenca = {
+			color = { 251 210 21 }
 			color2={ 255 255 255 }
 			
-			capital = 163 # Faro
+			bedouin_arabic = "Kunka"
+			maghreb_arabic = "Kunka"
+			levantine_arabic = "Kunka"
+			egyptian_arabic = "Kunka"
+			andalusian_arabic = "Kunka"
 			
-			c_silves = {
-				color = { 192 80 15 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Shlib"
-				maghreb_arabic = "Shlib"
-				levantine_arabic = "Shlib"
-				egyptian_arabic = "Shlib"
-				andalusian_arabic = "Shlib"
-				
-				b_silves = {
-					bedouin_arabic = "Shlib"
-					maghreb_arabic = "Shlib"
-					levantine_arabic = "Shlib"
-					egyptian_arabic = "Shlib"
-					andalusian_arabic = "Shlib"
-				}
-				b_lagos = {}
-				b_alvor = {}
-				b_aljezur = {}
-				b_arrifana = {}
-				b_monchique = {}
-				b_almodovar = {}
+			
+			b_cuenca = {
+				bedouin_arabic = "Kunka"
+				maghreb_arabic = "Kunka"
+				levantine_arabic = "Kunka"
+				egyptian_arabic = "Kunka"
+				andalusian_arabic = "Kunka"
 			}
-			c_faro = {
-				color = { 192 98 5 }
+			b_ucles = {
+			}
+			b_laspedroneras = {
+			}
+			b_villanuevadelajara = {
+			}
+			b_tarancon = {
+			}
+			b_sisante = {
+			}
+			b_motadelcuervo = {
+			}
+		}
+		c_alcala = {
+			color={ 255 200 30 }
+			color2={ 255 255 255 }
+
+			b_alcala = {}
+			b_siguenza = {}
+			b_guadalajara = {}
+			b_burgo_de_santiuste = {}
+			b_villavieja = {}
+			b_segontia = {}
+			b_complutum = {}
+		}
+		c_la_mancha = {
+			color = { 250 220 20 }
+			color2={ 255 255 255 }
+			
+			b_alarcon = {
+			}
+			b_laroda = {
+			}
+			b_tarazona = {
+			}
+			b_quintanardelrey = {
+			}
+			b_lagineta = {
+			}
+			b_barrax = {
+			}
+			b_munera = {
+			}
+			b_jorquera = {
+			}
+		}
+		c_calatrava = {
+			color = { 254 224 24 }
+			color2={ 255 255 255 }
+			
+			b_calatrava = {
+			}
+			b_villareal = {
+			}
+			b_caracuel = {
+			}
+			b_alcazardesanjuan = {
+			}
+			b_alarcos = {
+			}
+			b_medellin = {
+			}
+			b_almadeo = {
+			}
+			b_almodovardelcampo = {
+			}
+		}
+	}
+
+	k_portugal = {
+		color={ 82 88 5 }
+		color2={ 255 255 255 }
+		
+		capital = 160 # Lisboa
+		
+		culture = portuguese
+
+		roman = "Lusitania"
+		
+		catholic = 250 # Crusade target weight
+		muslim = 25
+		west_african_pagan_reformed = 25
+		
+		allow = {
+			conditional_tooltip = {
+				trigger = {
+					k_portugal = {
+						is_titular = yes
+					}
+				}
+				k_portugal = {
+					is_titular = no
+				}
+			}
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					religion_group = christian
+				}
+			}		
+		}
+		
+		d_porto = {
+			color = { 182 108 45 }
+			color2={ 255 255 255 }
+			
+			capital = 158 # porto
+			
+			culture = portuguese
+			
+			c_porto = {
+				color = { 182 88 5 }
 				color2={ 255 255 255 }
 				
-				bedouin_arabic = "Uhshunubah"
-				maghreb_arabic = "Uhshunubah"
-				levantine_arabic = "Uhshunubah"
-				egyptian_arabic = "Uhshunubah"
-				andalusian_arabic = "Uhshunubah"
-				
-				b_faro = {
-					bedouin_arabic = "Harun"
-					maghreb_arabic = "Harun"
-					levantine_arabic = "Harun"
-					egyptian_arabic = "Harun"
-					andalusian_arabic = "Harun"
+				b_braga = {
 				}
-				b_tavira = {}
-				b_loule = {}
-				b_castromarim = {}
-				b_alcoutim = {}
-				b_saobrasdealportel = {}
-				b_olhao = {}
+				b_porto = {
+				}
+				b_guimaraes = {
+				}
+				b_vianadocastelo = {
+				}
+				b_pontedelima = {
+				}
+				b_barcelos = {
+				}
+				b_arcosdevaldevez = {
+				}
+				b_moncao = {
+				}
+			}
+			c_braganza = {
+				color = { 182 98 5 }
+				color2={ 255 255 255 }
+				
+				b_braganza = {
+				}
+				b_chaves = {
+				}
+				b_vilareal = {
+				}
+				b_torredemoncorvo = {
+				}
+				b_mogadouro = {
+				}
+				b_castelomelhor = {
+				}
+				b_castelorodrigo = {
+				}
+				b_azinhoso = {
+				}
+			}
+			c_castelo_branco = {
+				color = { 182 78 5 }
+				color2={ 255 255 255 }
+				
+				b_guarda = {}
+				b_lamego = {}
+				b_trancoso = {}
+				b_sabugal = {}
+				b_pinhel = {}
+				b_almeida = {}
+				b_acores = {}
+			}
+			c_coimbra = {
+				color = { 182 88 25 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Qulumriyah"
+				maghreb_arabic = "Qulumriyah"
+				levantine_arabic = "Qulumriyah"
+				egyptian_arabic = "Qulumriyah"
+				andalusian_arabic = "Qulumriyah"
+				
+				b_coimbra = {
+					bedouin_arabic = "Qulumriyah"
+					maghreb_arabic = "Qulumriyah"
+					levantine_arabic = "Qulumriyah"
+					egyptian_arabic = "Qulumriyah"
+					andalusian_arabic = "Qulumriyah"
+				}
+				b_viseu = {
+				}
+				b_aveiro = {
+				}
+				b_pedondo = {
+				}
+				b_cantanhede = {
+				}
+				b_condeixa = {
+				}
+				b_montereal = {
+				}
+				b_penela = {
+				}
 			}
 		}
 		d_balata = {
@@ -31526,308 +31964,311 @@ e_spain = {
 				b_pegoes = {}
 				b_montijo = {}
 			}
+			c_egitanea = {
+				color={ 175 105 5 }
+				color2={ 255 255 255 }
+
+				b_rodao = {}
+				b_idanha = {}
+				b_covilha = {}
+				b_castelobranco = {}
+				b_alcains = {}
+				b_penha = {}
+				b_belver = {}
+			}
+			c_evora = {
+				color = { 182 68 5 }
+				color2={ 255 255 255 }
+				
+				b_avis = {
+				} 
+				b_evora = {
+				} 
+				b_portalegre = {
+				} 
+				b_marvao = {
+				} 
+				b_castelodevide = {
+				} 
+				b_crato = {
+				} 
+				b_monforte = {
+				} 
+				b_ouguela = {
+				}
+			}
 		}
-	}
-
-	k_valencia = {
-		color={ 48 167 45 }
-		color2={ 255 255 255 }
-
-		capital = 171 # Valencia
-
-		visigothic = "Carthaginensis"
-		roman = "Carthaginensis"
-		greek = "Carthaginensis"
-
-		muslim = 25 # Crusade target weight
-
-		d_valencia = {
-			color = { 48 167 45 }
+		d_beja = {
+			color = { 182 98 5 }
 			color2={ 255 255 255 }
 			
-			capital = 171 # Valencia
+			capital = 185 # Mertola
 			
-			c_castellon = {
-				color = { 255 242 2 }
+			c_alcacer_do_sal = {
+				color = { 182 105 5 }
 				color2={ 255 255 255 }
 				
-				b_castellon = {
+				b_alcacerdosal = {}
+				b_santiagodocacem = {}
+				b_aljustrel = {}
+				b_castroverde = {}
+				b_ourique = {}
+				b_odemira = {}
+				b_alvalade = {}
+			}
+			c_mertola = {
+				color = { 182 60 5 }
+				color2={ 255 255 255 }
+				
+				b_mertola = {}
+				b_monsaraz = {}
+				b_beja = {}
+				b_serpa = {}
+				b_noudal = {}
+				b_mourao = {}
+				b_portel = {}
+				b_moura = {}
+			}
+			c_silves = {
+				color = { 192 80 15 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Shlib"
+				maghreb_arabic = "Shlib"
+				levantine_arabic = "Shlib"
+				egyptian_arabic = "Shlib"
+				andalusian_arabic = "Shlib"
+				
+				b_silves = {
+					bedouin_arabic = "Shlib"
+					maghreb_arabic = "Shlib"
+					levantine_arabic = "Shlib"
+					egyptian_arabic = "Shlib"
+					andalusian_arabic = "Shlib"
 				}
-				b_alpuente = {
+				b_lagos = {}
+				b_alvor = {}
+				b_aljezur = {}
+				b_arrifana = {}
+				b_monchique = {}
+				b_almodovar = {}
+			}
+			c_faro = {
+				color = { 192 98 5 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Uhshunubah"
+				maghreb_arabic = "Uhshunubah"
+				levantine_arabic = "Uhshunubah"
+				egyptian_arabic = "Uhshunubah"
+				andalusian_arabic = "Uhshunubah"
+				
+				b_faro = {
+					bedouin_arabic = "Harun"
+					maghreb_arabic = "Harun"
+					levantine_arabic = "Harun"
+					egyptian_arabic = "Harun"
+					andalusian_arabic = "Harun"
 				}
-				b_nules = {
+				b_tavira = {}
+				b_loule = {}
+				b_castromarim = {}
+				b_alcoutim = {}
+				b_saobrasdealportel = {}
+				b_olhao = {}
+			}
+		}
+		d_sevilla = {
+			color = { 150 218 21 }
+			color2={ 255 255 255 }
+			
+			capital = 182 # Sevilla
+			
+			c_sevilla = {
+				color = { 232 200 25 }
+				color2={ 255 255 255 }
+				
+				b_carmona = {
 				}
-				b_vinaros = {
+				b_sevilla = {
 				}
-				b_morella = {
+				b_ecija = {
 				}
-				b_vilarreal = {
+				b_sevimoron = {
 				}
-				b_burriana = {
+				b_alcaladeguadaira = {
 				}
-				b_alcalaten = {
+				b_doshermanas = {
+				}
+				b_laalgaba = {
+				}
+				b_utrera = {
 				}
 			}
-			c_valencia = {
-				color = { 255 244 4 }
+			c_cadiz = {
+				color = { 236 204 29 }
 				color2={ 255 255 255 }
 				
-				bedouin_arabic = "Balansiyya"
-				maghreb_arabic = "Balansiyya"
-				levantine_arabic = "Balansiyya"
-				egyptian_arabic = "Balansiyya"
-				andalusian_arabic = "Balansiyya"
-				
-				b_gandia = {
+				b_jerez = {
 				}
-				b_valencia = {
-					bedouin_arabic = "Balansiyya"
-					maghreb_arabic = "Balansiyya"
-					levantine_arabic = "Balansiyya"
-					egyptian_arabic = "Balansiyya"
-					andalusian_arabic = "Balansiyya"
+				b_cadiz = {
 				}
-				b_jativa = {
+				b_medinasidonia = {
 				}
-				b_cuartdepoblet = {
+				b_arcos = {
 				}
-				b_alberique = {
+				b_sanjosedelvalle = {
 				}
-				b_alacuas = {
+				b_sanlucadebarrameda = {
 				}
-				b_torrent = {
+				b_sanfernando = {
 				}
-				b_chiva = {
+				b_alcaladelosgazules = {
 				}
 			}
-			c_denia = {
-				color = { 255 246 6 }
+			c_cordoba = {
+				color = { 246 216 16 }
 				color2={ 255 255 255 }
 				
-				bedouin_arabic = "Deniyya"
-				maghreb_arabic = "Deniyya"
-				levantine_arabic = "Deniyya"
-				egyptian_arabic = "Deniyya"
-				andalusian_arabic = "Deniyya"
+				bedouin_arabic = "Qurtubah"
+				maghreb_arabic = "Qurtubah"
+				levantine_arabic = "Qurtubah"
+				egyptian_arabic = "Qurtubah"
+				andalusian_arabic = "Qurtubah"
+
+				holy_site = sunni
+				holy_site = aztec
+				holy_site = aztec_reformed
 				
-				b_denia = {
-					bedouin_arabic = "Deniyya"
-					maghreb_arabic = "Deniyya"
-					levantine_arabic = "Deniyya"
-					egyptian_arabic = "Deniyya"
-					andalusian_arabic = "Deniyya"
+				b_cordoba = {
+					bedouin_arabic = "Qurtubah"
+					maghreb_arabic = "Qurtubah"
+					levantine_arabic = "Qurtubah"
+					egyptian_arabic = "Qurtubah"
+					andalusian_arabic = "Qurtubah"
 				}
-				b_alicante = {
+				b_alcolea = {
 				}
-				b_elche = {
+				b_cabra = {
 				}
-				b_villena = {
+				b_lucena = {
 				}
-				b_orihuela = {
+				b_martos = {
 				}
-				b_castalla = {
+				b_belalcazar = {
 				}
-				b_albatera = {
+				b_canetedelastorres = {
 				}
-				b_benissa = {
+			}
+			c_aracena = {
+				color = { 244 212 37 }
+				color2={ 255 255 255 }
+				
+				b_aracena = {
+				}
+				b_italica = {
+				}
+				b_almonasterlareal = {
+				}
+				b_calanas = {
+				}
+				b_cortegana = {
+				}
+				b_facanias = {
+				}
+				b_alajar = {
+				}
+				b_galaroza = {
 				}
 			}
 		}
-		d_murcia = {
-			color = { 16 229 33 }
+		d_badajoz = {
+			color = { 138 243 51 }
 			color2={ 255 255 255 }
 			
-			capital = 169 # Murcia
+			capital = 184 # Badajoz
+
+			visigothic = "Extramedura"
+			basque = "Extramedura"
+			castillan = "Extramedura"
+			catalan = "Extramedura"
+			portuguese = "Extramedura"
 			
-			c_almansa = {
-				color = { 244 225 14 }
+			c_niebla = {
+				color = { 248 216 41 }
 				color2={ 255 255 255 }
 				
-				b_almansa = {
+				b_niebla = {}
+				b_nerva = {}
+				b_almonte = {}
+				b_lascrocinas = {}
+				b_pilas = {}
+				b_ostilia = {}
+				b_aroche = {}
+			}
+			c_huelva = {
+				color={ 205 98 5 }
+				color2={ 255 255 255 }
+
+				b_huelva = {}
+				b_lepe = {}
+				b_ayamonte = {}
+				b_gibraleon = {}
+				b_moguer = {}
+				b_aljaraque = {}
+				b_portichuelo = {}
+			}
+			c_caceres = {
+				color = { 232 234 27 }
+				color2={ 255 255 255 }
+				
+				b_caceres = {
 				}
-				b_albacete = {
+				b_guadalupe = {
 				}
-				b_hellin = {
+				b_trujillo = {
 				}
-				b_caudete = {
+				b_alburquerque = {
 				}
-				b_villarrobledo = {
+				b_alia = {
 				}
-				b_alcaladeljucar = {
+				b_arroyodelalluz = {
 				}
-				b_pozocanada = {
+				b_logrosan = {
 				}
-				b_tobarra = {
+				b_alcuescar = {
 				}
 			}
-			c_murcia = {
-				color = { 246 227 16 }
+			c_badajoz = {
+				color = { 234 236 29 }
 				color2={ 255 255 255 }
+
+				visigothic = "Mérida"
+				basque = "Mérida"
+				castillan = "Mérida"
+				catalan = "Mérida"
+				portuguese = "Mérida"
 				
-				bedouin_arabic = "Mursiya"
-				maghreb_arabic = "Mursiya"
-				levantine_arabic = "Mursiya"
-				egyptian_arabic = "Mursiya"
-				andalusian_arabic = "Mursiya"
-				
-				b_murcia = {
-					bedouin_arabic = "Mursiya"
-					maghreb_arabic = "Mursiya"
-					levantine_arabic = "Mursiya"
-					egyptian_arabic = "Mursiya"
-					andalusian_arabic = "Mursiya"
+				b_jerezdeloscaballeros = {
 				}
-				b_cartagena = {
+				b_badajoz = {
 				}
-				b_lorca = {
+				b_merida = {
 				}
-				b_alcantarilla = {
+				b_zafra = {
 				}
-				b_medinasiyasa = {
+				b_almendralejo = {
 				}
-				b_molinalaseca = {
+				b_villalbadelosbarros = {
 				}
-				b_yecla = {
+				b_guarena = {
 				}
-				b_nogalte = {
+				b_fuentedelmaestre = {
 				}
 			}
 		}
 	}
-
-	k_castille = { #Spain
-		color={ 243 209 23 }
-		color2={ 200 80 10 }
-		dignity = 2 # Counted as having 2 more counties than it does
-		
-		capital = 199 # Burgos
-		
-		culture = castillan
-		
-		allow = {
-			conditional_tooltip = {
-				trigger = {
-					k_castille = {
-						is_titular = yes
-					}
-				}
-				k_castille = {
-					is_titular = no
-				}
-			}
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					religion_group = christian
-				}
-			}	
-		}
-		
-		catholic = 250 # Crusade target weight
-		muslim = 25 # Crusade target weight
-		
-		d_castilla = {
-			color = { 242 196 12 }
-			color2={ 255 255 255 }
-			
-			capital = 199 # Burgos
-			
-			c_burgos = {
-				color = { 246 200 16 }
-				color2={ 255 255 255 }
-				
-				b_aguilardecampo = {
-				}
-				b_burgos = {
-				}
-				b_silos = {
-				}
-				b_castrobarte = {
-				}
-				b_mirandadeebro = {
-				}
-				b_arandadeduero = {
-				}
-				b_carrion = {
-				}
-			}
-			c_valladolid = {
-				color = { 248 202 18 }
-				color2={ 255 255 255 }
-				
-				b_valladolid = {
-				}
-				b_tordesillas = {
-				}
-				b_segovia = {
-				}
-				b_medinadelcampo = {
-				}
-				b_simancas = {
-				}
-				b_penafiel = {
-				}
-				b_iscar = {
-				}
-				b_avila = {
-				}
-			}
-			c_soria = {
-				color = { 250 204 20 }
-				color2={ 255 255 255 }
-				
-				b_soria = {
-				}
-				b_almazan = {
-				}
-				b_gormaz = {
-				}
-				b_castromoro = {
-				}
-				b_medinacelli = {
-				}
-				b_sanleonardodeyague = {
-				}
-				b_covaleda = {
-				}
-			}
-			c_osma = {
-				color={ 252 190 25 }
-				color2={ 255 255 255 }
-
-				b_osma = {}
-				b_ucero = {}
-				b_el_burgo = {}
-				b_duero = {}
-				b_uxama = {}
-				b_san_esteban = {}
-				b_calatanazor = {}
-			}
-			c_asturias_de_santillana = {
-				color = { 232 205 25 }
-				color2={ 255 255 255 }
-				
-				b_santander = {
-				}
-				b_santillanadelmar = {
-				}
-				b_laredo = {
-				}
-				b_castrourdiales = {
-				}
-				b_santona = {
-				}
-				b_reinosa = {
-				}
-				b_suances = {
-				}
-				b_camargo = {
-				}
-				b_sanvicente = {
-				}
-			}
-		}
-	}
+	
 	
 	k_aragon = {
 		color = { 166 98 22 }
@@ -32068,6 +32509,66 @@ e_spain = {
 				b_castelldaro = {
 				}
 			}
+		}
+		d_valencia = {
+			color = { 48 167 45 }
+			color2={ 255 255 255 }
+			
+			capital = 171 # Valencia
+			
+			c_castellon = {
+				color = { 255 242 2 }
+				color2={ 255 255 255 }
+				
+				b_castellon = {
+				}
+				b_alpuente = {
+				}
+				b_nules = {
+				}
+				b_vinaros = {
+				}
+				b_morella = {
+				}
+				b_vilarreal = {
+				}
+				b_burriana = {
+				}
+				b_alcalaten = {
+				}
+			}
+			c_valencia = {
+				color = { 255 244 4 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Balansiyya"
+				maghreb_arabic = "Balansiyya"
+				levantine_arabic = "Balansiyya"
+				egyptian_arabic = "Balansiyya"
+				andalusian_arabic = "Balansiyya"
+				
+				b_gandia = {
+				}
+				b_valencia = {
+					bedouin_arabic = "Balansiyya"
+					maghreb_arabic = "Balansiyya"
+					levantine_arabic = "Balansiyya"
+					egyptian_arabic = "Balansiyya"
+					andalusian_arabic = "Balansiyya"
+				}
+				b_jativa = {
+				}
+				b_cuartdepoblet = {
+				}
+				b_alberique = {
+				}
+				b_alacuas = {
+				}
+				b_torrent = {
+				}
+				b_chiva = {
+				}
+			}
 			c_lleida = {
 				color = { 140 90 20 }
 				color2={ 255 255 255 }
@@ -32135,7 +32636,201 @@ e_spain = {
 				}
 			}
 		}
-		d_mallorca = {
+		d_murcia = {
+			color = { 16 229 33 }
+			color2={ 255 255 255 }
+			
+			capital = 169 # Murcia
+			
+			c_almansa = {
+				color = { 244 225 14 }
+				color2={ 255 255 255 }
+				
+				b_almansa = {
+				}
+				b_albacete = {
+				}
+				b_hellin = {
+				}
+				b_caudete = {
+				}
+				b_villarrobledo = {
+				}
+				b_alcaladeljucar = {
+				}
+				b_pozocanada = {
+				}
+				b_tobarra = {
+				}
+			}
+			c_murcia = {
+				color = { 246 227 16 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Mursiya"
+				maghreb_arabic = "Mursiya"
+				levantine_arabic = "Mursiya"
+				egyptian_arabic = "Mursiya"
+				andalusian_arabic = "Mursiya"
+				
+				b_murcia = {
+					bedouin_arabic = "Mursiya"
+					maghreb_arabic = "Mursiya"
+					levantine_arabic = "Mursiya"
+					egyptian_arabic = "Mursiya"
+					andalusian_arabic = "Mursiya"
+				}
+				b_cartagena = {
+				}
+				b_lorca = {
+				}
+				b_alcantarilla = {
+				}
+				b_medinasiyasa = {
+				}
+				b_molinalaseca = {
+				}
+				b_yecla = {
+				}
+				b_nogalte = {
+				}
+			}
+			c_denia = {
+				color = { 255 246 6 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Deniyya"
+				maghreb_arabic = "Deniyya"
+				levantine_arabic = "Deniyya"
+				egyptian_arabic = "Deniyya"
+				andalusian_arabic = "Deniyya"
+				
+				b_denia = {
+					bedouin_arabic = "Deniyya"
+					maghreb_arabic = "Deniyya"
+					levantine_arabic = "Deniyya"
+					egyptian_arabic = "Deniyya"
+					andalusian_arabic = "Deniyya"
+				}
+				b_alicante = {
+				}
+				b_elche = {
+				}
+				b_villena = {
+				}
+				b_orihuela = {
+				}
+				b_castalla = {
+				}
+				b_albatera = {
+				}
+				b_benissa = {
+				}
+			}
+			c_almeria = {
+				color = { 248 245 18 }
+				color2={ 255 255 255 }
+				
+				b_pechina = {
+				}
+				b_almeria = {
+				}
+				b_baza = {
+				}
+				b_berja = {
+				}
+				b_motril = {
+				}
+				b_albox = {
+				}
+				b_purchena = {
+				}
+				b_vera = {
+				}
+			}
+		}
+		d_granada = {
+			color = { 40 150 40 }
+			color2={ 255 255 255 }
+			
+			capital = 180 # Granada
+			
+			c_granada = {
+				color = { 245 242 15 }
+				color2={ 255 255 255 }
+				
+				b_granada = {
+				}
+				b_elvira = {
+				}
+				b_moclin = {
+				}
+				b_iznajar = {
+				}
+				b_guadix = {
+				}
+				b_huelma = {
+				}
+				b_antequara = {
+				}
+			}
+			c_malaga = {
+				color = { 251 248 21 }
+				color2={ 255 255 255 }
+				
+				b_antequera = {
+				}
+				b_malaga = {
+				}
+				b_benalmadena = {
+				}
+				b_tamisa = {
+				}
+				b_coin = {
+				}
+				b_suel = {
+				}
+				b_cartajima = {
+				}
+				b_velezmalaga = {
+				}
+			}
+			c_algeciras = {
+				color = { 240 208 33 }
+				color2={ 255 255 255 }
+				
+				b_gibraltar = {
+				}
+				b_algericas = {
+				}
+				b_ronda = {
+				}
+				b_sanroque = {
+				}
+				b_tarifa = {
+				}
+				b_estepona = {
+				}
+				b_jimenadelafrontera = {
+				}
+				b_casares = {
+				}
+			}
+			c_jaen = {
+				color={ 255 215 25 }
+				color2={ 255 255 255 }
+
+				b_jaen = {}
+				b_quesada = {}
+				b_huescar = {}
+				b_segura = {}
+				b_tiscar = {}
+				b_andujar = {}
+				b_baeza = {}
+			}
+		}
+	}
+	d_mallorca = {
 			color = { 68 126 72 }
 			color2={ 255 255 255 }
 			
@@ -32206,892 +32901,6 @@ e_spain = {
 				}
 			}
 		}
-	}
-	
-	k_navarra = {
-		color = { 150 120 5 }
-		capital = 152 # Navarra
-		
-		culture = basque
-
-		roman = "Vasconia"
-		
-		# Creation/usurpation trigger
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					AND = {
-						culture = basque
-						religion_group = christian
-					}
-				}
-			}
-		}
-		
-		d_navarra = {
-			color = { 230 198 90 }
-			color2={ 255 255 255 }
-			
-			capital = 152 # Navarra
-			
-			c_viscaya = {
-				color = { 244 198 14 }
-				color2={ 255 255 255 }
-				
-				b_irun = {
-				}
-				b_sansebastian = {
-				}
-				b_eibar = {
-				}
-				b_onate = {
-				}
-				b_tolosa = {
-				}
-				b_bilbao = {
-				}
-				b_vitoria = {
-				}
-				b_guernica = {
-				}
-			}
-			
-			c_navarra = {
-				color = { 255 200 2 }
-				color2={ 255 255 255 }
-				
-				b_pamplona = {
-				}
-				b_leyre = {
-				}
-				b_tudela = {
-				} 
-				b_tafalla = {
-				}
-				b_olite = {
-				}
-				b_carcastillo = {
-				}
-				b_sanguesa = {
-				}
-				b_estella = {
-				}
-			}
-			c_najera = {
-				color = { 255 202 3 }
-				color2={ 255 255 255 }
-	
-				b_haro = {
-				}
-				b_logrone = {
-				}
-				b_calahorra = {
-				}
-				b_najera = {
-				}
-				b_arnedo = {
-				}
-				b_alfara = {
-				}
-				b_zizurmayor = {
-				}
-				b_santodomingodelacalzada = {
-				}
-			}
-		}
-	}
-	
-	k_asturias = {
-		color = { 233 188 91 }
-		color2={ 255 255 255 }
-		
-		dignity = 10
-		
-		capital = 155 # Asturias de Oviedo
-		
-		culture = castillan
-		
-		# Creation/usurpation trigger
-		allow = {
-			conditional_tooltip = {
-				trigger = {
-					k_asturias = {
-						is_titular = yes
-					}
-				}
-				k_asturias = {
-					is_titular = no
-				}
-			}
-		}
-		
-		catholic = 250 # Crusade target weight
-		muslim = 25 # Crusade target weight
-		
-		d_asturias = {
-			color = { 233 188 91 }
-			color2={ 255 255 255 }
-			
-			capital = 155 # Asturias
-			
-			c_asturias_de_oviedo = {
-				color = { 233 158 51 }
-				color2={ 255 255 255 }
-				
-				b_oviedo = {
-				}
-				b_gijon = {
-				}
-				b_cangasdeonis = {
-				}
-				b_tineo = {
-				}
-				b_cangasdelnarcea = {
-				}
-				b_villaviciosa = {
-				}
-				b_luarca = {
-				}
-				b_norena = {
-				}
-			}
-			c_astorga = {
-				color = { 243 158 51 }
-				color2={ 255 255 255 }
-				
-				b_ponferrada = {
-				}
-				b_bembibre = {
-				}
-				b_ribadelago = {
-				}
-				b_cacabelos = {
-				}
-				b_fabero = {
-				}
-				b_camponaraya = {
-				}
-				b_toreno = {
-				}
-				b_astorga = {
-				}
-			}
-		}
-		d_leon = {
-			color = { 253 158 51 }
-			color2={ 255 255 255 }
-			
-			capital = 190 # Leon
-			
-			c_leon = {
-				color = { 253 158 51 }
-				color2={ 255 255 255 }
-				
-				b_leon = {
-				}
-				b_valenciadecampos = {
-				}
-				b_villablino = {
-				}
-				b_sanpedrodeperix = {
-				}
-				b_saldana = {
-				}
-				b_sahagun = {
-				}
-				b_larobla = {
-				}
-				b_cistierna = {
-				}
-			}
-			c_palencia = { 
-				color={ 253 148 40 }
-				color2={ 255 255 255 }
-
-				b_palencia = {}
-				b_saint_antolin = {}
-				b_san_salvador = {}
-				b_paredes = {}
-				b_olmeda_palencia = {}
-				b_monte_el_viejo = {}
-				b_vaccaei = {}
-			}
-			c_zamora = {
-				color = { 253 138 51 }
-				color2={ 255 255 255 }
-				
-				b_zamora = {
-				}
-				b_benavente = {
-				}
-				b_fermoselle = {
-				}
-				b_toro = {
-				}
-				b_sanabria = {
-				}
-				b_corrales = {
-				}
-				b_fuentesauco = {
-				}
-				b_polvorosa = {
-				}
-			}
-			c_salamanca = {
-				color = { 253 128 31 }
-				color2={ 255 255 255 }
-				
-				b_salbejar = {
-				}
-				b_salamanca = {
-				}
-				b_ciudadrodrigo = {
-				}
-				b_bracamonte = {
-				}
-				b_albadetormes = {
-				}
-				b_terradillos = {
-				}
-				b_carbajosadelasagrada = {
-				}
-				b_lumbrales = {
-				}
-			}
-		}
-	}
-	
-	k_spanish_galicia = {
-		color={ 255 224 94 }
-		capital = 156 # Coruña
-		
-		culture = portuguese
-		
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					religion_group = christian
-				}
-			}
-			conditional_tooltip = {
-				trigger = {
-					k_spanish_galicia = {
-						is_titular = yes
-					}
-				}
-				k_spanish_galicia = {
-					is_titular = no
-				}
-			}	
-		}
-		
-		catholic = 250 # Crusade target weight
-		muslim = 25 # Crusade target weight
-		
-		d_galicia = {
-			color={ 255 224 94 }
-			color2={ 255 255 255 }
-			
-			capital = 156 # Coruna
-			
-			c_coruna = {
-				color = { 183 118 51 }
-				color2={ 255 255 255 }
-				
-				b_corunna = {
-				}
-				b_mondonedo = {
-				}
-				b_ferrol = {
-				}
-				b_villalba = {
-				}
-				b_viveiro = {
-				}
-				b_burela = {
-				}
-				b_triacastela = {
-				}
-			}
-			c_santiago = {
-				color = { 243 158 51}
-				color2={ 255 255 255 }
-				
-				holy_site = catholic
-				
-				b_santiago = {
-				}
-				b_vigo = {
-				}
-				b_pontevedra = {
-				}
-				b_tuy = {
-				}
-				b_verin = {
-				}
-				b_padron = {
-				}
-				b_vilagarcia = {
-				}
-			}
-			c_lugo = {
-				color={ 200 130 51 }
-				color2={ 255 255 255 }
-
-				b_lugo = {}
-				b_orense = {}
-				b_ribadeo = {}
-				b_navilubio = {}
-				b_mino = {}
-				b_burgas_orense = {}
-				b_sil = {}
-			}
-		}
-	}
-	
-	k_portugal = {
-		color={ 182 88 5 }
-		color2={ 255 255 255 }
-		
-		capital = 160 # Lisboa
-		
-		culture = portuguese
-
-		roman = "Lusitania"
-		
-		catholic = 250 # Crusade target weight
-		muslim = 25
-		west_african_pagan_reformed = 25
-		
-		allow = {
-			conditional_tooltip = {
-				trigger = {
-					k_portugal = {
-						is_titular = yes
-					}
-				}
-				k_portugal = {
-					is_titular = no
-				}
-			}
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					religion_group = christian
-				}
-			}		
-		}
-		
-		d_porto = {
-			color = { 182 108 45 }
-			color2={ 255 255 255 }
-			
-			capital = 158 # porto
-			
-			culture = portuguese
-			
-			c_porto = {
-				color = { 182 88 5 }
-				color2={ 255 255 255 }
-				
-				b_braga = {
-				}
-				b_porto = {
-				}
-				b_guimaraes = {
-				}
-				b_vianadocastelo = {
-				}
-				b_pontedelima = {
-				}
-				b_barcelos = {
-				}
-				b_arcosdevaldevez = {
-				}
-				b_moncao = {
-				}
-			}
-			c_braganza = {
-				color = { 182 98 5 }
-				color2={ 255 255 255 }
-				
-				b_braganza = {
-				}
-				b_chaves = {
-				}
-				b_vilareal = {
-				}
-				b_torredemoncorvo = {
-				}
-				b_mogadouro = {
-				}
-				b_castelomelhor = {
-				}
-				b_castelorodrigo = {
-				}
-				b_azinhoso = {
-				}
-			}
-			c_castelo_branco = {
-				color = { 182 78 5 }
-				color2={ 255 255 255 }
-				
-				b_guarda = {}
-				b_lamego = {}
-				b_trancoso = {}
-				b_sabugal = {}
-				b_pinhel = {}
-				b_almeida = {}
-				b_acores = {}
-			}
-			c_coimbra = {
-				color = { 182 88 25 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Qulumriyah"
-				maghreb_arabic = "Qulumriyah"
-				levantine_arabic = "Qulumriyah"
-				egyptian_arabic = "Qulumriyah"
-				andalusian_arabic = "Qulumriyah"
-				
-				b_coimbra = {
-					bedouin_arabic = "Qulumriyah"
-					maghreb_arabic = "Qulumriyah"
-					levantine_arabic = "Qulumriyah"
-					egyptian_arabic = "Qulumriyah"
-					andalusian_arabic = "Qulumriyah"
-				}
-				b_viseu = {
-				}
-				b_aveiro = {
-				}
-				b_pedondo = {
-				}
-				b_cantanhede = {
-				}
-				b_condeixa = {
-				}
-				b_montereal = {
-				}
-				b_penela = {
-				}
-			}
-		}
-	}
-	
-	k_andalusia = {
-		color = { 31 138 40 }
-		color2={ 255 255 255 }
-		
-		capital = 181 # Cordoba
-		
-		culture = andalusian_arabic
-		
-		roman = "Baetica"
-		greek = "Baetica"
-		visigothic = "Baetica"
-		basque = "Granada"
-		castillan = "Granada"
-		catalan = "Granada"
-		portuguese = "Granada"
-
-		muslim = 50 # Crusade target weight
-		west_african_pagan_reformed = 50
-		aztec_reformed = 2000
-		
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					culture_group = arabic
-				}
-			}
-		}
-		
-		d_cordoba = {
-			color = { 60 180 12 }
-			color2={ 255 255 255 }
-			
-			capital = 181 # Cordoba
-			
-			c_cordoba = {
-				color = { 246 216 16 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Qurtubah"
-				maghreb_arabic = "Qurtubah"
-				levantine_arabic = "Qurtubah"
-				egyptian_arabic = "Qurtubah"
-				andalusian_arabic = "Qurtubah"
-
-				holy_site = sunni
-				holy_site = aztec
-				holy_site = aztec_reformed
-				
-				b_cordoba = {
-					bedouin_arabic = "Qurtubah"
-					maghreb_arabic = "Qurtubah"
-					levantine_arabic = "Qurtubah"
-					egyptian_arabic = "Qurtubah"
-					andalusian_arabic = "Qurtubah"
-				}
-				b_alcolea = {
-				}
-				b_cabra = {
-				}
-				b_lucena = {
-				}
-				b_martos = {
-				}
-				b_belalcazar = {
-				}
-				b_canetedelastorres = {
-				}
-			}
-			c_la_mancha = {
-				color = { 250 220 20 }
-				color2={ 255 255 255 }
-				
-				b_alarcon = {
-				}
-				b_laroda = {
-				}
-				b_tarazona = {
-				}
-				b_quintanardelrey = {
-				}
-				b_lagineta = {
-				}
-				b_barrax = {
-				}
-				b_munera = {
-				}
-				b_jorquera = {
-				}
-			}
-			c_calatrava = {
-				color = { 254 224 24 }
-				color2={ 255 255 255 }
-				
-				b_calatrava = {
-				}
-				b_villareal = {
-				}
-				b_caracuel = {
-				}
-				b_alcazardesanjuan = {
-				}
-				b_alarcos = {
-				}
-				b_medellin = {
-				}
-				b_almadeo = {
-				}
-				b_almodovardelcampo = {
-				}
-			}
-			c_jaen = {
-				color={ 255 215 25 }
-				color2={ 255 255 255 }
-
-				b_jaen = {}
-				b_quesada = {}
-				b_huescar = {}
-				b_segura = {}
-				b_tiscar = {}
-				b_andujar = {}
-				b_baeza = {}
-			}
-		}	
-		d_granada = {
-			color = { 40 150 40 }
-			color2={ 255 255 255 }
-			
-			capital = 180 # Granada
-			
-			c_granada = {
-				color = { 245 242 15 }
-				color2={ 255 255 255 }
-				
-				b_granada = {
-				}
-				b_elvira = {
-				}
-				b_moclin = {
-				}
-				b_iznajar = {
-				}
-				b_guadix = {
-				}
-				b_huelma = {
-				}
-				b_antequara = {
-				}
-			}
-			c_almeria = {
-				color = { 248 245 18 }
-				color2={ 255 255 255 }
-				
-				b_pechina = {
-				}
-				b_almeria = {
-				}
-				b_baza = {
-				}
-				b_berja = {
-				}
-				b_motril = {
-				}
-				b_albox = {
-				}
-				b_purchena = {
-				}
-				b_vera = {
-				}
-			}
-			c_malaga = {
-				color = { 251 248 21 }
-				color2={ 255 255 255 }
-				
-				b_antequera = {
-				}
-				b_malaga = {
-				}
-				b_benalmadena = {
-				}
-				b_tamisa = {
-				}
-				b_coin = {
-				}
-				b_suel = {
-				}
-				b_cartajima = {
-				}
-				b_velezmalaga = {
-				}
-			}
-		}
-		d_sevilla = {
-			color = { 150 218 21 }
-			color2={ 255 255 255 }
-			
-			capital = 182 # Sevilla
-			
-			c_sevilla = {
-				color = { 232 200 25 }
-				color2={ 255 255 255 }
-				
-				b_carmona = {
-				}
-				b_sevilla = {
-				}
-				b_ecija = {
-				}
-				b_sevimoron = {
-				}
-				b_alcaladeguadaira = {
-				}
-				b_doshermanas = {
-				}
-				b_laalgaba = {
-				}
-				b_utrera = {
-				}
-			}
-			c_cadiz = {
-				color = { 236 204 29 }
-				color2={ 255 255 255 }
-				
-				b_jerez = {
-				}
-				b_cadiz = {
-				}
-				b_medinasidonia = {
-				}
-				b_arcos = {
-				}
-				b_sanjosedelvalle = {
-				}
-				b_sanlucadebarrameda = {
-				}
-				b_sanfernando = {
-				}
-				b_alcaladelosgazules = {
-				}
-			}
-			c_algeciras = {
-				color = { 240 208 33 }
-				color2={ 255 255 255 }
-				
-				b_gibraltar = {
-				}
-				b_algericas = {
-				}
-				b_ronda = {
-				}
-				b_sanroque = {
-				}
-				b_tarifa = {
-				}
-				b_estepona = {
-				}
-				b_jimenadelafrontera = {
-				}
-				b_casares = {
-				}
-			}
-			c_aracena = {
-				color = { 244 212 37 }
-				color2={ 255 255 255 }
-				
-				b_aracena = {
-				}
-				b_italica = {
-				}
-				b_almonasterlareal = {
-				}
-				b_calanas = {
-				}
-				b_cortegana = {
-				}
-				b_facanias = {
-				}
-				b_alajar = {
-				}
-				b_galaroza = {
-				}
-			}
-			c_niebla = {
-				color = { 248 216 41 }
-				color2={ 255 255 255 }
-				
-				b_niebla = {}
-				b_nerva = {}
-				b_almonte = {}
-				b_lascrocinas = {}
-				b_pilas = {}
-				b_ostilia = {}
-				b_aroche = {}
-			}
-			c_huelva = {
-				color={ 205 98 5 }
-				color2={ 255 255 255 }
-
-				b_huelva = {}
-				b_lepe = {}
-				b_ayamonte = {}
-				b_gibraleon = {}
-				b_moguer = {}
-				b_aljaraque = {}
-				b_portichuelo = {}
-			}
-		}
-		d_toledo = {
-			color = { 212 151 12 }
-			color2={ 255 255 255 }
-			
-			capital = 197 # Toledo
-			
-			c_toledo = {
-				color = { 245 204 15 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Tulaytulah"
-				maghreb_arabic = "Tulaytulah"
-				levantine_arabic = "Tulaytulah"
-				egyptian_arabic = "Tulaytulah"
-				andalusian_arabic = "Tulaytulah"
-				
-				b_madrid = {
-				}
-				b_toledo = {
-					bedouin_arabic = "Tulaytulah"
-					maghreb_arabic = "Tulaytulah"
-					levantine_arabic = "Tulaytulah"
-					egyptian_arabic = "Tulaytulah"
-					andalusian_arabic = "Tulaytulah"
-				}
-				b_orgaz = {
-				}
-				b_tolemora = {
-				}
-				b_talavera = {
-				}
-				b_consuegra = {
-				}
-				b_fuensalida = {
-				}
-				b_illescas = {
-				}
-			}
-			c_molina = {
-				color = { 248 207 18 }
-				color2={ 255 255 255 }
-				
-				b_hinojosa = {
-				}
-				b_molina = {
-				}
-				b_elpedregal = {
-				}
-				b_pinilla = {
-				}
-				b_cabanillasdelcampo = {
-				}
-				b_elcasar = {
-				}
-				b_maranchon = {
-				}
-				b_olmeda = {
-				}
-			}
-			c_cuenca = {
-				color = { 251 210 21 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Kunka"
-				maghreb_arabic = "Kunka"
-				levantine_arabic = "Kunka"
-				egyptian_arabic = "Kunka"
-				andalusian_arabic = "Kunka"
-				
-				
-				b_cuenca = {
-					bedouin_arabic = "Kunka"
-					maghreb_arabic = "Kunka"
-					levantine_arabic = "Kunka"
-					egyptian_arabic = "Kunka"
-					andalusian_arabic = "Kunka"
-				}
-				b_ucles = {
-				}
-				b_laspedroneras = {
-				}
-				b_villanuevadelajara = {
-				}
-				b_tarancon = {
-				}
-				b_sisante = {
-				}
-				b_motadelcuervo = {
-				}
-			}
-			c_alcala = {
-				color={ 255 200 30 }
-				color2={ 255 255 255 }
-
-				b_alcala = {}
-				b_siguenza = {}
-				b_guadalajara = {}
-				b_burgo_de_santiuste = {}
-				b_villavieja = {}
-				b_segontia = {}
-				b_complutum = {}
-			}
-		}
-	}
 }
 
 e_arabia = {
