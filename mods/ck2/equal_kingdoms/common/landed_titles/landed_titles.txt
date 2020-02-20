@@ -10215,6 +10215,8 @@ e_byzantium = {
 				b_alcarno = {
 				}
 			}
+		}
+	}
 			c_malta = {
 				color={ 155 254 86 }
 				color2={ 255 255 255 }
@@ -10253,8 +10255,6 @@ e_byzantium = {
 				b_sangjilan = {
 				}
 			}
-		}
-	}
 	
 	k_georgia = {
 		color={ 205 145 145 }
@@ -10779,6 +10779,92 @@ e_italy = {
 		}
 	}
 
+		d_genoa = {
+			color={ 244 141 120 }
+			color2={ 255 255 255 }
+			
+			capital = 233 # Genoa
+			
+			dignity = 10
+			
+			c_genoa = {
+				color={ 253 247 228 }
+				color2={ 255 255 255 }
+				
+				b_genoa = {
+				}
+				b_rapallo = {
+				}
+				b_luna = {
+				}
+				b_chiavari = {
+				}
+				b_fosdinovo = {
+				}
+				b_carara = {}
+				b_siestri = {}
+			}
+			c_noli = {
+				color={ 250 240 220 }
+				color2={ 255 255 255 }
+
+				b_noli = {}
+				b_savona = {}
+				b_ventimiglia = {}
+				b_albenga = {}
+				b_oneglia = {}
+				b_sanremo = {}
+				b_alaxio = {}
+			}
+		}	
+		d_pisa = {
+			color={ 196 192 140 }
+			color2={ 255 255 255 }
+			
+			capital = 327 # Pisa
+			
+			c_pisa = {
+				color={ 232 251 226 }
+				color2={ 255 255 255 }
+				
+				b_pisa = {
+				}
+				b_livorno = {
+				}
+				b_canefro = {
+				}
+				b_volterra = {
+				}
+				b_vicopisano = {
+				}
+				b_sanminiato = {
+				}
+				b_portoferraio = {
+				}
+				b_giglio = {
+				}
+			}
+			c_piombino = {
+				color={ 236 255 230 }
+				color2={ 255 255 255 }
+				
+				b_piombino = {
+				}
+				b_suvereto = {
+				}
+				b_radicofani = {
+				}
+				b_populonia = {
+				}
+				b_campiglia = {
+				}
+				b_follonica = {
+				}
+				b_sanvincenzo = {
+				}
+			}
+		}
+	
 	k_papacy = {
 		color={ 215 141 152 }
 		color2={ 255 255 255 }
@@ -10884,27 +10970,6 @@ e_italy = {
 				b_bagnacavallo = {
 				}
 			}
-			c_ferrara = {
-				color={ 244 180 130 }
-				color2={ 255 255 255 }
-				
-				b_ferrara = {
-				}
-				b_commacchio = {
-				}
-				b_tresigallo = {
-				}
-				b_occhiobello = {
-				}
-				b_copparo = {
-				}
-				b_codigoro = {
-				}
-				b_bondeno = {
-				}
-				b_voghiera = {
-				}
-			}
 			c_ravenna = {
 				color={ 244 180 130 }
 				color2={ 255 255 255 }
@@ -10923,6 +10988,18 @@ e_italy = {
 				}
 				b_gambettola = {
 				}
+			}
+			c_rimini = {
+				color={ 220 245 220 }
+				color2={ 255 255 255 }
+
+				b_rimini = {}
+				b_pesaro = {}
+				b_gabicce = {}
+				b_gatteo = {}
+				b_poggio_berni = {}
+				b_pennabilli = {}
+				b_bellaria = {}
 			}
 		}
 		d_ancona = {
@@ -10952,17 +11029,23 @@ e_italy = {
 				}
 				b_senigallia = {}
 			}
-			c_rimini = {
-				color={ 220 245 220 }
+			c_spoleto = {
+				color={ 225 250 235 }
 				color2={ 255 255 255 }
-
-				b_rimini = {}
-				b_pesaro = {}
-				b_gabicce = {}
-				b_gatteo = {}
-				b_poggio_berni = {}
-				b_pennabilli = {}
-				b_bellaria = {}
+				
+				b_spoleto = {
+				}
+				b_nursia = {
+				}
+				b_todi = {
+				}
+				b_valva = {
+				}
+				b_terni = {
+				}
+				b_foligno = {
+				}
+				b_cascia = {}
 			}
 			c_urbino = {
 				color={ 226 251 226 }
@@ -10984,44 +11067,6 @@ e_italy = {
 				}
 			}
 		}	
-		d_spoleto = {
-			color={ 217 182 153 }
-			color2={ 255 255 255 }
-			
-			capital = 349 # Spoleto
-
-			c_spoleto = {
-				color={ 225 250 235 }
-				color2={ 255 255 255 }
-				
-				b_spoleto = {
-				}
-				b_nursia = {
-				}
-				b_todi = {
-				}
-				b_valva = {
-				}
-				b_terni = {
-				}
-				b_foligno = {
-				}
-				b_cascia = {}
-			}
-			c_perugia = {
-				color={ 220 245 225 }
-				color2={ 255 255 255 }
-
-				b_fratta = {}
-				b_perugia = {}
-				b_assisi = {
-				}
-				b_gubbio = {}
-				b_montone = {}
-				b_marsciano = {}
-				b_deruta = {}
-			}
-		}
 		d_latium = {
 			color={ 254 245 160 }
 			color2={ 255 255 255 }
@@ -11144,7 +11189,6 @@ e_italy = {
 			}
 		}
 	}
-
 	k_italy = {
 		color={ 244 227 160 }
 		color2={ 255 255 255 }
@@ -11167,12 +11211,139 @@ e_italy = {
 		christian = 10000 # Crusade target weight
 		hellenic_pagan_reformed = 5000 # Crusade target weight
 		
+		d_toscana = {
+			color = { 222 186 25 }
+			color2={ 255 255 255 }
+			
+			capital = 328 # Firenze
+			
+			c_lucca = {
+				color = { 232 186 25 }
+				color2={ 255 255 255 }
+				
+				b_lucca = {
+				}
+				b_pistoia = {
+				}
+				b_cascina = {
+				}
+				b_altopascio = {
+				}
+				b_viareggio = {
+				}
+				b_seravezza = {
+				}
+				b_capannori = {
+				}
+				b_calcinaia = {
+				}
+			}
+			c_firenze = {
+				color = { 232 190 25 }
+				color2={ 255 255 255 }
+				
+				italian = Firenze
+				castillan = Florencia
+				catalan = Florencia
+				basque = Florencia
+				portuguese = Florencia
+				visigothic = Florencia
+				roman = Florentiae
+				swedish = Florens
+				norse = Florens
+				german = Florenz
+				lombard = Florens
+				old_frankish = Florens
+				suebi = Florens
+				saxon = Florens
+				old_saxon = Florens
+					
+				b_firenze = {
+					italian = Firenze
+					castillan = Florencia
+					catalan = Florencia
+					basque = Florencia
+					portuguese = Florencia
+					visigothic = Florencia
+					roman = Florentiae
+					swedish = Florens
+					norse = Florens
+					german = Florenz
+					lombard = Florens
+					old_frankish = Florens
+					suebi = Florens
+					saxon = Florens
+					old_saxon = Florens
+				}
+				b_prato = {
+				}
+				b_fiesole = {
+				}
+				b_certaldo = {
+				}
+				b_empoli = {}
+				b_impruneta = {}
+				b_castello = {}
+			}
+			c_arezzo = {
+				color={ 230 180 30 }
+				color2={ 255 255 255 }
+
+				b_arezzo = {}
+				b_montevarchi = {}
+				b_lucignano = {}
+				b_sansepolcro = {}
+				b_castiglione_arezzo = {}
+				b_cortona = {}
+				b_civitella_del_vescovo = {}
+			}
+			c_siena = {
+				color = { 212 176 30 }
+				color2={ 255 255 255 }
+					
+				b_siena = {
+				}
+				b_pienza = {
+				}
+				b_montepulciano = {
+				}
+				b_montalcino = {
+				}
+				b_sangimignano = {
+				}
+				b_colledievaldelsa = {
+				}
+				b_monteriggioni = {
+				}
+			}
+		}	
 		d_verona = {
 			color={ 170 255 170 }
 			color2={ 255 255 255 }
 			
 			capital = 319 # Verona
 		
+			c_ferrara = {
+				color={ 244 180 130 }
+				color2={ 255 255 255 }
+				
+				b_ferrara = {
+				}
+				b_commacchio = {
+				}
+				b_tresigallo = {
+				}
+				b_occhiobello = {
+				}
+				b_copparo = {
+				}
+				b_codigoro = {
+				}
+				b_bondeno = {
+				}
+				b_voghiera = {
+				}
+			}
 			c_verona = {
 				color={ 255 230 230 }
 				color2={ 255 255 255 }
@@ -11403,6 +11574,13 @@ e_italy = {
 				b_sottoceneri = {}
 				b_lecco = {}
 			}
+		}
+		d_modena = {
+			color={ 225 80 180 }
+			color2={ 255 255 255 }
+			
+			capital = 322 # Modena
+			
 			c_pavia = {
 				color={ 255 243 232 }
 				color2={ 255 255 255 }
@@ -11445,51 +11623,6 @@ e_italy = {
 				b_manerbio = {
 				}
 			}
-		}
-		d_genoa = {
-			color={ 244 141 120 }
-			color2={ 255 255 255 }
-			
-			capital = 233 # Genoa
-			
-			dignity = 10
-			
-			c_genoa = {
-				color={ 253 247 228 }
-				color2={ 255 255 255 }
-				
-				b_genoa = {
-				}
-				b_rapallo = {
-				}
-				b_luna = {
-				}
-				b_chiavari = {
-				}
-				b_fosdinovo = {
-				}
-				b_carara = {}
-				b_siestri = {}
-			}
-			c_noli = {
-				color={ 250 240 220 }
-				color2={ 255 255 255 }
-
-				b_noli = {}
-				b_savona = {}
-				b_ventimiglia = {}
-				b_albenga = {}
-				b_oneglia = {}
-				b_sanremo = {}
-				b_alaxio = {}
-			}
-		}	
-		d_modena = {
-			color={ 225 180 180 }
-			color2={ 255 255 255 }
-			
-			capital = 322 # Modena
-			
 			c_modena = {
 				color={ 251 250 226 }
 				color2={ 255 255 255 }
@@ -11533,159 +11666,6 @@ e_italy = {
 				}
 			}
 		}		
-		d_toscana = {
-			color = { 222 186 25 }
-			color2={ 255 255 255 }
-			
-			capital = 328 # Firenze
-			
-			c_lucca = {
-				color = { 232 186 25 }
-				color2={ 255 255 255 }
-				
-				b_lucca = {
-				}
-				b_pistoia = {
-				}
-				b_cascina = {
-				}
-				b_altopascio = {
-				}
-				b_viareggio = {
-				}
-				b_seravezza = {
-				}
-				b_capannori = {
-				}
-				b_calcinaia = {
-				}
-			}
-			c_firenze = {
-				color = { 232 190 25 }
-				color2={ 255 255 255 }
-				
-				italian = Firenze
-				castillan = Florencia
-				catalan = Florencia
-				basque = Florencia
-				portuguese = Florencia
-				visigothic = Florencia
-				roman = Florentiae
-				swedish = Florens
-				norse = Florens
-				german = Florenz
-				lombard = Florens
-				old_frankish = Florens
-				suebi = Florens
-				saxon = Florens
-				old_saxon = Florens
-					
-				b_firenze = {
-					italian = Firenze
-					castillan = Florencia
-					catalan = Florencia
-					basque = Florencia
-					portuguese = Florencia
-					visigothic = Florencia
-					roman = Florentiae
-					swedish = Florens
-					norse = Florens
-					german = Florenz
-					lombard = Florens
-					old_frankish = Florens
-					suebi = Florens
-					saxon = Florens
-					old_saxon = Florens
-				}
-				b_prato = {
-				}
-				b_fiesole = {
-				}
-				b_certaldo = {
-				}
-				b_empoli = {}
-				b_impruneta = {}
-				b_castello = {}
-			}
-			c_arezzo = {
-				color={ 230 180 30 }
-				color2={ 255 255 255 }
-
-				b_arezzo = {}
-				b_montevarchi = {}
-				b_lucignano = {}
-				b_sansepolcro = {}
-				b_castiglione_arezzo = {}
-				b_cortona = {}
-				b_civitella_del_vescovo = {}
-			}
-			c_siena = {
-				color = { 212 176 30 }
-				color2={ 255 255 255 }
-					
-				b_siena = {
-				}
-				b_pienza = {
-				}
-				b_montepulciano = {
-				}
-				b_montalcino = {
-				}
-				b_sangimignano = {
-				}
-				b_colledievaldelsa = {
-				}
-				b_monteriggioni = {
-				}
-			}
-		}	
-		d_pisa = {
-			color={ 196 192 140 }
-			color2={ 255 255 255 }
-			
-			capital = 327 # Pisa
-			
-			c_pisa = {
-				color={ 232 251 226 }
-				color2={ 255 255 255 }
-				
-				b_pisa = {
-				}
-				b_livorno = {
-				}
-				b_canefro = {
-				}
-				b_volterra = {
-				}
-				b_vicopisano = {
-				}
-				b_sanminiato = {
-				}
-				b_portoferraio = {
-				}
-				b_giglio = {
-				}
-			}
-			c_piombino = {
-				color={ 236 255 230 }
-				color2={ 255 255 255 }
-				
-				b_piombino = {
-				}
-				b_suvereto = {
-				}
-				b_radicofani = {
-				}
-				b_populonia = {
-				}
-				b_campiglia = {
-				}
-				b_follonica = {
-				}
-				b_sanvincenzo = {
-				}
-			}
-		}	
 	}
 	
 	k_venice = {
@@ -11701,7 +11681,6 @@ e_italy = {
 				is_titular = no
 			}
 		}
-		
 		d_venice = {
 			color = { 34 137 126 }
 			capital = 356 # Venice
@@ -11729,25 +11708,9 @@ e_italy = {
 				b_fusina = {
 				}
 			}
-		}
+		}	
 	}
 	
-	k_sardinia = {
-		color={ 210 165 255 }
-		color2={ 255 255 255 }
-		
-		capital = 326 # Cagliari
-		
-		culture = italian
-		
-		catholic = 500 # Crusade target weight
-		orthodox = 50
-		muslim = 10
-		
-		#catalan = "Sardenya i Còrsega"
-		#greek = "Sardhnia kai thn Korsikn"
-		#italian = "Sardegna e Corsica"
-		
 		d_sardinia = {
 			color={ 217 159 255 }
 			color2={ 255 255 255 }
@@ -11859,6 +11822,17 @@ e_italy = {
 				b_valledoria = {
 				}
 			}
+		}	
+		d_corsica = {
+			color={ 210 233 278 }
+			color2={ 255 255 255 }
+			
+			capital = 324 # Corsica
+			
+			catalan = "Còrsega"
+			frankish = "Corse"
+			greek = "Korsikn"
+		
 			c_gallura = {
 				color={ 200 160 178 }
 				color2={ 255 255 255 }
@@ -11891,17 +11865,6 @@ e_italy = {
 					italian = "Tempio Pausania"
 				}
 			}
-		}	
-		d_corsica = {
-			color={ 210 233 278 }
-			color2={ 255 255 255 }
-			
-			capital = 324 # Corsica
-			
-			catalan = "Còrsega"
-			frankish = "Corse"
-			greek = "Korsikn"
-		
 			c_corsica = {
 				color={ 226 248 251 }
 				color2={ 255 255 255 }
@@ -11954,7 +11917,6 @@ e_italy = {
 				}
 			}
 		}
-	}
 }
 
 e_scandinavia = {
