@@ -4878,7 +4878,7 @@ e_germany = {
 		}
 	
 	k_bavaria = {
-		color={ 129 140 140 }
+		color={ 140 140 140 }
 		color2={ 220 220 20 }
 		
 		culture = german
