@@ -22615,30 +22615,6 @@ e_carpathia = {
 				b_resita = {}
 				b_hotarani = {}
 			}
-			c_targu_jiu = {
-				color={ 211 170 77 }
-				color2={ 255 255 255 }
-				
-				b_targu_jiu = {}
-				b_bistrita = {}
-				b_baia_de_arama = {}
-				b_polovragi = {}
-				b_visina = {}
-				b_tismana = {}
-				b_vulcan = {}
-			}
-			c_severin = {
-				color={ 247 201 78 }
-				color2={ 255 255 255 }
-			
-				b_severin = {}
-				b_mehadia = {}
-				b_orsova = {}
-				b_drobeta = {}
-				b_caransebes = {}
-				b_gradet = {}
-				b_vodita = {}
-			}
 		}
 		
 		d_moldau = {
@@ -23100,6 +23076,62 @@ e_carpathia = {
 					german = Altdala
 					hungarian = Ogyalla
 				}
+			}
+			c_heves = {
+				color={ 173 64 64 }
+				color2={ 255 255 255 }
+				
+				german = Hewesch
+				slovieni = Heveš
+				bohemian = Heveš
+				hungarian = Heves
+
+				b_heves = { 
+					german = Hewesch
+					slovieni = Heveš
+					bohemian = Heveš
+					hungarian = Heves
+				}
+				b_eger = { 
+					slovieni = Jáger
+					german = Erlau
+				}
+				b_gyongyos = {
+					german = Gengess
+				}
+				b_miskolc = { 
+					slovieni = Miškovec
+					german = Mischkolz
+				}
+				b_petervasara = {}
+				b_hatvan = {}
+				b_tiszafured = {}
+				b_mezokovesd = {}
+			}
+			c_pest = {
+				color={ 176 67 67 }
+				color2={ 255 255 255 }
+				
+				german = Pest
+				slovieni = Pešt
+				bohemian = Pešt
+				hungarian = Pest
+				serbian = Pešta
+
+				b_pest = {
+					german = Pest
+					slovieni = Pešt
+					bohemian = Pešt
+					hungarian = Pest
+					serbian = Pešta
+				}
+				b_vac = {}
+				b_kecskemet = {}
+				b_kiskunhalas = {}
+				b_szentendre = {}
+				b_cegled = {}
+				b_abrahamtelke = {}
+				b_kiskoros = {}
 			}
 			c_pressburg = {
 				color={ 217 69 69 }
@@ -23592,93 +23624,6 @@ e_carpathia = {
 				b_felsoviso = {}
 			}
 		}
-		d_pest = {
-			color={ 150 51 51 }
-			color2={ 255 255 255 }
-			
-			capital = 522 # Pest
-			
-			polish = Peszt
-			slovieni = Pešt
-			bohemian = Pešt
-			serbian = Pešta
-			german = Pest
-			
-			c_heves = {
-				color={ 173 64 64 }
-				color2={ 255 255 255 }
-				
-				german = Hewesch
-				slovieni = Heveš
-				bohemian = Heveš
-				hungarian = Heves
-
-				b_heves = { 
-					german = Hewesch
-					slovieni = Heveš
-					bohemian = Heveš
-					hungarian = Heves
-				}
-				b_eger = { 
-					slovieni = Jáger
-					german = Erlau
-				}
-				b_gyongyos = {
-					german = Gengess
-				}
-				b_miskolc = { 
-					slovieni = Miškovec
-					german = Mischkolz
-				}
-				b_petervasara = {}
-				b_hatvan = {}
-				b_tiszafured = {}
-				b_mezokovesd = {}
-			}
-			c_pest = {
-				color={ 176 67 67 }
-				color2={ 255 255 255 }
-				
-				german = Pest
-				slovieni = Pešt
-				bohemian = Pešt
-				hungarian = Pest
-				serbian = Pešta
-
-				b_pest = {
-					german = Pest
-					slovieni = Pešt
-					bohemian = Pešt
-					hungarian = Pest
-					serbian = Pešta
-				}
-				b_vac = {}
-				b_kecskemet = {}
-				b_kiskunhalas = {}
-				b_szentendre = {}
-				b_cegled = {}
-				b_abrahamtelke = {}
-				b_kiskoros = {}
-			}
-			c_csanad = {
-				color={ 179 70 70 }
-				color2={ 255 255 255 }
-				
-				german = Tschanad
-				slovieni = Canád
-				bohemian = Canád
-				hungarian = Csanád
-
-				b_csanad = {}
-				b_szeged = {}
-				b_mako = {}
-				b_battonya = {}
-				b_csongrad = {}
-				b_mindszent = {}
-				b_szentes = {}
-				b_hodmezovasarhely = {}
-			}
-		}
 		d_transylvania = {
 			color={ 255 150 150 }
 			color2={ 255 255 255 }
@@ -23702,6 +23647,24 @@ e_carpathia = {
 				b_szekelyudvarhely = {}
 				b_sepsiszentgyorgy = {}
 				b_marosvasarhely = {}
+			}
+			c_csanad = {
+				color={ 179 70 70 }
+				color2={ 255 255 255 }
+				
+				german = Tschanad
+				slovieni = Canád
+				bohemian = Canád
+				hungarian = Csanád
+
+				b_csanad = {}
+				b_szeged = {}
+				b_mako = {}
+				b_battonya = {}
+				b_csongrad = {}
+				b_mindszent = {}
+				b_szentes = {}
+				b_hodmezovasarhely = {}
 			}
 			c_bihar = {
 				color={ 241 58 58 }
@@ -23769,6 +23732,30 @@ e_carpathia = {
 				b_detta = {}
 				b_kevevara = {}
 				b_karansebes = {}
+			}
+			c_targu_jiu = {
+				color={ 211 170 77 }
+				color2={ 255 255 255 }
+				
+				b_targu_jiu = {}
+				b_bistrita = {}
+				b_baia_de_arama = {}
+				b_polovragi = {}
+				b_visina = {}
+				b_tismana = {}
+				b_vulcan = {}
+			}
+			c_severin = {
+				color={ 247 201 78 }
+				color2={ 255 255 255 }
+			
+				b_severin = {}
+				b_mehadia = {}
+				b_orsova = {}
+				b_drobeta = {}
+				b_caransebes = {}
+				b_gradet = {}
+				b_vodita = {}
 			}
 			c_bacs = {
 				color={ 156 130 67 }
