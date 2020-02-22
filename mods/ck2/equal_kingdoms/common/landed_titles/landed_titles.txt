@@ -28319,6 +28319,19 @@ e_arabia = {
 				b_leuce = {}
 				b_al_hadid = {}
 			}
+			c_senoussi = {
+				color={ 36 154 67 }
+				color2={ 255 255 255 }
+			
+				b_kufra = {}
+				b_jalu = {}
+				b_jakharrah = {}
+				b_gabr = {}
+				b_attallab = {}
+				b_attaj = {}
+				b_buzayman = {}
+				b_tazirbu = {}
+			}
 			c_al_alamayn = {
 				color={ 104 223 138 }
 				color2={ 255 255 255 }
@@ -29343,30 +29356,6 @@ e_maghreb = {
 				b_qumelaioun = {}
 				b_aguedal = {}
 			}
-			c_massat = { # Anfa
-				color={ 53 160 42 }
-				color2={ 255 255 255 }
-				
-				b_anfa = {}
-				b_mazaghan = {}
-				b_fadala = {}
-				b_azammut = {}
-				b_amerchen = {} # Fictional, for prosperity
-				b_el_bakra = {} # Fictional, for prosperity
-				b_zidania = {} # Fictional, for prosperity
-			}
-			c_canarias = {
-				color={ 60 190 43 }
-				color2={ 255 255 255 }
-		
-				b_tenerife = {}
-				b_lagomera = {}
-				b_lanzarote = {}
-				b_fuerteventura = {}
-				b_lagraciosa = {}
-				b_alegranza = {}
-				b_lapalma = {}
-			}
 			c_tadla = {
 				color={ 60 190 43 }
 				color2={ 255 255 255 }
@@ -29411,6 +29400,31 @@ e_maghreb = {
 				b_barrha = {}
 				b_charkia = {}
 			}
+			c_infa = {
+				color={ 48 255 6 }
+				color2={ 255 255 255 }
+			
+				b_infa = {}
+				b_rabat = {}
+				b_sale = {}
+				b_tiflet = {}
+				b_berrechid = {}
+				b_azemmour = {}
+				b_khouribga = {}
+				b_oulmes = {}
+			}
+			c_massat = { # Anfa
+				color={ 53 160 42 }
+				color2={ 255 255 255 }
+				
+				b_anfa = {}
+				b_mazaghan = {}
+				b_fadala = {}
+				b_azammut = {}
+				b_amerchen = {} # Fictional, for prosperity
+				b_el_bakra = {} # Fictional, for prosperity
+				b_zidania = {} # Fictional, for prosperity
+			}
 			c_cebta = { # Ceuta
 				color={ 54 255 12 }
 				color2={ 255 255 255 }
@@ -29427,19 +29441,6 @@ e_maghreb = {
 				b_targuist = {}
 				b_mdiq = {}
 				b_martil = {}
-			}
-			c_el_rif = {
-				color={ 28 240 63 }
-				color2={ 255 255 255 }
-			
-				b_melilla = {}
-				b_alhoceima = {}
-				b_midar = {}
-				b_ketama = {} #Cebta/Fes
-				b_nador = {}
-				b_driouch = {}
-				b_id_amy = {} # Fictional, for prosperity
-				b_agadirene = {} # Fictional, for prosperity
 			}
 		}
 		d_fes = {
@@ -29496,19 +29497,6 @@ e_maghreb = {
 				b_lemseied = {} # Fictional, for prosperity
 				b_elkrama = {} # Fictional, for prosperity
 			}
-			c_infa = {
-				color={ 48 255 6 }
-				color2={ 255 255 255 }
-			
-				b_infa = {}
-				b_rabat = {}
-				b_sale = {}
-				b_tiflet = {}
-				b_berrechid = {}
-				b_azemmour = {}
-				b_khouribga = {}
-				b_oulmes = {}
-			}
 		}
 		d_alger = {
 			color={ 32 150 43 }
@@ -29533,18 +29521,32 @@ e_maghreb = {
 				b_mirabeau = { #Alger
 				}
 			}
-			c_orania = {
-				color={ 45 192 79 }
+			c_lemdiyya = { # Tahert
+				color={ 51 198 85 }
 				color2={ 255 255 255 }
-			
-				b_oran = {}
-				b_mostaganem = {}
-				b_aintemouchent = {}
-				b_maghnia = {}
-				b_benisaf = {}
-				b_ainelberd = {}
-				b_merselhadjad = {}
-				b_gdyel = {}
+				
+				b_tiaret = {}
+				b_medea = {}
+				b_relizane = {}
+				b_aindefla = {}
+				b_elrhenb = {}
+				b_aintorki = {}
+				b_blida = {}
+				b_elhachem = {}
+				b_sidimohammed = {}
+			}
+			c_hanyan = { # Yalala
+				color={ 47 194 81 }
+				color2={ 255 255 255 }
+				
+				b_hanyan = {}
+				b_naama = {}
+				b_saida = {}
+				b_alkasdir = {}
+				b_alancha = {}
+				b_magoura = {}
+				b_raselma = {}
+				b_bougtob = {}
 			}
 			c_beni_yanni = {
 				color={ 35 153 46 }
@@ -29579,6 +29581,32 @@ e_maghreb = {
 				b_dhaya = {}
 				b_elhaicaiba = {}
 			}
+			c_orania = {
+				color={ 45 192 79 }
+				color2={ 255 255 255 }
+			
+				b_oran = {}
+				b_mostaganem = {}
+				b_aintemouchent = {}
+				b_maghnia = {}
+				b_benisaf = {}
+				b_ainelberd = {}
+				b_merselhadjad = {}
+				b_gdyel = {}
+			}
+			c_el_rif = {
+				color={ 28 240 63 }
+				color2={ 255 255 255 }
+			
+				b_melilla = {}
+				b_alhoceima = {}
+				b_midar = {}
+				b_ketama = {} #Cebta/Fes
+				b_nador = {}
+				b_driouch = {}
+				b_id_amy = {} # Fictional, for prosperity
+				b_agadirene = {} # Fictional, for prosperity
+			}
 			c_snassen = { # Wajda
 				color={ 36 248 71 }
 				color2={ 255 255 255 }
@@ -29592,6 +29620,42 @@ e_maghreb = {
 				b_berkane = {}
 				b_ahfir = {}
 			}
+		}
+	}
+		d_tahert = {
+			color={ 78 237 115 }
+			color2={ 255 255 255 }
+			
+			capital = 833 # Askedal
+			
+			c_atlas_mnt = { # Askedal
+				color={ 49 196 83 }
+				color2={ 255 255 255 }
+				
+				holy_site = ibadi
+				
+				b_askedal = {}
+				b_djelfa = {}
+				b_bordj = {}
+				b_elyourh = {}
+				b_selmana = {}
+				b_ainrich = {}
+				b_ainzmila = {}
+				b_hassibenmadjeb = {}
+			}
+			c_biskra = {
+				color={ 47 253 104 }
+				color2={ 255 255 255 }
+			
+				b_biskra = {}
+				b_magra = {}
+				b_batna = {}
+				b_sidiokba = {}
+				b_nebka = {}
+				b_bigou = {}
+				b_branis = {}
+				b_mekhadma = {}
+			}
 			c_figuig = { # Tendara
 				color={ 32 244 67 }
 				color2={ 255 255 255 }
@@ -29603,6 +29667,50 @@ e_maghreb = {
 				b_benhammouch = {} # Fictional, for prosperity
 				b_drablia = {} # Fictional, for prosperity
 				b_randon = {} # Fictional, for prosperity
+			}
+			c_ashir = {
+				color={ 72 214 60 }
+				color2={ 255 255 255 }
+				
+				b_asir_yasir = {}
+				b_asir_banya = {}
+				b_sidiheg = {}
+				b_roumana = {}
+				b_sidinhar = {}
+				b_mouddat = {} # Fictional, for prosperity
+				b_iboutarene = {} # Fictional, for prosperity
+			}
+		}
+		d_adrar = {
+			color={ 90 190 5 }
+			color2={ 255 255 255 }
+			
+			capital = 920 # Ouadane
+			
+			c_ouadane = {
+				color={ 23 109 202 }
+				color2={ 255 255 255 }
+				
+				b_ouadane = {}
+				b_idjil = {}
+				b_wadan = {}
+				b_azuggi = {}
+				b_ksaralkiali = {}
+				b_wadane = {} #Fictional, for prosperity
+				b_kaliki = {} #Fictional, for prosperity
+				b_gag = {} #Fictional, for prosperity
+			}
+			c_idjil = {
+				color={ 8 76 207 }
+				color2={ 255 255 255 }
+				
+				b_bir_um_grein = {}
+				b_zouerat = {}
+				b_tazadit = {}
+				b_rouessa = {}
+				b_fderick = {}
+				b_krossa = {} #Fictional, for prosperity
+				b_mosa = {} #Fictional, for prosperity
 			}
 		}
 		d_sijilmasa = {
@@ -29725,101 +29833,19 @@ e_maghreb = {
 				b_tamchennennt = {} # Fictional, for prosperity
 			}
 		}
-		d_adrar = {
-			color={ 90 190 5 }
-			color2={ 255 255 255 }
-			
-			capital = 920 # Ouadane
-			
-			c_ouadane = {
-				color={ 23 109 202 }
+			c_canarias = {
+				color={ 60 190 43 }
 				color2={ 255 255 255 }
-				
-				b_ouadane = {}
-				b_idjil = {}
-				b_wadan = {}
-				b_azuggi = {}
-				b_ksaralkiali = {}
-				b_wadane = {} #Fictional, for prosperity
-				b_kaliki = {} #Fictional, for prosperity
-				b_gag = {} #Fictional, for prosperity
+		
+				b_tenerife = {}
+				b_lagomera = {}
+				b_lanzarote = {}
+				b_fuerteventura = {}
+				b_lagraciosa = {}
+				b_alegranza = {}
+				b_lapalma = {}
 			}
-			c_idjil = {
-				color={ 8 76 207 }
-				color2={ 255 255 255 }
-				
-				b_bir_um_grein = {}
-				b_zouerat = {}
-				b_tazadit = {}
-				b_rouessa = {}
-				b_fderick = {}
-				b_krossa = {} #Fictional, for prosperity
-				b_mosa = {} #Fictional, for prosperity
-			}
-		}
-		d_tahert = {
-			color={ 78 237 115 }
-			color2={ 255 255 255 }
-			
-			capital = 830 # Tahert
-			
-			c_lemdiyya = { # Tahert
-				color={ 51 198 85 }
-				color2={ 255 255 255 }
-				
-				b_tiaret = {}
-				b_medea = {}
-				b_relizane = {}
-				b_aindefla = {}
-				b_elrhenb = {}
-				b_aintorki = {}
-				b_blida = {}
-				b_elhachem = {}
-				b_sidimohammed = {}
-			}
-			c_atlas_mnt = { # Askedal
-				color={ 49 196 83 }
-				color2={ 255 255 255 }
-				
-				holy_site = ibadi
-				
-				b_askedal = {}
-				b_djelfa = {}
-				b_bordj = {}
-				b_elyourh = {}
-				b_selmana = {}
-				b_ainrich = {}
-				b_ainzmila = {}
-				b_hassibenmadjeb = {}
-			}
-			c_hanyan = { # Yalala
-				color={ 47 194 81 }
-				color2={ 255 255 255 }
-				
-				b_hanyan = {}
-				b_naama = {}
-				b_saida = {}
-				b_alkasdir = {}
-				b_alancha = {}
-				b_magoura = {}
-				b_raselma = {}
-				b_bougtob = {}
-			}
-			c_ashir = {
-				color={ 72 214 60 }
-				color2={ 255 255 255 }
-				
-				b_asir_yasir = {}
-				b_asir_banya = {}
-				b_sidiheg = {}
-				b_roumana = {}
-				b_sidinhar = {}
-				b_mouddat = {} # Fictional, for prosperity
-				b_iboutarene = {} # Fictional, for prosperity
-			}
-		}
-	}
-	
+
 	k_africa = {
 		color={ 21 255 3 }
 		color2={ 255 255 255 }
@@ -29883,18 +29909,6 @@ e_maghreb = {
 				b_tamra = {}
 				b_netza = {}
 			}
-			c_kairwan = {
-				color={ 32 244 107 }
-				color2={ 255 255 255 }
-			
-				b_kairouan = {}
-				b_jalula = {}
-				b_raqqada = {}
-				b_sidibouzid = {}
-				b_haffouz = {}
-				b_chebika = {}
-				b_meknassy = {}
-			}
 			c_mahdia = {
 				color={ 35 247 110 }
 				color2={ 255 255 255 }
@@ -29928,6 +29942,18 @@ e_maghreb = {
 				b_aljamil = {}
 				b_mazuzah = {}
 			}
+			c_suf = {
+				color={ 38 220 50 }
+				color2={ 255 255 255 }
+				
+				b_suf = {}
+				b_dar_abd_el_aziz = {} # Fictional, for prosperity
+				b_beni_kaltoum = {} # Fictional, for prosperity
+				b_fatnassa = {} # Fictional, for prosperity
+				b_beni_dinhet = {} # Fictional, for prosperity
+				b_bidane = {} # Fictional, for prosperity
+				b_el_aouina = {} # Fictional, for prosperity
+			}
 			c_djerba = {
 				color={ 49 196 111 }
 				color2={ 255 255 255 }
@@ -29956,6 +29982,25 @@ e_maghreb = {
 				b_naimah = {}
 				b_gioda = {}
 			}
+		}
+		d_syrte = {
+			color={ 146 222 115 }
+			color2={ 255 255 255 }
+			
+			capital = 809 # Syrte
+			
+			c_syrte = {
+				color={ 120 202 135 }
+				color2={ 255 255 255 }
+			
+				b_syrte = {}
+				b_abuhadi = {}
+				b_assidr = {}
+				b_lanuf = {}
+				b_nawfalliyah = {}
+				b_sinauen = {} # Fictional, for prosperity
+				b_lathrun = {} # Fictional, for prosperity
+			}
 			c_nafusa = {
 				color={ 69 222 82 }
 				color2={ 255 255 255 }
@@ -29980,25 +30025,6 @@ e_maghreb = {
 				b_el_amarmria = {} # Fictional, for prosperity
 				b_el_mstiri = {} # Fictional, for prosperity
 			}
-		}
-		d_syrte = {
-			color={ 146 222 115 }
-			color2={ 255 255 255 }
-			
-			capital = 809 # Syrte
-			
-			c_syrte = {
-				color={ 120 202 135 }
-				color2={ 255 255 255 }
-			
-				b_syrte = {}
-				b_abuhadi = {}
-				b_assidr = {}
-				b_lanuf = {}
-				b_nawfalliyah = {}
-				b_sinauen = {} # Fictional, for prosperity
-				b_lathrun = {} # Fictional, for prosperity
-			}
 			c_tadjrift = {
 				color={ 57 204 119 }
 				color2={ 255 255 255 }
@@ -30010,18 +30036,6 @@ e_maghreb = {
 				b_gicherra = {} # Fictional, for prosperity
 				b_ouifat = {} # Fictional, for prosperity
 				b_qaryat_it_zaydan = {} # Fictional, for prosperity
-			}
-			c_ajadabiya = {
-				color={ 131 233 97 }
-				color2={ 255 255 255 }
-				
-				b_ajadabiya = {}
-				b_al_aghaila = {}
-				b_qaryatbishr = {}
-				b_gargaresc = {} # Fictional, for prosperity
-				b_tagma = {} # Fictional, for prosperity
-				b_el_fogha = {} # Fictional, for prosperity
-				b_karsah = {} # Fictional, for prosperity
 			}
 		}
 		d_jerid = {
@@ -30042,17 +30056,29 @@ e_maghreb = {
 				b_alqalah = {}
 				b_al_hamma = {}
 			}
-			c_suf = {
-				color={ 38 220 50 }
+			c_tebessa = {
+				color={ 51 255 108 }
 				color2={ 255 255 255 }
-				
-				b_suf = {}
-				b_dar_abd_el_aziz = {} # Fictional, for prosperity
-				b_beni_kaltoum = {} # Fictional, for prosperity
-				b_fatnassa = {} # Fictional, for prosperity
-				b_beni_dinhet = {} # Fictional, for prosperity
-				b_bidane = {} # Fictional, for prosperity
-				b_el_aouina = {} # Fictional, for prosperity
+			
+				b_tebessa = {}
+				b_baghaya = {}
+				b_tala = {}
+				b_maydara = {}
+				b_maskiyana = {}
+				b_kasserine = {}
+				b_khenchela = {}
+			}
+			c_kairwan = {
+				color={ 32 244 107 }
+				color2={ 255 255 255 }
+			
+				b_kairouan = {}
+				b_jalula = {}
+				b_raqqada = {}
+				b_sidibouzid = {}
+				b_haffouz = {}
+				b_chebika = {}
+				b_meknassy = {}
 			}
 			c_gafsa = {
 				color={ 38 150 97 }
@@ -30092,18 +30118,17 @@ e_maghreb = {
 				b_mukhayta = {}
 				b_khadra = {}
 			}
-			c_senoussi = {
-				color={ 36 154 67 }
+			c_ajadabiya = {
+				color={ 131 233 97 }
 				color2={ 255 255 255 }
-			
-				b_kufra = {}
-				b_jalu = {}
-				b_jakharrah = {}
-				b_gabr = {}
-				b_attallab = {}
-				b_attaj = {}
-				b_buzayman = {}
-				b_tazirbu = {}
+				
+				b_ajadabiya = {}
+				b_al_aghaila = {}
+				b_qaryatbishr = {}
+				b_gargaresc = {} # Fictional, for prosperity
+				b_tagma = {} # Fictional, for prosperity
+				b_el_fogha = {} # Fictional, for prosperity
+				b_karsah = {} # Fictional, for prosperity
 			}
 			c_benghazi = {
 				color={ 38 156 69 }
@@ -30195,32 +30220,8 @@ e_maghreb = {
 				b_drean = {}
 				b_meroudj = {}
 			}
-			c_biskra = {
-				color={ 47 253 104 }
-				color2={ 255 255 255 }
-			
-				b_biskra = {}
-				b_magra = {}
-				b_batna = {}
-				b_sidiokba = {}
-				b_nebka = {}
-				b_bigou = {}
-				b_branis = {}
-				b_mekhadma = {}
-			}
-			c_tebessa = {
-				color={ 51 255 108 }
-				color2={ 255 255 255 }
-			
-				b_tebessa = {}
-				b_baghaya = {}
-				b_tala = {}
-				b_maydara = {}
-				b_maskiyana = {}
-				b_kasserine = {}
-				b_khenchela = {}
-			}
 		}
+	}
 		d_mzab = {
 			color={ 74 242 62 }
 			color2={ 255 255 255 }
@@ -30276,7 +30277,6 @@ e_maghreb = {
 				b_meftah = {} # Fictional, for prosperity
 			}
 		}
-	}
 }
 
 e_abyssinia = {
