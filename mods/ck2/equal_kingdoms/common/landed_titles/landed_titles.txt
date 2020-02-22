@@ -21812,173 +21812,7 @@ e_persia = {
 			}
 		}
 	}
-	
-	k_mesopotamia = {
-		color={ 75 185 47 }
-		color2={ 255 255 255 }
-		
-		capital	= 697 # Mosul
-		
-		culture = levantine_arabic
-		
-		roman = "Assyria"
-		armenian = "Assyria"
-		greek = "Assyria"
-		alan = "Assyria"
-		georgian = "Assyria"
-		assyrian = "Assyria"
-		
-		muslim = 400 # Crusade target weight
-		zoroastrian_group = 2000 # Crusade target weight
-		zun_pagan_reformed = 300 # Crusade target weight
-		jewish_group = 500 # Crusade target weight
-		
-		d_mosul = {
-			color={ 11 205 70 }
-			color2={ 255 255 255 }
-			
-			capital = 697 # Mosul
-			
-			assyrian = "Niniveh"
-			
-			c_mosul = {
-				color={ 9 236 89 }
-				color2={ 255 255 255 }
-				
-				holy_site = yazidi
-				
-				assyrian = "Niniveh"
-				
-				b_mosul = {}
-				b_bakhdida = {}
-				b_karamlish = {}
-				b_shekhan = {}
-				b_aqrah = {}
-				b_bartella = {}
-				b_arbil = {}
-				b_baqofah = {}
-			}
-			c_oromieh = {
-				color={ 21 180 70 }
-				color2={ 255 255 255 }
-				
-				b_oroumieh = {}
-				b_khoy = {}
-				b_takhtesoleyman = {}
-				b_avajiq = {}
-				b_chaldiran = {}
-				b_charekelisa = {}
-				b_mahabad = {}
-				b_salmas = {}
-			}
-			c_sinjar = {
-				color={ 61 160 70 }
-				color2={ 255 255 255 }
-				
-				b_sinjar = {}
-				b_hatra = {}
-				b_telassar = {}
-				b_nineveh = {}
-				b_talkayf = {}
-				b_baaj = {}
-				b_kouyunik = {}
-				b_nabiyunus = {}
-			}
-			c_nisibin = {
-				color={ 133 170 52 }
-				color2={ 255 255 255 }
-				
-				b_nusaybin = {}
-				b_savur = {}
-				b_dairodmorhannanyo = {}
-				b_kerburan = {}
-				b_cizre = {}
-				b_sittiradviyyemadrasa = {}
-				b_dayrodmorgabriel = {}
-				b_yaqobnsibnaya = {}
-			}
-		}
-		d_jazira = {
-			color={ 95 180 35 }
-			color2={ 255 255 255 }
-			
-			capital = 700 # Bira
-			
-			c_bira = {
-				color={ 95 186 30 }
-				color2={ 255 255 255 }
-				
-				b_bira = {}
-				b_tella = {}
-				b_resaina = {}
-				b_qalarebete = {}
-				b_derik = {}
-				b_qoser = {}
-				b_samrah = {}
-				b_stewr = {}
-			}
-			c_amida = {
-				color={ 129 166 48 }
-				color2={ 255 255 255 }
-				
-				b_kiaburc = {}
-				b_amida = {}
-				b_ulucamii = {}
-				b_suraamede = {}
-				b_mayyafarikin = {}
-				b_hazretisuleymancamii = {}
-				b_egil = {}
-				b_idtodyolataloho = {}
-			}
-		}
-		d_mudar = {
-			color={ 95 180 35 }
-			color2={ 255 255 255 }
-			
-			capital = 712 # Rahbah
-			
-			c_rahbah = {
-				color={ 41 238 26 }
-				color2={ 255 255 255 }
-			
-				b_rahbah = {}
-				b_taraba = {}
-				b_nimreh = {}
-				b_salah = {}
-				b_busan = {}
-				b_tlilin = {}
-				b_qummoualad = {}
-				b_anah = {}
-			}
-			c_al_bichri = {
-				color={ 15 242 95 }
-				color2={ 255 255 255 }
-				
-				b_bichri = {}
-				b_deiralzur = {}
-				b_osrhoene = {}
-				b_abukamal = {}
-				b_shamiyya = {}
-				b_mayadin = {}
-				b_sirhi = {}
-				b_mhaymidah = {}
-			}
-			c_al_jazira = {
-				color={ 70 160 30 }
-				color2={ 255 255 255 }
-				
-				b_hasakah = {}
-				b_dayrik = {}
-				b_qamishhlo = {}
-				b_darbasiyah = {}
-				b_teltamer = {}
-				b_hamoukar = {}
-				b_amuda = {}
-				b_dakhiliyah = {}
-			}
-		}
-	}
-	
+
 	k_iraq = {
 		color={ 45 118 57 }
 		color2={ 255 255 255 }
@@ -27155,18 +26989,6 @@ e_arabia = {
 			always = no # Only created through special event
 		}
 	}
-
-	k_arabia = {
-		color={ 124 199 50 }
-		color2={ 255 255 255 }
-		
-		capital = 719 # Mecca
-		
-		culture = bedouin_arabic
-		
-		muslim = 4000 # Crusade target weight
-		zoroastrian_group = 500 # Crusade target weight
-	
 		d_arabia_petrae = {
 			color={ 121 196 2 }
 			color2={ 255 255 255 }
@@ -27241,19 +27063,6 @@ e_arabia = {
 			#	b_husseiniya = {
 			#	}
 			#}
-			c_al_jawf = {
-				color={ 154 253 47 }
-				color2={ 255 255 255 }
-			
-				b_al_jawf = {}
-				b_sakakah = {}
-				b_aladan = {}
-				b_dumat_al_jandal = {}
-				b_radifah = {}
-				b_tuwayr = {}
-				b_tyer = {}
-				b_qurayyat = {}
-			}
 			c_al_aqabah = {
 				color={ 124 199 5 }
 				color2={ 255 255 255 }
@@ -27281,6 +27090,18 @@ e_arabia = {
 				b_tawala = {}
 			}
 		}
+
+	k_arabia = {
+		color={ 124 199 50 }
+		color2={ 255 255 255 }
+		
+		capital = 719 # Mecca
+		
+		culture = bedouin_arabic
+		
+		muslim = 4000 # Crusade target weight
+		zoroastrian_group = 500 # Crusade target weight
+	
 		d_medina = {
 			color={ 150 249 43 }
 			color2={ 255 255 255 }
@@ -27983,6 +27804,27 @@ e_arabia = {
 				b_shirbin = {}
 				b_xois = {}
 			}
+			c_sarqihya = {
+				color={ 28 240 123 }
+				color2={ 255 255 255 }
+				
+				coptic = "Phelbes"
+				egyptian_arabic = "al-Sarqiya"
+				bedouin_arabic = "al-Sarqiya"
+				maghreb_arabic = "al-Sarqiya"
+				levantine_arabic = "al-Sarqiya"
+				andalusian_arabic = "al-Sarqiya"
+				
+				b_sarqinya = {
+					coptic = "Phelbes"
+				}
+				b_bubastis = {}
+				b_zagazig = {}
+				b_qantir = {}
+				b_agruda = {}
+				b_alhaifar = {}
+				b_minya = {}
+			}
 			c_pelusia = {
 				color={ 12 255 83 }
 				color2={ 255 255 255 }
@@ -28054,26 +27896,20 @@ e_arabia = {
 				b_tekkekyahudiyya = {}
 				b_merimdabenisalama = {}
 			}
-			c_sarqihya = {
-				color={ 28 240 123 }
+			c_alqusair = {
+				color={ 32 244 127 }
 				color2={ 255 255 255 }
+
+				greek = "Leucus Limen"
+				coptic = "Leucus Limen"
 				
-				coptic = "Phelbes"
-				egyptian_arabic = "al-Sarqiya"
-				bedouin_arabic = "al-Sarqiya"
-				maghreb_arabic = "al-Sarqiya"
-				levantine_arabic = "al-Sarqiya"
-				andalusian_arabic = "al-Sarqiya"
-				
-				b_sarqinya = {
-					coptic = "Phelbes"
-				}
-				b_bubastis = {}
-				b_zagazig = {}
-				b_qantir = {}
-				b_agruda = {}
-				b_alhaifar = {}
-				b_minya = {}
+				b_kosseir = {}
+				b_safaga = {}
+				b_abughusun = {}
+				b_ummrus = {}
+				b_asfoun = {} # Fictional, for prosperity
+				b_bureid = {} # Fictional, for prosperity
+				b_jamsah = {} # Fictional, for prosperity
 			}
 			c_akhmim = {
 				color={ 32 244 105 }
@@ -28136,14 +27972,128 @@ e_arabia = {
 				b_mount_anthony = {}
 			}
 		}
-		d_aswan = {
-			color={ 41 188 120 }
+		d_faiyum = {
+			color={ 110 240 145 }
 			color2={ 255 255 255 }
-			
-			capital = 794 # Aswan
-			
-			coptic = "Sowan"
-			
+
+			capital = 2001 # Faiyum
+
+			coptic = "Phiom"
+			roman = "Arsinoe"
+
+			c_asyut = {
+				color={ 36 248 131 }
+				color2={ 255 255 255 }
+				
+				coptic = "Sioout"
+				greek = "Lycopolis"
+				roman = "Lycopolis"
+				egyptian_arabic = "al-Asyutiya"
+				bedouin_arabic = "al-Asyutiya"
+				maghreb_arabic = "al-Asyutiya"
+				levantine_arabic = "al-Asyutiya"
+				andalusian_arabic = "al-Asyutiya"
+				
+				b_asyut = {
+					coptic = "Sioout"
+					greek = "Lycopolis"
+					roman = "Lycopolis"
+					egyptian_arabic = "al-Asyutiya"
+					bedouin_arabic = "al-Asyutiya"
+					maghreb_arabic = "al-Asyutiya"
+					levantine_arabic = "al-Asyutiya"
+					andalusian_arabic = "al-Asyutiya"
+				}
+				b_kusai = {}
+				b_durunka = {}
+				b_wannina = {}
+				b_beitkhallaf = {}
+				b_meir = {}
+				b_suhaj = {}
+			}
+			c_faiyum = {
+				color={ 115 224 142 }
+				color2={ 255 255 255 }
+
+				coptic = "Phiom"
+				roman = "Arsinoe"
+				egyptian_arabic = "al-Fayyumiya"
+				bedouin_arabic = "al-Fayyumiya"
+				maghreb_arabic = "al-Fayyumiya"
+				levantine_arabic = "al-Fayyumiya"
+				andalusian_arabic = "al-Fayyumiya"
+
+				b_faiyum = {
+					coptic = "Phiom"
+					egyptian_arabic = "al-Fayyumiya"
+					bedouin_arabic = "al-Fayyumiya"
+					maghreb_arabic = "al-Fayyumiya"
+					levantine_arabic = "al-Fayyumiya"
+					andalusian_arabic = "al-Fayyumiya"
+				}
+				b_ahnas = {
+					coptic = "Ahnes"
+				}
+				b_bahnasa = {
+					egyptian_arabic = "al-Bahnasa"
+					bedouin_arabic = "al-Bahnasa"
+					maghreb_arabic = "al-Bahnasa"
+					levantine_arabic = "al-Bahnasa"
+					andalusian_arabic = "al-Bahnasa"
+					coptic = "Pemdje"
+				}
+				b_beni_suef = {
+					coptic = "Panisof"
+				}
+				b_heracleus = {}
+				b_arsinoe_faiyum = {}
+				b_wadi_el_rayan = {}
+			}
+			c_buhairya = {
+				color={ 108 227 142 }
+				color2={ 255 255 255 }
+				
+				coptic = "Ptimenhour"
+				
+				b_buhairya = {
+					coptic = "Ptimenhour"
+				}
+				b_budhkula = {}
+				b_abuminqar = {}
+				b_el_harrah = {}
+				b_ain_et_tibniya = {}
+				b_ibshawai = { # Fictional, for prosperity
+				}
+				b_sineita = { # Fictional, for prosperity
+				}
+			}
+			c_farafra = {
+				color={ 104 234 148 }
+				color2={ 255 255 255 }
+
+				coptic = "Trinitheos"
+
+				b_farafra = {
+					coptic = "Trinitheos"
+				}
+				b_mut = {}
+				b_ain_della = {}
+				b_wadi_hinnis = {}
+				b_white_desert = {
+					egyptian_arabic = "Sahara El Beyda"
+				}
+				b_ain_bishay = {}
+				b_qasrfarfra = {}
+			}
+		}
+		d_asyut = {
+			color={ 30 250 124 }
+			color2={ 255 255 255 }
+
+			coptic = "Sioout"
+			greek = "Lycopolis"
+			roman = "Oasis Magna"
+
 			c_aswan = {
 				color={ 43 190 122 }
 				color2={ 255 255 255 }
@@ -28184,22 +28134,60 @@ e_arabia = {
 				b_bilbeis = { # Fictional, for prosperity
 				}
 			}
-			c_alqusair = {
-				color={ 32 244 127 }
+			c_kharga = {
+				color={ 108 227 142 }
 				color2={ 255 255 255 }
 
-				greek = "Leucus Limen"
-				coptic = "Leucus Limen"
+				coptic = "Wah Empsoy"
+				roman = "Oasis Magna"
 				
-				b_kosseir = {}
-				b_safaga = {}
-				b_abughusun = {}
-				b_ummrus = {}
-				b_asfoun = {} # Fictional, for prosperity
-				b_bureid = {} # Fictional, for prosperity
-				b_jamsah = {} # Fictional, for prosperity
+				b_elkharga = {
+					coptic = "Wah Empsoy"
+					roman = "Oasis Magna"
+				}
+				b_baris = {}
+				b_ismant = {}
+				b_zuhrah = {} # Fictional, for prosperity
+				b_gahdam = {} # Fictional, for prosperity
+				b_banja = {} # Fictional, for prosperity
+				b_panopolis = {} # Fictional, for prosperity
+			}
+			c_esna = {
+				color={ 33 242 122 }
+				color2={ 255 255 255 }
+
+				coptic = "Sne"
+				greek = "Latopolis"
+				roman = "Latopolis"
+				egyptian_arabic = "Isna"
+				bedouin_arabic = "Isna"
+				maghreb_arabic = "Isna"
+				levantine_arabic = "Isna"
+				andalusian_arabic = "Isna"
+
+				b_esna = {
+					coptic = "Sne"
+					greek = "Latopolis"
+					roman = "Latopolis"
+					egyptian_arabic = "Isna"
+					bedouin_arabic = "Isna"
+					maghreb_arabic = "Isna"
+					levantine_arabic = "Isna"
+					andalusian_arabic = "Isna"
+				}
+				b_armant = {
+					greek = "Hermonthis"
+				}
+				b_edfu = {}
+				b_hiw = {}
+				b_egypthebes = {}
+				b_egypabydos = {
+					coptic = "Ebot"
+				}
+				b_khnum = {}
 			}
 		}
+	}
 		d_sinai = {
 			color={ 88 99 2 }
 			color2={ 255 255 255 }
@@ -28289,181 +28277,6 @@ e_arabia = {
 				b_zuwayid = {}
 			}
 		}
-		d_faiyum = {
-			color={ 110 240 145 }
-			color2={ 255 255 255 }
-
-			capital = 2001 # Faiyum
-
-			coptic = "Phiom"
-			roman = "Arsinoe"
-
-			c_faiyum = {
-				color={ 115 224 142 }
-				color2={ 255 255 255 }
-
-				coptic = "Phiom"
-				roman = "Arsinoe"
-				egyptian_arabic = "al-Fayyumiya"
-				bedouin_arabic = "al-Fayyumiya"
-				maghreb_arabic = "al-Fayyumiya"
-				levantine_arabic = "al-Fayyumiya"
-				andalusian_arabic = "al-Fayyumiya"
-
-				b_faiyum = {
-					coptic = "Phiom"
-					egyptian_arabic = "al-Fayyumiya"
-					bedouin_arabic = "al-Fayyumiya"
-					maghreb_arabic = "al-Fayyumiya"
-					levantine_arabic = "al-Fayyumiya"
-					andalusian_arabic = "al-Fayyumiya"
-				}
-				b_ahnas = {
-					coptic = "Ahnes"
-				}
-				b_bahnasa = {
-					egyptian_arabic = "al-Bahnasa"
-					bedouin_arabic = "al-Bahnasa"
-					maghreb_arabic = "al-Bahnasa"
-					levantine_arabic = "al-Bahnasa"
-					andalusian_arabic = "al-Bahnasa"
-					coptic = "Pemdje"
-				}
-				b_beni_suef = {
-					coptic = "Panisof"
-				}
-				b_heracleus = {}
-				b_arsinoe_faiyum = {}
-				b_wadi_el_rayan = {}
-			}
-			c_buhairya = {
-				color={ 108 227 142 }
-				color2={ 255 255 255 }
-				
-				coptic = "Ptimenhour"
-				
-				b_buhairya = {
-					coptic = "Ptimenhour"
-				}
-				b_budhkula = {}
-				b_abuminqar = {}
-				b_el_harrah = {}
-				b_ain_et_tibniya = {}
-				b_ibshawai = { # Fictional, for prosperity
-				}
-				b_sineita = { # Fictional, for prosperity
-				}
-			}
-			c_farafra = {
-				color={ 104 234 148 }
-				color2={ 255 255 255 }
-
-				coptic = "Trinitheos"
-
-				b_farafra = {
-					coptic = "Trinitheos"
-				}
-				b_mut = {}
-				b_ain_della = {}
-				b_wadi_hinnis = {}
-				b_white_desert = {
-					egyptian_arabic = "Sahara El Beyda"
-				}
-				b_ain_bishay = {}
-				b_qasrfarfra = {}
-			}
-		}
-		d_asyut = {
-			color={ 30 250 124 }
-			color2={ 255 255 255 }
-
-			coptic = "Sioout"
-			greek = "Lycopolis"
-			roman = "Oasis Magna"
-
-			c_asyut = {
-				color={ 36 248 131 }
-				color2={ 255 255 255 }
-				
-				coptic = "Sioout"
-				greek = "Lycopolis"
-				roman = "Lycopolis"
-				egyptian_arabic = "al-Asyutiya"
-				bedouin_arabic = "al-Asyutiya"
-				maghreb_arabic = "al-Asyutiya"
-				levantine_arabic = "al-Asyutiya"
-				andalusian_arabic = "al-Asyutiya"
-				
-				b_asyut = {
-					coptic = "Sioout"
-					greek = "Lycopolis"
-					roman = "Lycopolis"
-					egyptian_arabic = "al-Asyutiya"
-					bedouin_arabic = "al-Asyutiya"
-					maghreb_arabic = "al-Asyutiya"
-					levantine_arabic = "al-Asyutiya"
-					andalusian_arabic = "al-Asyutiya"
-				}
-				b_kusai = {}
-				b_durunka = {}
-				b_wannina = {}
-				b_beitkhallaf = {}
-				b_meir = {}
-				b_suhaj = {}
-			}
-			c_kharga = {
-				color={ 108 227 142 }
-				color2={ 255 255 255 }
-
-				coptic = "Wah Empsoy"
-				roman = "Oasis Magna"
-				
-				b_elkharga = {
-					coptic = "Wah Empsoy"
-					roman = "Oasis Magna"
-				}
-				b_baris = {}
-				b_ismant = {}
-				b_zuhrah = {} # Fictional, for prosperity
-				b_gahdam = {} # Fictional, for prosperity
-				b_banja = {} # Fictional, for prosperity
-				b_panopolis = {} # Fictional, for prosperity
-			}
-			c_esna = {
-				color={ 33 242 122 }
-				color2={ 255 255 255 }
-
-				coptic = "Sne"
-				greek = "Latopolis"
-				roman = "Latopolis"
-				egyptian_arabic = "Isna"
-				bedouin_arabic = "Isna"
-				maghreb_arabic = "Isna"
-				levantine_arabic = "Isna"
-				andalusian_arabic = "Isna"
-
-				b_esna = {
-					coptic = "Sne"
-					greek = "Latopolis"
-					roman = "Latopolis"
-					egyptian_arabic = "Isna"
-					bedouin_arabic = "Isna"
-					maghreb_arabic = "Isna"
-					levantine_arabic = "Isna"
-					andalusian_arabic = "Isna"
-				}
-				b_armant = {
-					greek = "Hermonthis"
-				}
-				b_edfu = {}
-				b_hiw = {}
-				b_egypthebes = {}
-				b_egypabydos = {
-					coptic = "Ebot"
-				}
-				b_khnum = {}
-			}
-		}
 		d_paraetonium = {
 			color={ 40 240 40 }
 			color2={ 255 255 255 }
@@ -28548,67 +28361,12 @@ e_arabia = {
 				b_ziwaelbahari = {}
 			}
 		}
-	}
-	
-	k_jerusalem = {
-		color={ 180 180 180 }
-		color2={ 255 255 255 }
-		
-		capital = 774 # Jerusalem
-		
-		ashkenazi = "Yerusholaim"
-		sephardi = "Yerushalaim"
-		roman = "Philistia"
-		armenian = "Philistia"
-		greek = "Philistia"
-		alan = "Philistia"
-		georgian = "Philistia"
-		assyrian = "Philistia"
-		roman = "Judea"
-		
-		assimilate = no # Duchies cannot de jure drift IN or OUT of this title
-		
-		culture = levantine_arabic
-		
-		# Creation/Usurp Trigger
-		allow = {
-			religion_group = christian
-		}
-		
-		# Creation Effect
-		gain_effect = {
-			if = {
-				limit = { NOT = { has_global_flag = created_jerusalem } }
-				prestige = 5000
-				piety = 2000 
-				set_global_flag = created_jerusalem
-			}
-		}
-		
-		christian = 500 # Crusade target weight
-		muslim = 250 # Crusade target weight
-		zoroastrian_group = 200 # Crusade target weight
-		jewish_group = 3000 # Crusade target weight
-		
 		d_oultrejourdain = {
 			color={ 190 190 180 }
 			color2={ 255 255 255 }
 			
 			capital = 723 # Madaba
 		
-			c_negev = {
-				color={ 190 180 165 }
-				color2={ 255 255 255 }
-			
-				b_negev = {}
-				b_yeruham = {}
-				b_dimona = {}
-				b_avdat = {}
-				b_albaqar = {}
-				b_kmehin = {}
-				b_ezuz = {}
-				b_haluza = {}
-			}
 			c_monreal = {
 				color={ 190 170 155 }
 				color2={ 255 255 255 }
@@ -28632,6 +28390,19 @@ e_arabia = {
 				b_bildad = {}
 				b_paran = {}
 				b_idan = {}
+			}
+			c_al_jawf = {
+				color={ 154 253 47 }
+				color2={ 255 255 255 }
+			
+				b_al_jawf = {}
+				b_sakakah = {}
+				b_aladan = {}
+				b_dumat_al_jandal = {}
+				b_radifah = {}
+				b_tuwayr = {}
+				b_tyer = {}
+				b_qurayyat = {}
 			}
 			c_kerak = {
 				color={ 150 150 170 }
@@ -28675,6 +28446,47 @@ e_arabia = {
 				b_samhal = {}
 			}
 		}
+
+	k_jerusalem = {
+		color={ 180 180 180 }
+		color2={ 255 255 255 }
+		
+		capital = 774 # Jerusalem
+		
+		ashkenazi = "Yerusholaim"
+		sephardi = "Yerushalaim"
+		roman = "Philistia"
+		armenian = "Philistia"
+		greek = "Philistia"
+		alan = "Philistia"
+		georgian = "Philistia"
+		assyrian = "Philistia"
+		roman = "Judea"
+		
+		assimilate = no # Duchies cannot de jure drift IN or OUT of this title
+		
+		culture = levantine_arabic
+		
+		# Creation/Usurp Trigger
+		allow = {
+			religion_group = christian
+		}
+		
+		# Creation Effect
+		gain_effect = {
+			if = {
+				limit = { NOT = { has_global_flag = created_jerusalem } }
+				prestige = 5000
+				piety = 2000 
+				set_global_flag = created_jerusalem
+			}
+		}
+		
+		christian = 500 # Crusade target weight
+		muslim = 250 # Crusade target weight
+		zoroastrian_group = 200 # Crusade target weight
+		jewish_group = 3000 # Crusade target weight
+		
 		d_ascalon = {
 			color={ 160 160 200 }
 			color2={ 255 255 255 }
@@ -28697,32 +28509,18 @@ e_arabia = {
 				b_jarara = {}
 				b_abasan = {}
 			}
-			c_jaffa = {
-				color={ 167 190 150 }
+			c_negev = {
+				color={ 190 180 165 }
 				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Arsuf"
-				maghreb_arabic = "Arsuf"
-				levantine_arabic = "Arsuf"
-				egyptian_arabic = "Arsuf"
-				andalusian_arabic = "Arsuf"
-				ashkenazi = "Yophoi"
-				sephardi = "Yapho"
 			
-				b_jaffa = {
-					bedouin_arabic = "Arsuf"
-					maghreb_arabic = "Arsuf"
-					levantine_arabic = "Arsuf"
-					egyptian_arabic = "Arsuf"
-					andalusian_arabic = "Arsuf"
-				}
-				b_arsuf = {}
-				b_lydda = {}
-				b_ibelin = {}
-				b_ramleh = {}
-				b_yazur = {}
-				b_qula = {}
-				b_beitdejan = {}
+				b_negev = {}
+				b_yeruham = {}
+				b_dimona = {}
+				b_avdat = {}
+				b_albaqar = {}
+				b_kmehin = {}
+				b_ezuz = {}
+				b_haluza = {}
 			}
 			c_ascalon = {
 				color={ 176 190 140 }
@@ -28766,6 +28564,165 @@ e_arabia = {
 				b_rahat = {}
 				b_ofakim = {}
 				b_abuzqayqa = {}
+			}
+		}
+		d_aleppo = {
+			color={ 85 232 20 }
+			color2={ 255 255 255 }
+			
+			capital = 733 # Aleppo
+			
+			bedouin_arabic = "Halab"
+			maghreb_arabic = "Halab"
+			levantine_arabic = "Halab"
+			egyptian_arabic = "Halab"
+			andalusian_arabic = "Halab"
+			ashkenazi = "Chalpe"
+			sephardi = "Chalpe"
+			greek = "Beroea"
+		
+			c_archa = {
+				color={ 109 194 47 }
+				color2={ 255 255 255 }
+			
+				b_archa = {}
+				b_shayzar = {}
+				b_famia = {}
+				b_chastelblanc = {}
+				b_kafroun = {}
+				b_treiz = {}
+				b_masyaf = {}
+			}
+			c_baalbek = {
+				color={ 77 156 38 }
+				color2={ 255 255 255 }
+			
+				b_baalbek = {}
+				b_akkar = {}
+				b_halbah = {}
+				b_zahle = {}
+				b_laboue = {}
+				b_buissera = {}
+				b_riyaq = {}
+				b_chlifa = {}
+				b_krakdeschevaliers = {}
+			}
+			c_aleppo = {
+				color={ 91 238 26 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Halab"
+				maghreb_arabic = "Halab"
+				levantine_arabic = "Halab"
+				egyptian_arabic = "Halab"
+				andalusian_arabic = "Halab"
+				ashkenazi = "Chalpe"
+				sephardi = "Chalpe"
+				greek = "Beroea"
+			
+				b_aleppo = {}
+				b_azaz = {}
+				b_mashala = {} 
+				b_lerminet = {}
+				b_sarmin = {}
+				b_harim = {}
+				b_qusayr = {}
+				b_maaratannuman = {}
+			}
+			c_hama = {
+				color={ 95 242 30 }
+				color2={ 255 255 255 }
+			
+				b_hama = {}
+				b_hamath = {}
+				b_mhardeh = {}
+				b_qarqar = {}
+				b_bara = {} 
+				b_salamiyah = {}
+				b_serjilla = {}
+				b_kharsan = {}
+			}
+		}
+		d_antioch = {
+			color={ 142 63 129 }
+			color2={ 255 255 255 }
+			
+			capital = 764 # Antioch
+		
+			c_antiocheia = {
+				color={ 152 69 135 }
+				color2={ 255 255 255 }
+
+				holy_site = orthodox
+				holy_site = miaphysite
+				holy_site = monophysite
+				
+				b_antiocheia = {
+					pentarchy = yes
+				}
+				b_latakiah = {}
+				b_stsymeon = {}
+				b_darbsak = {}
+				b_hazart = {}
+				b_saone = {}
+				b_harenc = {}
+				b_baghras = {}
+			}
+			c_tortosa = {
+				color={ 73 152 34 }
+				color2={ 255 255 255 }
+			
+				b_tortosa = {}
+				b_maraclea = {}
+				b_balemia = {}
+				b_jabala = {}
+				b_valania = {}
+				b_ruad = {}
+				b_alkhawabi = {}
+				b_margat = {}
+			}
+			c_tripoli = {
+				color={ 75 154 36 }
+				color2={ 255 255 255 }
+			
+				b_syrtripoli = {}
+				b_gibelet = {}
+				b_boutron = {}
+				b_arqah = {}
+				b_besmedin = {}
+				b_alqulayat = {}
+				b_nephin = {}
+				b_alqadmus = {}
+			}
+			c_alexandretta = {
+				color={ 112 197 50 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Iskandarun"
+				maghreb_arabic = "Iskandarun"
+				levantine_arabic = "Iskandarun"
+				egyptian_arabic = "Iskandarun"
+				andalusian_arabic = "Iskandarun"
+				turkish = "Iskandarun"
+				armenian = "Hrosos"
+			
+				b_alexandretta = {
+					bedouin_arabic = "Iskandarun"
+					maghreb_arabic = "Iskandarun"
+					levantine_arabic = "Iskandarun"
+					egyptian_arabic = "Iskandarun"
+					andalusian_arabic = "Iskandarun"
+					turkish = "Iskandarun"
+				}
+				b_rhosus = {
+					armenian = "Hrosos"
+				}
+				b_portbonnel = {}
+				b_myriandros = {}
+				b_portella = {}
+				b_derbasak = {}
+				b_sarvantikar = {}
+				b_larochederissole = {}
 			}
 		}
 		d_jerusalem = {
@@ -28842,6 +28799,33 @@ e_arabia = {
 				b_montgisard = {} 
 				b_jericho = {}
 				b_saintsamuel = {}
+			}
+			c_jaffa = {
+				color={ 167 190 150 }
+				color2={ 255 255 255 }
+				
+				bedouin_arabic = "Arsuf"
+				maghreb_arabic = "Arsuf"
+				levantine_arabic = "Arsuf"
+				egyptian_arabic = "Arsuf"
+				andalusian_arabic = "Arsuf"
+				ashkenazi = "Yophoi"
+				sephardi = "Yapho"
+			
+				b_jaffa = {
+					bedouin_arabic = "Arsuf"
+					maghreb_arabic = "Arsuf"
+					levantine_arabic = "Arsuf"
+					egyptian_arabic = "Arsuf"
+					andalusian_arabic = "Arsuf"
+				}
+				b_arsuf = {}
+				b_lydda = {}
+				b_ibelin = {}
+				b_ramleh = {}
+				b_yazur = {}
+				b_qula = {}
+				b_beitdejan = {}
 			}
 			c_acre = {
 				color={ 230 190 154 }
@@ -28954,7 +28938,6 @@ e_arabia = {
 			}
 		}
 	}
-	
 	k_syria = {
 		color={ 145 130 88 }
 		color2={ 255 255 255 }
@@ -28967,198 +28950,6 @@ e_arabia = {
 		muslim = 200 # Crusade target weight
 		zoroastrian_group = 500 # Crusade target weight
 		
-		d_aleppo = {
-			color={ 85 232 20 }
-			color2={ 255 255 255 }
-			
-			capital = 733 # Aleppo
-			
-			bedouin_arabic = "Halab"
-			maghreb_arabic = "Halab"
-			levantine_arabic = "Halab"
-			egyptian_arabic = "Halab"
-			andalusian_arabic = "Halab"
-			ashkenazi = "Chalpe"
-			sephardi = "Chalpe"
-			greek = "Beroea"
-		
-			c_asas = {
-				color={ 87 234 22 }
-				color2={ 255 255 255 }
-			
-				b_asas = {}
-				b_rakka = {}
-				b_kallinikos = {}
-				b_talabyad = {}
-				b_tabqa = {}
-				b_souriya = {}
-				b_resafa = {}
-				b_zaazouaa = {}
-			}
-			c_aleppo = {
-				color={ 91 238 26 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Halab"
-				maghreb_arabic = "Halab"
-				levantine_arabic = "Halab"
-				egyptian_arabic = "Halab"
-				andalusian_arabic = "Halab"
-				ashkenazi = "Chalpe"
-				sephardi = "Chalpe"
-				greek = "Beroea"
-			
-				b_aleppo = {}
-				b_azaz = {}
-				b_mashala = {} 
-				b_lerminet = {}
-				b_sarmin = {}
-				b_harim = {}
-				b_qusayr = {}
-				b_maaratannuman = {}
-			}
-			c_homs = {
-				color={ 93 240 28 }
-				color2={ 255 255 255 }
-			
-				b_homs = {}
-				b_zweitina = {}
-				b_emesa = {}
-				b_alkhazandar = {}
-				b_qadesh = {}
-				b_sadad = {}
-				b_marmarita = {}
-				b_qatna = {}
-			}
-			c_hama = {
-				color={ 95 242 30 }
-				color2={ 255 255 255 }
-			
-				b_hama = {}
-				b_hamath = {}
-				b_mhardeh = {}
-				b_qarqar = {}
-				b_bara = {} 
-				b_salamiyah = {}
-				b_serjilla = {}
-				b_kharsan = {}
-			}
-		}
-		d_antioch = {
-			color={ 142 63 129 }
-			color2={ 255 255 255 }
-			
-			capital = 764 # Antioch
-		
-			c_antiocheia = {
-				color={ 152 69 135 }
-				color2={ 255 255 255 }
-
-				holy_site = orthodox
-				holy_site = miaphysite
-				holy_site = monophysite
-				
-				b_antiocheia = {
-					pentarchy = yes
-				}
-				b_latakiah = {}
-				b_stsymeon = {}
-				b_darbsak = {}
-				b_hazart = {}
-				b_saone = {}
-				b_harenc = {}
-				b_baghras = {}
-			}
-			c_archa = {
-				color={ 109 194 47 }
-				color2={ 255 255 255 }
-			
-				b_archa = {}
-				b_shayzar = {}
-				b_famia = {}
-				b_chastelblanc = {}
-				b_kafroun = {}
-				b_treiz = {}
-				b_masyaf = {}
-			}
-			c_alexandretta = {
-				color={ 112 197 50 }
-				color2={ 255 255 255 }
-				
-				bedouin_arabic = "Iskandarun"
-				maghreb_arabic = "Iskandarun"
-				levantine_arabic = "Iskandarun"
-				egyptian_arabic = "Iskandarun"
-				andalusian_arabic = "Iskandarun"
-				turkish = "Iskandarun"
-				armenian = "Hrosos"
-			
-				b_alexandretta = {
-					bedouin_arabic = "Iskandarun"
-					maghreb_arabic = "Iskandarun"
-					levantine_arabic = "Iskandarun"
-					egyptian_arabic = "Iskandarun"
-					andalusian_arabic = "Iskandarun"
-					turkish = "Iskandarun"
-				}
-				b_rhosus = {
-					armenian = "Hrosos"
-				}
-				b_portbonnel = {}
-				b_myriandros = {}
-				b_portella = {}
-				b_derbasak = {}
-				b_sarvantikar = {}
-				b_larochederissole = {}
-			}
-		}
-		d_tripoli = {
-			color={ 71 150 32 }
-			color2={ 255 255 255 }
-			
-			capital = 767 # Tripoli
-		
-			c_tortosa = {
-				color={ 73 152 34 }
-				color2={ 255 255 255 }
-			
-				b_tortosa = {}
-				b_maraclea = {}
-				b_balemia = {}
-				b_jabala = {}
-				b_valania = {}
-				b_ruad = {}
-				b_alkhawabi = {}
-				b_margat = {}
-			}
-			c_tripoli = {
-				color={ 75 154 36 }
-				color2={ 255 255 255 }
-			
-				b_syrtripoli = {}
-				b_gibelet = {}
-				b_boutron = {}
-				b_arqah = {}
-				b_besmedin = {}
-				b_alqulayat = {}
-				b_nephin = {}
-				b_alqadmus = {}
-			}
-			c_baalbek = {
-				color={ 77 156 38 }
-				color2={ 255 255 255 }
-			
-				b_baalbek = {}
-				b_akkar = {}
-				b_halbah = {}
-				b_zahle = {}
-				b_laboue = {}
-				b_buissera = {}
-				b_riyaq = {}
-				b_chlifa = {}
-				b_krakdeschevaliers = {}
-			}
-		}
 		d_damascus = {
 			color={ 122 255 3 }
 			color2={ 255 255 255 }
@@ -29213,19 +29004,6 @@ e_arabia = {
 				b_ummqais = {}
 				b_gadera = {}
 			}
-			c_al_mafraq = {
-				color={ 134 255 15 }
-				color2={ 255 255 255 }
-			
-				b_mafraq = {}
-				b_thughra = {}
-				b_jarash = {}
-				b_nasib = {}
-				b_buwayda = {}
-				b_ramtah = {}
-				b_taebah = {}
-				b_elemtaih = {}
-			}
 			c_az_zarqa = {
 				color={ 103 214 143 }
 				color2={ 255 255 255 }
@@ -29272,6 +29050,202 @@ e_arabia = {
 				b_alhuwaysis = {}
 				b_khirbat = {}
 			}
+			c_homs = {
+				color={ 93 240 28 }
+				color2={ 255 255 255 }
+			
+				b_homs = {}
+				b_zweitina = {}
+				b_emesa = {}
+				b_alkhazandar = {}
+				b_qadesh = {}
+				b_sadad = {}
+				b_marmarita = {}
+				b_qatna = {}
+			}
+			c_asas = {
+				color={ 87 234 22 }
+				color2={ 255 255 255 }
+			
+				b_asas = {}
+				b_rakka = {}
+				b_kallinikos = {}
+				b_talabyad = {}
+				b_tabqa = {}
+				b_souriya = {}
+				b_resafa = {}
+				b_zaazouaa = {}
+			}
+			c_tadmor = {
+				color={ 43 240 28 }
+				color2={ 255 255 255 }
+			
+				b_husaiba = {}
+				b_bukamal = {}
+				b_alqaim = {}
+				b_salhiyah = {}
+				b_assusah = {}
+				b_subaykhan = {}
+				b_asharah = {}
+				b_alqunjah = {}
+			}
+		}
+		d_jazira = {
+			color={ 95 180 35 }
+			color2={ 255 255 255 }
+			
+			capital = 711 # Sinjar
+			
+			c_sinjar = {
+				color={ 61 160 70 }
+				color2={ 255 255 255 }
+				
+				b_sinjar = {}
+				b_hatra = {}
+				b_telassar = {}
+				b_nineveh = {}
+				b_talkayf = {}
+				b_baaj = {}
+				b_kouyunik = {}
+				b_nabiyunus = {}
+			}
+			c_al_bichri = {
+				color={ 15 242 95 }
+				color2={ 255 255 255 }
+				
+				b_bichri = {}
+				b_deiralzur = {}
+				b_osrhoene = {}
+				b_abukamal = {}
+				b_shamiyya = {}
+				b_mayadin = {}
+				b_sirhi = {}
+				b_mhaymidah = {}
+			}
+			c_al_jazira = {
+				color={ 70 160 30 }
+				color2={ 255 255 255 }
+				
+				b_hasakah = {}
+				b_dayrik = {}
+				b_qamishhlo = {}
+				b_darbasiyah = {}
+				b_teltamer = {}
+				b_hamoukar = {}
+				b_amuda = {}
+				b_dakhiliyah = {}
+			}
+			c_nisibin = {
+				color={ 133 170 52 }
+				color2={ 255 255 255 }
+				
+				b_nusaybin = {}
+				b_savur = {}
+				b_dairodmorhannanyo = {}
+				b_kerburan = {}
+				b_cizre = {}
+				b_sittiradviyyemadrasa = {}
+				b_dayrodmorgabriel = {}
+				b_yaqobnsibnaya = {}
+			}
+		}
+		d_mosul = {
+			color={ 11 205 70 }
+			color2={ 255 255 255 }
+			
+			capital = 697 # Mosul
+			
+			assyrian = "Niniveh"
+			
+			c_mosul = {
+				color={ 9 236 89 }
+				color2={ 255 255 255 }
+				
+				holy_site = yazidi
+				
+				assyrian = "Niniveh"
+				
+				b_mosul = {}
+				b_bakhdida = {}
+				b_karamlish = {}
+				b_shekhan = {}
+				b_aqrah = {}
+				b_bartella = {}
+				b_arbil = {}
+				b_baqofah = {}
+			}
+			c_bira = {
+				color={ 95 186 30 }
+				color2={ 255 255 255 }
+				
+				b_bira = {}
+				b_tella = {}
+				b_resaina = {}
+				b_qalarebete = {}
+				b_derik = {}
+				b_qoser = {}
+				b_samrah = {}
+				b_stewr = {}
+			}
+			c_amida = {
+				color={ 129 166 48 }
+				color2={ 255 255 255 }
+				
+				b_kiaburc = {}
+				b_amida = {}
+				b_ulucamii = {}
+				b_suraamede = {}
+				b_mayyafarikin = {}
+				b_hazretisuleymancamii = {}
+				b_egil = {}
+				b_idtodyolataloho = {}
+			}
+			c_oromieh = {
+				color={ 21 180 70 }
+				color2={ 255 255 255 }
+				
+				b_oroumieh = {}
+				b_khoy = {}
+				b_takhtesoleyman = {}
+				b_avajiq = {}
+				b_chaldiran = {}
+				b_charekelisa = {}
+				b_mahabad = {}
+				b_salmas = {}
+			}
+		}
+		d_mudar = {
+			color={ 95 180 35 }
+			color2={ 255 255 255 }
+			
+			capital = 712 # Rahbah
+			
+			c_rahbah = {
+				color={ 41 238 26 }
+				color2={ 255 255 255 }
+			
+				b_rahbah = {}
+				b_taraba = {}
+				b_nimreh = {}
+				b_salah = {}
+				b_busan = {}
+				b_tlilin = {}
+				b_qummoualad = {}
+				b_anah = {}
+			}
+			c_al_mafraq = {
+				color={ 134 255 15 }
+				color2={ 255 255 255 }
+			
+				b_mafraq = {}
+				b_thughra = {}
+				b_jarash = {}
+				b_nasib = {}
+				b_buwayda = {}
+				b_ramtah = {}
+				b_taebah = {}
+				b_elemtaih = {}
+			}
 			c_syria = {
 				color={ 37 234 22 }
 				color2={ 255 255 255 }
@@ -29297,19 +29271,6 @@ e_arabia = {
 				b_shannireh = {}
 				b_samj = {}
 				b_thoula = {}
-			}
-			c_tadmor = {
-				color={ 43 240 28 }
-				color2={ 255 255 255 }
-			
-				b_husaiba = {}
-				b_bukamal = {}
-				b_alqaim = {}
-				b_salhiyah = {}
-				b_assusah = {}
-				b_subaykhan = {}
-				b_asharah = {}
-				b_alqunjah = {}
 			}
 		}
 	}
