@@ -4024,299 +4024,6 @@ e_germany = {
 		}
 	}	
 
-	k_saxony = {
-		color={ 120 25 25 }
-		culture = old_saxon
-
-		capital = 257 # Brunswick
-
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					culture = old_saxon
-					culture = saxon
-				}
-			}
-		}
-		
-		catholic = 3000 # Crusade target weight
-		norse_pagan_reformed = 500 # Crusade target weight
-
-		d_saxony = {
-			color={ 70 70 70 }
-			color2={ 255 255 255 }
-			
-			capital = 257 # Brunswick
-
-			old_saxon = Ostfalia
-
-			c_luneburg = {
-				color={ 195 195 195 }
-				color2={ 255 255 255 }
-
-				old_saxon = Bardengawi
-				
-				b_luneburg = {}
-				b_bardowick = {}
-				b_gifhorn = {}
-				b_evern = {}
-				b_reppenstedt = {}
-				b_ludersburg = {}
-				b_thomasburg = {}
-				b_uelzen = {}
-			}
-			c_braunschweig = {
-				color={ 192 192 192 }
-				color2={ 255 255 255 }
-
-				old_saxon = Hastfala
-				
-				b_braunschweig = {}
-				b_bielefeld = {}
-				b_hildesheim = {}
-				b_waldeck = {}
-				b_wolfenbuttel = {}
-				b_helmstedt = {}
-				b_gandersheim = {}
-			}
-			c_verden = {
-				color={ 170 192 192 }
-				color2={ 255 255 255 }
-
-				old_saxon = "Sturmi"
-
-				b_verden = {}
-				b_rotenburg_verden = {}
-				b_ottersberg = {}
-				b_walsrode = {}
-				b_soltau = {}
-				b_kirchwalsede = {}
-				b_ouhusen = {}
-			}
-			c_altmark = {
-				color={ 189 189 189 }
-				color2={ 255 255 255 }
-
-				pommeranian = Laczyn
-				old_saxon = Osterwalde
-				
-				b_werben = {}
-				b_halberstedt = {}
-				b_walbeck = {}
-				b_luchow = {}
-				b_salzwedel = {}
-				b_stendal = {}
-				b_osterburg = {}
-				b_tangermunde = {}
-			}
-			c_magdeburg = {
-				color={ 160 189 189 }
-				color2={ 255 255 255 }
-
-				pommeranian = Dolomici
-				old_saxon = Suavia
-
-				b_magdeburg = {	
-					pommeranian = Magadoburg			
-				}
-				b_mansfeld = {}
-				b_haldensleben = {
-					pommeranian = Hahaldeslevo
-				}
-				b_arnstein = {}
-				b_querfurt = {
-					pommeranian = Curnfurt
-				}
-				b_bernburg = {}
-				b_kloster_berge = {}
-			}
-		}
-		d_brunswick = {
-			color={ 183 172 172 }
-			color2={ 255 255 255 }
-		
-			capital = 257 # Brunswick
-
-			allow = {
-				conditional_tooltip = {
-					trigger = {
-						d_brunswick = {
-							is_titular = yes
-						}
-					}
-					d_brunswick = {
-						is_titular = no
-					}
-				}
-			}
-		}
-		d_bremen = {
-			color= { 190 201 210 }
-			color2= { 255 255 255 }
-
-			capital = 259 #Bremen
-
-			old_saxon = Heilanga
-
-			pagan_coa = {
-				religion = "norse_pagan"
-				template = 0
-				layer = {
-					texture = 11
-					texture_internal = 0
-					emblem = 0
-					color = 13
-					color = 3
-					color = 13
-				}
-			}
-					
-			c_bremen = {
-				color={ 216 216 216 }
-				color2={ 255 255 255 }
-
-				old_saxon = Hostingabi
-
-				b_hoya = {}
-				b_stade = {}
-				b_blumenthal = {}
-				b_ritzebuttel = {}
-				b_achim = {}
-				b_beverstedt = {} 
-				b_osterbruch = {}
-			}
-			c_celle = {
-				color={ 198 198 198 }
-				color2={ 255 255 255 }
-
-				old_saxon = Wigmodia
-
-				pagan_coa = {
-					religion = "norse_pagan"
-					template = 0
-					layer = {
-						texture = 11
-						texture_internal = 0
-						emblem = 0
-						color = 13
-						color = 3
-						color = 13
-					}
-				}
-				
-				b_bremen = {}
-				b_celle = {}
-				b_hannover = {}
-				b_herford = {}
-				b_hermannsburg = {}
-				b_ravensberg = {}
-				b_nienburg = {}
-				b_wedemark = {}
-				b_wittingen = {}
-			}
-		}
-		d_angria = {
-			color={ 180 165 165 }
-			color2={ 255 255 255 }
-
-			capital = 1979 # Minden
-
-			c_osnabruck = {
-				color={ 213 213 213 }
-				color2={ 255 255 255 }
-
-				old_saxon = Leriga
-				
-				b_osnabruck = {}
-				b_lingen = {}
-				b_bentheim = {}
-				b_wildeshausen = {}
-				b_tecklenburg = {}
-				b_quackenbruck = {}
-				b_meppen = {}
-			}
-			c_oldenburg = {
-				color={ 214 214 214 }
-				color2={ 255 255 255 }
-
-				old_saxon = Lara
-				
-				b_oldenburg = {}
-				b_cloppenburg = {}
-				b_jever = {}
-				b_delmenhorst = {}
-				b_loningen = {}
-				b_nordenham = {}
-				b_kniphausen = {}
-				b_varel = {}
-			}
-			c_minden = {
-				color={ 214 214 190 }
-				color2={ 255 255 255 }
-
-				old_saxon = Derve
-
-				b_minden = {
-					old_saxon = Derve
-				}
-				b_hockeleve = {
-					old_saxon = Huculvi
-				}
-				b_petershagen = {}
-				b_diepholz = {}
-				b_auburg = {}
-				b_wagenfeld = {}
-				b_drebber = {}
-			}
-		}
-		d_munster_germany = {
-			color={ 213 216 212 }
-			color2={ 255 255 255 }
-
-			capital = 88 # Munster
-
-			old_saxon = Westfalia
-
-			c_munster = {
-				color={ 212 212 212 }
-				color2={ 255 255 255 }
-				
-				old_saxon = Dreini
-
-				b_munster = {}
-				b_dortmund = {}
-				b_essen = {}
-				b_greven = {}
-				b_gutersloh = {}
-				b_steinfurt = {}
-				b_gronau = {}
-				b_ahlen = {}
-			}
-			c_gottingen = {
-				color={ 210 210 210 }
-				color2={ 255 255 255 }
-
-				holy_site = norse_pagan
-				holy_site = norse_pagan_reformed
-
-				old_saxon = Patherga
-				
-				b_paderborn = {
-					old_saxon = Irminsul
-				}
-				b_gottingen = {}
-				b_corvey = {}
-				b_lippe = {}
-				b_kassel = {}
-				b_goslar = {}
-				b_northeim = {}
-				b_eisenach = {}
-				b_detmold = {}
-			}
-		}
-	}
-	
 	k_frisia = {
 		color={ 245 100 20 }
 		color2={ 220 220 20 }
@@ -4400,6 +4107,271 @@ e_germany = {
 				b_renesse = {}
 				b_borsele = {}
 				b_zierikzee = {}
+			}
+		}
+		d_saxony = {
+			color={ 70 70 70 }
+			color2={ 255 255 255 }
+			
+			capital = 257 # Brunswick
+
+			old_saxon = Ostfalia
+
+			c_luneburg = {
+				color={ 195 195 195 }
+				color2={ 255 255 255 }
+
+				old_saxon = Bardengawi
+				
+				b_luneburg = {}
+				b_bardowick = {}
+				b_gifhorn = {}
+				b_evern = {}
+				b_reppenstedt = {}
+				b_ludersburg = {}
+				b_thomasburg = {}
+				b_uelzen = {}
+			}
+			c_braunschweig = {
+				color={ 192 192 192 }
+				color2={ 255 255 255 }
+
+				old_saxon = Hastfala
+				
+				b_braunschweig = {}
+				b_bielefeld = {}
+				b_hildesheim = {}
+				b_waldeck = {}
+				b_wolfenbuttel = {}
+				b_helmstedt = {}
+				b_gandersheim = {}
+			}
+			c_altmark = {
+				color={ 189 189 189 }
+				color2={ 255 255 255 }
+
+				pommeranian = Laczyn
+				old_saxon = Osterwalde
+				
+				b_werben = {}
+				b_halberstedt = {}
+				b_walbeck = {}
+				b_luchow = {}
+				b_salzwedel = {}
+				b_stendal = {}
+				b_osterburg = {}
+				b_tangermunde = {}
+			}
+			c_magdeburg = {
+				color={ 160 189 189 }
+				color2={ 255 255 255 }
+
+				pommeranian = Dolomici
+				old_saxon = Suavia
+
+				b_magdeburg = {	
+					pommeranian = Magadoburg			
+				}
+				b_mansfeld = {}
+				b_haldensleben = {
+					pommeranian = Hahaldeslevo
+				}
+				b_arnstein = {}
+				b_querfurt = {
+					pommeranian = Curnfurt
+				}
+				b_bernburg = {}
+				b_kloster_berge = {}
+			}
+		}
+		d_brunswick = {
+			color={ 183 172 172 }
+			color2={ 255 255 255 }
+		
+			capital = 257 # Brunswick
+
+			allow = {
+				conditional_tooltip = {
+					trigger = {
+						d_brunswick = {
+							is_titular = yes
+						}
+					}
+					d_brunswick = {
+						is_titular = no
+					}
+				}
+			}
+		}
+		d_bremen = {
+			color= { 190 201 210 }
+			color2= { 255 255 255 }
+
+			capital = 259 #Bremen
+
+			old_saxon = Heilanga
+
+			pagan_coa = {
+				religion = "norse_pagan"
+				template = 0
+				layer = {
+					texture = 11
+					texture_internal = 0
+					emblem = 0
+					color = 13
+					color = 3
+					color = 13
+				}
+			}
+					
+			c_verden = {
+				color={ 170 192 192 }
+				color2={ 255 255 255 }
+
+				old_saxon = "Sturmi"
+
+				b_verden = {}
+				b_rotenburg_verden = {}
+				b_ottersberg = {}
+				b_walsrode = {}
+				b_soltau = {}
+				b_kirchwalsede = {}
+				b_ouhusen = {}
+			}
+			c_bremen = {
+				color={ 216 216 216 }
+				color2={ 255 255 255 }
+
+				old_saxon = Hostingabi
+
+				b_hoya = {}
+				b_stade = {}
+				b_blumenthal = {}
+				b_ritzebuttel = {}
+				b_achim = {}
+				b_beverstedt = {} 
+				b_osterbruch = {}
+			}
+			c_oldenburg = {
+				color={ 214 214 214 }
+				color2={ 255 255 255 }
+
+				old_saxon = Lara
+				
+				b_oldenburg = {}
+				b_cloppenburg = {}
+				b_jever = {}
+				b_delmenhorst = {}
+				b_loningen = {}
+				b_nordenham = {}
+				b_kniphausen = {}
+				b_varel = {}
+			}
+			c_celle = {
+				color={ 198 198 198 }
+				color2={ 255 255 255 }
+
+				old_saxon = Wigmodia
+
+				pagan_coa = {
+					religion = "norse_pagan"
+					template = 0
+					layer = {
+						texture = 11
+						texture_internal = 0
+						emblem = 0
+						color = 13
+						color = 3
+						color = 13
+					}
+				}
+				
+				b_bremen = {}
+				b_celle = {}
+				b_hannover = {}
+				b_herford = {}
+				b_hermannsburg = {}
+				b_ravensberg = {}
+				b_nienburg = {}
+				b_wedemark = {}
+				b_wittingen = {}
+			}
+		}
+		d_munster_germany = {
+			color={ 213 216 212 }
+			color2={ 255 255 255 }
+
+			capital = 88 # Munster
+
+			old_saxon = Westfalia
+
+			c_munster = {
+				color={ 212 212 212 }
+				color2={ 255 255 255 }
+				
+				old_saxon = Dreini
+
+				b_munster = {}
+				b_dortmund = {}
+				b_essen = {}
+				b_greven = {}
+				b_gutersloh = {}
+				b_steinfurt = {}
+				b_gronau = {}
+				b_ahlen = {}
+			}
+			c_osnabruck = {
+				color={ 213 213 213 }
+				color2={ 255 255 255 }
+
+				old_saxon = Leriga
+				
+				b_osnabruck = {}
+				b_lingen = {}
+				b_bentheim = {}
+				b_wildeshausen = {}
+				b_tecklenburg = {}
+				b_quackenbruck = {}
+				b_meppen = {}
+			}
+			c_minden = {
+				color={ 214 214 190 }
+				color2={ 255 255 255 }
+
+				old_saxon = Derve
+
+				b_minden = {
+					old_saxon = Derve
+				}
+				b_hockeleve = {
+					old_saxon = Huculvi
+				}
+				b_petershagen = {}
+				b_diepholz = {}
+				b_auburg = {}
+				b_wagenfeld = {}
+				b_drebber = {}
+			}
+			c_gottingen = {
+				color={ 210 210 210 }
+				color2={ 255 255 255 }
+
+				holy_site = norse_pagan
+				holy_site = norse_pagan_reformed
+
+				old_saxon = Patherga
+				
+				b_paderborn = {
+					old_saxon = Irminsul
+				}
+				b_gottingen = {}
+				b_corvey = {}
+				b_lippe = {}
+				b_kassel = {}
+				b_goslar = {}
+				b_northeim = {}
+				b_eisenach = {}
+				b_detmold = {}
 			}
 		}
 		d_gelre = {
@@ -4782,37 +4754,6 @@ e_germany = {
 			}
 		}
 	}
-		d_nordgau = {
-			color={ 57 57 70 }
-			color2={ 255 255 255 }
-
-			capital = 314 # Nurnberg
-
-			c_nurnberg = {
-				color={ 57 57 57 }
-				color2={ 255 255 255 }
-		
-				b_nurnberg = {}
-				b_ellwangen = {}
-				b_furth = {}
-				b_kulmbach = {}
-				b_hohenburg = {}
-				b_nordlingen = {}
-				b_erlangen = {}
-			}
-			c_eichstadt = {
-				color={ 57 57 40 }
-				color2={ 255 255 255 }
-
-				b_eichstadt = {}
-				b_weissenburg = {}
-				b_abenberg = {}
-				b_lechtgemund = {}
-				b_trubendingen = {}
-				b_hirschberg = {}
-				b_pollenfeld = {}
-			}
-		}
 		d_bavaria = {
 			color={ 128 121 121 }
 			color2={ 255 255 255 }
@@ -5561,6 +5502,37 @@ e_germany = {
 				b_dietigheim = {}
 			}
 		}
+		d_nordgau = {
+			color={ 57 57 70 }
+			color2={ 255 255 255 }
+
+			capital = 314 # Nurnberg
+
+			c_nurnberg = {
+				color={ 57 57 57 }
+				color2={ 255 255 255 }
+		
+				b_nurnberg = {}
+				b_ellwangen = {}
+				b_furth = {}
+				b_kulmbach = {}
+				b_hohenburg = {}
+				b_nordlingen = {}
+				b_erlangen = {}
+			}
+			c_eichstadt = {
+				color={ 57 57 40 }
+				color2={ 255 255 255 }
+
+				b_eichstadt = {}
+				b_weissenburg = {}
+				b_abenberg = {}
+				b_lechtgemund = {}
+				b_trubendingen = {}
+				b_hirschberg = {}
+				b_pollenfeld = {}
+			}
+		}
 		d_thuringia = {
 			color={ 207 206 226 }
 			color2={ 255 255 255 }
@@ -5681,39 +5653,6 @@ e_germany = {
 				b_hanau = {}
 			}
 		}
-		d_baden = { 
-			color={ 115 109 109 }
-			color2={ 255 255 255 }
-			
-			capital = 125 #Baden
-		
-			c_baden = {
-				color={ 102 102 102 }
-				color2={ 255 255 255 }
-			
-				b_baden = {}
-				b_karlsruhe = {}
-				b_wimpfen = {}
-				b_calw = {}
-				b_pforzheim = {}
-				b_durlach = {}
-				b_rastatt = {}
-				b_neuhausen = {}
-			}
-			c_breisgau = {
-				color={ 105 94 105 }
-				color2={ 255 255 255 }
-		
-				b_freiburg = {}
-				b_stblasien = {}
-				b_offenburg = {}
-				b_zahringen = {}
-				b_lahr = {}
-				b_lohrrach = {}
-				b_breisach = {}
-				b_rottweil = {}
-			}
-		}
 		d_swabia = {
 			color={ 206 203 203 }
 			color2={ 255 255 255 }
@@ -5760,6 +5699,18 @@ e_germany = {
 				b_asperg = {}
 			}
 		}
+		d_mainz = {
+			color={ 129 129 129 }
+			color2={ 255 255 255 }
+
+			capital = 123 # Mainz
+
+			allow = {
+				is_theocracy = yes
+			}
+		}
+	}
+
 		d_alsace = { 
 			color={ 150 150 195 }
 			color2={ 255 255 255 }
@@ -5779,6 +5730,32 @@ e_germany = {
 				b_brumath = {}
 				b_schlettstadt = {}
 			}
+			c_baden = {
+				color={ 102 102 102 }
+				color2={ 255 255 255 }
+			
+				b_baden = {}
+				b_karlsruhe = {}
+				b_wimpfen = {}
+				b_calw = {}
+				b_pforzheim = {}
+				b_durlach = {}
+				b_rastatt = {}
+				b_neuhausen = {}
+			}
+			c_breisgau = {
+				color={ 105 94 105 }
+				color2={ 255 255 255 }
+		
+				b_freiburg = {}
+				b_stblasien = {}
+				b_offenburg = {}
+				b_zahringen = {}
+				b_lahr = {}
+				b_lohrrach = {}
+				b_breisach = {}
+				b_rottweil = {}
+			}
 			c_sundgau = {
 				color={ 152 152 197 }
 				color2={ 255 255 255 }
@@ -5793,17 +5770,6 @@ e_germany = {
 				b_ferette = {}
 			}
 		}
-		d_mainz = {
-			color={ 129 129 129 }
-			color2={ 255 255 255 }
-
-			capital = 123 # Mainz
-
-			allow = {
-				is_theocracy = yes
-			}
-		}
-	}
 
 	k_franconia_otto = {
 		color={ 105 135 105 }
@@ -15155,20 +15121,6 @@ e_russia = {
 				b_chepetivka = {}
 				b_slavuta = {}
 			}
-			c_ushytsia = {
-				color={ 200 100 110 }
-				color2={ 255 255 255 }
-				
-				polish = "Uszyca"
-				
-				b_ushytsia = {}
-				b_kamianets = {}
-				b_litnivtsi = {}
-				b_dunaivtsi = {}
-				b_murovani = {}
-				b_velykyi_zhvanchyk = {}
-				b_ushiyin = {}
-			}
 		}
 		d_cherven_cities = {
 			color={ 224 70 70 }
@@ -17180,6 +17132,124 @@ e_pontic_steppe = {
 				b_qurman = {}
 			}
 		}
+		d_moldau = {
+			color={ 223 202 145 }
+			color2={ 255 255 255 }
+			
+			capital = 545 # Torki
+			
+			volhynian = "Tivertsians"
+			
+			c_torki = {				#Suceava since HF
+				color={ 227 206 149 }
+				color2={ 255 255 255 }
+			
+				b_suceava = {}
+				b_radauti = {}
+				b_bogdana = {}
+				b_baia = {}
+				b_moldovita = {}
+				b_siret = {}
+				b_putna = {} 
+			}
+			c_ushytsia = {
+				color={ 200 100 110 }
+				color2={ 255 255 255 }
+				
+				polish = "Uszyca"
+				
+				b_ushytsia = {}
+				b_kamianets = {}
+				b_litnivtsi = {}
+				b_dunaivtsi = {}
+				b_murovani = {}
+				b_velykyi_zhvanchyk = {}
+				b_ushiyin = {}
+			}
+			c_iasi = {
+				color={ 203 222 145 }
+				color2={ 255 255 255 }
+				
+				b_iasi = {}
+				b_harlau = {}
+				b_hotin = {}
+				b_cernauti = {}
+				b_dorohoi = {}
+				b_varzaresti = {}
+				b_ungheni = {}
+			}
+			c_peresechen = {
+				color={ 225 204 147 }
+				color2={ 255 255 255 }
+			
+				b_soroca = {}
+				b_orhei = {			
+				}
+				b_butuceni = {}
+				b_balti = {}
+				b_tuzara = {}
+				b_falesti = {}
+				b_rautu = {}
+			}
+		}
+		
+		d_bessarabia = {
+			color={ 190 202 175 }
+			color2={ 255 255 255 }
+			
+			capital = 1640 # Chilia
+			
+			pecheneg = "Pecheneg"
+			
+			c_chilia = {
+				color={ 210 212 145 }
+				color2={ 255 255 255 }
+				
+				b_chilia = {}
+				b_oblucita = {}
+				b_tigheci = {}
+				b_reni_ro = {}
+				b_cahul = {}
+				b_lisky = {}
+				b_palada = {}
+			}			
+			c_bratslav = {
+				color={ 227 187 82 }
+				color2={ 255 255 255 }
+				
+				b_bratslav = {}
+				b_nemyriv = {}
+				b_yampil = {}
+				b_sharhorod = {}
+				b_zhmerynka = {}
+				b_tomashpil = {}
+				b_kryzhopil = {}
+			}
+			c_odessa = {
+				color={ 220 200 80 }
+				color2={ 255 255 255 }
+				
+				b_odessa = {}
+				b_holovkivka = {}
+				b_berezivka = {}
+				b_petroverovka = {}
+				b_rozdilna = {}
+				b_illichivsk = {}
+				b_yuzhne = {}
+			}
+			c_belgorod = {
+				color={ 231 210 153 }
+				color2={ 255 255 255 }
+			
+				b_cetatea_alba = {}
+				b_belgorod = {}
+				b_tighina = {}
+				b_capriana = {}
+				b_chisinau = {}
+				b_causeni = {}
+				b_cedaesti = {}
+			}
+		}
 		d_cherson = {
 			color={ 180 180 90 }
 			color2={ 255 255 20 }
@@ -17245,7 +17315,7 @@ e_pontic_steppe = {
 			color={ 125 80 18 }
 			color2={ 255 255 255 }
 			
-			capital = 1646 # Odessa
+			capital = 558 # Lower Dniepr
 						
 			c_oleshye = { # Tag inverted with c_lower_dniepr
 				color={ 238 198 92 }
@@ -17271,18 +17341,6 @@ e_pontic_steppe = {
 				b_bershad = {}
 				b_pervomaisk = {}
 			}
-			c_bratslav = {
-				color={ 227 187 82 }
-				color2={ 255 255 255 }
-				
-				b_bratslav = {}
-				b_nemyriv = {}
-				b_yampil = {}
-				b_sharhorod = {}
-				b_zhmerynka = {}
-				b_tomashpil = {}
-				b_kryzhopil = {}
-			}
 			c_korsun = {
 				color={ 230 190 85 }
 				color2={ 255 255 255 }
@@ -17306,18 +17364,6 @@ e_pontic_steppe = {
 				b_kobleve = {}
 				b_stavky = {}
 				b_rybakivka = {}
-			}
-			c_odessa = {
-				color={ 220 200 80 }
-				color2={ 255 255 255 }
-				
-				b_odessa = {}
-				b_holovkivka = {}
-				b_berezivka = {}
-				b_petroverovka = {}
-				b_rozdilna = {}
-				b_illichivsk = {}
-				b_yuzhne = {}
 			}
 		}
 	}
@@ -22524,29 +22570,83 @@ e_carpathia = {
 	tengri_pagan_reformed = 100
 	slavic_pagan_reformed = 50 # Crusade target weight
 	
-	k_dacia = {
-		color={ 220 132 40 }
-		color2={ 255 255 255 }
-		
-		culture = romanian
-		
-		capital = 515 # Tirgoviste
-		
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					culture = romanian
-				}
-			}
-		}
-		
 		d_wallachia = {		#Muntenia
 			color={ 238 192 69 }
 			color2={ 255 255 255 }
 			
-			capital = 515 # Tirgoviste
+			capital = 1639 # Bacau
 			
+			c_calarasi = {
+				color={ 238 212 80 }
+				color2={ 255 255 255 }
+				
+				b_calarasi = {}
+				b_coconi = {}
+				b_cornatei = {}
+				b_floci = {}
+				b_oltenita = {}
+				b_slobozia = {}
+				b_fetesti = {}
+			}			
+			c_bacau = {
+				color={ 207 226 166 }
+				color2={ 255 255 255 }
+				
+				b_bacau = {}
+				b_targu_neamnt = {}
+				b_neamnt = {}
+				b_targu_trotus = {}
+				b_bodesti = {}
+				b_tazlau = {}
+				b_bistrita_bacau = {}
+			}
+			c_galaz = {
+				color={ 240 202 135 }
+				color2={ 255 255 255 }
+				
+				b_galaz = {}
+				b_falciu = {}
+				b_husi = {}
+				b_oancea = {}
+				b_beresti = {}
+				b_targu_bujor = {}
+				b_murgeni = {}
+			}
+			c_birlad = {
+				color={ 233 212 155 }
+				color2={ 255 255 255 }
+
+				holy_site = slavic_pagan
+				holy_site = slavic_pagan_reformed
+				
+				b_barlad = {}
+				b_tecuci = {}
+				b_focsani = {}
+				b_adjud = {}
+				b_craciuna = {}
+				b_targu_putnei = {}
+				b_marasesti = {}
+			}
+		}
+		
+		d_oltenia = {
+			color={ 238 150 50 }
+			color2={ 255 255 255 }
+			
+			capital = 1643 # Craiova
+			
+			c_craiova = {
+				color={ 248 166 66 }
+				color2={ 255 255 255 }
+				
+				b_craiova = {}
+				b_corabia = {}
+				b_caracal = {}
+				b_calafat = {}
+				b_slatina = {}
+				b_resita = {}
+				b_hotarani = {}
+			}
 			c_tirgoviste = {
 				color={ 244 198 75 }
 				color2={ 255 255 255 }
@@ -22583,160 +22683,7 @@ e_carpathia = {
 				b_cozla = {}
 				b_mioveni = {}
 			}
-			c_calarasi = {
-				color={ 238 212 80 }
-				color2={ 255 255 255 }
-				
-				b_calarasi = {}
-				b_coconi = {}
-				b_cornatei = {}
-				b_floci = {}
-				b_oltenita = {}
-				b_slobozia = {}
-				b_fetesti = {}
-			}			
 		}
-		
-		d_oltenia = {
-			color={ 238 150 50 }
-			color2={ 255 255 255 }
-			
-			capital = 1643 # Craiova
-			
-			c_craiova = {
-				color={ 248 166 66 }
-				color2={ 255 255 255 }
-				
-				b_craiova = {}
-				b_corabia = {}
-				b_caracal = {}
-				b_calafat = {}
-				b_slatina = {}
-				b_resita = {}
-				b_hotarani = {}
-			}
-		}
-		
-		d_moldau = {
-			color={ 223 202 145 }
-			color2={ 255 255 255 }
-			
-			capital = 545 # Torki
-			
-			volhynian = "Tivertsians"
-			
-			c_torki = {				#Suceava since HF
-				color={ 227 206 149 }
-				color2={ 255 255 255 }
-			
-				b_suceava = {}
-				b_radauti = {}
-				b_bogdana = {}
-				b_baia = {}
-				b_moldovita = {}
-				b_siret = {}
-				b_putna = {} 
-			}
-			c_bacau = {
-				color={ 207 226 166 }
-				color2={ 255 255 255 }
-				
-				b_bacau = {}
-				b_targu_neamnt = {}
-				b_neamnt = {}
-				b_targu_trotus = {}
-				b_bodesti = {}
-				b_tazlau = {}
-				b_bistrita_bacau = {}
-			}
-			c_iasi = {
-				color={ 203 222 145 }
-				color2={ 255 255 255 }
-				
-				b_iasi = {}
-				b_harlau = {}
-				b_hotin = {}
-				b_cernauti = {}
-				b_dorohoi = {}
-				b_varzaresti = {}
-				b_ungheni = {}
-			}
-			c_peresechen = {
-				color={ 225 204 147 }
-				color2={ 255 255 255 }
-			
-				b_soroca = {}
-				b_orhei = {			
-				}
-				b_butuceni = {}
-				b_balti = {}
-				b_tuzara = {}
-				b_falesti = {}
-				b_rautu = {}
-			}
-		}
-		
-		d_bessarabia = {
-			color={ 190 202 175 }
-			color2={ 255 255 255 }
-			
-			capital = 1640 # Chilia
-			
-			pecheneg = "Pecheneg"
-			
-			c_chilia = {
-				color={ 210 212 145 }
-				color2={ 255 255 255 }
-				
-				b_chilia = {}
-				b_oblucita = {}
-				b_tigheci = {}
-				b_reni_ro = {}
-				b_cahul = {}
-				b_lisky = {}
-				b_palada = {}
-			}			
-			c_galaz = {
-				color={ 240 202 135 }
-				color2={ 255 255 255 }
-				
-				b_galaz = {}
-				b_falciu = {}
-				b_husi = {}
-				b_oancea = {}
-				b_beresti = {}
-				b_targu_bujor = {}
-				b_murgeni = {}
-			}
-			c_birlad = {
-				color={ 233 212 155 }
-				color2={ 255 255 255 }
-
-				holy_site = slavic_pagan
-				holy_site = slavic_pagan_reformed
-				
-				b_barlad = {}
-				b_tecuci = {}
-				b_focsani = {}
-				b_adjud = {}
-				b_craciuna = {}
-				b_targu_putnei = {}
-				b_marasesti = {}
-			}
-			c_belgorod = {
-				color={ 231 210 153 }
-				color2={ 255 255 255 }
-			
-				b_cetatea_alba = {}
-				b_belgorod = {}
-				b_tighina = {}
-				b_capriana = {}
-				b_chisinau = {}
-				b_causeni = {}
-				b_cedaesti = {}
-			}
-		}
-	}
 		d_pecs = {
 			color={ 155 25 65 }
 			color2={ 255 255 255 }
