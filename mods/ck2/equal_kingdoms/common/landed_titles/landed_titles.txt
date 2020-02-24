@@ -15855,42 +15855,6 @@ e_russia = {
 			
 			capital = 412 # Torzhok
 			
-			c_zaozerye = {
-				color={ 134 150 90 }
-				color2={ 255 255 255 }
-					
-				b_zarechnaya = {}
-				b_vytegra = {}
-				b_kedra = {}
-				b_oshta = {}
-				b_gornyy_ruchey = {}
-				b_rodionovo = {}
-				b_devyatiny = {}
-			}
-			c_chlisselbourg = {
-				color={ 144 160 110 }
-				color2={ 255 255 255 }
-				
-				b_chlisselbourg = {}
-				b_mokrishvitsa = {}
-				b_lodeynoye_pole = {}
-				b_volkhov = {}
-				b_storozhno = {}
-				b_nossok = {}
-				b_nevdubstroy = {}
-			}
-			c_tikhvine = {
-				color={ 125 140 85 }
-				color2={ 255 255 255 }
-				
-				b_tikhvine = {}
-				b_babayevo = {}
-				b_pestovo = {}
-				b_pikalyovo = {}
-				b_chagoda = {}
-				b_boksiti = {}
-				b_khvoynaya = {}
-			}
 			c_torzhok = {
 				color={ 134 161 111 }
 				color2={ 255 255 255 }
@@ -15902,6 +15866,30 @@ e_russia = {
 				b_firovo = {}
 				b_rashkino = {}
 				b_zizino = {}
+			}
+			c_kholm = {
+				color={ 140 170 120 }
+				color2={ 255 255 255 }
+				
+				b_kholm = {}
+				b_molvotitsy = {}
+				b_lychkovo = {}
+				b_nevskaya = {}
+				b_suchki = {}
+				b_yazhelbitsy = {}
+				b_fishovo = {}
+			}
+			c_rzheva = {
+				color={ 170 180 130 }
+				color2={ 255 255 255 }
+				
+				b_rzheva = {}
+				b_gorodok = {}
+				b_vysokoye = {}
+				b_mednoye = {}
+				b_pleshki = {}
+				b_deshevki = {}
+				b_zelenyy = {}
 			}
 			c_bezichy = {
 				color={ 160 180 120 }
@@ -15915,6 +15903,91 @@ e_russia = {
 				b_knyazhikha = {}
 				b_klyuchevaya = {}
 			}			
+		}
+		d_rostov = {
+			color={ 124 137 89 }
+			color2={ 255 255 255 }
+			
+			capital = 574 # Rostov
+			
+			finnish = Merya
+			lappish = Merya
+			ugricbaltic = Merya
+			komi = Merya
+			samoyed = Merya
+			mordvin = Merya
+			meshchera = Merya
+			
+			c_rostov = {
+				color={ 166 180 122 }
+				color2={ 255 255 255 }
+				
+				swedish = "Radstofa"
+				norse = "Radstofa"
+				danish = "Radstofa"
+				norwegian = "Radstofa"
+				komi=Merya
+				mordvin=Merya
+				samoyed=Merya
+				finnish=Merya
+				lappish=Merya
+					
+				b_sarskoyegorodishche = {
+					komi=Merya
+					mordvin=Merya
+					samoyed=Merya
+					finnish=Merya
+					lappish=Merya
+				}
+				b_rostov = {
+					swedish = "Radstofa"
+					norse = "Radstofa"
+					danish = "Radstofa"
+					norwegian = "Radstofa"
+				}
+				b_spasoyakovlevsky = {			
+				}
+				b_lvy = {}
+				b_yepikharka = {}
+				b_rezanka = {}
+				b_kondakovo = {}
+			}
+			c_uglich = {
+				color={ 169 183 125 }
+				color2={ 255 255 255 }
+					
+				b_uglich = {}
+				b_ustyuzhna = {}
+				b_ugliche_pole = {}
+				b_mologa = {}
+				b_krasny_kholm = {}
+				b_koprino = {}
+				b_breytovo = {}
+			}
+			c_yaroslavl = {
+				color={ 184 198 140 }
+				color2={ 255 255 255 }
+				
+				b_timerevo = {}
+				b_yaroslavl = {}
+				b_rybinsk = {}
+				b_petropavlovsky = {}
+				b_spaso-preobrazhensky = {}
+				b_romanov = {}
+				b_borisoglebsky = {}
+			}
+			c_beloozero = {
+				color={ 133 148 90 }
+				color2={ 255 255 255 }
+				
+				b_belozersk = {}
+				b_fedosyevo = {}
+				b_cherepovets = {}
+				b_kirillobelozersky = {}
+				b_ferapontov = {}
+				b_baryevychi = {}
+				b_kinilov = {}
+			}
 		}
 		d_novgorod = {
 			color={ 107 164 64 }
@@ -15993,77 +16066,6 @@ e_russia = {
 				b_batetsky = {}
 				b_shimsk = {}
 			}
-			c_rusa = {
-				color={ 139 156 96 }
-				color2={ 255 255 255 }
-				
-				b_rusa = {}
-				b_poddorye = {}
-				b_ramushevo = {}
-				b_lyublino = {}
-				b_peregino = {}
-				b_belebelka = {}
-				b_korchevka = {}
-			}
-			c_kholm = {
-				color={ 140 170 120 }
-				color2={ 255 255 255 }
-				
-				b_kholm = {}
-				b_molvotitsy = {}
-				b_lychkovo = {}
-				b_nevskaya = {}
-				b_suchki = {}
-				b_yazhelbitsy = {}
-				b_fishovo = {}
-			}
-			c_borovichi = {
-				color={ 120 135 80 }
-				color2={ 255 255 255 }
-				
-				b_borovichi = {}
-				b_kirichi = {}
-				b_khoromy = {}
-				b_okulovka = {}
-				b_lyubytino = {}
-				b_pchevzha = {}
-				b_vodogon = {}
-			}
-		}
-		d_pskov = {
-			color={ 140 130 62 }
-			color2={ 255 255 255 }
-			
-			capital = 413 # Pskov
-			
-			german = "Pleskau"
-
-			c_pskov = {
-				color={ 151 167 107 }
-				color2={ 255 255 255 }
-				
-				german = "Pleskau"
-						
-				b_pskov = {}
-				b_ostrov = {}
-				b_golubovo = {}
-				b_porkhov = {}
-				b_khilovo = {}
-				b_dedovichi = {}
-				b_goristo = {}
-			}
-			c_velikiye_luki = {
-				color={ 154 170 110 }
-				color2={ 255 255 255 }
-						
-				b_velikiyeluki = {}
-				b_sebezh = {}
-				b_nevel = {}
-				b_bely = {}
-				b_usvyaty = {}
-				b_loknya = {}
-				b_staryatoropa = {}
-			}
 			c_vodi = {
 				color={ 113 0 0 }
 				color2={ 255 255 255 }
@@ -16103,6 +16105,108 @@ e_russia = {
 					swedish = "Hatsina"
 					norse = "Hatsina"
 				}
+			}
+			c_rusa = {
+				color={ 139 156 96 }
+				color2={ 255 255 255 }
+				
+				b_rusa = {}
+				b_poddorye = {}
+				b_ramushevo = {}
+				b_lyublino = {}
+				b_peregino = {}
+				b_belebelka = {}
+				b_korchevka = {}
+			}
+		}
+		d_yatviags = {
+			color={ 97 149 97 }
+			color2={ 255 255 255 }
+			
+			capital = 1652 # Borovichi
+			
+			c_borovichi = {
+				color={ 120 135 80 }
+				color2={ 255 255 255 }
+				
+				b_borovichi = {}
+				b_kirichi = {}
+				b_khoromy = {}
+				b_okulovka = {}
+				b_lyubytino = {}
+				b_pchevzha = {}
+				b_vodogon = {}
+			}
+			c_zaozerye = {
+				color={ 134 150 90 }
+				color2={ 255 255 255 }
+					
+				b_zarechnaya = {}
+				b_vytegra = {}
+				b_kedra = {}
+				b_oshta = {}
+				b_gornyy_ruchey = {}
+				b_rodionovo = {}
+				b_devyatiny = {}
+			}
+			c_chlisselbourg = {
+				color={ 144 160 110 }
+				color2={ 255 255 255 }
+				
+				b_chlisselbourg = {}
+				b_mokrishvitsa = {}
+				b_lodeynoye_pole = {}
+				b_volkhov = {}
+				b_storozhno = {}
+				b_nossok = {}
+				b_nevdubstroy = {}
+			}
+			c_tikhvine = {
+				color={ 125 140 85 }
+				color2={ 255 255 255 }
+				
+				b_tikhvine = {}
+				b_babayevo = {}
+				b_pestovo = {}
+				b_pikalyovo = {}
+				b_chagoda = {}
+				b_boksiti = {}
+				b_khvoynaya = {}
+			}
+		}
+		d_pskov = {
+			color={ 140 130 62 }
+			color2={ 255 255 255 }
+			
+			capital = 413 # Pskov
+			
+			german = "Pleskau"
+
+			c_pskov = {
+				color={ 151 167 107 }
+				color2={ 255 255 255 }
+				
+				german = "Pleskau"
+						
+				b_pskov = {}
+				b_ostrov = {}
+				b_golubovo = {}
+				b_porkhov = {}
+				b_khilovo = {}
+				b_dedovichi = {}
+				b_goristo = {}
+			}
+			c_velikiye_luki = {
+				color={ 154 170 110 }
+				color2={ 255 255 255 }
+						
+				b_velikiyeluki = {}
+				b_sebezh = {}
+				b_nevel = {}
+				b_bely = {}
+				b_usvyaty = {}
+				b_loknya = {}
+				b_staryatoropa = {}
 			}
 			c_gdov = {
 				color={ 160 177 117 }
@@ -16377,91 +16481,6 @@ e_russia = {
 				b_zaytsevo = {}
 			}
 		}
-		d_rostov = {
-			color={ 124 137 89 }
-			color2={ 255 255 255 }
-			
-			capital = 574 # Rostov
-			
-			finnish = Merya
-			lappish = Merya
-			ugricbaltic = Merya
-			komi = Merya
-			samoyed = Merya
-			mordvin = Merya
-			meshchera = Merya
-			
-			c_rostov = {
-				color={ 166 180 122 }
-				color2={ 255 255 255 }
-				
-				swedish = "Radstofa"
-				norse = "Radstofa"
-				danish = "Radstofa"
-				norwegian = "Radstofa"
-				komi=Merya
-				mordvin=Merya
-				samoyed=Merya
-				finnish=Merya
-				lappish=Merya
-					
-				b_sarskoyegorodishche = {
-					komi=Merya
-					mordvin=Merya
-					samoyed=Merya
-					finnish=Merya
-					lappish=Merya
-				}
-				b_rostov = {
-					swedish = "Radstofa"
-					norse = "Radstofa"
-					danish = "Radstofa"
-					norwegian = "Radstofa"
-				}
-				b_spasoyakovlevsky = {			
-				}
-				b_lvy = {}
-				b_yepikharka = {}
-				b_rezanka = {}
-				b_kondakovo = {}
-			}
-			c_uglich = {
-				color={ 169 183 125 }
-				color2={ 255 255 255 }
-					
-				b_uglich = {}
-				b_ustyuzhna = {}
-				b_ugliche_pole = {}
-				b_mologa = {}
-				b_krasny_kholm = {}
-				b_koprino = {}
-				b_breytovo = {}
-			}
-			c_yaroslavl = {
-				color={ 184 198 140 }
-				color2={ 255 255 255 }
-				
-				b_timerevo = {}
-				b_yaroslavl = {}
-				b_rybinsk = {}
-				b_petropavlovsky = {}
-				b_spaso-preobrazhensky = {}
-				b_romanov = {}
-				b_borisoglebsky = {}
-			}
-			c_beloozero = {
-				color={ 133 148 90 }
-				color2={ 255 255 255 }
-				
-				b_belozersk = {}
-				b_fedosyevo = {}
-				b_cherepovets = {}
-				b_kirillobelozersky = {}
-				b_ferapontov = {}
-				b_baryevychi = {}
-				b_kinilov = {}
-			}
-		}
 		d_tver = {
 			color={ 169 183 125 }
 			color2={ 255 255 255 }
@@ -16482,18 +16501,6 @@ e_russia = {
 				b_rodnya = {}
 				b_turayevo = {}
 				b_burashevo = {}
-			}
-			c_rzheva = {
-				color={ 170 180 130 }
-				color2={ 255 255 255 }
-				
-				b_rzheva = {}
-				b_gorodok = {}
-				b_vysokoye = {}
-				b_mednoye = {}
-				b_pleshki = {}
-				b_deshevki = {}
-				b_zelenyy = {}
 			}
 			c_zoubtsov = {
 				color={ 220 240 180 }
