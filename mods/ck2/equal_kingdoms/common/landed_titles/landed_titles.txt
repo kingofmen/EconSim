@@ -10023,23 +10023,6 @@ e_scandinavia = {
 		}
 	}
 
-	k_sweden = {
-		color={ 55 112 170 }
-		color2={ 255 255 0 }
-		capital = 290 # Uppland
-		
-		dignity = 10 # Counted as having this many more counties than it does
-		
-		culture = swedish
-		
-		norse_pagan_reformed = 350 # Crusade target weight
-		catholic = 100 # Crusade target weight
-		baltic_pagan_reformed = 50 # Crusade target weight
-		finnish_pagan_reformed = 50
-		
-		norse = Sviþjod
-		#swedish = "Svea Rike"
-	
 		d_gotland = {
 			color = { 170 25 25 }
 			color2={ 255 255 255 }
@@ -10082,6 +10065,23 @@ e_scandinavia = {
 				b_hemse = {}
 			}
 		}
+	k_sweden = {
+		color={ 55 112 170 }
+		color2={ 255 255 0 }
+		capital = 290 # Uppland
+		
+		dignity = 10 # Counted as having this many more counties than it does
+		
+		culture = swedish
+		
+		norse_pagan_reformed = 350 # Crusade target weight
+		catholic = 100 # Crusade target weight
+		baltic_pagan_reformed = 50 # Crusade target weight
+		finnish_pagan_reformed = 50
+		
+		norse = Sviþjod
+		#swedish = "Svea Rike"
+	
 		
 		d_uppland = {
 			color={ 20 20 145 }
@@ -10247,6 +10247,29 @@ e_scandinavia = {
 				b_stegeborg = {}
 				b_vreta = {}
 			}
+			c_narke = {
+				color={ 68 58 255 }
+				color2={ 255 255 255 }
+				
+				norwegian = "Nerike"
+				danish = "Nerke"
+				norse = Nerike
+				
+				b_goksholm = {
+					norwegian = "Gøksholm"
+					danish = "Gøksholm"
+				}
+				b_orebro = {
+					norwegian = "Ørebro"
+					danish = "Ørebro"
+				}
+				b_mosas = {}
+				b_kumla = {}
+				b_riseberga = {}
+				b_nora = {}
+				b_askersund = {}
+				b_hallsberg = {}
+			}
 			c_vista = {
 				color={ 85 70 180 }
 				color2={ 255 255 255 }
@@ -10292,123 +10315,6 @@ e_scandinavia = {
 				b_tidersrum = {}
 			}
 		}
-		d_vastergotland = {
-			color={ 46 30 205 }
-			color2={ 255 255 255 }
-			capital = 297 # Västergötland
-			
-			swedish = "Västergötland"
-			norwegian = "Vestergøtland"
-			danish = "Vestergøtland"
-			norse = "Vestergautland"
-			
-			pagan_coa = {
-				template = 0
-				layer = {
-					texture = 2
-					texture_internal = 11
-					emblem = 0
-					color = 0
-					color = 0
-					color = 0
-				}
-				religion = "norse_pagan"
-			}
-			
-			c_vastergotland = {
-				color={ 60 55 255 }
-				color2={ 255 255 255 }
-				
-				swedish = "Västergötland"
-				norwegian = "Vestergøtland"
-				danish = "Vestergøtland"
-				norse = "Vestergautland"
-
-				holy_site = pagan
-				
-				b_lodose = {
-					norwegian = "Lødøse"
-					danish = "Lødøse"
-				}
-				b_falkoping = {
-					norwegian = "Falkøping"
-					danish = "Falkøbing"
-				}
-				b_lacko = {
-					norwegian = "Læckø"
-					danish = "Læckø"
-				}
-				b_skalunda = {}
-				b_lindholmen = {}
-				b_lena = {}
-				b_alvsborg = {}
-			}
-			c_narke = {
-				color={ 68 58 255 }
-				color2={ 255 255 255 }
-				
-				norwegian = "Nerike"
-				danish = "Nerke"
-				norse = Nerike
-				
-				b_goksholm = {
-					norwegian = "Gøksholm"
-					danish = "Gøksholm"
-				}
-				b_orebro = {
-					norwegian = "Ørebro"
-					danish = "Ørebro"
-				}
-				b_mosas = {}
-				b_kumla = {}
-				b_riseberga = {}
-				b_nora = {}
-				b_askersund = {}
-				b_hallsberg = {}
-			}
-			c_dal = {
-				color={ 35 30 225 }
-				color2={ 255 255 255 }
-				
-				b_dalaborg = {}
-				b_bolstad = {}
-				b_sundal = {}
-				b_nordal = {}
-				b_vedbo = {}
-				b_tossbo = {}
-				b_amordh = {}
-				b_mellerud = {}
-			}
-			c_skara = {
-				color={ 55 35 215 }
-				color2={ 255 255 255 }
-				
-				
-				pagan_coa = {
-					template = 0
-					layer = {
-						texture = 3
-						texture_internal = 2
-						emblem = 0
-						color = 0
-						color = 0
-						color = 0
-					}
-					religion = "norse_pagan"
-				}
-				
-				b_skara = {}
-				b_galakvist = {
-					norwegian = "Gælakvist"
-					danish = "Gælakvist"
-				}	
-				b_ymseborg = {}
-				b_axevalla = {}
-				b_husaby = {}
-				b_varnhem = {}
-				b_forsholm = {}
-			}
-		}
 		d_norrland = {
 			color={ 50 50 160 }
 			color2={ 255 255 255 }
@@ -10444,6 +10350,24 @@ e_scandinavia = {
 					danish = "Ørnskøldsvik"
 				}
 				b_biedsta = {}
+			}
+			c_dalarna = {
+				color={ 20 20 230 }
+				color2={ 255 255 255 }
+				
+				norwegian = "Jernbæraland"
+				danish = "Jernbæraland"
+				english = Dalecarlia
+				norse = Járnberaland
+				
+				b_borganas = {}
+				b_kopparberg = {}
+				b_hedemora = {}
+				b_husby = {}
+				b_sater = {}
+				b_mora = {}
+				b_tuna = {}
+				b_idre = {}
 			}
 			c_medelpad = {
 				color={ 21 37 175 }
@@ -10490,23 +10414,47 @@ e_scandinavia = {
 			color2={ 255 255 255 }
 			capital = 289 # Västmanland
 			
-			c_dalarna = {
-				color={ 20 20 230 }
+			c_skara = {
+				color={ 55 35 215 }
 				color2={ 255 255 255 }
 				
-				norwegian = "Jernbæraland"
-				danish = "Jernbæraland"
-				english = Dalecarlia
-				norse = Járnberaland
 				
-				b_borganas = {}
-				b_kopparberg = {}
-				b_hedemora = {}
-				b_husby = {}
-				b_sater = {}
-				b_mora = {}
-				b_tuna = {}
-				b_idre = {}
+				pagan_coa = {
+					template = 0
+					layer = {
+						texture = 3
+						texture_internal = 2
+						emblem = 0
+						color = 0
+						color = 0
+						color = 0
+					}
+					religion = "norse_pagan"
+				}
+				
+				b_skara = {}
+				b_galakvist = {
+					norwegian = "Gælakvist"
+					danish = "Gælakvist"
+				}	
+				b_ymseborg = {}
+				b_axevalla = {}
+				b_husaby = {}
+				b_varnhem = {}
+				b_forsholm = {}
+			}
+			c_dal = {
+				color={ 35 30 225 }
+				color2={ 255 255 255 }
+				
+				b_dalaborg = {}
+				b_bolstad = {}
+				b_sundal = {}
+				b_nordal = {}
+				b_vedbo = {}
+				b_tossbo = {}
+				b_amordh = {}
+				b_mellerud = {}
 			}
 			c_varmland = {
 				color={ 35 35 210 }
@@ -10651,71 +10599,6 @@ e_scandinavia = {
 				}
 			}
 		}
-		d_tioharad = {
-			color={ 30 70 225 }
-			color2={ 255 255 255 }
-			
-			capital = 291 # Värend
-			
-			swedish = "Tiohärad"
-			
-			pagan_coa = {
-				template = 0
-				layer = {
-					texture = 3
-					texture_internal = 0
-					emblem = 0
-					color = 0
-					color = 0
-					color = 0
-				}
-				religion = "norse_pagan"
-			}
-			
-			c_smaland = { # Now called Värend
-				color={ 95 30 215 }
-				color2={ 255 255 255 }
-				
-				b_kronoberg = {}
-				b_vaxjo = {
-					danish = Vexjø
-					norwegian = Vexjø
-				}
-				b_aringsas = {}
-				b_alvesta = {}
-				b_furuby = {}
-				b_bergkvara = {}
-				b_skir = {}
-			}
-			
-			c_finnveden = {
-				color={ 75 32 233 }
-				color2={ 255 255 255 }
-				
-				b_piksborg = {}				
-				b_markaryd = {
-					norse = Madkharydh
-				}				
-				b_bolmso = {}				
-				b_ljungby = {}				
-				b_olmestad = {}				
-				b_varnamo = {}				
-				b_gislaved = {}
-			}
-			
-			c_njudung = {
-				color={ 95 45 190 }
-				color2={ 255 255 255 }
-				
-				b_hultaby = {}
-				b_vitala = {}
-				b_komstad = {}
-				b_ljunga = {}
-				b_savsjo = {}
-				b_kornstad = {}
-				b_femtinge = {}
-			}
-		}
 	}
 	
 	k_denmark = {
@@ -10827,6 +10710,99 @@ e_scandinavia = {
 				b_ronneby = {}
 				b_lyckeby = {}
 				b_lister = {}
+			}
+		}
+		d_tioharad = {
+			color={ 30 70 225 }
+			color2={ 255 255 255 }
+			
+			capital = 291 # Värend
+			
+			swedish = "Tiohärad"
+			
+			pagan_coa = {
+				template = 0
+				layer = {
+					texture = 3
+					texture_internal = 0
+					emblem = 0
+					color = 0
+					color = 0
+					color = 0
+				}
+				religion = "norse_pagan"
+			}
+			
+			c_vastergotland = {
+				color={ 60 55 255 }
+				color2={ 255 255 255 }
+				
+				swedish = "Västergötland"
+				norwegian = "Vestergøtland"
+				danish = "Vestergøtland"
+				norse = "Vestergautland"
+
+				holy_site = pagan
+				
+				b_lodose = {
+					norwegian = "Lødøse"
+					danish = "Lødøse"
+				}
+				b_falkoping = {
+					norwegian = "Falkøping"
+					danish = "Falkøbing"
+				}
+				b_lacko = {
+					norwegian = "Læckø"
+					danish = "Læckø"
+				}
+				b_skalunda = {}
+				b_lindholmen = {}
+				b_lena = {}
+				b_alvsborg = {}
+			}
+			c_smaland = { # Now called Värend
+				color={ 95 30 215 }
+				color2={ 255 255 255 }
+				
+				b_kronoberg = {}
+				b_vaxjo = {
+					danish = Vexjø
+					norwegian = Vexjø
+				}
+				b_aringsas = {}
+				b_alvesta = {}
+				b_furuby = {}
+				b_bergkvara = {}
+				b_skir = {}
+			}
+			
+			c_finnveden = {
+				color={ 75 32 233 }
+				color2={ 255 255 255 }
+				
+				b_piksborg = {}				
+				b_markaryd = {
+					norse = Madkharydh
+				}				
+				b_bolmso = {}				
+				b_ljungby = {}				
+				b_olmestad = {}				
+				b_varnamo = {}				
+				b_gislaved = {}
+			}
+			
+			c_njudung = {
+				color={ 95 45 190 }
+				color2={ 255 255 255 }
+				
+				b_hultaby = {}
+				b_vitala = {}
+				b_komstad = {}
+				b_ljunga = {}
+				b_savsjo = {}
+				b_kornstad = {}
+				b_femtinge = {}
 			}
 		}
 		d_sjaelland = {
@@ -11141,24 +11117,6 @@ e_scandinavia = {
 			}
 		}
 	}
-	
-	k_norway = {
-		color={ 170 170 210 }
-		color2={ 220 220 220 }
-		
-		culture = norwegian
-		
-		capital = 274 # Bergenshus
-		
-		norse_pagan_reformed = 350 # Crusade target weight
-		catholic = 100 # Crusade target weight
-		finnish_pagan_reformed = 50
-		
-		norse = Noregr
-		#danish = Norge
-		#swedish = Norge
-		#norwegian = Norge
-		
 		d_iceland = {
 			color={ 195 190 255 }
 			color2={ 220 220 220 }
@@ -11258,7 +11216,6 @@ e_scandinavia = {
 				}
 				religion = "norse_pagan"
 			}
-			
 			c_faereyar = {
 				color={ 116 145 239 }
 				color2={ 255 255 255 }
@@ -11366,7 +11323,26 @@ e_scandinavia = {
 					irish = "Innis Fionn"
 				}
 			}
+			
 		}
+	
+	k_norway = {
+		color={ 170 170 210 }
+		color2={ 220 220 220 }
+		
+		culture = norwegian
+		
+		capital = 274 # Bergenshus
+		
+		norse_pagan_reformed = 350 # Crusade target weight
+		catholic = 100 # Crusade target weight
+		finnish_pagan_reformed = 50
+		
+		norse = Noregr
+		#danish = Norge
+		#swedish = Norge
+		#norwegian = Norge
+		
 		d_agder = {
 			color = { 140 100 200 }
 			color2 = { 255 255 255 }
