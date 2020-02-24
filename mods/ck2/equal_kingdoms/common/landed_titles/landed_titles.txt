@@ -12900,33 +12900,6 @@ e_wendish_empire = {
 			
 			capital = 431 # Poznanskie
 		
-			c_lubusz = {
-				color={ 135 30 30 }
-				color2={ 255 255 255 }
-				
-				german = Lebus
-				swedish = Lebus
-				norse = Lebus
-				norwegian = Lebus
-				danish = Lebus
-			
-				b_lubusz = {
-					german = Lebus
-					swedish = Lebus
-					norse = Lebus
-					norwegian = Lebus
-					danish = Lebus
-				}
-				b_mysliborz = {}
-				b_kostrzyn = {}
-				b_cedynia = {}
-				b_pryzyce = {}
-				b_sulecin = {}
-				b_sulecia = {		#fictional
-				}
-				b_nadodra = {		#fictional
-				}
-			}
 			c_gnieznienskie = {			#Since HF, is now Naklo
 				color={ 125 6 2 }
 				color2={ 255 255 255 }
@@ -12940,6 +12913,36 @@ e_wendish_empire = {
 				b_podgaje = {		#modern
 				}
 				b_bialaziema = {	#fictional
+				}
+			}
+			c_lower_silesia = {
+				color={ 170 30 30 }
+				color2={ 255 255 255 }
+			
+				b_glogow = {
+					german = Glogau
+					swedish = Glogau
+					norse = Glogau
+					norwegian = Glogau
+					danish = Glogau
+				}
+				b_zielonagora = {}
+				b_krosno = {
+					german = Krossen
+					swedish = Krossen
+					norse = Krossen
+					norwegian = Krossen
+					danish = Krossen
+				}
+				b_nowogrod = {}
+				b_swiebozin = {}
+				b_bytomodrz = {}
+				b_zagan = {
+					german = Sagan
+					swedish = Sagan
+					norse = Sagan
+					norwegian = Sagan
+					danish = Sagan
 				}
 			}
 			c_poznanskie = {
@@ -12991,36 +12994,6 @@ e_wendish_empire = {
 			
 			capital = 435 # Upper Silesia
 		
-			c_lower_silesia = {
-				color={ 170 30 30 }
-				color2={ 255 255 255 }
-			
-				b_glogow = {
-					german = Glogau
-					swedish = Glogau
-					norse = Glogau
-					norwegian = Glogau
-					danish = Glogau
-				}
-				b_zielonagora = {}
-				b_krosno = {
-					german = Krossen
-					swedish = Krossen
-					norse = Krossen
-					norwegian = Krossen
-					danish = Krossen
-				}
-				b_nowogrod = {}
-				b_swiebozin = {}
-				b_bytomodrz = {}
-				b_zagan = {
-					german = Sagan
-					swedish = Sagan
-					norse = Sagan
-					norwegian = Sagan
-					danish = Sagan
-				}
-			}
 			c_upper_silesia = {			#With HF, this is renamed to "Wroclaw"
 				color={ 200 50 70 }
 				color2={ 255 255 255 }
@@ -13062,6 +13035,30 @@ e_wendish_empire = {
 					norwegian = Heinrichau
 					danish = Heinrichau
 				}
+			}
+			c_krakowskie = {
+				color={ 137 6 20 }
+				color2={ 255 255 255 }
+				
+				german = Krakau
+				swedish = Krakau
+				norse = Krakau
+				norwegian = Krakau
+				danish = Krakau
+			
+				b_krakow = {
+					german = Krakau
+					swedish = Krakau
+					norse = Krakau
+					norwegian = Krakau
+					danish = Krakau
+				}
+				b_jedrzejow = {}
+				b_wieliczka = {}
+				b_bochnia = {}
+				b_olsztyn = {}
+				b_zakopane = {}
+				b_czestochowa = {}
 			}
 			c_opole = {					#With HF, this is renamed to "Upper Silesia"
 				color={ 218 37 15 }
@@ -13110,32 +13107,8 @@ e_wendish_empire = {
 			color={ 245 163 176 }
 			color2={ 255 255 255 }
 			
-			capital = 527 # Krakowskie
+			capital = 531 # Sandomierz
 
-			c_krakowskie = {
-				color={ 137 6 20 }
-				color2={ 255 255 255 }
-				
-				german = Krakau
-				swedish = Krakau
-				norse = Krakau
-				norwegian = Krakau
-				danish = Krakau
-			
-				b_krakow = {
-					german = Krakau
-					swedish = Krakau
-					norse = Krakau
-					norwegian = Krakau
-					danish = Krakau
-				}
-				b_jedrzejow = {}
-				b_wieliczka = {}
-				b_bochnia = {}
-				b_olsztyn = {}
-				b_zakopane = {}
-				b_czestochowa = {}
-			}
 			c_sacz = {
 				color={ 117 6 2 }
 				color2={ 255 255 255 }
@@ -13272,29 +13245,6 @@ e_wendish_empire = {
 			}
 		}
 	}
-	
-	k_pomerania = {
-		color={ 145 130 40 }
-		color2={ 220 220 20 }
-		
-		culture = pommeranian
-		
-		capital = 366 #Stettin
-		
-		catholic = 400 # Crusade target weight
-		slavic_pagan_reformed = 500 # Crusade target weight
-		norse_pagan_reformed = 100 # Crusade target weight
-		baltic_pagan_reformed = 100 # Crusade target weight
-		
-		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					religion_group = pagan_group
-				}
-			}
-		}
-		
 		d_lausitz = {
 			color={ 160 135 145 }
 			color2={ 220 220 20 }
@@ -13322,6 +13272,33 @@ e_wendish_empire = {
 				}
 				b_luckau = {
 					pommeranian = Luckawa
+				}
+			}
+			c_lubusz = {
+				color={ 135 30 30 }
+				color2={ 255 255 255 }
+				
+				german = Lebus
+				swedish = Lebus
+				norse = Lebus
+				norwegian = Lebus
+				danish = Lebus
+			
+				b_lubusz = {
+					german = Lebus
+					swedish = Lebus
+					norse = Lebus
+					norwegian = Lebus
+					danish = Lebus
+				}
+				b_mysliborz = {}
+				b_kostrzyn = {}
+				b_cedynia = {}
+				b_pryzyce = {}
+				b_sulecin = {}
+				b_sulecia = {		#fictional
+				}
+				b_nadodra = {		#fictional
 				}
 			}
 			c_gorlitz = {
@@ -13361,6 +13338,29 @@ e_wendish_empire = {
 				b_wittenberg_zeist = {}
 			}
 		}
+	
+	k_pomerania = {
+		color={ 145 130 40 }
+		color2={ 220 220 20 }
+		
+		culture = pommeranian
+		
+		capital = 366 #Stettin
+		
+		catholic = 400 # Crusade target weight
+		slavic_pagan_reformed = 500 # Crusade target weight
+		norse_pagan_reformed = 100 # Crusade target weight
+		baltic_pagan_reformed = 100 # Crusade target weight
+		
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					religion_group = pagan_group
+				}
+			}
+		}
+		
 		d_mecklemburg = {
 			color={ 162 160 110 }
 			color2={ 255 255 255 }
