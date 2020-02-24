@@ -6150,6 +6150,19 @@ e_italy = {
 				b_camerino = {}
 				b_senigallia = {}
 			}
+			c_perugia = {
+				color={ 220 245 225 }
+				color2={ 255 255 255 }
+
+				b_fratta = {}
+				b_perugia = {}
+				b_assisi = {
+				}
+				b_gubbio = {}
+				b_montone = {}
+				b_marsciano = {}
+				b_deruta = {}
+			}
 			c_spoleto = {
 				color={ 225 250 235 }
 				color2={ 255 255 255 }
