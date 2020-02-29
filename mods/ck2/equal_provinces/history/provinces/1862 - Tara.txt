@@ -1,0 +1,14 @@
+# 1862 - Tara
+
+# County Title
+title = c_tara
+
+# Settlements
+max_settlements = 7
+b_tara = tribal
+
+# Misc
+culture = khanty
+religion = finnish_pagan
+
+# History
