@@ -4,7 +4,7 @@
 title = c_rottenburg
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_weinsberg = castle
 b_rottenburg = city
 b_uffenheim = city

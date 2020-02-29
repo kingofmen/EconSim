@@ -4,7 +4,7 @@
 title = c_daman
 
 # Settlements
-max_settlements =7
+max_settlements = 7
 b_daman = castle
 #b_sanjan = castle
 b_surparaka = temple

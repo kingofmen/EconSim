@@ -4,7 +4,7 @@
 title = c_wadai
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_wara = tribal
 
 #b_abeche

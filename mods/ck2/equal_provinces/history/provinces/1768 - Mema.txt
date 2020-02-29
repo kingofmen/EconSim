@@ -4,7 +4,7 @@
 title = c_mema
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_mema = tribal
 #b_dia
 #b_macina

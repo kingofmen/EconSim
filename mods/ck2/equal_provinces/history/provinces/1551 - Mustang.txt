@@ -2,7 +2,7 @@
 title = c_mustang
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_lo = castle
 b_chhonhup = city

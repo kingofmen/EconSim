@@ -4,7 +4,7 @@
 title = c_bytow
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_bytow = tribal
 
 #b_lebork = city

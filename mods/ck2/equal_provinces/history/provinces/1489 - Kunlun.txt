@@ -2,7 +2,7 @@
 title = c_kunlun
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 
 b_seldang = tribal
 #b_ashi = 

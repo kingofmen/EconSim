@@ -4,7 +4,7 @@
 title = c_anglesey
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_aberffraw = castle
 b_llanfaes = temple
 b_holyhead = city

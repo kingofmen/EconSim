@@ -4,7 +4,7 @@
 title = c_ceredigion
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_cardigan = castle
 b_llanbadarn = temple
 

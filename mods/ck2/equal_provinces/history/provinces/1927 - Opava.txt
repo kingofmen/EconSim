@@ -4,7 +4,7 @@
 title = c_opava
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_opava = tribal
 #b_krnov = city

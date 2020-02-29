@@ -4,7 +4,7 @@
 title = c_akroinon
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_akroinon = castle
 b_antiochia_akroinon = city
 

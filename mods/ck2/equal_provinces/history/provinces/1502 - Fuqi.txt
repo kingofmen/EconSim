@@ -2,7 +2,7 @@
 title = c_fuqi
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_fuqi = castle
 b_shatuo = temple

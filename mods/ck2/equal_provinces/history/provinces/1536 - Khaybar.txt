@@ -4,7 +4,7 @@
 title = c_khaybar
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_khaybar = castle
 b_badr = city
 b_rabig = temple

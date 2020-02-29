@@ -4,7 +4,7 @@
 title = c_saargau
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_saarbrucken = castle
 b_merkingen = city
 b_st_arnual = temple

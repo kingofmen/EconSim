@@ -4,7 +4,7 @@
 title = c_jaen
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_jaen = castle
 b_andujar = city
 b_huescar = temple

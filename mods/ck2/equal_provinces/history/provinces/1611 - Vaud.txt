@@ -3,7 +3,7 @@
 #County Title
 
 title = c_vaud
-max_settlements = 4
+max_settlements = 7
 
 b_lausanne = castle
 b_echallens = city

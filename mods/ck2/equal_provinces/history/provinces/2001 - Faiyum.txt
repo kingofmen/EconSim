@@ -3,7 +3,7 @@
 # County Title
 title = c_faiyum
 
-max_settlements = 3
+max_settlements = 7
 b_faiyum = castle
 b_bahnasa = temple
 b_ahnas = city

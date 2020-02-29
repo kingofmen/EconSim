@@ -8,7 +8,7 @@ b_wolfsberg = tribal
 terrain=marsh
 
 # Settlements 
-max_settlements = 4
+max_settlements = 7
 
 # Misc
 culture = carantanian

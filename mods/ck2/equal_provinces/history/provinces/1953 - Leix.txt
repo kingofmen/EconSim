@@ -4,7 +4,7 @@
 title = c_leix
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_leix = tribal
 b_loigis = temple
 

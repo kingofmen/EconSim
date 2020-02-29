@@ -2,7 +2,7 @@
 title = c_mainling
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_mainling = tribal
 #b_nang = 

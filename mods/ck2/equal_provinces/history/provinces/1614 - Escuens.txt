@@ -3,7 +3,7 @@
 # County Title
 title = c_escuens
 
-max_settlements = 4
+max_settlements = 7
 b_salins = castle
 b_poligny = city
 b_saint_claude = temple

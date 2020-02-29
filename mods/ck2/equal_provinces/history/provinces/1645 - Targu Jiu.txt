@@ -4,7 +4,7 @@
 title = c_targu_jiu
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_targu_jiu = castle
 b_bistrita = city

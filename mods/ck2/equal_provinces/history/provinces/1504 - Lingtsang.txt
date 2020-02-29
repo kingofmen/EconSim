@@ -2,7 +2,7 @@
 title = c_lingtsang
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_denkok = tribal
 b_serxu = city

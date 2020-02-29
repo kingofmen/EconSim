@@ -4,7 +4,7 @@
 title = c_oromieh
 
 # Settlements
-max_settlements = 6
+max_settlements = 7
 b_oroumieh = castle
 b_khoy = city
 b_takhtesoleyman = temple

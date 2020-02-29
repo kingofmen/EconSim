@@ -4,7 +4,7 @@
 title = c_kolzum
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 b_kolzum = castle
 b_sokhna = city
 

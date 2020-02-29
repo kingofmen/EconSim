@@ -4,7 +4,7 @@
 title = c_vozviahel
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_vozvyahel = tribal	#1257	#Now "Novohrad-Volynsky"
 

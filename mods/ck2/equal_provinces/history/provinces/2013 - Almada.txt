@@ -4,7 +4,7 @@
 title = c_almada
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_palmela = castle
 b_almada = city
 #b_setubal = city

@@ -4,7 +4,7 @@
 title = c_badakhshan
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_badakhshan = castle
 b_rustaq = temple

@@ -8,7 +8,7 @@ terrain = forest
 
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_tukums = tribal
 #b_dundaga = city
 #b_kandava = temple

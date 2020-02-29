@@ -4,7 +4,7 @@
 title = c_drutsk
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_drutsk = tribal	#1078
 #b_bialocerkev = temple	#1001 	#fictional name to reference an unamed "oldest Christian church in White Ruthenia"

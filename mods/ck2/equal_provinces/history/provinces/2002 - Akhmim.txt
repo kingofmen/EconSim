@@ -4,7 +4,7 @@
 title = c_akhmim
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_akhmim = castle
 b_al_minya = city
 b_cynopolis = temple

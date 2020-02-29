@@ -2,7 +2,7 @@
 title = c_diskit
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_diskit = castle
 b_thirit = city

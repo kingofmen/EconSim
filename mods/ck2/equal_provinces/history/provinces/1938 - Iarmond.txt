@@ -4,7 +4,7 @@
 title = c_iarmond
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_cahersiveen = tribal
 b_innisfallen = temple
 #b_killarney = city
@@ -22,5 +22,5 @@ religion = catholic
 1000.1.1 = {
 	b_cahersiveen = castle
 	b_killarney = city
-	max_settlements = 4
+	max_settlements = 7
 }

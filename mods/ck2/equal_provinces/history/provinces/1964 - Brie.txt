@@ -4,7 +4,7 @@
 title = c_brie
 
 # Settlements
-max_settlements = 5
+max_settlements = 7
 
 b_provins = castle
 b_meaux = city

@@ -4,7 +4,7 @@
 title = c_jersika
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_jersika = tribal
 #b_koknese = temple
 #b_alene = city

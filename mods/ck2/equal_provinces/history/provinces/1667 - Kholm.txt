@@ -4,7 +4,7 @@
 title = c_kholm
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 
 b_kholm = tribal
 

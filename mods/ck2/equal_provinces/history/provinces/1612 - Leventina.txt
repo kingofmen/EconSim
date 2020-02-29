@@ -2,7 +2,7 @@
 
 #County title
 title = c_leventina
-max_settlements = 3
+max_settlements = 7
 b_castelgrande = castle
 b_bellinzona = city
 b_lugano = temple

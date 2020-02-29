@@ -2,7 +2,7 @@
 title = c_qamdo
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_qamdo = castle
 b_karub = city

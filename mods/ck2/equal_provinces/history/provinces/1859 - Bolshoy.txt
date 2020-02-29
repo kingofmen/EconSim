@@ -4,7 +4,7 @@
 title = c_bolshoy
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 b_bolshoy = tribal
 
 # Misc

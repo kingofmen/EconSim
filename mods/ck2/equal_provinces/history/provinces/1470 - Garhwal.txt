@@ -2,7 +2,7 @@
 title = c_garhwal
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_devalghar = castle
 b_badrinath = temple

@@ -4,7 +4,7 @@
 title = c_bacau
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_bacau = tribal
 #b_targu_neamnt = city

@@ -4,7 +4,7 @@
 title = c_gaya
 
 # Settlements
-max_settlements =7
+max_settlements = 7
 b_gaya = temple # Buddhist Holy Site
 #b_nalanda = temple
 b_elahabad = city

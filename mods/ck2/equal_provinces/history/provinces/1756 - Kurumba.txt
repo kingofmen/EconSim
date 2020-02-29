@@ -4,7 +4,7 @@
 title = c_kurumba
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_kissi = tribal
 
 #b_aribinda

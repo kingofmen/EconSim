@@ -3,7 +3,7 @@ title = c_mingoi
 terrain = mountain
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_mingoi = castle
 b_shorshuq = city

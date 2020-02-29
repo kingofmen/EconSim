@@ -4,7 +4,7 @@
 title = c_thessalia
 
 # Settlements
-max_settlements =7
+max_settlements = 7
 b_larissa = castle
 b_neopetra = city
 b_volos = temple

@@ -2,7 +2,7 @@
 title = c_lopnor
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 
 b_lopnor = castle
 

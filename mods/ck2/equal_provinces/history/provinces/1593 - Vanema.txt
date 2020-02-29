@@ -4,7 +4,7 @@
 title = c_vanema
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_vanema = tribal
 #b_matkule = city
 #b_lagzdene = temple

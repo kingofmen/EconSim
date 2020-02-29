@@ -4,7 +4,7 @@
 title = c_novogrodek
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_novogrodek = tribal	#1044
 

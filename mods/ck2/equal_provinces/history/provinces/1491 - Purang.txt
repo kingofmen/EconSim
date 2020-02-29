@@ -2,7 +2,7 @@
 title = c_purang
 
 # Settlements
-max_settlements = 6
+max_settlements = 7
 
 b_teglakar = castle #(Fortress built by the Zhangzhung, in use during Guge period)
 b_kailash = temple #(Holy mountain in Hinduism, Jainism, Bon and Buddhist faiths)

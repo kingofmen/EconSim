@@ -4,7 +4,7 @@
 title = c_tihama
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_hali = castle
 b_as_suqaiq = temple
 b_attar = city

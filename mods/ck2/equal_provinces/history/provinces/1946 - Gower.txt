@@ -4,7 +4,7 @@
 title = c_gower
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_dinefwr = castle
 b_llandeilo = temple
 b_carmarthen = city

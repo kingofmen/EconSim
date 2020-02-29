@@ -4,7 +4,7 @@
 title = c_kashin
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 
 b_kashin = tribal	#1238
 

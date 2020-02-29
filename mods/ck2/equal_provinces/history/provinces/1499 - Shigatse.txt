@@ -2,7 +2,7 @@
 title = c_shigatse
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_shigatse = castle
 b_gongon_lhakhang = temple #(Temple built by Songtsen Gampo and freqented by Padmasambhava, Namkhai Nyingpo, and King Trisong Detsen)

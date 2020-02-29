@@ -2,7 +2,7 @@
 title = c_pamir
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_daroot_korgon = castle
 b_kala_panja = city

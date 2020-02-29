@@ -4,7 +4,7 @@
 title = c_bath
 
 # Settlements
-max_settlements = 5
+max_settlements = 7
 b_bath = castle
 b_burnham = city
 #b_bristol = city

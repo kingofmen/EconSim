@@ -4,7 +4,7 @@
 title = c_jeddah
 
 # Settlements
-max_settlements = 5
+max_settlements = 7
 b_jeddah = castle
 b_khulays = city
 #b_as_sirrayn = temple

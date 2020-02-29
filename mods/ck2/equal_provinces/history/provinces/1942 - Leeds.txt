@@ -2,7 +2,7 @@
 title = c_leeds
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 b_leeds = castle
 b_doncaster = city
 b_sherburn = temple

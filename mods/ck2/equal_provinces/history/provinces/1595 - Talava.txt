@@ -4,7 +4,7 @@
 title = c_talava
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_satekle = tribal
 #b_metsene = temple
 #b_trikata = city

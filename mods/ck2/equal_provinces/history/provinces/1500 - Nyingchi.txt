@@ -2,7 +2,7 @@
 title = c_nyingchi
 
 # Settlements
-max_settlements = 5
+max_settlements = 7
 
 b_nyingchi = castle
 b_drakchi = city

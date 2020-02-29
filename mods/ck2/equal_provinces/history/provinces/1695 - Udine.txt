@@ -4,7 +4,7 @@
 title = c_udine
 
 # Settlements 
-max_settlements = 3
+max_settlements = 7
 b_udine = castle
 b_friuli = city
 b_ciridale = temple

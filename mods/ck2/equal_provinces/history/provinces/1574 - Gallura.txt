@@ -4,7 +4,7 @@
 title = c_gallura
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_olbia = castle
 b_aggius = city
 b_posada = temple

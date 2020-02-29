@@ -4,7 +4,7 @@
 title = c_voin
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 
 b_voin = tribal		#russian settlement between 900-1000
 

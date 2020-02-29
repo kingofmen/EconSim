@@ -4,7 +4,7 @@
 title = c_darfur
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_el_fasher = tribal
 
 #b_ain_farah

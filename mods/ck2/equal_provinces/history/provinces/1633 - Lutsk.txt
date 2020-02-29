@@ -4,7 +4,7 @@
 title = c_lutsk
 
 # Settlements
-max_settlements = 4
+max_settlements = 7
 
 b_lutsk = tribal
 #b_dubno = city

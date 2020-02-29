@@ -2,7 +2,7 @@
 title = c_kubera
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_kubera = castle
 #b_xayar =

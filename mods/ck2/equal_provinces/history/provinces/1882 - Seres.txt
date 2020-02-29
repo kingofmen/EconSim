@@ -4,7 +4,7 @@
 title = c_seres
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_seres = castle
 b_philippi = city
 b_melnik = temple

@@ -4,7 +4,7 @@
 title = c_venadu
 
 # Settlements
-max_settlements =7
+max_settlements = 7
 b_vizhinjam = castle
 b_kollam = city
 b_kanya_kumari = temple

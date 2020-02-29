@@ -2,7 +2,7 @@
 title = c_yoredale
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 b_yoredale = castle
 b_settle = city
 

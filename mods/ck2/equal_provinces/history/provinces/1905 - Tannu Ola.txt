@@ -4,7 +4,7 @@
 title = c_tannu_ola
 
 # Settlements
-max_settlements = 2
+max_settlements = 7
 b_tannu_ola = tribal
 
 # Misc

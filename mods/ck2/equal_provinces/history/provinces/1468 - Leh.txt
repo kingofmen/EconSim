@@ -2,7 +2,7 @@
 title = c_leh
 
 # Settlements
-max_settlements = 5
+max_settlements = 7
 
 b_leh = castle
 b_keylong = city

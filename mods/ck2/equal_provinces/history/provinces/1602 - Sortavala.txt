@@ -4,7 +4,7 @@
 title = c_sortavala
 
 # Settlements
-max_settlements = 3
+max_settlements = 7
 
 b_sortavala = tribal
 b_kitee = temple
