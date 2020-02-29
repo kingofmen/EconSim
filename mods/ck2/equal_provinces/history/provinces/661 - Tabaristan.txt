@@ -1,0 +1,24 @@
+# 661 - Tabaristan
+
+# County Title
+title = c_tabaristan
+
+# Settlements
+max_settlements = 7
+b_firuzkuh = castle
+b_amol = temple
+b_sari = city
+
+#b_chamnoo = city
+#b_rarem = castle
+#b_mamatir = castle
+#b_farim = castle
+#b_lavij = castle
+
+# Misc
+culture = persian
+religion = zoroastrian
+
+# History
+
+1187.1.1 = { religion = shiite } 

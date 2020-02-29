@@ -1,0 +1,20 @@
+# County Title
+title = c_altay
+
+# Settlements
+max_settlements = 7
+
+b_qinggil = castle
+b_koktokay = temple
+b_burqin = city
+#b_burultokay =
+#b_kokagax =
+#b_jeminay =
+
+# Misc
+culture = uyghur
+religion = tengri_pagan
+
+# History
+1227.1.1={ culture = mongol }
+1227.1.1={ religion = tengri_pagan }

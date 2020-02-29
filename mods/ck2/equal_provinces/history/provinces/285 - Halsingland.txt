@@ -1,0 +1,26 @@
+# 285 - Hälsingland
+
+# County Title
+title = c_halsingland
+
+# Settlements
+max_settlements = 7
+
+b_norrala = city
+
+b_hog = castle
+#b_jattendal = castle
+b_forsa = temple
+#b_tasta
+#b_nordanstig
+#b_alir
+#b_sundhed
+
+# Misc
+culture = norse
+religion = norse_pagan
+terrain = forest
+
+# History
+1066.1.1 = { culture = swedish }
+1085.1.1 = { religion = catholic }

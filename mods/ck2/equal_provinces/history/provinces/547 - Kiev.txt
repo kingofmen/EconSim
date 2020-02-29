@@ -1,0 +1,22 @@
+# 547 - Kiev
+
+# County Title
+title = c_kiev
+
+# Settlements
+max_settlements = 7
+b_yuriev = temple
+
+b_iskorosten = city
+b_ovruch = castle
+
+#b_zhitomir = city
+#b_vyshhorod = castle
+#b_malyn = castle
+#b_fastiv = castle
+
+# Misc
+culture = volhynian
+religion = slavic_pagan
+terrain = plains
+

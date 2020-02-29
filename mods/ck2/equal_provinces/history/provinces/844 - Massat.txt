@@ -1,0 +1,28 @@
+# 844 - Massat
+
+# County Title
+title = c_massat
+
+# Settlements
+max_settlements = 7
+
+b_essaouira = castle
+
+b_safi = city
+b_akermoud = temple
+#b_haddraa = city
+
+#b_aitelaouni = castle
+#b_qumelaioun = castle
+#b_aguedal = castle
+#b_agouidir = castle
+
+# Misc
+culture = maghreb_arabic
+religion = shiite
+
+# History
+
+767.1.1 = { religion = ibadi }
+947.1.1 = { religion = sunni }
+

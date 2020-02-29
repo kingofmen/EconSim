@@ -1,0 +1,22 @@
+# 421 - Zhmud
+
+# County Title
+title = c_zhmud
+
+# Settlements
+max_settlements = 7
+b_jurbarkas = castle
+b_raseiniai = city
+b_varviai = temple
+
+#b_taurage = castle
+#b_kraziai = castle
+#b_upyte = castle
+#b_panemune = castle
+#b_joniskis = city
+
+# Misc
+culture = lithuanian
+religion = baltic_pagan
+
+# History

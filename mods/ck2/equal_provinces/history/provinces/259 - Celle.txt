@@ -1,0 +1,27 @@
+# 259 - Celle
+
+# County Title
+title = c_celle
+
+# Settlements
+max_settlements = 7
+b_celle = castle
+
+b_herford = temple
+b_hermannsburg = city
+#b_ravensberg = castle
+#b_nienburg = castle
+#b_wittingen = castle
+#b_wedemark = castle
+
+# Misc
+culture = old_saxon
+religion = norse_pagan
+
+# History
+790.1.1 = {
+	culture = german
+	religion = catholic
+}
+
+

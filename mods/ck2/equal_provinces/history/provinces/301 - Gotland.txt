@@ -1,0 +1,27 @@
+# 301 - Gotland
+
+# County Title
+title = c_gotland
+
+# Settlements
+max_settlements = 7
+
+b_othem = castle
+b_visby = city
+b_geatish_roma = temple
+#b_slite = city
+#b_hemse
+#b_hejde
+#b_othem
+#b_alva
+
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = { 
+	culture = swedish
+	religion = catholic
+}

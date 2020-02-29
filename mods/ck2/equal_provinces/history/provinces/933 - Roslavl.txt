@@ -1,0 +1,24 @@
+# 933 - Roslavl
+
+# County Title
+title = c_roslavl
+
+# Settlements
+max_settlements = 7
+b_roslavl = temple
+
+b_pochinok = city
+
+b_chocimsk = castle
+
+# Misc
+culture = severian
+religion = slavic_pagan
+
+# History
+867.1.1 = {
+	culture = russian
+}
+1128.1.1 = {
+	religion = orthodox
+}

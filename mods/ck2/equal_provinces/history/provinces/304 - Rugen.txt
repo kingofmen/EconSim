@@ -1,0 +1,27 @@
+# 304 - Rügen
+
+# County Title
+title = c_rugen
+
+# Settlements
+max_settlements = 7
+b_arkona = temple
+
+b_charenza = city
+b_putbus = castle
+#b_barth = castle
+#b_ralswiek = castle
+#b_hiddensee = castle
+#b_tribuzin = castle
+
+culture = pommeranian
+religion = slavic_pagan
+terrain = plains
+
+# History
+## Bergen/Marienkirche is the only town of note of the timeline...
+
+
+# Christianity only arrived with the Danish king Valdemar I
+1168.1.1 = { religion = catholic }
+

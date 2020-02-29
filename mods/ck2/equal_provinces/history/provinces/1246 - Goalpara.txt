@@ -1,0 +1,19 @@
+# 1246 - Goalpara
+
+# County Title
+title = c_goalpara
+
+# Settlements
+max_settlements = 7
+b_goalpara = castle
+b_sri_surya_pahar = temple
+b_kamakhya = city
+#b_dhubri = temple
+
+
+# Misc
+culture = assamese
+religion = buddhist
+terrain = hills
+
+# History

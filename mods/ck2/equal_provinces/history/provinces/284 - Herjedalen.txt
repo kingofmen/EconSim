@@ -1,0 +1,19 @@
+# 284 - Herjedalen
+
+# County Title
+title = c_herjedalen
+
+# Settlements
+max_settlements = 7
+
+b_hogvalen = city
+b_tannas = temple
+b_sveg = castle
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = { culture = norwegian }
+1090.1.1 = { religion = catholic }

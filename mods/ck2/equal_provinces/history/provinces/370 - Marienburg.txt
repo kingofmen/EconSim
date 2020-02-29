@@ -1,0 +1,27 @@
+# 370 - Marienburg
+
+# County Title
+title = c_marienburg
+
+# Settlements
+max_settlements = 7
+b_marienburg = castle
+b_elbing = city
+b_braunsberg = temple
+
+#b_christburg = castle
+#b_heilsberg = castle
+#b_bartenstein = castle
+#b_marienwerder = castle
+#b_balga = castle
+
+# Misc
+culture = prussian
+religion = baltic_pagan
+
+# History
+1225.1.1 = {
+	religion = catholic
+}
+#1243.1.1 = { b_braunsberg = temple } #bi
+1255.1.1 = { culture = german }

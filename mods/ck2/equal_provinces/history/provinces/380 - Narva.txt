@@ -1,0 +1,26 @@
+# 380 - Narva
+
+# County Title
+title = c_narva
+
+# Settlements
+max_settlements = 7
+b_agelinde = castle
+b_narva = city
+b_wesenberg = temple
+
+#b_telsborg = castle
+#b_pudiviru = castle
+#b_askala = castle
+#b_repel = city
+#b_alentagh = castle
+
+# Misc
+culture = ugricbaltic
+religion = finnish_pagan
+
+# History
+#1220.1.1 = { b_wesenberg = temple } #Danish conquest
+1220.1.1 = {
+	religion = catholic
+}

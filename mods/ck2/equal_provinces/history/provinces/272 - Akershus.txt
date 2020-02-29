@@ -1,0 +1,25 @@
+# 272 - Akershus
+
+# County Title
+title = c_akershus
+
+# Settlements
+max_settlements = 7
+b_bergheim = temple
+
+b_oslo = city
+#b_eidsvoll = city
+b_isegran = castle
+#b_jessheim = castle
+#b_baerum = castle
+#b_nes = temple
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = {
+	culture = norwegian
+	religion = catholic
+}

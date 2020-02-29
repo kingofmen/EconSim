@@ -1,0 +1,19 @@
+# County Title
+title = c_kara_khorum
+
+# Settlements
+max_settlements = 7
+b_luut = castle
+b_noin_ula = temple
+b_zuunmod = city
+#b_khamag =
+#b_lun =
+#b_bayan =
+
+# Misc
+culture = uyghur
+religion = manichean
+
+# History
+840.1.1={ culture = mongol }
+840.1.1={ religion = tengri_pagan }

@@ -1,0 +1,27 @@
+# 931 - Möre
+
+# County Title
+title = c_more
+
+# Settlements
+max_settlements = 7
+
+b_kalmar_hus = castle
+
+b_kalmar = city
+b_torsas = temple
+# b_soderakra
+# b_monsteras
+# b_madesjo
+# b_alem
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = {
+	culture = swedish
+	religion = catholic
+}
+

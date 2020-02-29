@@ -1,0 +1,25 @@
+# 573 - Pereyaslavl Zalessky
+
+# County Title
+title = c_pereyaslavl_zalessky
+
+# Settlements
+max_settlements = 7
+
+b_aleksandrov = city
+
+b_sergiyevposad = temple
+b_strunino = castle
+#b_karabanovo = castle
+#b_kubrinsk = city
+#b_kupanskoye = castle
+#b_khmelniki = castle
+
+culture = mordvin
+religion = finnish_pagan
+
+# History
+988.1.1 = {
+	culture = russian
+	religion = orthodox
+}

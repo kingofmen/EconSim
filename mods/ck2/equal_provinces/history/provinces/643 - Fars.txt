@@ -1,0 +1,27 @@
+# 643 - Fars
+
+# County Title
+title = c_fars
+
+# Settlements
+max_settlements = 7
+b_perozabad = castle
+b_darab = city
+b_kakhesasan = temple
+
+#b_jahrom = castle
+#b_estahbanat = castle
+#b_lamerd = castle
+#b_gerash = city
+#b_khafr = castle
+
+# Misc
+culture = persian
+religion = zoroastrian
+
+# History
+
+
+1337.1.1 = {
+	religion = sunni
+}

@@ -1,0 +1,26 @@
+# 274 - Bergenshus
+
+# County Title
+title = c_bergenshus
+
+# Settlements
+max_settlements = 7
+
+b_bergen = city
+b_kinsarvik = temple
+b_vik = castle
+#b_hove = temple
+#b_aurland = castle
+#b_ask = castle
+#b_fedje = castle
+
+# Misc
+culture = norse
+religion = norse_pagan
+terrain = mountain
+
+# History
+1066.1.1 = {
+	culture = norwegian
+	religion = catholic
+}

@@ -1,0 +1,28 @@
+# 307 - Werle
+
+# County Title
+title = c_werle
+
+# Settlements
+max_settlements = 7
+b_waren = castle
+
+b_stralsund = city
+b_greifswald = temple
+#b_tribsees = castle
+#b_demmin = castle
+#b_treptow = castle
+#b_friedland = castle
+#b_templin = castle
+
+# Misc
+culture = pommeranian
+religion = slavic_pagan
+
+# History
+
+# Christianity only arrived with the Danish king Valdemar I
+1168.1.1 = { religion = catholic }
+
+
+

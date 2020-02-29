@@ -1,0 +1,19 @@
+# 1115 - Cholamandalam
+
+# County Title
+title = c_cholamandalam
+
+# Settlements
+max_settlements = 7
+b_tanjavur = castle
+b_uraiyur = city
+b_nagapattinam = temple
+
+# Misc
+culture = tamil
+religion = jain
+
+# History
+1066.1.1 = {
+	religion = hindu
+}

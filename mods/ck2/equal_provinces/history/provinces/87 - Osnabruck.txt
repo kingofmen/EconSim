@@ -1,0 +1,27 @@
+# 87 - Osnabrück
+
+# County Title
+title = c_osnabruck
+
+# Settlements
+max_settlements = 7
+b_tecklenburg = castle
+b_osnabruck = temple
+
+#b_bentheim = castle
+b_lingen = city
+#b_wildeshausen = castle
+#b_minden = castle
+#b_quackenbruck = castle
+#b_meppen = castle
+
+# Misc
+culture = old_saxon
+religion = norse_pagan
+
+# History
+790.1.1 = {
+	culture = german
+	religion = catholic
+	capital = b_osnabruck
+}

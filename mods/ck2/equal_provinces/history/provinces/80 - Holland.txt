@@ -1,0 +1,23 @@
+# 80 - Holland
+
+# County Title
+title = c_holland
+
+# Settlements
+max_settlements = 7
+b_vlaardingen = castle
+#b_leiden = castle
+
+#b_amsterdam = city
+#b_sgravenhage = castle
+b_dordrecht = city
+#b_gouda = castle
+b_haarlem = temple
+#b_muiden = castle
+
+# Misc
+culture = frisian
+religion = catholic
+
+# History
+790.1.1 = { culture = dutch }

@@ -1,0 +1,23 @@
+# 26 - Winchester
+
+# County Title
+title = c_winchester
+
+# Settlements
+max_settlements = 7
+b_winchester = castle
+b_st_swithun = temple
+b_southampton = city
+
+#b_carisbrooke = castle
+#b_portchester = castle
+#b_wherwell = castle
+#b_romsey = castle
+#b_andover = castle
+
+# Misc
+culture = saxon
+religion = catholic
+
+# History
+1100.11.11 = { culture = english } 

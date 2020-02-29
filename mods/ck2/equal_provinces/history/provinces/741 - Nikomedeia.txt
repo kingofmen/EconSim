@@ -1,0 +1,29 @@
+# 741 - Nikomedeia
+
+# County Title
+title = c_nikomedeia
+
+# Settlements
+max_settlements = 7
+
+b_nikomedeia = castle
+b_chrysopolis = city 
+b_chalkedon = temple
+
+#b_praenetos = castle
+#b_calpe = castle
+#b_palodes = castle
+#b_adapazari = castle
+#b_malagina = city
+
+# Misc
+culture = greek
+religion = orthodox
+
+# History
+760.1.1 = { religion = orthodox } # iconoclast
+#787.10.23 = { religion = orthodox }
+
+
+1338.1.1 = { culture = turkish }
+1338.1.1 = { religion = sunni }

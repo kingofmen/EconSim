@@ -1,0 +1,25 @@
+# 75 - Boulogne
+
+# County Title
+title = c_boulogne
+
+# Settlements
+max_settlements = 7
+
+b_boulogne = castle
+#b_saintpol = castle
+
+b_montreuil = temple
+
+b_hesdin = city
+#b_fauquembergues = castle
+#b_ternouis = castle
+#b_therouanne = castle
+#b_ardres = castle
+
+# Misc
+culture = old_frankish
+religion = catholic
+
+# History
+790.1.1 = { culture = frankish }

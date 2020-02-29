@@ -1,0 +1,18 @@
+# 1205 - Narim
+
+# County Title
+title = c_narim
+
+# Settlements
+max_settlements = 7
+b_kolta = city
+b_yaga = castle
+b_abakan = temple
+
+# Misc
+culture = khanty
+religion = finnish_pagan
+terrain = arctic
+
+# History
+

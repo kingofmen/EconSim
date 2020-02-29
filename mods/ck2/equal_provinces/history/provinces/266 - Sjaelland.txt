@@ -1,0 +1,28 @@
+# 266 - Sjaelland
+
+# County Title
+title = c_sjaelland
+
+# Settlements
+max_settlements = 7
+b_lejre = temple # Norse Pagan Holy Site
+
+b_naestved = city
+#b_roskilde = city
+#b_kobenhavn = city
+b_kalundborg = castle
+#b_helsingor = city
+#b_vordingborg = city
+#b_slagelse = castle
+
+# Misc
+culture = norse
+religion = norse_pagan
+terrain = farmlands
+
+# History
+
+1066.1.1 = {
+	culture = danish
+	religion = catholic
+}

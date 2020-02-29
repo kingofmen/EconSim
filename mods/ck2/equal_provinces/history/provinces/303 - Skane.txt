@@ -1,0 +1,28 @@
+# 303 - Skåne
+
+# County Title
+title = c_skane
+
+# Settlements
+max_settlements = 7
+b_lund = temple
+b_uppakra = city
+#b_dalby = city
+b_trelleborg=castle
+#b_ystad = city
+#b_herrevad = temple
+#b_lillohus = castle
+#b_malmo = city
+
+# Misc
+culture = norse
+religion = norse_pagan
+terrain = farmlands
+
+# History
+
+
+1066.1.1 = {
+	culture = danish
+	religion = catholic
+}

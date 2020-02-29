@@ -1,0 +1,32 @@
+# 764 - Antiocheia
+
+# County Title
+title = c_antiocheia
+
+# Settlements
+max_settlements = 7
+b_stsymeon = castle
+b_antiocheia = temple
+b_latakiah = city
+
+#b_darbsak = castle
+#b_hazart = castle
+#b_saone = castle
+#b_baghras = castle
+#b_harenc = castle
+
+# Misc
+culture = greek
+religion = orthodox
+
+# History
+
+
+# Conquered by the Mamluks
+
+1268.1.1 = { culture = levantine_arabic }
+1268.1.1 = { religion = sunni } 
+
+
+
+

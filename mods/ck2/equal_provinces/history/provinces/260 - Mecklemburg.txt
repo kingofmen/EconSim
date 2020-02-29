@@ -1,0 +1,29 @@
+# 260 - Mecklemburg
+
+# County Title
+title = c_mecklemburg
+
+# Settlements
+max_settlements = 7
+b_mecklemburg = castle
+
+b_wismar = city
+b_gevezin = temple
+#b_lutzow = castle
+#b_grevesmuhlen = castle
+#b_parchim = temple
+#b_hagenow = castle
+
+# Misc
+culture = pommeranian
+religion = slavic_pagan
+
+# History
+1160.8.2={ religion=catholic }
+
+
+1200.1.1= { culture=german } 
+
+
+
+

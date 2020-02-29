@@ -1,0 +1,21 @@
+# 934 - Lepiel
+
+# County Title
+title = c_lepiel
+
+# Settlements
+max_settlements = 7
+b_lepiel = castle
+b_chashniki = city
+
+b_novolukoml = temple
+
+# Misc
+culture = ilmenian
+religion = slavic_pagan
+
+# History
+867.1.1 = {
+	culture = russian
+}
+988.1.1 = { religion = orthodox }

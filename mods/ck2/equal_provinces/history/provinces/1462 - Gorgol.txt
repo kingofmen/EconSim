@@ -1,0 +1,15 @@
+# County Title
+title = c_gorgol
+
+# Settlements
+max_settlements = 7
+
+b_gorgol = castle
+b_abaza = temple
+b_tashtyp = city
+
+# Misc
+culture = kirghiz
+religion = tengri_pagan
+
+# History

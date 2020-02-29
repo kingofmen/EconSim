@@ -1,0 +1,23 @@
+# 662 - Mazandaran
+
+# County Title
+title = c_mazandaran
+
+# Settlements
+max_settlements = 7
+b_kalar = castle
+b_chaloos = city
+b_rostamrood = temple
+
+#b_sisangan = city
+#b_kojoor = castle
+#b_damavand = castle
+#b_garmsar = castle
+#b_varamin = castle
+
+# Misc
+culture = persian
+religion = zoroastrian
+
+# History
+1187.1.1 = { religion = shiite } 

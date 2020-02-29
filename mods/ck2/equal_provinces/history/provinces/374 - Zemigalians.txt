@@ -1,0 +1,27 @@
+# 374 - Zemigalians
+
+# County Title
+title = c_zemigalians
+
+# Settlements
+max_settlements = 7
+b_bauska = castle
+b_riga = temple
+
+b_selpils = city
+#b_skaistkalne = city
+
+#b_mezotne = castle
+#b_cruczeborch = castle
+#b_remigala = castle
+#b_jelgava = city
+
+# Misc
+culture = lettigallish
+religion = baltic_pagan
+
+# History
+1199.1.1 = { capital = b_riga }
+1199.1.1 = {
+	religion = catholic
+}

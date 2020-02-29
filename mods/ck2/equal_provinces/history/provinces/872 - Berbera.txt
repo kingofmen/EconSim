@@ -1,0 +1,22 @@
+# 872 - Berbera
+
+# County Title
+title = c_berbera
+
+# Settlements
+max_settlements = 7
+
+b_berbera = castle
+
+b_maydh = city
+b_gabiley = temple
+#b_mandera = castle
+#b_daarbuduq = castle
+#b_shiikh = castle
+#b_burco = city
+
+# Misc
+culture = somali
+religion = sunni
+
+# History

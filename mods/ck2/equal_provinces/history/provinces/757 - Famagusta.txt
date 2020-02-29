@@ -1,0 +1,25 @@
+# 757 - Famagusta
+
+# County Title
+title = c_famagusta
+
+# Settlements
+max_settlements = 7
+
+b_famagusta = castle
+b_nikosia = city
+b_cithium = temple
+
+#b_sthilarion = castle
+#b_kyrenia = castle
+#b_buffavento = castle
+#b_kantara = castle
+#b_peristerona = castle
+
+# Misc
+culture = greek
+religion = orthodox
+
+# History
+
+

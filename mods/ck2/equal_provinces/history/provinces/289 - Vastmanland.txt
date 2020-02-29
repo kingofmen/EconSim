@@ -1,0 +1,24 @@
+# 289 - Västmanland
+
+# County Title
+title = c_vastmanland
+
+# Settlements
+max_settlements = 7
+b_kopingshus = castle
+
+b_vasteras = city
+#b_koping = city
+#b_arboga = city
+b_norberg = temple
+#b_skinnskatteberg 
+#b_badelunda 
+#b_munktorp 
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = { culture = swedish }
+1080.1.1 = { religion = catholic }

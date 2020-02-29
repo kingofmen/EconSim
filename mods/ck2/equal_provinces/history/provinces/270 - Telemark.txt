@@ -1,0 +1,24 @@
+# 270 - Telemark
+
+# County Title
+title = c_telemark
+
+# Settlements
+max_settlements = 7
+b_eidsborg = temple
+b_skien = city
+#b_hitterdals = temple
+b_seljord = castle
+#b_fyresdal = castle
+#b_grenland = city
+#b_gimsoy = temple
+
+# Misc
+culture = norse
+religion = norse_pagan
+
+# History
+1066.1.1 = {
+	culture = norwegian
+	religion = catholic
+}

@@ -1,0 +1,20 @@
+# 843 - Marrakech
+
+# County Title
+title = c_marrakech
+
+# Settlements
+max_settlements = 7
+
+b_sidirahhal = temple
+b_elanakir = castle
+b_ouarzazate = city
+#b_demnat = city
+#b_asni = city
+
+#b_thineghir = castle
+#b_alnif = castle
+
+# Misc
+culture = maghreb_arabic
+religion = shiite

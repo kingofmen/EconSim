@@ -1,0 +1,23 @@
+# 819 - Bizerte
+
+# County Title
+title = c_bizerte
+
+# Settlements
+max_settlements = 7
+b_bizerte = castle
+b_tunbeja = temple
+b_jendouba = city
+#b_ghezala = castle
+
+#b_almatin = castle
+#b_manziljamal = castle
+#b_tamra = castle
+#b_netza = castle
+
+# Misc
+culture = maghreb_arabic
+religion = sunni
+
+# History
+
