@@ -7,7 +7,7 @@ title = c_kota
 max_settlements = 7
 b_kota = castle
 b_koshvardhan = city
-#b_ramgarh = temple
+b_ramgarh = temple
 #b_bundi = castle
 #b_taragarh = castle
 

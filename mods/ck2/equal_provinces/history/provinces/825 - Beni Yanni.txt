@@ -9,7 +9,7 @@ max_settlements = 7
 b_bourmedes = castle
 b_tafoughalt = city
 b_tigzirt = temple
-b_bujima = castle
+# b_bujima = castle
 
 #b_azeffoun = castle
 #b_taoudouch = castle

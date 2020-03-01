@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_figuig = castle
 
-#b_bouarfa
-#b_ich
+b_bouarfa
+b_ich
 
 # Misc
 culture = maghreb_arabic

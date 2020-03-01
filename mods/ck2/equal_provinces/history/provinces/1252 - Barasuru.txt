@@ -6,8 +6,8 @@ title = c_barasuru
 # Settlements
 max_settlements = 7
 b_barasuru = castle
-#b_dantewada = temple
-#b_barsoor = temple
+b_dantewada = temple
+b_barsoor = temple
 
 # Misc
 culture = oriya

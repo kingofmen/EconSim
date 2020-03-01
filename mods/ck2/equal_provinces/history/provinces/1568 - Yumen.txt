@@ -5,8 +5,8 @@ title = c_yumen
 max_settlements = 7
 
 b_yumen = castle
-#b_xiaxihao = city
-#b_huangzhawan = 
+b_xiaxihao = city
+b_huangzhawan = 
 #b_chuanbei = 
 #b_baoen = temple
 #b_dongshuwo = temple

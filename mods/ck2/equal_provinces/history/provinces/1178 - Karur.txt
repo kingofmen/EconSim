@@ -7,7 +7,7 @@ title = c_karur
 max_settlements = 7
 b_karur = castle
 b_askhanda = city
-#b_vehari = temple
+b_vehari = temple
 #b_chishtian = temple
 #b_marot = city
 

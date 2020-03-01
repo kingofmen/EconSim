@@ -6,10 +6,10 @@ title = c_korosten
 # Settlements
 max_settlements = 7
 
-b_korosten = tribal		#705
+705
 
-#b_olevsk = city			#712
-#b_ovruch = temple		#946
+b_olevsk = city			#712
+b_ovruch = temple		#946
 
 #b_malyn = castle		#891
 #b_chernobyl = castle	#1193

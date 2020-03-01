@@ -6,10 +6,10 @@ title = c_ryazan
 # Settlements
 max_settlements = 7
 
-b_ryazan = tribal		#1035	#The original capital, now known as Staraya Ryazan
-#b_pereyaslavl_ryazanski	#1035	#The modern Ryazan, after the mongols plundered the original Ryazan
+1035	#The original capital, now known as Staraya Ryazan
+b_pereyaslavl_ryazanski	#1035	#The modern Ryazan, after the mongols plundered the original Ryazan
 
-#b_krasnoye		#1146
+b_krasnoye		#1146
 #b_lukhovitsy	#1594
 #b_rybnoye		#1597
 #b_novoselki

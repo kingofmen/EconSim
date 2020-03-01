@@ -6,10 +6,10 @@ title = c_uglich
 # Settlements
 max_settlements = 7
 
-b_uglich = tribal	#937
+937
 
-#b_ustyuzhna	#XIth
-#b_ugliche_pole		#More or less Uglich
+b_ustyuzhna	#XIth
+b_ugliche_pole		#More or less Uglich
 #b_mologa		#XIIth
 #b_krasny_kholm	#1518
 #b_koprino

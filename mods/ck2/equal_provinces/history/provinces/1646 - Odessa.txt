@@ -6,10 +6,10 @@ title = c_odessa
 # Settlements
 max_settlements = 7
 
-b_odessa = tribal	#1794
+1794
 
-#b_holovkivka	#1792
-#b_berezivka	#1802
+b_holovkivka	#1792
+b_berezivka	#1802
 #b_petroverovka	#1814
 #b_rozdilna		#1863
 #b_illichivsk	#modern

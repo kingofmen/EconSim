@@ -8,7 +8,7 @@ max_settlements = 7
 b_moclin = castle
 b_elvira = city
 b_huelma = castle
-b_guadix = city
+# b_guadix = city
 
 #b_moclin = castle
 #b_iznajar = castle

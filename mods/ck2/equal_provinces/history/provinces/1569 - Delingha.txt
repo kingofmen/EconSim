@@ -5,8 +5,8 @@ title = c_delingha
 max_settlements = 7
 
 b_delingha = castle
-#b_xuji = {
-#b_haixi = {
+b_xuji = {
+b_haixi = {
 #b_hedong = {
 #b_hexi = {
 #b_keluke = {

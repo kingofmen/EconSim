@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_taza = castle
 
-#b_safsaf
-#b_geurcif
+b_safsaf
+b_geurcif
 
 # Misc
 culture = maghreb_arabic

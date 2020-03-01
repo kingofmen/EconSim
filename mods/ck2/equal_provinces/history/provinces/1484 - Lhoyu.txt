@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_lhoyu = castle
 b_anini = city
-#b_dambuk = {
+b_dambuk = {
 #b_namsai = {
 #b_diyun = {
 #b_yingkiong = {

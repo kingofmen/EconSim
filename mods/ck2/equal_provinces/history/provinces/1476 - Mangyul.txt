@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_dzongka = castle
 b_gyirong = city
-#b_tingri = temple
+b_tingri = temple
 #b_shelkar = temple
 #b_nyalam = {
 #b_dram = {

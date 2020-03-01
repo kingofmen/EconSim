@@ -8,7 +8,7 @@ max_settlements = 7
 b_halayeb = castle
 b_aydhab = city
 b_marsaalam = castle
-b_zabargad = temple
+# b_zabargad = temple
 
 #b_elba = temple
 #b_shalateen = castle

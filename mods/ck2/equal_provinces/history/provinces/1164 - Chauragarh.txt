@@ -6,8 +6,8 @@ title = c_chauragarh
 # Settlements
 max_settlements = 7
 b_chauragarh = castle
-#b_bohani = city
-#b_barman = temple
+b_bohani = city
+b_barman = temple
 
 # Misc
 culture = hindustani

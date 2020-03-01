@@ -32,3 +32,4 @@ religion = slavic_pagan
 	b_lubusz = castle
 	b_kostrzyn = city
 }
+# Candidate for by-hand fix 0 1

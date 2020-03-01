@@ -9,7 +9,7 @@ max_settlements = 7
 b_demetrias = castle
 b_neopatras = city
 
-#b_boudonitza = castle
+b_boudonitza = castle
 #b_levadhia = castle
 #b_ravennika = castle
 #b_gravia = castle

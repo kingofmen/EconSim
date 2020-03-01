@@ -8,7 +8,7 @@ max_settlements = 7
 b_kaiserslautern = castle
 b_worms = temple
 b_hagenau = city
-b_stahleck = castle
+# b_stahleck = castle
 
 #b_trifels = castle
 #b_zweibrucken = castle

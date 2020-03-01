@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_chach = castle
 
-#b_navekat = city
-#b_sayram = temple
+b_navekat = city
+b_sayram = temple
 
 #b_isbijab = city
 #b_shymkent = castle

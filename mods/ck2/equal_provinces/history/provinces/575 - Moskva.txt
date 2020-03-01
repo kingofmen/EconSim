@@ -6,10 +6,10 @@ title = c_moskva
 # Settlements
 max_settlements = 7
 
-b_moskva = tribal	#1147
-b_mytishchi = temple	#old
+1147
+old
 
-#b_podolsk		#1559
+b_podolsk		#1559
 #b_istra		#XVIth
 #b_lyubertsy	#1621
 #b_khimki		#1850

@@ -6,8 +6,8 @@ title = c_karmanta
 # Settlements
 max_settlements = 7
 b_karmanta = castle
-#b_mainamati = temple
-#b_unakoti = city
+b_mainamati = temple
+b_unakoti = city
 #b_udaipur = city
 
 # Misc

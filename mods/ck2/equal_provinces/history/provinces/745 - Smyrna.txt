@@ -11,7 +11,7 @@ b_pergamon = city
 b_phokaia = temple
 
 #b_adramyttion = castle
-b_klazomeanai = city
+# b_klazomeanai = city
 #b_kydonia = castle
 #b_erythrai = castle
 #b_chio = castle

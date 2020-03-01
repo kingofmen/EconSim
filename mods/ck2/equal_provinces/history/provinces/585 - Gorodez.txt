@@ -6,10 +6,10 @@ title = c_gorodez
 # Settlements
 max_settlements = 7
 
-b_gorodez = tribal	#1172
-#b_kitezh			#legendary city "founded" between 1188 & 1238
+1172
+b_kitezh			#legendary city "founded" between 1188 & 1238
 
-#b_bor			#XIVth
+b_bor			#XIVth
 #b_puchishche	#1594
 #b_tarasikha
 #b_chistoye_pole

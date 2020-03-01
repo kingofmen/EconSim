@@ -6,8 +6,8 @@ title = c_kiranapura
 # Settlements
 max_settlements = 7
 b_kiranapura = castle
-#b_balaghat = temple
-#b_lanji = castle
+b_balaghat = temple
+b_lanji = castle
 
 # Misc
 culture = marathi

@@ -9,11 +9,11 @@ max_settlements = 7
 b_akordat = castle
 
 b_teseney = temple
-#b_antalla = castle
+b_antalla = castle
 #b_barentu = castle
 #b_shambuko = castle
 #b_dghe = castle
-b_mogolo = city
+# b_mogolo = city
 
 # Misc
 culture = ethiopian

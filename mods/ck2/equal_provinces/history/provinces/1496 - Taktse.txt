@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_taktse = castle
 b_qonggyai = city
-#b_qoi = 
+b_qoi = 
 #b_comai = 
 #b_zhegu = 
 #b_layu = 

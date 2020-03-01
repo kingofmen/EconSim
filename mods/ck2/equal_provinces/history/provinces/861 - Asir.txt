@@ -8,7 +8,7 @@ max_settlements = 7
 b_kamaran = castle
 b_tabala = temple
 
-#b_kuthba = city
+b_kuthba = city
 #b_sadah = castle
 #b_hajjah = castle
 #b_dam = castle

@@ -9,7 +9,7 @@ max_settlements = 7
 b_tebessa = castle
 b_baghaya = city
 
-#b_tala
+b_tala
 #b_maydara
 #b_maskiyana
 #b_kasserine

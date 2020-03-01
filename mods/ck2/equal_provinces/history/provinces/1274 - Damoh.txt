@@ -7,7 +7,7 @@ title = c_damoh
 max_settlements = 7
 b_damoh = castle
 b_dhamoni = city
-#b_nohta = temple
+b_nohta = temple
 #b_singrampur = castle
 #b_narsinghgarh = castle
 

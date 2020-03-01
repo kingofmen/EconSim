@@ -8,7 +8,7 @@ max_settlements = 7
 b_aswan = castle
 b_shellal = city
 b_elefantina = temple
-b_bigeh = castle
+# b_bigeh = castle
 
 #b_veset = castle
 #b_philae = castle

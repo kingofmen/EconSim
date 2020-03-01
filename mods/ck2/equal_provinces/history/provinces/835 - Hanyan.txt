@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_hanyan = castle
 
-#b_naama = city
-#b_saida = temple
+b_naama = city
+b_saida = temple
 
 #b_alkasdir = castle
 #b_alancha = castle

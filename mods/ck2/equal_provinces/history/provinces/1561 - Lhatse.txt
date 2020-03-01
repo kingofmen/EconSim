@@ -5,8 +5,8 @@ title = c_lhatse
 max_settlements = 7
 
 b_lhatse = castle
-b_drampagyang = temple #(Temple built by Songtsen Gampo and freqented by Padmasambhava, Namkhai Nyingpo, and King Trisong Detsen)
-#b_quxar = 
+(Temple built by Songtsen Gampo and freqented by Padmasambhava, Namkhai Nyingpo, and King Trisong Detsen)
+b_quxar = 
 #b_gyangbumoche = temple
 #b_deleg = 
 #b_kagar = 

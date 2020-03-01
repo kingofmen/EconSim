@@ -6,10 +6,10 @@ title = c_rzheva
 # Settlements
 max_settlements = 7
 
-b_rzheva = tribal		#1216
+1216
 
-#b_gorodok		#1297
-#b_vysokoye
+b_gorodok		#1297
+b_vysokoye
 #b_mednoye
 #b_pleshki
 #b_deshevki

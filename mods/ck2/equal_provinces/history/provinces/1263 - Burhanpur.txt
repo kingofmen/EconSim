@@ -7,7 +7,7 @@ title = c_burhanpur
 max_settlements = 7
 b_burhanpur = castle
 b_erandol = temple
-#b_vaghli = city
+b_vaghli = city
 #b_changdev = city
 #b_yawal = city
 

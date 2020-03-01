@@ -6,8 +6,8 @@ title = c_munda
 # Settlements
 max_settlements = 7
 b_chutia = castle
-#b_ratu = castle
-#b_marang_buru = temple
+b_ratu = castle
+b_marang_buru = temple
 
 # Misc
 culture = oriya

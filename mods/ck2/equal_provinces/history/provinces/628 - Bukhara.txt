@@ -8,7 +8,7 @@ max_settlements = 7
 b_gizhduvan = castle
 b_vabkent = city
 b_bukhara = temple
-b_karkuh = castle
+# b_karkuh = castle
 
 #b_chardjul = castle
 #b_kogon = city

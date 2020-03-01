@@ -6,10 +6,10 @@ title = c_hradyzk
 # Settlements
 max_settlements = 7
 
-b_hradyzk = tribal	#865
+865
 
-#b_poltava		#899
-#b_khorol		#1083
+b_poltava		#899
+b_khorol		#1083
 #b_lubny		#1107
 
 #b_kremenchuk	#1571

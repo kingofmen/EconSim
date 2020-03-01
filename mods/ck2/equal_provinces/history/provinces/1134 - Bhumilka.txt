@@ -7,7 +7,7 @@ title = c_bhumilka
 max_settlements = 7
 b_vamanasthali = castle
 b_bhumilka = city
-b_girnar = temple # Jain Holy Site
+ Jain Holy Site
 #b_uperkot = castle
 #b_bhavnat = temple
 #b_mangrol = city

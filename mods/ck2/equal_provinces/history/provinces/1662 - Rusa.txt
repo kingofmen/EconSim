@@ -6,10 +6,10 @@ title = c_rusa
 # Settlements
 max_settlements = 7
 
-b_rusa = tribal		#1167
+1167
 
-#b_poddorye		#1800
-#b_ramushevo
+b_poddorye		#1800
+b_ramushevo
 #b_lyublino
 #b_peregino
 #b_belebelka

@@ -12,7 +12,7 @@ b_damme = temple
 
 #b_oostende = city
 
-b_nieuwpoort = city
+# b_nieuwpoort = city
 #b_aardenburg = castle
 #b_torhout = castle
 

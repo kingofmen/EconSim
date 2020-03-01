@@ -6,7 +6,7 @@ title = c_niebla
 # Settlements
 max_settlements = 7
 b_niebla  = castle
-#b_nerva = castle
+b_nerva = castle
 b_almonte = city
 #b_lasrocinas = temple 	
 #b_pilas = city

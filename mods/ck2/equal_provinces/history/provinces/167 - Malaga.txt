@@ -8,7 +8,7 @@ max_settlements = 7
 b_malaga = castle
 b_antequera = temple
 b_benalmadena = city
-b_tamisa = castle
+# b_tamisa = castle
 
 #b_coin = castle
 #b_suel = city

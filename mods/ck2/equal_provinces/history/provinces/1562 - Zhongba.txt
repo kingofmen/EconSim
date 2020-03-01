@@ -5,8 +5,8 @@ title = c_zhongba
 max_settlements = 7
 
 b_labrang = castle
-#b_paryang = 
-#b_gela = 
+b_paryang = 
+b_gela = 
 #b_lunggar = 
 #b_barma = 
 #b_ringtor = 

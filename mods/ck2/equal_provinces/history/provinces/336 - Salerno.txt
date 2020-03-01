@@ -11,7 +11,7 @@ b_acerno = temple
 #b_acenzera = temple
 #b_lucania = city
 #b_agropoli = temple
-b_sarno = castle
+# b_sarno = castle
 #b_eboli = castle
 
 # Misc

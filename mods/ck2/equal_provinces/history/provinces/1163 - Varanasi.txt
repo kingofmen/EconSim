@@ -5,8 +5,8 @@ title = c_varanasi
 
 # Settlements
 max_settlements = 7
-b_varanasi = castle # Hindu Holy Site
-b_sarnath = temple # Buddhist Holy Site
+ Hindu Holy Site
+ Buddhist Holy Site
 b_bhadohi = city
 #b_ballia = city
 #b_durga_mandir = temple

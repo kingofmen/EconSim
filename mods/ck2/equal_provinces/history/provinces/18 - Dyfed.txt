@@ -8,7 +8,7 @@ max_settlements = 7
 b_pembroke = castle
 b_st_davids = temple
 
-#b_haverford = city
+b_haverford = city
 #b_narberth = castle
 #b_llanstadwell = temple
 #b_tenby = castle

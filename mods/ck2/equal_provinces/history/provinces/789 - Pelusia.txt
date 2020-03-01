@@ -8,7 +8,7 @@ max_settlements = 7
 b_pelusia = castle
 b_said = city
 b_alsalihiyah = temple
-b_ismaillia = castle
+# b_ismaillia = castle
 
 #b_sile = castle
 #b_pithom = castle

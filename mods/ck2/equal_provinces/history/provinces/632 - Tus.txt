@@ -7,9 +7,9 @@ title = c_tus
 max_settlements = 7
 b_bojnurd = castle
 b_shervan = city
-#b_isfarayen = city
+b_isfarayen = city
 
-b_mashhad = temple
+# b_mashhad = temple
 #b_hasanabad = castle
 #b_ghaisar = castle
 #b_fagdatdezh = castle

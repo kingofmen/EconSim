@@ -11,7 +11,7 @@ b_saintpol = castle
 
 b_montreuil = temple
 
-b_hesdin = city
+# b_hesdin = city
 #b_fauquembergues = castle
 #b_ternouis = castle
 #b_therouanne = castle

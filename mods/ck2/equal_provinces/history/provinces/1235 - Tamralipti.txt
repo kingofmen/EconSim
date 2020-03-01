@@ -7,7 +7,7 @@ title = c_tamralipti
 max_settlements = 7
 b_tamralipti = castle
 b_sagardwip = temple
-#b_jahajghata = city
+b_jahajghata = city
 #b_chandraketugarh = temple
 #b_ishwaripur = temple
 

@@ -7,8 +7,8 @@ title = c_bologna
 max_settlements = 7
 b_bentivoglio = castle
 b_bologna = city
-#b_faenza = castle
-b_forli = temple
+b_faenza = castle
+# b_forli = temple
 
 #b_castelguelfo = castle
 #b_bagnacavallo = castle

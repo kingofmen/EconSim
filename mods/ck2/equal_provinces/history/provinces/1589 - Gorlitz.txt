@@ -26,3 +26,4 @@ religion = slavic_pagan
 1200.1.1 = { culture = german } 
 1200.1.1 = { religion = catholic } 
 1200.1.1 = { b_herrhut = temple } 
+# Candidate for by-hand fix 0 2

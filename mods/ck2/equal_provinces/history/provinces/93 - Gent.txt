@@ -8,7 +8,7 @@ max_settlements = 7
 b_oudenaarde = castle
 b_gent = city
 b_doornik = temple
-b_kortrijk = city
+# b_kortrijk = city
 
 #b_dendermonde = castle
 #b_geraarsbergen = castle

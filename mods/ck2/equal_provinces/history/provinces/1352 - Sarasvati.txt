@@ -7,7 +7,7 @@ title = c_sarasvati
 max_settlements = 7
 b_sarasvati = castle
 b_bhadra = city
-#b_bhatnir = castle
+b_bhatnir = castle
 #b_tarain = castle
 
 # Misc

@@ -9,7 +9,7 @@ max_settlements = 7
 b_le_mans = castle
 b_beaumont = castle
 b_evron = temple
-b_laval = city
+# b_laval = city
 
 #b_craon = castle
 #b_mayenne = castle

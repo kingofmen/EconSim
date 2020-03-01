@@ -8,7 +8,7 @@ max_settlements = 7
 
 b_turnu = castle
 b_giurgiu = city
-#b_comana = temple
+b_comana = temple
 
 #b_zimnicea = castle
 #b_bucuresti = city

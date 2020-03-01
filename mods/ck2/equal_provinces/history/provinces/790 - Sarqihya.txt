@@ -8,7 +8,7 @@ max_settlements = 7
 b_sarqinya = castle
 b_bubastis = city
 b_qantir = temple
-b_zagazig = castle
+# b_zagazig = castle
 
 #b_agruda = castle
 #b_alhaifar = castle

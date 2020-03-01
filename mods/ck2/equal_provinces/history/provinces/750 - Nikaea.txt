@@ -9,7 +9,7 @@ b_nikaea = castle
 b_kios = city
 b_optimatum = temple
 
-b_palaeokastron = castle
+# b_palaeokastron = castle
 #b_kotyaion = castle
 #b_yalova = castle
 #b_modrene = castle

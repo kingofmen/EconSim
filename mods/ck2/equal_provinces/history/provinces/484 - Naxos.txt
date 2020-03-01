@@ -9,7 +9,7 @@ max_settlements = 7
 b_naxos = castle
 b_santorini = city
 
-#b_hermoupolis = temple
+b_hermoupolis = temple
 #b_andros = castle
 #b_tinos = castle
 #b_mykonos = castle

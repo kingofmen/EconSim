@@ -9,7 +9,7 @@ max_settlements = 7
 b_uzkand = castle
 b_andijan = city
 b_osh = temple
-b_marginan = city
+# b_marginan = city
 
 #b_aval = castle
 #b_nadaq = castle

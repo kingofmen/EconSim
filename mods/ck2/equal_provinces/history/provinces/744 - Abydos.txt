@@ -8,7 +8,7 @@ max_settlements = 7
 
 b_abydos = castle
 b_alexandriatroas = city
-b_lampsakos = temple # Hellenic Holy Site
+ Hellenic Holy Site
 
 #b_pigai = castle
 #b_aegae = castle

@@ -9,7 +9,7 @@ max_settlements = 7
 b_setif = castle
 b_ikjan = city
 
-#b_zaoula = temple
+b_zaoula = temple
 #b_nacina = castle
 #b_draaelmizan = castle
 #b_tagoughalt = castle

@@ -7,7 +7,7 @@ title = c_reni
 max_settlements = 7
 b_reni = castle
 b_dadrewa = city
-#b_mandir = temple
+b_mandir = temple
 #b_bidasar = city
 #b_sidhmukh = castle
 

@@ -6,10 +6,10 @@ title = c_yelets
 # Settlements
 max_settlements = 7
 
-b_yelets = tribal	#1146
+1146
 
-#b_voronej		#1177
-#b_zadonsk		#1615
+b_voronej		#1177
+b_zadonsk		#1615
 #b_semiuki
 #b_khlevnoye
 #b_dolgorukovo

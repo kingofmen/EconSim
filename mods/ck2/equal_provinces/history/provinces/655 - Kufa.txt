@@ -8,8 +8,8 @@ max_settlements = 7
 b_kufa = castle
 b_suqash = temple
 b_bussayyah = city
-b_hammar = castle
-b_chibayish = castle
+# b_hammar = castle
+# b_chibayish = castle
 
 #b_qurnah = castle
 #b_ragai = castle

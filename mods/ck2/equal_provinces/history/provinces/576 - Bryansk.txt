@@ -6,10 +6,10 @@ title = c_bryansk
 # Settlements
 max_settlements = 7
 
-b_bryansk = tribal	#1147
-b_pochep = temple # Baltic pagan holy site
+1147
+ Baltic pagan holy site
 
-#b_trubetsk	#1164
+b_trubetsk	#1164
 #b_suponevo
 #b_kokino
 #b_vygonichi

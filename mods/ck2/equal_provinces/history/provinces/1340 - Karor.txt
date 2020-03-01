@@ -7,7 +7,7 @@ title = c_karor
 max_settlements = 7
 b_karor = castle
 b_mankera = city
-#b_shadia = temple
+b_shadia = temple
 #b_wan_bhachran = city
 
 # Misc

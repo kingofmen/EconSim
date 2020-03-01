@@ -8,7 +8,7 @@ max_settlements = 7
 b_tamworth = castle
 b_warwick = castle
 b_lichfield = temple
-b_stafford = city
+# b_stafford = city
 
 #b_tutbury = castle
 #b_coventry = temple

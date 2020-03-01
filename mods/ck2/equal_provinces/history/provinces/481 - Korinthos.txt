@@ -7,12 +7,12 @@ title = c_korinthos
 max_settlements = 7
 
 b_corinth = castle
-#b_argos = castle
+b_argos = castle
 
 b_nauplion = temple
 
 #b_passava = castle
-b_vostitza = city
+# b_vostitza = city
 #b_zemenos = castle
 #b_veligosti = castle
 #b_megapoli = castle

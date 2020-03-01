@@ -8,7 +8,7 @@ max_settlements = 7
 b_mahoba = castle
 b_chitrakuta = temple
 b_hamirpur = city
-b_ajaigarh = castle
+# b_ajaigarh = castle
 #b_rath = city
 
 # Misc

@@ -8,7 +8,7 @@ max_settlements = 7
 b_iona = temple
 b_finlaggan = castle
 
-#b_laggan = castle
+b_laggan = castle
 #b_dunyveg = castle
 #b_tobermory = city
 #b_scarinish = castle

@@ -8,7 +8,7 @@ max_settlements = 7
 b_chitrakut = castle
 b_rampura = city
 b_baroli = temple
-b_bhainsrorgarh = castle
+# b_bhainsrorgarh = castle
 #b_mandalgarh = castle
 #b_nagari = city
 

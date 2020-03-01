@@ -6,10 +6,10 @@ title = c_nizhny_novgorod
 # Settlements
 max_settlements = 7
 
-b_nizhnynovgorod = tribal	#1221
+1221
 
-#b_lyskovo		#1401
-#b_balakhna		#1401
+b_lyskovo		#1401
+b_balakhna		#1401
 #b_kstovo		#XIVth
 #b_pavlovo		#1556
 #b_bogorodsk	#1570

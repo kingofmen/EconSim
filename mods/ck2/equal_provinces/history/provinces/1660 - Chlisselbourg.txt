@@ -6,10 +6,10 @@ title = c_chlisselbourg
 # Settlements
 max_settlements = 7
 
-b_chlisselbourg = tribal	#1323
+1323
 
-#b_mokrishvitsa
-#b_lodeynoye_pole	 #1702	#founded on the spot of Mokrishvitsa
+b_mokrishvitsa
+b_lodeynoye_pole	 #1702	#founded on the spot of Mokrishvitsa
 #b_volkhov		#1918
 #b_storozhno
 #b_nossok	#into Syasstroy in 1926

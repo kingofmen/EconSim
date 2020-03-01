@@ -5,8 +5,8 @@ title = c_cherchen
 max_settlements = 7
 
 b_cherchen = castle
-#b_endere = temple
-#b_mocheng =
+b_endere = temple
+b_mocheng =
 #b_zuomo =
 #b_yuling =
 #b_yeyik =

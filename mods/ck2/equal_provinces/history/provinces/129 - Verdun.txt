@@ -5,9 +5,9 @@ title = c_verdun
 
 # Settlements
 max_settlements = 7
-b_longuyon = castle # Longuyon
-b_verdun = temple # Verdun
-b_etain = city # Étain
+ Longuyon
+ Verdun
+ Étain
 
 #b_grandpre = temple # Grandpré
 #b_stenay = city # Stenay

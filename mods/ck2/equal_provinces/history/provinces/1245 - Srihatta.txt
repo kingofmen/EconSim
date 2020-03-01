@@ -7,7 +7,7 @@ title = c_srihatta
 max_settlements = 7
 b_srihatta = castle
 b_habiganj = city
-#b_egarosindur = temple
+b_egarosindur = temple
 #b_nasirabad = city
 #b_jangalbari = castle
 

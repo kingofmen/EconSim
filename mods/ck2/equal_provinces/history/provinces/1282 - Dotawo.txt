@@ -8,7 +8,7 @@ max_settlements = 7
 b_dotawo = castle
 b_jebeladda = city
 b_faras = city
-b_qasribrim = temple
+# b_qasribrim = temple
 
 #b_ballana = temple
 #b_buhen = castle

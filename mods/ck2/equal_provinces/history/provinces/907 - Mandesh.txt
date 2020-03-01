@@ -8,7 +8,7 @@ max_settlements = 7
 b_chaghcharan = castle
 b_adraskan = city
 
-#b_baluci = castle
+b_baluci = castle
 #b_saghar = castle
 #b_kwajaha = castle
 #b_gozareh = castle

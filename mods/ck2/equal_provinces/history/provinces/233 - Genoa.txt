@@ -8,7 +8,7 @@ max_settlements = 7
 b_genoa = city
 b_luna = castle
 b_rapallo = temple
-b_chiavari = castle
+# b_chiavari = castle
 
 #b_fosdinovo = castle
 

@@ -7,7 +7,7 @@ title = c_racakonda
 max_settlements = 7
 b_racakonda = castle
 b_bhuvanagiri = castle
-#b_manchal = temple
+b_manchal = temple
 #b_yadagirigutta = city
 
 # Misc

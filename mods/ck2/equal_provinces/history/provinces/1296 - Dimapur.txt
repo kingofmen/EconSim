@@ -7,7 +7,7 @@ title = c_dimapur
 max_settlements = 7
 b_dimapur = castle
 b_herombial = city
-#b_oddiyana = temple
+b_oddiyana = temple
 #b_maibong = city
 
 # Misc

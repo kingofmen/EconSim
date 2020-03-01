@@ -8,8 +8,8 @@ max_settlements = 7
 b_arundel = castle
 b_chichester = temple
 
-#b_pevensey = castle
-b_lewes = city
+b_pevensey = castle
+# b_lewes = city
 #b_hastings = castle
 #b_rye = castle
 #b_bramber = castle

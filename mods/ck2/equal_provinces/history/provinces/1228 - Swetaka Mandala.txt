@@ -7,7 +7,7 @@ title = c_swetaka_mandala
 max_settlements = 7
 b_swetakapura = castle
 b_rayagada = temple
-#b_umerkote = city
+b_umerkote = city
 #b_badakhemundi = castle
 
 # Misc

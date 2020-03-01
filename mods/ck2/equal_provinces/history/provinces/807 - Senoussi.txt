@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_kufra = castle
 
-#b_jalu = city
-#b_jakharrah = temple
+b_jalu = city
+b_jakharrah = temple
 #b_gabr = castle
 #b_attallab = castle
 #b_buzayman = castle

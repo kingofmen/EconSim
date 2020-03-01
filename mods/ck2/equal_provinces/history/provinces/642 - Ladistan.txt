@@ -9,7 +9,7 @@ b_lad = castle
 b_bandarkhamir = castle
 b_khonj = city
 
-b_evaz = temple
+# b_evaz = temple
 #b_morbagh = castle
 #b_bastak = castle
 #b_jask = castle

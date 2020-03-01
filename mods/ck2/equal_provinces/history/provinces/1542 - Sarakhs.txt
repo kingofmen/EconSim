@@ -8,7 +8,7 @@ max_settlements = 7
 b_sarakhs = castle
 b_mazduran = temple
 
-#b_maihana = city
+b_maihana = city
 #b_dandanqan = city
 
 # Misc

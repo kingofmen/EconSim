@@ -8,7 +8,7 @@ max_settlements = 7
 b_sestos = castle
 b_verissa = city
 b_chariopolis = temple
-b_phinopolis = city
+# b_phinopolis = city
 
 #b_syrallum = castle
 #b_salmydessus = castle

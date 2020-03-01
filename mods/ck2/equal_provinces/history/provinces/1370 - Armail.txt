@@ -7,7 +7,7 @@ title = c_armail
 max_settlements = 7
 b_armail = castle
 b_hingula = temple
-#b_kambali = city
+b_kambali = city
 #b_yusli = city
 
 # Misc

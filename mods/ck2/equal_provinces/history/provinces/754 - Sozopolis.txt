@@ -9,7 +9,7 @@ max_settlements = 7
 b_souzopolis = castle
 b_cadi = city
 
-#b_polidorion = castle
+b_polidorion = castle
 #b_kelainai = castle
 #b_dinar = castle
 #b_isparta = castle

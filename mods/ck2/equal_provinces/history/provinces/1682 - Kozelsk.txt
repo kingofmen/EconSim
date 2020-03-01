@@ -6,10 +6,10 @@ title = c_kozelsk
 # Settlements
 max_settlements = 7
 
-b_kozelsk = tribal		#1146
+1146
 
-#b_belev	#1147
-#b_mosalsk		#1234
+b_belev	#1147
+b_mosalsk		#1234
 #b_mezetsk	#1238
 #b_serpeisk	#1406
 #b_sukhinichi	#XVIth

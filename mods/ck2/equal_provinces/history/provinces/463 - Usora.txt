@@ -22,3 +22,4 @@ terrain = mountain
 	culture = bosnian
 } 
 1000.1.1= { religion = bogomilist } 
+# Candidate for by-hand fix 0 2

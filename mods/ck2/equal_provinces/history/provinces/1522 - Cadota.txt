@@ -11,7 +11,7 @@ culture = tocharian
 religion = buddhist
 
 # History
-#900.1.1 = { remove_settlement = b_endere } #abandoned
+900.1.1 = { remove_settlement = b_endere } #abandoned
 1006.1.1 = {
 	culture = uyghur
 	religion = sunni

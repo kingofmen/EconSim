@@ -12,7 +12,7 @@ b_dhamar = city
 #b_qataba = city
 #b_jabalannabishuayb = temple
 #b_jabaltiyal = castle
-b_hodeida = castle
+# b_hodeida = castle
 #b_harib = city
 
 # Misc

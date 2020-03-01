@@ -6,10 +6,10 @@ title = c_beloozero
 # Settlements
 max_settlements = 7
 
-b_belozersk = tribal	#862
+862
 
-#b_fedosyevo	#before 1362
-#b_cherepovets	#1362
+b_fedosyevo	#before 1362
+b_cherepovets	#1362
 #b_kirillobelozersky = temple	#1397
 #b_ferapontov = temple 			#1398
 #b_baryevychi	#fictional

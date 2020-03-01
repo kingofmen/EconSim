@@ -7,11 +7,11 @@ title = c_parma
 max_settlements = 7
 b_parma = castle
 b_guastalla = temple
-#b_massa = temple
+b_massa = temple
 #b_fornovo = castle
 #b_fidenza = castle
 #b_fontanellato = castle
-b_laspezia = city
+# b_laspezia = city
 #b_noceto = castle
 
 # Misc

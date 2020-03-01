@@ -9,7 +9,7 @@ max_settlements = 7
 b_qsarbardawil = castle
 b_shahba = castle
 b_daraa = city
-b_damascus = temple
+# b_damascus = temple
 
 #b_suada = city
 #b_alsanamayn = castle

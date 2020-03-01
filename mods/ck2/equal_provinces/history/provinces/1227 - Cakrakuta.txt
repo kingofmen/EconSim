@@ -6,8 +6,8 @@ title = c_cakrakuta
 # Settlements
 max_settlements = 7
 b_cakrakuta = castle
-#b_jagdalpur = city
-#b_kanker = temple
+b_jagdalpur = city
+b_kanker = temple
 
 # Misc
 culture = oriya

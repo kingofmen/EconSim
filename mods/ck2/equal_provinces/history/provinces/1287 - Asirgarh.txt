@@ -7,7 +7,7 @@ title = c_asirgarh
 max_settlements = 7
 b_asirgarh = castle
 b_khandwa = temple
-#b_khargone = city
+b_khargone = city
 #b_mandleshwar = temple
 #b_sanawad = temple
 

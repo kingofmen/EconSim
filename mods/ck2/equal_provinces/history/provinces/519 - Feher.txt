@@ -34,3 +34,4 @@ religion = tengri_pagan
 	b_feher = castle
 	b_gyulafehervar = city
 }
+# Candidate for by-hand fix 0 2

@@ -8,7 +8,7 @@ max_settlements = 7
 b_buzgan = castle
 b_zurabad = city
 
-#b_kusuya = temple
+b_kusuya = temple
 #b_pushang = castle
 #b_malin = castle
 #b_jabal_al_adda = castle

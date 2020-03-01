@@ -6,8 +6,8 @@ title = c_gurgi
 # Settlements
 max_settlements = 7
 b_gurgi = castle
-#b_satna = temple
-#b_bathgahora = castle
+b_satna = temple
+b_bathgahora = castle
 #b_chandrehi = temple
 
 # Misc

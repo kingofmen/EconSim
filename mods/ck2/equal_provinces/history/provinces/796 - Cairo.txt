@@ -8,8 +8,8 @@ max_settlements = 7
 b_fustat = castle
 b_helwan = castle
 b_heliopolis = temple
-b_memphis = temple
-b_maadi = city
+# b_memphis = temple
+# b_maadi = city
 
 #b_cairo = castle
 #b_tekkekyahudiyya = castle

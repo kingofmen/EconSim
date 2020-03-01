@@ -11,7 +11,7 @@ b_rochester = temple
 
 #b_faversham = castle
 #b_lympne = castle
-b_sandwich = city
+# b_sandwich = city
 #b_romney = castle
 #b_tonbridge = castle
 

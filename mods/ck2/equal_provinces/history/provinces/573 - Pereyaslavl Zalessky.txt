@@ -6,10 +6,10 @@ title = c_pereyaslavl_zalessky
 # Settlements
 max_settlements = 7
 
-b_pereyaslavlzalessky = tribal	#1152
+1152
 
-#b_sergiyevposad = temple	#XIVth
-#b_aleksandrov = city	#XIVth
+b_sergiyevposad = temple	#XIVth
+b_aleksandrov = city	#XIVth
 #b_strunino = castle	#1492
 #b_karabanovo = castle	#1630
 #b_kupanskoye = castle

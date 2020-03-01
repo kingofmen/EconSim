@@ -8,7 +8,7 @@ max_settlements = 7
 b_ratanpur = castle
 b_pali = city
 b_saravpur = temple
-b_savarinarayana = temple
+# b_savarinarayana = temple
 
 # Misc
 culture = hindustani

@@ -8,7 +8,7 @@ max_settlements = 7
 b_corlay = castle
 b_carhaix = city
 
-#b_langonnet = temple
+b_langonnet = temple
 #b_huelgoat = castle
 #b_plouguer = temple
 #b_chateauneuf_du_faou = castle

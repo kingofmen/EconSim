@@ -7,7 +7,7 @@ title = c_kusinagara
 max_settlements = 7
 b_kusinagara = castle
 b_padrauna = city
-#b_ramagrama = city
+b_ramagrama = city
 #b_pava = temple
 #b_chapra = city
 #b_alampura

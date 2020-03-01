@@ -6,10 +6,10 @@ title = c_lyubech
 # Settlements
 max_settlements = 7
 
-b_lyubech = tribal	#882
+882
 
-#b_dobrouch		#1335
-#b_cierachouka
+b_dobrouch		#1335
+b_cierachouka
 #b_dobryanka
 #b_lysyye
 #b_skytok

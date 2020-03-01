@@ -7,7 +7,7 @@ b_york = castle
 b_st_peters = temple
 b_richmond = castle
 
-b_scarborough = city
+# b_scarborough = city
 #b_middlesbrough = temple
 #b_whitby = temple
 #b_thirsk = castle

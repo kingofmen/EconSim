@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_daroot_korgon = castle
 b_kala_panja = city
-#b_vanj = temple
+b_vanj = temple
 #b_zamr_i_atish_parast = castle
 #b_khorugh =
 #b_darmadar =

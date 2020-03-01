@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_gegyai = castle
 b_zhungpa = city
-#b_yakra = 
+b_yakra = 
 #b_chuktsang = 
 #b_arkog = 
 #b_kelle = 

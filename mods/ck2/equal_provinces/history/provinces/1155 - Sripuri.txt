@@ -8,7 +8,7 @@ max_settlements = 7
 b_sripuri = castle
 b_rajiva_lochana = temple
 b_nuapada = temple
-b_bagbahara = temple
+# b_bagbahara = temple
 #b_basna = temple
 
 # Misc

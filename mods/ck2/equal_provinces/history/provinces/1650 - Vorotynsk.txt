@@ -6,10 +6,10 @@ title = c_vorotynsk
 # Settlements
 max_settlements = 7
 
-b_vorotynsk = tribal	#1155
+1155
 
-#b_mchensk	#1147
-#b_odoyev	#XIVth
+b_mchensk	#1147
+b_odoyev	#XIVth
 #b_suvorova	#XVth
 #b_plavsk
 #b_chern

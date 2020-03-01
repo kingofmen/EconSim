@@ -6,10 +6,10 @@ title = c_kolomna
 # Settlements
 max_settlements = 7
 
-b_tula	= tribal	#1146
+1146
 
-#b_rostislavl	#1153
-#b_veniov		#XIIth
+b_rostislavl	#1153
+b_veniov		#XIIth
 #b_kochira		#1356
 #b_laptevo		#XVth
 #b_ozherelye	#1578

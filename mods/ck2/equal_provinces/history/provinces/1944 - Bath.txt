@@ -7,8 +7,8 @@ title = c_bath
 max_settlements = 7
 b_bath = castle
 b_burnham = city
-#b_bristol = city
-b_wells = temple
+b_bristol = city
+# b_wells = temple
 
 #b_cleeve = castle
 #b_castle_batch = castle

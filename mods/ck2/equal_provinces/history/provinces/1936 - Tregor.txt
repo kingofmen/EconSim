@@ -8,7 +8,7 @@ max_settlements = 7
 b_guingamp = castle
 b_treguier = temple
 
-#b_plougonven = temple
+b_plougonven = temple
 #b_plourivo = temple
 #b_lannion = city
 #b_pedernec = castle

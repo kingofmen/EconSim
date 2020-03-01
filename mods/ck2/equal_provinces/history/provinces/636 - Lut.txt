@@ -6,8 +6,8 @@ title = c_lut
 # Settlements
 max_settlements = 7
 b_tabas = castle
-#b_dayhouk = city
-#b_mazanabad = temple
+b_dayhouk = city
+b_mazanabad = temple
 
 #b_aspak = castle
 #b_amanieh = castle

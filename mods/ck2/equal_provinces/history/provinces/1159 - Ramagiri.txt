@@ -7,7 +7,7 @@ title = c_ramagiri
 max_settlements = 7
 b_ramagiri = temple
 b_pavnar = city
-#b_nandivardhana = temple
+b_nandivardhana = temple
 #b_mansar = temple
 
 # Misc

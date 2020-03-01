@@ -6,10 +6,10 @@ title = c_yaroslavl
 # Settlements
 max_settlements = 7
 
-b_timerevo = tribal		#VIIIth
+VIIIth
 
-#b_yaroslavl = city		#1010
-#b_rybinsk	#1071
+b_yaroslavl = city		#1010
+b_rybinsk	#1071
 #b_petropavlovsky			#XIIth
 #b_spaso-preobrazhensky		#XIIth
 #b_romanov = castle		#1370?

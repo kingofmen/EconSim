@@ -8,7 +8,7 @@ max_settlements = 7
 b_najac = castle
 b_rodez = castle
 b_millau = city
-b_vabres = temple
+# b_vabres = temple
 
 #b_villefranche = city
 #b_caylus = castle

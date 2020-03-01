@@ -8,10 +8,10 @@ max_settlements = 7
 b_chester = castle
 
 b_halton = temple
-#b_malpas = castle
+b_malpas = castle
 #b_northwich = castle
 #b_beeston = castle
-b_macclesfield = city
+# b_macclesfield = city
 #b_sandbach = castle
 #b_nantwich = castle
 

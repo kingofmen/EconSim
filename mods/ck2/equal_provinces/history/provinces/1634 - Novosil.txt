@@ -6,10 +6,10 @@ title = c_novosil
 # Settlements
 max_settlements = 7
 
-b_novosil = tribal	#1155
+1155
 
-#b_kolpna	#1150
-#b_strakhovka
+b_kolpna	#1150
+b_strakhovka
 #b_verkhovye
 #b_khomutovo
 #b_pokrovskoye

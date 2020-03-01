@@ -8,7 +8,7 @@ max_settlements = 7
 b_shushtar = castle
 b_idhaj = castle
 b_dezful = city
-b_helen = temple
+# b_helen = temple
 
 #b_masjedsoleyman = castle
 #b_shahrekord = castle

@@ -7,7 +7,7 @@ title = c_napata
 max_settlements = 7
 b_napata = castle
 b_marawi = city
-b_ghazali = temple # Miaphysite Holy Site
+ Miaphysite Holy Site
 
 #b_korti = city
 #b_kanisah = temple

@@ -6,11 +6,11 @@ title = c_novgorod_seversky
 # Settlements
 max_settlements = 7
 
-b_novgorodseversky = tribal		#Xth
+Xth
 
-#b_glukhov = city		#1152
+b_glukhov = city		#1152
 
-#b_batouryn
+b_batouryn
 #b_konotop
 #b_bakhmatch
 #b_altynivka

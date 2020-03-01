@@ -8,9 +8,9 @@ max_settlements = 7
 b_macon = castle
 b_cluny = temple
 
-#b_davaye = castle
+b_davaye = castle
 #b_fuisse = castle
-b_beaujeu = city
+# b_beaujeu = city
 #b_lugny = castle
 #b_villefranchesursaone = city
 #b_berze = temple

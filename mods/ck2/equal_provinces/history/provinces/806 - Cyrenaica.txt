@@ -9,7 +9,7 @@ max_settlements = 7
 b_cyrene = castle
 b_derna = temple
 b_marsasusah = city
-b_altamimi = castle
+# b_altamimi = castle
 
 #b_alqubbah = castle
 #b_athrun = castle

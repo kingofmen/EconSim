@@ -8,7 +8,7 @@ max_settlements = 7
 b_gopakapattana = castle
 b_kapardikadvipa = city
 b_mathagram = temple
-b_gheria = castle
+# b_gheria = castle
 #b_chandrapur = castle
 #b_chitrakul = castle
 

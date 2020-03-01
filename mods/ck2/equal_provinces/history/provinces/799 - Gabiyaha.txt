@@ -8,7 +8,7 @@ max_settlements = 7
 b_rosetta = castle
 b_hermopolis = city
 b_fuwa = temple
-b_buto = castle
+# b_buto = castle
 
 #b_hermopolis = city
 #b_buto = castle

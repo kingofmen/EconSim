@@ -7,7 +7,7 @@ title = c_vijnot
 max_settlements = 7
 b_vijnot = castle
 b_bhatiya = city
-#b_kishangarh = temple
+b_kishangarh = temple
 #b_ghotki = castle
 
 # Misc

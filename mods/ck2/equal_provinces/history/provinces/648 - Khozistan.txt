@@ -8,7 +8,7 @@ max_settlements = 7
 b_abadan = castle
 b_izaj = city
 b_hoveizeh = temple
-b_dora = castle
+# b_dora = castle
 # b_fao = castle
 
 #b_ahvaz = castle

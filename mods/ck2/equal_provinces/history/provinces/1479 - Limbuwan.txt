@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_taplejung = castle
 b_tambar = city
-#b_gograha = {
+b_gograha = {
 #b_dhankuta = {
 #b_myanglung = {
 #b_ilam_limbuwan = {

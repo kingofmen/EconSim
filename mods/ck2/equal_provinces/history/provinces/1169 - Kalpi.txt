@@ -8,7 +8,7 @@ max_settlements = 7
 b_kalpi = castle
 b_jalaun = city
 b_lahar = temple
-b_oirai = city
+# b_oirai = city
 #b_kurara = city
 #b_konch = city
 

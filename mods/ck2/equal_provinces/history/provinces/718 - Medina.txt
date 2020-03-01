@@ -9,7 +9,7 @@ b_batn_nakhl = castle
 b_al_usayla = city
 b_medina = temple
 
-b_sidi_hamzah = city
+# b_sidi_hamzah = city
 #b_kuba = temple
 #b_farsh = castle
 #b_milha = temple

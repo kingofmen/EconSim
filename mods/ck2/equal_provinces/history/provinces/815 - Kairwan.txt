@@ -9,7 +9,7 @@ max_settlements = 7
 b_kairouan = castle
 b_jalula = city
 b_raqqada = temple
-b_sidibouzid = city
+# b_sidibouzid = city
 
 #b_haffouz = city
 #b_chebika = castle

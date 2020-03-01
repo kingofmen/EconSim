@@ -48,3 +48,4 @@ religion = slavic_pagan
 	# VERY IMPORTANT: remove_settlement must always be scripted AFTER a 'capital' switch away from the same settlement
 	remove_settlement = b_rajhrad 
 }
+# Candidate for by-hand fix 0 2

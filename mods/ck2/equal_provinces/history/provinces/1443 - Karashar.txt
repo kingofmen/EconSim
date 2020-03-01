@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_karashar = castle
 b_korla = city
-#b_shanguo =
+b_shanguo =
 #b_weixu = castle
 #b_weili =
 #b_tiemenguan = castle

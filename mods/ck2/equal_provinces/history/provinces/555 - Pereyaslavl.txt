@@ -6,10 +6,10 @@ title = c_pereyaslavl
 # Settlements
 max_settlements = 7
 
-b_pereyaslavl = tribal	#907
+907
 
-#b_boryspil = temple	#1015
-#b_kozelets	= city		#1098
+b_boryspil = temple	#1015
+b_kozelets	= city		#1098
 #b_baryshivka = castle	#1125
 
 #b_yahotyn		#1552

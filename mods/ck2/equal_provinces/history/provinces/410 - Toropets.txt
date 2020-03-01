@@ -6,11 +6,11 @@ title = c_toropets
 # Settlements
 max_settlements = 7
 
-b_toropets = tribal	#1074
+1074
 
-#b_demyansk
+b_demyansk
 
-#b_andreapol
+b_andreapol
 #b_zhizhitsa
 #b_chistoye
 #b_ploskosh

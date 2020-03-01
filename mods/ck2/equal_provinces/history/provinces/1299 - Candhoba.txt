@@ -6,8 +6,8 @@ title = c_candhoba
 # Settlements
 max_settlements = 7
 b_candhoba = castle
-#b_sipri = temple
-#b_guna = city
+b_sipri = temple
+b_guna = city
 #b_kadwaya = temple
 
 # Misc

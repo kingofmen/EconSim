@@ -6,10 +6,10 @@ title = c_polotsk
 # Settlements
 max_settlements = 7
 
-b_polotsk = tribal	#862
+862
 
-#b_haradok	#XIIIrd
-#b_rassony	#1552
+b_haradok	#XIIIrd
+b_rassony	#1552
 #b_obol		#XVIth
 #b_douza	#unsure
 #b_sirotino	#unsure

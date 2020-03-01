@@ -8,7 +8,7 @@ max_settlements = 7
 b_istakhr = castle
 b_sarmaq = city
 
-#b_abadha = temple
+b_abadha = temple
 #b_iqlid = castle
 #b_abarquh = castle
 #b_kamin = castle

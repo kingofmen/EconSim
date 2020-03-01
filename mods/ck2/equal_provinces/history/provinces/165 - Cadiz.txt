@@ -8,7 +8,7 @@ max_settlements = 7
 b_cadiz = castle
 b_jerez = temple
 b_medinasidonia = city
-b_arcos = castle
+# b_arcos = castle
 
 #b_sanjosedelvalle = city
 #b_sanlucadebarrameda = castle

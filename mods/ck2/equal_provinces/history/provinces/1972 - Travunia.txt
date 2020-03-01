@@ -20,3 +20,4 @@ terrain = mountain
 870.1.1 = {
 	religion = orthodox
 }
+# Candidate for by-hand fix 0 2

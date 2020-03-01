@@ -9,8 +9,8 @@ b_afrasiyab = castle
 b_samarkand = city
 b_khokand = temple
 
-b_ishtikhon = city
-b_urgut = castle
+# b_ishtikhon = city
+# b_urgut = castle
 #b_koshrabot = castle
 #b_ziadin = castle
 #b_laish = castle

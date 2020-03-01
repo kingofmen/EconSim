@@ -8,9 +8,9 @@ max_settlements = 7
 b_laksmanavati = castle
 b_gaur = castle
 b_malda = city
-b_puthia = temple
-b_pankak = city
-b_banan = castle
+# b_puthia = temple
+# b_pankak = city
+# b_banan = castle
 #b_shukla = city
 
 # Misc

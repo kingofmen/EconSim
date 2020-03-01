@@ -9,7 +9,7 @@ max_settlements = 7
 b_troyes = castle
 b_brienne = city
 b_langres = temple
-b_chaumont = castle
+# b_chaumont = castle
 
 #b_clairvaux
 #b_rosnay

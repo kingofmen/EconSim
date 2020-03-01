@@ -8,8 +8,8 @@ max_settlements = 7
 b_khourabad = castle
 b_qom = city
 b_jamkaran = temple
-b_salafchegan = city
-b_kahak = castle
+# b_salafchegan = city
+# b_kahak = castle
 
 #b_dastjerd = castle
 #b_qanavat = castle

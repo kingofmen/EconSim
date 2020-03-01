@@ -9,7 +9,7 @@ max_settlements = 7
 b_gafsa = castle
 b_nafta = city
 
-#b_madas
+b_madas
 #b_hamma
 #b_taqyus
 #b_tozeur

@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_skardu = castle
 b_huldi = city
-#b_madhupur_skardu = {
+b_madhupur_skardu = {
 #b_kharkoo = {
 #b_khaplu = {
 #b_hilmat = {

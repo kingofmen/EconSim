@@ -7,7 +7,7 @@ title = c_dvaraka
 max_settlements = 7
 b_dvaraka = castle
 b_lalpur = city
-b_dwarakadheesh = temple # Hindu Holy Site
+ Hindu Holy Site
 #b_gomati = temple
 #b_bhanvad = castle
 

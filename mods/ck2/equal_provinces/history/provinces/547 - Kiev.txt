@@ -6,10 +6,10 @@ title = c_kiev
 # Settlements
 max_settlements = 7
 
-b_kiev = tribal			#Vth century
-b_zhytomyr = temple		#884
+Vth century
+884
 
-#b_vyshhorod = city		#946
+b_vyshhorod = city		#946
 
 #b_vasykliv = castle	#988
 #b_yuriev = castle		#1032  #Today called "Bila Tserkva"

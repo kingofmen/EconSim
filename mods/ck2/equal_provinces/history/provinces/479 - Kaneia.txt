@@ -9,7 +9,7 @@ max_settlements = 7
 b_kandia = castle
 b_rethymno = city
 
-#b_matala = temple
+b_matala = temple
 #b_kastellikissamos = castle
 #b_paleohora = castle
 #b_nikiforosfokas = castle

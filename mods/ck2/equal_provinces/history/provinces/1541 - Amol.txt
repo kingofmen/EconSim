@@ -8,7 +8,7 @@ max_settlements = 7
 b_amol = castle
 b_zamm = castle
 
-#b_akhsisak = city
+b_akhsisak = city
 
 # Misc
 culture = persian

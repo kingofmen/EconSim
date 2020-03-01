@@ -6,10 +6,10 @@ title = c_rostov
 # Settlements
 max_settlements = 7
 
-b_sarskoyegorodishche = tribal		#800
+800
 
-#b_rostov = city		#862
-#b_spasoyakovlevsky = temple		#XIVth
+b_rostov = city		#862
+b_spasoyakovlevsky = temple		#XIVth
 
 #b_lvy
 #b_yepikharka

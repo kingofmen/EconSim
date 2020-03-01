@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_khumak = castle
 b_pangong = city
-#b_spanggur = {
+b_spanggur = {
 #b_kizilyeza = {
 #b_aksayqin = {
 #b_sumdo = {

@@ -9,7 +9,7 @@ max_settlements = 7
 b_herakleia = castle
 b_flaviopolis = city
 
-#b_polis = castle
+b_polis = castle
 #b_zephyropoli = castle
 #b_amastrine = castle
 #b_tium = castle

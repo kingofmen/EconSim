@@ -8,7 +8,7 @@ max_settlements = 7
 b_builth = castle
 b_llanafan_fawr = temple
 
-#b_llandrindod = temple
+b_llandrindod = temple
 #b_abergwesyn = city
 #b_llanwrtyd = temple
 #b_aberedw = castle

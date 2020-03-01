@@ -7,9 +7,9 @@ title = c_lemdiyya
 max_settlements = 7
 
 b_tiaret = castle
-#b_medea = castle
+b_medea = castle
 b_relizane = city
-b_aindefla = temple
+# b_aindefla = temple
 
 #b_elrhenb = castle
 #b_aintorki = castle

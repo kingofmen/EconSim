@@ -4,9 +4,9 @@ title = c_kunggar
 # Settlements
 max_settlements = 7
 
-b_gyama = castle #(built by Namri Songtsen in the 6th century, birthplace of Songtsen Gampo)
+(built by Namri Songtsen in the 6th century, birthplace of Songtsen Gampo)
 b_kunggar = city
-#b_drigung = temple
+b_drigung = temple
 #b_zaxoi =  
 #b_mamba = 
 #b_tanggya = 

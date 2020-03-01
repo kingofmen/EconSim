@@ -7,7 +7,7 @@ title = c_arigh
 max_settlements = 7
 
 b_arigh = castle
-#b_ajlu
+b_ajlu
 
 # Misc
 culture = maghreb_arabic

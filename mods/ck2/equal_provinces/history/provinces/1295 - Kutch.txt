@@ -7,7 +7,7 @@ title = c_kutch
 max_settlements = 7
 b_kanthakota = castle
 b_anjar = temple
-#b_dhaneti = city
+b_dhaneti = city
 #b_bhuj = city
 
 # Misc

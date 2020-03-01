@@ -7,13 +7,13 @@ title = c_derby
 max_settlements = 7
 b_derby = castle
 
-#b_bakewell = castle
-#b_repton = castle
+b_bakewell = castle
+b_repton = castle
 #b_bolsover = castle
 #b_castleton = castle
-b_chesterfield = city
+# b_chesterfield = city
 #b_wirksworth = castle
-b_burton = temple
+# b_burton = temple
 
 # Misc
 culture = saxon

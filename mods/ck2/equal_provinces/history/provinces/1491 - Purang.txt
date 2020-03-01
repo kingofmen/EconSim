@@ -4,8 +4,8 @@ title = c_purang
 # Settlements
 max_settlements = 7
 
-b_teglakar = castle #(Fortress built by the Zhangzhung, in use during Guge period)
-b_kailash = temple #(Holy mountain in Hinduism, Jainism, Bon and Buddhist faiths)
+(Fortress built by the Zhangzhung, in use during Guge period)
+(Holy mountain in Hinduism, Jainism, Bon and Buddhist faiths)
 b_purang = city
 b_simbiling = temple #(Zhangzhung Bon temple known as Tsegu, later built over by the Buddhist Simbiling Monastery)
 #b_khorzhak = { #temple

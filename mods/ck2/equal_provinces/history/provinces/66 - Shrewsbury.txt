@@ -6,8 +6,8 @@ title = c_shrewsbury
 # Settlements
 max_settlements = 7
 b_wenlock = castle
-#b_ludlow = castle
-#b_shrewsbury = city
+b_ludlow = castle
+b_shrewsbury = city
 #b_clun = castle
 #b_bridgnorth = castle
 #b_oswestry = castle

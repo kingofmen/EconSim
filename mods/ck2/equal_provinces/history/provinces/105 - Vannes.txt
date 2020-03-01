@@ -7,9 +7,9 @@ title = c_vannes
 max_settlements = 7
 b_vannes = castle
 
-#b_josselin = castle
+b_josselin = castle
 b_locmine = temple
-b_hennebont = city
+# b_hennebont = city
 #b_pontivy = city
 #b_suscinio = city
 #b_auray = city

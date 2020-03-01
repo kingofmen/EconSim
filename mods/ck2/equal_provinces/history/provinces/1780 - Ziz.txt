@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_ziz = castle
 
-#b_bechar
-#b_boudnib
+b_bechar
+b_boudnib
 
 # Misc
 culture = maghreb_arabic

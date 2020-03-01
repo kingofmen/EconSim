@@ -7,8 +7,8 @@ title = c_nubia
 max_settlements = 7
 b_salala = castle
 
-#b_anag = city
-#b_eirayab = castle
+b_anag = city
+b_eirayab = castle
 #b_nafab = castle
 #b_komotit = castle
 #b_tahtani = castle

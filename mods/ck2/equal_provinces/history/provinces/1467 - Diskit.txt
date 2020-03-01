@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_diskit = castle
 b_thirit = city
-#b_hundar = {
+b_hundar = {
 #b_thoise = {
 #b_charassa = {
 #b_panamik = {

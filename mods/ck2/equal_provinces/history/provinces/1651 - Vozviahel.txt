@@ -6,11 +6,11 @@ title = c_vozviahel
 # Settlements
 max_settlements = 7
 
-b_vozvyahel = tribal	#1257	#Now "Novohrad-Volynsky"
+1257	#Now "Novohrad-Volynsky"
 
-#b_korets = city		#1150
+b_korets = city		#1150
 
-#b_horodnytsia = temple	#1390
+b_horodnytsia = temple	#1390
 #b_berdytchiv = castle	#1430
 #b_baranivka = castle	#1566
 #b_yemilchyne = castle	#1580

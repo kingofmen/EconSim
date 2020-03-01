@@ -6,10 +6,10 @@ title = c_kursk
 # Settlements
 max_settlements = 7
 
-b_kursk = tribal	#1036
+1036
 
-#b_olgov	#1152
-#b_sukovo	#XVIth
+b_olgov	#1152
+b_sukovo	#XVIth
 #b_fatej	#XVIIth
 #b_pryamitsyno
 #b_kourchatov

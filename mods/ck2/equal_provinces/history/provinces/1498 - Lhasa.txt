@@ -4,9 +4,9 @@ title = c_lhasa
 # Settlements
 max_settlements = 7
 
-b_marpori = castle #(first built by Songtsen Gampo in 637, foundations for later Potala Palace on Mount Marpori)
-b_lhasa = city #(original city built by Songtsen Gampo in 637)
-b_jokhang = temple #(built by Songtsen Gampo in 641)
+(first built by Songtsen Gampo in 637, foundations for later Potala Palace on Mount Marpori)
+(original city built by Songtsen Gampo in 637)
+(built by Songtsen Gampo in 641)
 b_ramoche = temple #(built by Songtsen Gampo in 641)
 b_barkhor = city #(subdistrict of the city of Lhasa built by Songtsen Gampo around 641)
 #b_donggar = 

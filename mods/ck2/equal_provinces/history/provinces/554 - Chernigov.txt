@@ -6,10 +6,10 @@ title = c_chernigov
 # Settlements
 max_settlements = 7
 
-b_chernigov = tribal	#907
+907
 
-#b_snov		#early, before 1068	#Today called "Sedniv"
-#b_korop	#1153
+b_snov		#early, before 1068	#Today called "Sedniv"
+b_korop	#1153
 #b_sosnytsia	#1247
 #b_mena	#1408
 #b_horodina	#1550

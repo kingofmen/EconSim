@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_fuqi = castle
 b_shatuo = temple
-#b_shinaihai = {
+b_shinaihai = {
 #b_naerji = {
 #b_qieji = {
 #b_caierqiong = {

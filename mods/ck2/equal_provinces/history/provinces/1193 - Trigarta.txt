@@ -8,7 +8,7 @@ max_settlements = 7
 b_jalandhar = castle
 b_kaparthula = city
 b_rahon = temple
-b_pathankot = castle
+# b_pathankot = castle
 #b_milwat = castle
 #b_sarwmanpur = temple
 

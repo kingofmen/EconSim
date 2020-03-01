@@ -8,7 +8,7 @@ max_settlements = 7
 b_valabhi = castle
 b_gundigar = city
 b_palatina = temple
-b_sihor = temple
+# b_sihor = temple
 #b_shatrunjaya = temple
 #b_dhandhuka = city
 

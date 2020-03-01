@@ -8,7 +8,7 @@ max_settlements = 7
 b_manyakheta = castle
 b_yadavagiri = temple
 b_sedam = city
-b_kovilkonda = castle
+# b_kovilkonda = castle
 #b_gulbarga = castle
 #b_firuzabad = city
 

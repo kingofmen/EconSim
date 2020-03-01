@@ -8,7 +8,7 @@ max_settlements = 7
 b_stuttgart = castle
 b_reutlingen = city
 b_heilbronn = temple
-b_asperg = castle
+# b_asperg = castle
 
 #b_waiblingen = castle
 #b_esslingen = castle

@@ -5,8 +5,8 @@ title = c_lumbini
 max_settlements = 7
 
 b_bhairahawa = castle
-b_lumbini = temple # Birthplace of the Buddha
-b_taulihawa = temple #Childhood home of the Buddha
+ Birthplace of the Buddha
+Childhood home of the Buddha
 #b_sandhikharka = {
 #b_nigrodharama = { #temple
 #b_tulsipur = {

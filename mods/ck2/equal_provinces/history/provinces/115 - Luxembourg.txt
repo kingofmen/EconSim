@@ -9,7 +9,7 @@ b_bouillon = castle
 b_luxembourg = city
 
 b_saintvith = temple
-b_arlon = castle
+# b_arlon = castle
 #b_neufchateau = castle
 #b_longwy = castle
 #b_differdange = castle

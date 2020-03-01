@@ -6,10 +6,10 @@ title = c_naro-fominsk
 # Settlements
 max_settlements = 7
 
-b_naro-fominsk = tribal		#1339
+1339
 
-#b_lopasnya		#XVIIIth
-#b_klimovka		#XIXth
+b_lopasnya		#XVIIIth
+b_klimovka		#XIXth
 #b_voronovo
 #b_kubinka
 #b_troitsk

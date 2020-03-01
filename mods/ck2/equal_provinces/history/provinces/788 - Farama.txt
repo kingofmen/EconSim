@@ -7,7 +7,7 @@ title = c_farama
 max_settlements = 7
 b_farama = castle
 b_seyan = city
-#b_sin = temple
+b_sin = temple
 
 #b_romani = castle
 #b_birqatia = castle

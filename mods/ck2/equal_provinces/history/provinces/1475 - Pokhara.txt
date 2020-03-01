@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_pokhara = castle
 b_muktinath = temple
-#b_marpha = {
+b_marpha = {
 #b_prithbinarayan = {
 #b_butwal = {
 #b_chame = {

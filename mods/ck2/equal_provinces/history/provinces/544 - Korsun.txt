@@ -6,11 +6,11 @@ title = c_korsun
 # Settlements
 max_settlements = 7
 
-b_korsun = tribal	#1032
+1032
 
-#b_cherkassy	#1286
+b_cherkassy	#1286
 
-#b_smila		#1542
+b_smila		#1542
 #b_chyhyryn		#1592
 #b_oleksandriia	#1746
 #b_kirovohrad	#1754

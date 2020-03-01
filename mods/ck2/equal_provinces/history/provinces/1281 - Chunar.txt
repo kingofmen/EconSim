@@ -7,7 +7,7 @@ title = c_chunar
 max_settlements = 7
 b_chunar = castle
 b_vindhyachal = city
-#b_kantit = temple
+b_kantit = temple
 
 # Misc
 culture = hindustani

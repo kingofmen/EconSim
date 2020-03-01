@@ -8,7 +8,7 @@ max_settlements = 7
 b_ramavati = castle
 b_devkot = temple
 b_bangarh = city
-b_jagaddala = temple
+# b_jagaddala = temple
 #b_korat = city
 #b_siliguri = city
 

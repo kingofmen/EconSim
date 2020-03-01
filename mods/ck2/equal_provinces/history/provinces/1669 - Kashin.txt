@@ -6,10 +6,10 @@ title = c_kashin
 # Settlements
 max_settlements = 7
 
-b_kashin = tribal	#1238
+1238
 
-#b_kaliazin	#1434
-#b_kimry	#1546
+b_kaliazin	#1434
+b_kimry	#1546
 #b_likhoslavl
 #b_kesova_gora
 #b_goritsy

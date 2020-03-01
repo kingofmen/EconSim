@@ -9,7 +9,7 @@ b_teano = castle
 b_capua = city
 b_aquino = temple 
 
-b_gaeta = city
+# b_gaeta = city
 #b_montecassino = temple
 #b_caserta = castle
 #b_calvi = castle

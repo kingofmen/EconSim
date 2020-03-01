@@ -8,7 +8,7 @@ max_settlements = 7
 b_diza = castle
 b_baghsur = city
 
-#b_kusak = temple
+b_kusak = temple
 
 # Misc
 culture = persian

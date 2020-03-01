@@ -8,8 +8,8 @@ max_settlements = 7
 b_venezia = city
 b_pallestrina = castle
 b_rialto = temple
-b_jesolo = city
-b_lido = city
+# b_jesolo = city
+# b_lido = city
 
 #b_murano = city
 #b_torcello = city

@@ -9,7 +9,7 @@ max_settlements = 7
 b_patras = castle
 b_andravida = city
 
-#b_kalavryta = castle
+b_kalavryta = castle
 #b_akova = castle
 #b_chalandritza = castle
 #b_karditza = castle

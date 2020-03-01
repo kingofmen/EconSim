@@ -7,7 +7,7 @@ title = c_kollipake
 max_settlements = 7
 b_kollipake = castle
 b_karmanghat = city
-#b_golkonda = castle
+b_golkonda = castle
 #b_chilkur_balaji = temple
 #b_devaryamjal = temple
 

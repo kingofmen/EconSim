@@ -10,7 +10,7 @@ b_zeila = castle
 b_hargeysa = city
 b_amud = temple
 
-b_borama = city
+# b_borama = city
 #b_dilla = temple
 #b_jijiga = castle
 #b_lughaya = castle

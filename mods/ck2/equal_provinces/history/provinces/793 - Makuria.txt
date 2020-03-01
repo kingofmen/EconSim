@@ -9,7 +9,7 @@ b_kawa = castle
 b_dongola = city
 b_kerma = temple
 
-b_kerat = city
+# b_kerat = city
 #b_affat = castle
 #b_gabriya = temple
 #b_qubban = castle

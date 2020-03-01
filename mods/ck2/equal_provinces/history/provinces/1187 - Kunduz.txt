@@ -6,7 +6,7 @@ title = c_kunduz
 # Settlements
 max_settlements = 7
 
-b_kunduz = castle # aka Drapsaka, Kuhandiz and Walwalij
+ aka Drapsaka, Kuhandiz and Walwalij
 b_aibak = city
 b_surkh_kotal = temple
 

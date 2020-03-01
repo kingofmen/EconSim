@@ -20,3 +20,4 @@ religion = slavic_pagan
 1000.1.1= { 
 	culture = bosnian
 } 
+# Candidate for by-hand fix 0 2

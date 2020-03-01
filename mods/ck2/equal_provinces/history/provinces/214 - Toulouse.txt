@@ -8,7 +8,7 @@ max_settlements = 7
 b_toulouse = castle
 b_lavaur = temple
 b_muret = city
-b_castelnaudary = castle
+# b_castelnaudary = castle
 
 #b_montauban = city
 #b_lombez = temple

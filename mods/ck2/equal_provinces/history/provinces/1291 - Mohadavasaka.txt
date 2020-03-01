@@ -7,7 +7,7 @@ title = c_mohadavasaka
 max_settlements = 7
 b_mohadavasaka = castle
 b_jhalod = city
-b_idar = castle	#Used as holding for the Hunas before Idar existed.
+Used as holding for the Hunas before Idar existed.
 #b_lunawada = temple
 #b_shamlaji = temple
 #b_unjha = temple

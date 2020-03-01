@@ -6,7 +6,7 @@ title = c_vidisa
 # Settlements
 max_settlements = 7
 b_vidisa = castle
-b_sanchi = temple # Buddhist Holy Site
+ Buddhist Holy Site
 b_sironj = city
 #b_bijamandal = temple
 #b_raisin = castle

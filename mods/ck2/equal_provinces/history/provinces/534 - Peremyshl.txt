@@ -6,9 +6,9 @@ title = c_peremyshl
 # Settlements
 max_settlements = 7
 
-b_peremyshl = tribal			#Przemysl in Polish
-#b_sanok = city
-#b_jaroslav = temple			#Jaroslaw in Polish
+Przemysl in Polish
+b_sanok = city
+b_jaroslav = temple			#Jaroslaw in Polish
 
 #b_rasiv = castle				#Rzeszów in Polish
 #b_liubachiv = castle			#Lubaczow in Polish

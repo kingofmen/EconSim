@@ -7,7 +7,7 @@ title = c_tummana
 max_settlements = 7
 b_tummana = castle
 b_amarkantak = temple
-#b_manendragarh = city
+b_manendragarh = city
 
 # Misc
 culture = hindustani

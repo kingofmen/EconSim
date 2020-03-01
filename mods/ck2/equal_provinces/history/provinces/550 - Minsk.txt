@@ -6,10 +6,10 @@ title = c_minsk
 # Settlements
 max_settlements = 7
 
-b_minsk = tribal	#1067
+1067
 
-#b_zaslawye	#985
-#b_lahoysk	#1078
+b_zaslawye	#985
+b_lahoysk	#1078
 #b_barysaw	#1102
 #b_koidanova	#1146
 #b_maryina_horka	#1222

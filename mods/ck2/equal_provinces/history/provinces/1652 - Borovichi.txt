@@ -6,10 +6,10 @@ title = c_borovichi
 # Settlements
 max_settlements = 7
 
-b_borovichi = tribal	#1495
+1495
 
-#b_kirichi	#1693
-#b_khoromy
+b_kirichi	#1693
+b_khoromy
 #b_okulovka
 #b_lyubytino
 #b_pchevzha

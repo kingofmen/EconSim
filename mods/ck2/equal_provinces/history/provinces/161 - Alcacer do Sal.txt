@@ -7,9 +7,9 @@ title = c_alcacer_do_sal
 max_settlements = 7
 b_alcacerdosal = castle
 b_santiagodocacem = castle
-#b_aljustrel = temple
+b_aljustrel = temple
 #b_castroverde = castle
-b_ourique = city
+# b_ourique = city
 #b_odemira = castle
 #b_alvalade = castle
 

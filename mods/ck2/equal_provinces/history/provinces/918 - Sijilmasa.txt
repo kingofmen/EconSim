@@ -9,7 +9,7 @@ max_settlements = 7
 b_sijilmasa = castle
 b_tanamouste = temple
 
-#b_merzouga = city
+b_merzouga = city
 #b_ertoud = castle
 #b_merzane = castle
 #b_hannabou = castle

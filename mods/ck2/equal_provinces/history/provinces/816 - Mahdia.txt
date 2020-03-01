@@ -9,7 +9,7 @@ max_settlements = 7
 b_mahdia = castle
 b_sfax = temple
 b_monastir = city
-b_msaken = castle
+# b_msaken = castle
 
 #b_agareb = castle
 #b_neffatia = castle

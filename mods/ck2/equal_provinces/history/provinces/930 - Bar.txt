@@ -5,9 +5,9 @@ title = c_bar
 
 # Settlements
 max_settlements = 7
-b_barleduc = castle # Bar-le-Duc
-b_commercy = city # Commercy
-b_saintdizier = temple # Saint-Dizier
+ Bar-le-Duc
+ Commercy
+ Saint-Dizier
 
 #b_vaucouleurs = castle # Vaucouleurs
 #b_joinville = city # Joinville

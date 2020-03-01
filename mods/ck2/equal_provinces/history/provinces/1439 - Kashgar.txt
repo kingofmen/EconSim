@@ -5,8 +5,8 @@ title = c_kashgar
 max_settlements = 7
 
 b_kashgar = castle
-#b_xiuxun = castle
-#b_weitou =
+b_xiuxun = castle
+b_weitou =
 #b_akto =
 #b_ulugqat =
 

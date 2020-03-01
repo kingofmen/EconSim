@@ -6,8 +6,8 @@ title = c_katehar
 # Settlements
 max_settlements = 7
 b_mandawar = castle
-#b_bijnor = city
-#b_gangadvara = temple
+b_bijnor = city
+b_gangadvara = temple
 #b_rishikesh = temple
 #b_nehtaur = city
 #b_jageshwar = temple

@@ -6,9 +6,9 @@ title = c_devagiri
 # Settlements
 max_settlements = 7
 b_devagiri = castle
-b_ellora = temple # Buddhist Holy Site
+ Buddhist Holy Site
 b_khuldabad = city
-b_grishneshwar = temple
+# b_grishneshwar = temple
 #b_sillod = temple
 #b_vaijapur = temple
 

@@ -6,10 +6,10 @@ title = c_slutsk
 # Settlements
 max_settlements = 7
 
-b_slutsk = tribal	#1116
+1116
 
-#b_gomel	#1142
-#b_mazyr	#1155
+b_gomel	#1142
+b_mazyr	#1155
 #b_rechytsa	#1213
 #b_zhytkavichy	#1500
 #b_loyew	#1505

@@ -9,7 +9,7 @@ max_settlements = 7
 b_zamindawar = castle
 b_bishlang = city
 
-#b_khalai = temple
+b_khalai = temple
 
 # Misc
 culture = afghan

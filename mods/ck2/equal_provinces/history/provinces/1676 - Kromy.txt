@@ -6,10 +6,10 @@ title = c_kromy
 # Settlements
 max_settlements = 7
 
-b_kromy = tribal	#1147
+1147
 
-#b_sevsk	#1146
-#b_dmitrievka	#1711
+b_sevsk	#1146
+b_dmitrievka	#1711
 #b_navlya	#1904
 #b_lokot
 #b_nechayeva

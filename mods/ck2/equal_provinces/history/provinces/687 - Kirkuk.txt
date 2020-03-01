@@ -8,7 +8,7 @@ max_settlements = 7
 b_kirkuk = castle
 b_daquq = city
 b_ranya = temple
-b_chuartan = city
+# b_chuartan = city
 
 #b_halabja = castle
 #b_makhmur = castle

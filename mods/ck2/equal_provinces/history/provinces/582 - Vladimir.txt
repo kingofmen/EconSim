@@ -6,10 +6,10 @@ title = c_vladimir
 # Settlements
 max_settlements = 7
 
-b_vladimir = tribal		#1108
+1108
 
-#b_starodub_vladimirsky	#1152
-#b_bogolyubovo			#1156
+b_starodub_vladimirsky	#1152
+b_bogolyubovo			#1156
 #b_rochdestvenskoye		#XIIth
 #b_gorokhovets			#before 1239
 #b_viazniki		#1585

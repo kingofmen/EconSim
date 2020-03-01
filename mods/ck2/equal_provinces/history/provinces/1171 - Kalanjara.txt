@@ -8,7 +8,7 @@ max_settlements = 7
 b_kalinjar = castle
 b_khajuraho = temple
 b_jayapura = city
-b_bhatta = temple
+# b_bhatta = temple
 #b_panna = castle
 #b_devendranagar = temple
 

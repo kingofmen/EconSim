@@ -7,7 +7,7 @@ title = c_kalat
 max_settlements = 7
 b_kalat = castle
 
-#b_talq
+b_talq
 
 # Misc
 culture = afghan

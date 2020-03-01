@@ -6,10 +6,10 @@ title = c_tikhvine
 # Settlements
 max_settlements = 7
 
-b_tikhvine = tribal		#1383
+1383
 
-#b_babayevo		#1460
-#b_pestovo		#1495
+b_babayevo		#1460
+b_pestovo		#1495
 #b_pikalyovo	#1620
 #b_chagoda		#1926
 #b_boksiti		#1929

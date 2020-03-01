@@ -7,7 +7,7 @@ title = c_rothas
 max_settlements = 7
 b_rohtasgarh = castle
 b_rohtas = city
-#b_rohtasan = temple
+b_rohtasan = temple
 #b_betla = castle
 #b_palamau = castle
 

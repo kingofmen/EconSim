@@ -7,7 +7,7 @@ title = c_quattara
 max_settlements = 7
 b_caraoasis = castle
 b_siwa = temple
-#b_quattara = city
+b_quattara = city
 
 #b_qaretagnes = castle
 #b_abdannabi = castle

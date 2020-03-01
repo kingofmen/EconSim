@@ -8,8 +8,8 @@ max_settlements = 7
 b_multan = castle
 b_mulasthana = temple
 b_kabirwala = city
-b_tulamba = castle
-b_prahladpuri = temple
+# b_tulamba = castle
+# b_prahladpuri = temple
 #b_alipur = city
 #b_makhdum_rashid = temple
 

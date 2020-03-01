@@ -4,8 +4,8 @@ title = c_kyunglung
 # Settlements
 max_settlements = 7
 
-b_kyunglung = castle #(Capital fortress of the Zhangzhung Kingdom)
-b_gurugem = temple #(Ancient Bon Monastery)
+(Capital fortress of the Zhangzhung Kingdom)
+(Ancient Bon Monastery)
 b_monicer = city
 b_tirthapuri = temple #(Ancient hotsprings and Bon Monastery)
 #b_xalazakung = {

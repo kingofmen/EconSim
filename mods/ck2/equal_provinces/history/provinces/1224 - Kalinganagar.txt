@@ -7,7 +7,7 @@ title = c_kalinganagar
 max_settlements = 7
 b_mandasa = castle
 b_kalinganagara = city
-#b_kalingapattanam = city
+b_kalingapattanam = city
 #b_srikurmam = temple
 #b_srikakulam = temple
 

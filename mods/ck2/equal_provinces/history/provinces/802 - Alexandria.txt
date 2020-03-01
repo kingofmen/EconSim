@@ -8,8 +8,8 @@ max_settlements = 7
 b_abukir = castle
 b_burgelarab = castle
 b_alexandria = temple
-b_marabout = city
-b_hammam = city
+# b_marabout = city
+# b_hammam = city
 
 #b_damanhur = temple
 #b_naucratis = castle

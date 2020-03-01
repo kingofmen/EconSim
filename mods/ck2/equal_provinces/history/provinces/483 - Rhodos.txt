@@ -9,7 +9,7 @@ max_settlements = 7
 b_rhodos = castle
 b_kos = city
 
-#b_lindos = temple
+b_lindos = temple
 #b_karpathos = castle
 #b_pefkos = castle
 #b_ialysos = castle

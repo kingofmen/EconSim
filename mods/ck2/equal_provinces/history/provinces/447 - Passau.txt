@@ -8,7 +8,7 @@ max_settlements = 7
 b_passau = castle
 b_ortenburg = city
 
-#b_ulrichsberg = castle
+b_ulrichsberg = castle
 #b_formbach = castle
 #b_raab = castle
 #b_freyung = castle

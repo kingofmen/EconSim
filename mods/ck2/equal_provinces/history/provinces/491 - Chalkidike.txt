@@ -9,7 +9,7 @@ max_settlements = 7
 b_chrysiopolis = castle
 b_mntathos = temple
 
-#b_siderokastron = castle
+b_siderokastron = castle
 #b_melnik = castle
 #b_drama = castle
 

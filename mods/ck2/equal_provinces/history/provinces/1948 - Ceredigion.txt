@@ -8,7 +8,7 @@ max_settlements = 7
 b_cardigan = castle
 b_llanbadarn = temple
 
-#b_aberystwyth = castle
+b_aberystwyth = castle
 #b_aberaeron = city
 #b_llanddewi_brefi = temple
 #b_tregaron = city

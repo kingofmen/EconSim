@@ -7,9 +7,9 @@ title = c_ayodhya
 max_settlements = 7
 b_ramkot = castle
 b_ayodhya = city
-b_ram_janmabhoomi = temple # Hindu Holy Site
-b_nageshwarnath = temple
-b_hanuman_garhi = castle
+ Hindu Holy Site
+# b_nageshwarnath = temple
+# b_hanuman_garhi = castle
 #b_faizabad = city
 #b_sarairasi = city
 

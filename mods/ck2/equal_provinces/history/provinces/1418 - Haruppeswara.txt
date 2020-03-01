@@ -7,7 +7,7 @@ title = c_haruppeswara
 max_settlements = 7
 b_haruppeswara = castle
 b_numaligarh = castle
-#b_dibarumukh = city
+b_dibarumukh = city
 #b_charaideo = castle
 
 # Misc

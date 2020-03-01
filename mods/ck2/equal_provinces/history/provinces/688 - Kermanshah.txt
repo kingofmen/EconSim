@@ -8,7 +8,7 @@ max_settlements = 7
 b_javanroud = castle
 b_kermanshah = temple
 b_hulwan = city
-b_mahalkufa = city
+# b_mahalkufa = city
 
 #b_paveh = castle
 #b_kangavar = castle

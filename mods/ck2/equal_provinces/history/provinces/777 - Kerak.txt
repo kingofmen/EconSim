@@ -10,7 +10,7 @@ terrain = hills
 max_settlements = 7
 b_krakdemoab = castle
 b_kerak = city
-#b_tamar = temple
+b_tamar = temple
 
 #b_zaimona = castle
 #b_bozra = castle

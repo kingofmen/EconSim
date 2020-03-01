@@ -6,10 +6,10 @@ title = c_karachev
 # Settlements
 max_settlements = 7
 
-b_karachev = tribal		#1147
+1147
 
-#b_orel		#1566
-#b_bolkhov	#1608
+b_orel		#1566
+b_bolkhov	#1608
 #b_naryshkino
 #b_krasnaya
 #b_khotynets

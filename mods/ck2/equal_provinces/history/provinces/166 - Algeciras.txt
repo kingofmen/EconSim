@@ -8,7 +8,7 @@ max_settlements = 7
 b_gibraltar = castle
 b_tarifa = castle
 b_algericas = city
-b_ronda = temple
+# b_ronda = temple
 
 #b_sanroque = castle
 #b_estepona = city

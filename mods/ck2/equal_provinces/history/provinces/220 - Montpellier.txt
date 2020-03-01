@@ -8,7 +8,7 @@ max_settlements = 7
 b_melgueil = castle
 b_montpellier = castle
 b_maguelone = temple
-b_nimes = city
+# b_nimes = city
 
 #b_saintguilhemledesert = temple
 #b_nimes = city

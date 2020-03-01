@@ -7,7 +7,7 @@ title = c_pannagallu
 max_settlements = 7
 b_pannagallu = castle
 b_nagarkurnool = temple
-#b_charakonda = city
+b_charakonda = city
 #b_mutudugu = castle
 #b_ghanpur = city
 

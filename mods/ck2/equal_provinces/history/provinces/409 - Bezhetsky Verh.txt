@@ -6,10 +6,10 @@ title = c_bezhetsky_verh
 # Settlements
 max_settlements = 7
 
-b_ladoga = tribal	#753	#"Laatokka" in Finnish
+753	#"Laatokka" in Finnish
 
-#b_lyuban	#1499
-#b_tosno	#1500
+b_lyuban	#1499
+b_tosno	#1500
 #b_vyritsa	#1903
 #b_kirovsk	#1929
 #b_naziya	#1933

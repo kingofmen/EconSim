@@ -9,7 +9,7 @@ max_settlements = 7
 b_tadjoura = castle
 
 b_berenice = city
-#b_obock = temple
+b_obock = temple
 #b_djibouti = city
 #b_galafi = castle 
 #b_dikhil = castle

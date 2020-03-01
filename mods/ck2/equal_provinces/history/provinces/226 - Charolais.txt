@@ -8,9 +8,9 @@ max_settlements = 7
 b_charolles = castle
 b_semurenbrionnais = city
 
-#b_montstvincent = castle
+b_montstvincent = castle
 #b_toulonsurarroux = city
-b_perrecy = temple
+# b_perrecy = temple
 #b_joncy = castle
 #b_digoine = castle
 #b_paray = temple

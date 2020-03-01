@@ -8,8 +8,8 @@ max_settlements = 7
 b_malhalla = castle
 b_athribis = castle
 b_busiris = city
-b_tanta = temple
-b_mansoura = castle
+# b_tanta = temple
+# b_mansoura = castle
 
 # Misc
 culture = egyptian_arabic

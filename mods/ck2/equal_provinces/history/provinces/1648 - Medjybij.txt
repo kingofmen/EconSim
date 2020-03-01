@@ -6,10 +6,10 @@ title = c_medjybij
 # Settlements
 max_settlements = 7
 
-b_medjybij = tribal	#1146
+1146
 
-#b_hubyn = temple	#unsure
-#b_khmilnyk			#before 1362
+b_hubyn = temple	#unsure
+b_khmilnyk			#before 1362
 #b_letychiv			#1362
 #b_berdychiv		#1430
 #b_liubar			#1440

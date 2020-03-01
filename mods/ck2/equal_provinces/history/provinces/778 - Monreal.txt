@@ -10,7 +10,7 @@ terrain = hills
 # Settlements
 max_settlements = 7
 b_monreal = castle
-#b_hurmniz = city
+b_hurmniz = city
 b_sela = temple
 
 #b_bildad = castle

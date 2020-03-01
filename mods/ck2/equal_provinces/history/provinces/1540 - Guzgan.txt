@@ -8,7 +8,7 @@ max_settlements = 7
 b_talaqan = castle
 b_andkhud = city
 
-#b_jahudan = temple
+b_jahudan = temple
 #b_faryab = castle
 #b_usbuman = city
 #b_naryan = city

@@ -7,7 +7,7 @@ title = c_kandail
 max_settlements = 7
 b_kandail = castle
 b_dadu = city
-#b_jhal = temple
+b_jhal = temple
 
 # Misc
 culture = sindhi

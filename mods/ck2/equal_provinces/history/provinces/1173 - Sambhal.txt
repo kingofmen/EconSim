@@ -8,7 +8,7 @@ max_settlements = 7
 b_sambhal = castle
 b_tattandapura = city
 b_ujhani = temple
-b_amroha = castle
+# b_amroha = castle
 #b_sirsi = city
 #b_bachhraon = city
 

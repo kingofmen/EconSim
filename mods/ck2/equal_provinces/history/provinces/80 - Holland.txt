@@ -7,13 +7,13 @@ title = c_holland
 max_settlements = 7
 
 b_vlaardingen = castle
-#b_leiden = castle
+b_leiden = castle
 
-#b_amsterdam = city
+b_amsterdam = city
 #b_sgravenhage = castle
-b_dordrecht = city
+# b_dordrecht = city
 #b_gouda = castle
-b_haarlem = temple
+# b_haarlem = temple
 #b_muiden = castle
 
 # Misc

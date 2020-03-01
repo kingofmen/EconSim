@@ -5,8 +5,8 @@ title = c_kubera
 max_settlements = 7
 
 b_kubera = castle
-#b_xayar =
-#b_bay =
+b_xayar =
+b_bay =
 #b_toqsu =
 #b_kizil = temple
 #b_subashi = castle

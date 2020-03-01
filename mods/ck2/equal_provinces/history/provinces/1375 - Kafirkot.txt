@@ -7,7 +7,7 @@ title = c_kafirkot
 max_settlements = 7
 b_kafirkot = castle
 b_malot = temple
-#b_bilot = castle
+b_bilot = castle
 #b_maniot = castle
 #b_dera_ghazi_khan = city
 

@@ -7,11 +7,11 @@ title = c_alexandretta
 max_settlements = 7
 
 b_alexandretta = castle
-#b_portbonnel = castle
+b_portbonnel = castle
 b_rhosus = temple
 
 #b_myriandros = castle
-b_portella = city
+# b_portella = city
 #b_derbasak = castle
 #b_sarvantikar = castle
 #b_larochederissole = castle

@@ -6,10 +6,10 @@ title = c_tver
 # Settlements
 max_settlements = 7
 
-b_tver = tribal		#1182
+1182
 
-#b_klin			#1317
-#b_lotoshino	#1478
+b_klin			#1317
+b_lotoshino	#1478
 #b_puchka		#1499
 #b_rodnya
 #b_turayevo

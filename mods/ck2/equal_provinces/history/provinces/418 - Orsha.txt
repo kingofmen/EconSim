@@ -6,10 +6,10 @@ title = c_orsha
 # Settlements
 max_settlements = 7
 
-b_orsha = tribal	#1067
+1067
 
-#b_talachyn		#1433
-#b_dubrowna		#XIVth
+b_talachyn		#1433
+b_dubrowna		#XIVth
 #b_baran_orsha		#1518
 #b_shklow		#1535
 #b_krugale		#unsure

@@ -6,7 +6,7 @@ max_settlements = 7
 
 b_jumla = castle
 b_simikot = city
-#b_chainpur = {
+b_chainpur = {
 #b_dunai = {
 #b_manma = {
 #b_gamgadhi = {

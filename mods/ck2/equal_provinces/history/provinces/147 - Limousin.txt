@@ -8,7 +8,7 @@ max_settlements = 7
 b_turenne = castle
 b_limoges = temple
 b_rochechouart = city
-b_comborn = castle
+# b_comborn = castle
 
 #b_thiviers = city
 #b_stleonard = temple

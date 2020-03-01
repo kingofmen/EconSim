@@ -6,10 +6,10 @@ title = c_rylsk
 # Settlements
 max_settlements = 7
 
-b_rylsk = tribal	#1152
+1152
 
-#b_vyr		#Xth
-#b_krupets
+b_vyr		#Xth
+b_krupets
 #b_kapystichi
 #b_ivanovskoye
 #b_korenovo

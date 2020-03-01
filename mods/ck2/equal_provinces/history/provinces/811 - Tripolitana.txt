@@ -9,7 +9,7 @@ max_settlements = 7
 b_libtripoli = castle
 b_sabratah = city
 b_aljamil = temple
-b_baniwaled = city
+# b_baniwaled = city
 
 #b_gherlan = castle
 #b_funduq = castle

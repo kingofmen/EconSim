@@ -6,10 +6,10 @@ title = c_mathura
 # Settlements
 max_settlements = 7
 b_mathura = castle
-b_krishnajanmabhoomi = temple # Hindu Holy Site
+ Hindu Holy Site
 b_govardhan = city
-b_vrindavan = temple
-b_mankameshwar = temple
+# b_vrindavan = temple
+# b_mankameshwar = temple
 #b_agra = castle
 #b_khanwa = city
 #b_dhanauli = city

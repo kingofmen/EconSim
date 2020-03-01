@@ -7,7 +7,7 @@ title = c_kundina
 max_settlements = 7
 b_kundina = castle
 b_prithiminagar = temple
-#b_sadiya = castle
+b_sadiya = castle
 #b_tinsukia = castle
 
 # Misc

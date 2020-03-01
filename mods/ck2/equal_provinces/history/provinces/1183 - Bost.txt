@@ -7,7 +7,7 @@ title = c_bost
 max_settlements = 7
 
 b_kandahar = castle
-b_bost = city # Aka Lashgar Gah
+ Aka Lashgar Gah
 b_sangin = temple
 
 # Misc

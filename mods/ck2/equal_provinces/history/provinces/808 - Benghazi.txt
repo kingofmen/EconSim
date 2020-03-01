@@ -8,7 +8,7 @@ max_settlements = 7
 b_benghazi = castle
 b_barca = city
 b_oriana = temple
-b_tulmaytath = castle
+# b_tulmaytath = castle
 
 #b_ajdabiya = castle
 #b_tansulukh = castle

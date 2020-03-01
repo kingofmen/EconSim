@@ -6,10 +6,10 @@ title = c_priluk
 # Settlements
 max_settlements = 7
 
-b_priluk = tribal	#~1000
+~1000
 
-#b_romny	#902
-#b_bobrovytsia	#~1000
+b_romny	#902
+b_bobrovytsia	#~1000
 #b_varva	#1079
 #b_nizhyn	#1147
 #b_nosivka	#1147

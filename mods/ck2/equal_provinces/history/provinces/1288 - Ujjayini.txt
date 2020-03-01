@@ -7,8 +7,8 @@ title = c_ujjayini
 max_settlements = 7
 b_ujjayini = castle
 b_agar = city
-b_mahakaleshwar = temple # Hindu Holy Site
-b_mehidpur = castle
+ Hindu Holy Site
+# b_mehidpur = castle
 #b_dewas = temple
 #b_maksi = temple
 #b_akodia = city

@@ -8,8 +8,8 @@ max_settlements = 7
 
 b_missour = castle
 
-#b_benitajjit
-#b_ainechchair
+b_benitajjit
+b_ainechchair
 
 # Misc
 culture = maghreb_arabic

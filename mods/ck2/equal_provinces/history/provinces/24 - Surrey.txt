@@ -7,10 +7,10 @@ title = c_surrey
 max_settlements = 7
 b_lambeth = castle
 
-#b_farnham = castle
-#b_guildford = castle
-b_southwark = temple
-b_woking = city
+b_farnham = castle
+b_guildford = castle
+# b_southwark = temple
+# b_woking = city
 #b_chertsey = castle
 #b_waverley = castle
 #b_croydon = castle

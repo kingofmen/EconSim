@@ -9,7 +9,7 @@ max_settlements = 7
 b_kosseir = castle
 b_safaga = city
 
-#b_abughusun
+b_abughusun
 #b_ummrus
 
 # Misc

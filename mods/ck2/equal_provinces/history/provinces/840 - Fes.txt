@@ -9,9 +9,9 @@ max_settlements = 7
 b_fes = castle
 b_enjil = city
 b_zerhoun = temple
-b_elhajeb = castle
-b_subu = city
-b_izerhan = temple
+# b_elhajeb = castle
+# b_subu = city
+# b_izerhan = temple
 
 #b_bouanane = castle
 

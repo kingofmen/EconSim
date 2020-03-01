@@ -8,7 +8,7 @@ max_settlements = 7
 
 b_debaysima = castle
 b_assab = city
-#b_gehare = temple
+b_gehare = temple
 
 #b_rehayto = city
 #b_manda = temple

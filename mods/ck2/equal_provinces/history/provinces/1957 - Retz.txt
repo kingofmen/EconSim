@@ -6,7 +6,7 @@ title = c_retz
 # Settlements
 max_settlements = 7
 
-b_reze = castle		#(Rezé)
+(Rezé)
 b_machecoul = city
 b_clisson = temple
 

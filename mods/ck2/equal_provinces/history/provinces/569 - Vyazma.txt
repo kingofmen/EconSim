@@ -6,10 +6,10 @@ title = c_vyazma
 # Settlements
 max_settlements = 7
 
-b_vyazma = tribal	#1230
+1230
 
-#b_yelnya = city	#1150
-#b_dorogobyzh = castle
+b_yelnya = city	#1150
+b_dorogobyzh = castle
 #b_ignatkovo = castle
 #b_tesnoye = castle
 #b_safonovo = city

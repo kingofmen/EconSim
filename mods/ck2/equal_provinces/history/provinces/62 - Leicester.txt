@@ -8,12 +8,12 @@ max_settlements = 7
 b_leicester = castle
 
 b_nottingham = city
-#b_southwell = castle
+b_southwell = castle
 #b_newark = castle
 #b_hucknall = castle
 #b_worksop = castle
 #b_tickhill = castle
-b_newstead = temple
+# b_newstead = temple
 
 # Misc
 culture = saxon

@@ -6,11 +6,11 @@ title = c_turov
 # Settlements
 max_settlements = 7
 
-b_turov = tribal	#980
+980
 
-#b_davyd-haradok	#1127
+b_davyd-haradok	#1127
 
-#b_stolin	#1555
+b_stolin	#1555
 #b_alsany	#?
 #b_stachava	#?
 #b_fiadory	#?

@@ -8,7 +8,7 @@ max_settlements = 7
 b_gilan = castle
 b_masouleh = castle
 b_talysh = temple
-b_lahijan = city
+# b_lahijan = city
 
 #b_astara = castle
 #b_rudkhan = castle

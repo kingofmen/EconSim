@@ -9,7 +9,7 @@ max_settlements = 7
 b_berbera = castle
 
 b_maydh = city
-#b_gabiley = castle
+b_gabiley = castle
 #b_mandera = castle
 #b_daarbuduq = castle
 #b_shiikh = castle

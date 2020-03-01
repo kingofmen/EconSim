@@ -9,7 +9,7 @@ b_muntafiq = castle
 b_dhiqar = city
 b_qalatsukkar = temple
 
-b_mukayyar = castle
+# b_mukayyar = castle
 #b_telloh = temple
 #b_shahrain = castle
 #b_nasiryah = castle

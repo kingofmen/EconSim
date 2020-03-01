@@ -8,7 +8,7 @@ max_settlements = 7
 b_pusignan = castle
 b_lyon = city
 b_stjeanbaptiste = temple
-b_brindas = castle
+# b_brindas = castle
 
 #b_anse = city
 #b_chessy = castle

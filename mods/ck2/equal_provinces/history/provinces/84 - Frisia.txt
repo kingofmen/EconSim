@@ -9,10 +9,10 @@ max_settlements = 7
 b_groningen = castle
 b_stavoren = city
 
-#b_leeuwarden = castle
+b_leeuwarden = castle
 #b_bolsward = castle
 #b_franeker = castle
-b_dokkum = temple
+# b_dokkum = temple
 #b_assen = castle
 #b_harlingen = castle
 

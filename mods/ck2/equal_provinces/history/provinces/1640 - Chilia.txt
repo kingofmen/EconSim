@@ -7,7 +7,7 @@ title = c_chilia
 max_settlements = 7
 
 b_chilia = castle
-b_oblucita = city	#"Izmail" in turkish
+"Izmail" in turkish
 b_tigheci = temple
 
 #b_reni_ro = castle

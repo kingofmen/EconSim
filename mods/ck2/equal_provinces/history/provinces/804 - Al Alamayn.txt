@@ -8,7 +8,7 @@ max_settlements = 7
 b_zygra = castle
 b_fuka = city
 
-#b_fuka = castle
+b_fuka = castle
 #b_katabathmos = castle
 #b_paraitonion = castle
 #b_ghazal = castle

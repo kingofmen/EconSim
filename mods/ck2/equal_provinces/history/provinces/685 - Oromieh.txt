@@ -12,7 +12,7 @@ b_takhtesoleyman = temple
 #b_avajiq = castle
 #b_chaldiran = castle
 #b_charekelisa = temple
-b_salmas = castle
+# b_salmas = castle
 #b_mahabad = city
 
 #Misc

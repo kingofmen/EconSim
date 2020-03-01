@@ -8,8 +8,8 @@ max_settlements = 7
 b_ummqasr = castle
 b_basra = city
 b_azzubayr = temple
-b_arah = castle
-b_mohammera = castle
+# b_arah = castle
+# b_mohammera = castle
 
 #b_sukelsheyuhk = castle
 #b_kalaatderat = temple

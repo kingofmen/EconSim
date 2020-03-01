@@ -7,10 +7,10 @@ title = c_lancaster
 max_settlements = 7
 b_lancaster = castle
 
-#b_salford = castle
+b_salford = castle
 b_preston = city
 #b_sawley = castle
-b_furness = temple
+# b_furness = temple
 #b_gisburn = castle
 #b_clitheroe = castle
 

@@ -5,9 +5,9 @@ title = c_kumul
 max_settlements = 7
 
 b_kumul = castle
-#b_yiwu =
-#b_dahe =
-b_piqan = temple
+b_yiwu =
+b_dahe =
+# b_piqan = temple
 #b_yanghai =
 #b_toyuq =
 #b_nanhu_tarim =

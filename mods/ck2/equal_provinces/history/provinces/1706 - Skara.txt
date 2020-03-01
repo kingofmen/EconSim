@@ -6,7 +6,7 @@ title = c_skara
 # Settlements
 max_settlements = 7
 
-b_skara = tribal	#Swedens oldest Diocese
+Swedens oldest Diocese
 
 # Misc
 culture = norse

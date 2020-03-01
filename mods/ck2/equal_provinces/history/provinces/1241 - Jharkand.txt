@@ -7,7 +7,7 @@ title = c_jharkand
 max_settlements = 7
 b_koriya = castle
 b_kandra = city
-#b_ambikapur = castle
+b_ambikapur = castle
 
 # Misc
 culture = bengali

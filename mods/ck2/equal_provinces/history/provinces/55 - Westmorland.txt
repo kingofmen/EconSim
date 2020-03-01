@@ -8,8 +8,8 @@ max_settlements = 7
 b_appleby = castle
 
 b_lowther = city
-#b_kendal = castle
-b_cartmel = temple
+b_kendal = castle
+# b_cartmel = temple
 #b_brough = castle
 #b_kirkby = castle
 #b_shap = castle

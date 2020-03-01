@@ -9,8 +9,8 @@ terrain = hills
 # Settlements
 max_settlements = 7
 b_arish = castle
-#b_kharruba = city
-#b_tukkot = temple
+b_kharruba = city
+b_tukkot = temple
 
 #b_masyada = castle
 #b_birelhamma = castle

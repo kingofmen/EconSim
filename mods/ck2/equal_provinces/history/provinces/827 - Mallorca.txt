@@ -7,10 +7,10 @@ title = c_mallorca
 max_settlements = 7
 b_alcudia = castle
 b_palma = temple
-#b_algaida = temple
+b_algaida = temple
 #b_felanitx = castle
 #b_santaponsa = city
-b_eivissa = city
+# b_eivissa = city
 #b_formentera = castle
 #b_manacor = castle
 

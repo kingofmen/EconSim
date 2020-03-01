@@ -6,10 +6,10 @@ title = c_starodub
 # Settlements
 max_settlements = 7
 
-b_starodub = tribal		#1088
+1088
 
-#b_vyshenky
-#b_obolonnya
+b_vyshenky
+b_obolonnya
 #b_ponornytsya
 #b_zelena_polyana
 #b_avdiika

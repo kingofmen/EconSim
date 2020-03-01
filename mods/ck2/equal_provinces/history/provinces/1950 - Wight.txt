@@ -8,7 +8,7 @@ max_settlements = 7
 b_carisbrooke = castle
 b_bonchurch = temple
 
-#b_newport_wight = city
+b_newport_wight = city
 #b_yarmouth = castle
 #b_sandown = castle
 #b_cowes = castle

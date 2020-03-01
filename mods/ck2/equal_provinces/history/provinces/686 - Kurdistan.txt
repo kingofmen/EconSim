@@ -13,7 +13,7 @@ b_bebadi = temple
 #b_harmashi = castle
 #b_marqayoma = temple
 #b_sarsink = castle
-b_dawodiya = castle
+# b_dawodiya = castle
 
 #Misc
 culture = kurdish

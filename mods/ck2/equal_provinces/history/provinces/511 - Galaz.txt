@@ -8,7 +8,7 @@ max_settlements = 7
 
 b_galaz = castle
 b_falciu = city
-b_husi = temple	# Slavic Pagan Holy site
+ Slavic Pagan Holy site
 
 #b_oancea = castle
 #b_beresti = castle

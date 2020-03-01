@@ -7,7 +7,7 @@ title = c_nagadipa
 max_settlements = 7
 b_sukaratittha = castle
 b_yapapatuna = city
-#b_vallipuram = temple
+b_vallipuram = temple
 #b_nallur = temple
 #b_nainativu = temple
 
