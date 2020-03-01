@@ -16,8 +16,9 @@ religion = slavic_pagan
 	religion = orthodox
 	b_topana = castle
 	b_imotski = city
+	b_grude = temple
 }
 1000.1.1= { 
 	culture = bosnian
 } 
-# Candidate for by-hand fix 0 2
+

@@ -17,6 +17,7 @@ terrain = mountain
 	religion = catholic
 	b_visoki = castle
 	b_vrhbosna = city
+	b_konjic = temple
 }
 1000.1.1= { religion = bogomilist } 
-# Candidate for by-hand fix 0 2
+

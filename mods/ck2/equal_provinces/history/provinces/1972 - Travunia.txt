@@ -16,8 +16,9 @@ terrain = mountain
 800.1.1 = {
 	b_travunia = castle
 	b_kotor = city
+	b_trebinje = temple
 }
 870.1.1 = {
 	religion = orthodox
 }
-# Candidate for by-hand fix 0 2
+

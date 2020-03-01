@@ -17,9 +17,10 @@ terrain = mountain
 	religion = catholic
 	b_banjaluka = castle
 	b_bihac = temple
+	b_jajce = city
 }
 800.1.1= { 
 	culture = bosnian
 } 
 1000.1.1= { religion = bogomilist } 
-# Candidate for by-hand fix 0 2
+

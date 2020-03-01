@@ -25,7 +25,6 @@ religion = slavic_pagan
 	b_praha = castle
 	b_stare_mesto = city
 	b_brevnov = temple
-	b_vysehrad = castle
 }
 883.1.1 = { religion = catholic }
 
@@ -38,4 +37,4 @@ religion = slavic_pagan
 	# VERY IMPORTANT: remove_settlement must always be scripted AFTER a 'capital' switch away from the same settlement
 	remove_settlement = b_sazava 
 	}
-# Candidate for by-hand fix 0 4
+

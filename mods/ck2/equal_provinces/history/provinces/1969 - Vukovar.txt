@@ -16,6 +16,7 @@ religion = slavic_pagan
 	religion = catholic
 	b_vukovar = castle
 	b_ilko = city
+	b_posga = temple
 }
 930.1.1 = {
 	b_vukovar = tribal

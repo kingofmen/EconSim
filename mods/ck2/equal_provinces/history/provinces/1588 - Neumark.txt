@@ -21,7 +21,9 @@ religion = slavic_pagan
 # History
 800.1.1 = {
 	b_santok = castle
+	b_driesen = city
+	b_bernstein = temple
 }
 1180.1.1 = { religion = catholic }
 1237.1.1 = { trade_post = b_warendorp }
-# Candidate for by-hand fix 0 1
+
