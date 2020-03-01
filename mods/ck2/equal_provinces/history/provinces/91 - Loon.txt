@@ -22,8 +22,4 @@ religion = catholic
 
 # History
 790.1.1 = { culture = dutch }
-800.1.1 = {
-	b_loon = castle
-	capital = b_loon
-}
 1083.1.1 = { b_heinsberg = castle }
