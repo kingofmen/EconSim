@@ -9313,7 +9313,7 @@ e_byzantium = {
 			}
 		}
 		d_abruzzo = {
-			color={ 210 168 190 }
+			color={ 230 227 180 }
 			color2={ 255 255 255 }
 
 			lombard = "Aprutium"
