@@ -6083,111 +6083,6 @@ e_italy = {
 				}
 			}
 		}
-
-		d_ferrara = {
-			color={ 244 180 130 }
-			color2={ 255 255 255 }
-			
-			capital = 351 # Ravenna
-			
-			c_bologna = {
-				color={ 244 180 130 }
-				color2={ 255 255 255 }
-				
-				b_faenza = {}
-				b_bologna = {}
-				b_forli = {}
-				b_imola = {}
-				b_bentivoglio = {}
-				b_budno = {}
-				b_castelguelfo = {}
-				b_bagnacavallo = {}
-			}
-			c_ravenna = {
-				color={ 244 180 130 }
-				color2={ 255 255 255 }
-				
-				b_ravenna = {}
-				b_cesena = {}
-				b_cervia = {}
-				b_russi = {}
-				b_alfonsine = {}
-				b_cesenatico = {}
-				b_gambettola = {}
-			}
-			c_rimini = {
-				color={ 220 245 220 }
-				color2={ 255 255 255 }
-
-				b_rimini = {}
-				b_pesaro = {}
-				b_gabicce = {}
-				b_gatteo = {}
-				b_poggio_berni = {}
-				b_pennabilli = {}
-				b_bellaria = {}
-			}
-		}
-		d_ancona = {
-			color={ 230 227 180 }
-			color2={ 255 255 255 }
-			
-			capital = 350 # Ancona
-			
-			c_ancona = {
-				color={ 224 249 224 }
-				color2={ 255 255 255 }
-				
-				greek = "Ankon"
-				
-				b_ancona = {
-					greek = "Ankon"
-				}
-				b_matelica = {}
-				b_osimo = {}
-				b_fermo = {}
-				b_recanati = {}
-				b_camerino = {}
-				b_senigallia = {}
-			}
-			c_perugia = {
-				color={ 220 245 225 }
-				color2={ 255 255 255 }
-
-				b_fratta = {}
-				b_perugia = {}
-				b_assisi = {
-				}
-				b_gubbio = {}
-				b_montone = {}
-				b_marsciano = {}
-				b_deruta = {}
-			}
-			c_spoleto = {
-				color={ 225 250 235 }
-				color2={ 255 255 255 }
-				
-				b_spoleto = {}
-				b_nursia = {}
-				b_todi = {}
-				b_valva = {}
-				b_terni = {}
-				b_foligno = {}
-				b_cascia = {}
-			}
-			c_urbino = {
-				color={ 226 251 226 }
-				color2={ 255 255 255 }
-				
-				b_urbino = {}
-				b_sanseverino = {}
-				b_sanmarino = {}
-				b_montefeltro = {}
-				b_fano = {}
-				b_cittadicastello = {}
-				b_fossombrone = {}
-			}
-		}	
 		d_latium = {
 			color={ 254 245 160 }
 			color2={ 255 255 255 }
@@ -6284,6 +6179,31 @@ e_italy = {
 				b_sovana = {}
 				b_vetulonia = {}
 				b_rusellae = {}
+			}
+			c_perugia = {
+				color={ 220 245 225 }
+				color2={ 255 255 255 }
+
+				b_fratta = {}
+				b_perugia = {}
+				b_assisi = {
+				}
+				b_gubbio = {}
+				b_montone = {}
+				b_marsciano = {}
+				b_deruta = {}
+			}
+			c_spoleto = {
+				color={ 225 250 235 }
+				color2={ 255 255 255 }
+				
+				b_spoleto = {}
+				b_nursia = {}
+				b_todi = {}
+				b_valva = {}
+				b_terni = {}
+				b_foligno = {}
+				b_cascia = {}
 			}
 		}
 	}
@@ -9264,85 +9184,6 @@ e_byzantium = {
 			}
 		}
 		
-		d_benevento = {
-			color = { 209 170 75 }
-			color2={ 255 255 255 }
-			
-			capital = 335 # Benevento
-			
-			catholic = 250 # Crusade target weight
-			
-			c_benevento = {
-				color = { 209 170 75 }
-				color2={ 255 255 255 }
-				
-				b_benevento = {}
-				b_avellino = {}
-				b_ascoli = {}
-				b_montemarono = {}
-				b_frigento = {}
-				b_trevico = {}
-				b_conza = {}
-				b_sanangelo = {}
-			}
-			c_foggia = {
-				color = { 209 170 75 }
-				color2={ 255 255 255 }
-				
-				b_foggia = {}
-				b_siponto = {}
-				b_lucera = {}
-				b_troia = {}
-				b_bovino = {}
-				b_salapla = {}
-				b_vieste = {}
-			}
-		}
-		d_capua = {
-			color = { 240 209 100 }
-			color2={ 255 255 255 }
-			
-			greek = "Neapolis"
-			
-			capital = 851 # Capua
-			
-			catholic = 250 # Crusade target weight
-			
-			c_capua = {
-				color = { 240 209 100 }
-				color2={ 255 255 255 }
-				
-				greek = "Gaeta"
-				
-				b_capua = {
-					greek = "Kapue"
-				}
-				b_aquino = {}
-				b_teano = {}
-				b_gaeta = {}
-				b_montecassino = {}
-				b_caserta = {}
-				b_calvi = {}
-				b_acerra = {}
-			}
-			c_napoli = {
-				color = { 240 209 100 }
-				color2={ 255 255 255 }
-				
-				greek = "Neapolis"
-				
-				b_napoli = {
-					greek = "Neapolis"
-				}
-				b_aversa = {}
-				b_cumae = {}
-				b_pozzuoli = {}
-				b_ischia = {}
-				b_portici={}
-				b_turris_octava={}
-				b_afragola={}
-			}
-		}
 		d_apulia = {
 			color={ 167 172 63 }
 			color2={ 255 255 255 }
@@ -9365,6 +9206,18 @@ e_byzantium = {
 				b_minervo = {}
 				b_lavello = {}
 				b_lucano = {}
+			}
+			c_foggia = {
+				color = { 209 170 75 }
+				color2={ 255 255 255 }
+				
+				b_foggia = {}
+				b_siponto = {}
+				b_lucera = {}
+				b_troia = {}
+				b_bovino = {}
+				b_salapla = {}
+				b_vieste = {}
 			}
 			c_bari = {
 				color={ 167 172 63 }
@@ -9403,6 +9256,62 @@ e_byzantium = {
 				b_oria = {}
 			}
 		}
+		d_ferrara = {
+			color={ 244 180 130 }
+			color2={ 255 255 255 }
+			
+			capital = 351 # Ravenna
+			
+			c_bologna = {
+				color={ 244 180 130 }
+				color2={ 255 255 255 }
+				
+				b_faenza = {}
+				b_bologna = {}
+				b_forli = {}
+				b_imola = {}
+				b_bentivoglio = {}
+				b_budno = {}
+				b_castelguelfo = {}
+				b_bagnacavallo = {}
+			}
+			c_urbino = {
+				color={ 226 251 226 }
+				color2={ 255 255 255 }
+				
+				b_urbino = {}
+				b_sanseverino = {}
+				b_sanmarino = {}
+				b_montefeltro = {}
+				b_fano = {}
+				b_cittadicastello = {}
+				b_fossombrone = {}
+			}
+			c_ravenna = {
+				color={ 244 180 130 }
+				color2={ 255 255 255 }
+				
+				b_ravenna = {}
+				b_cesena = {}
+				b_cervia = {}
+				b_russi = {}
+				b_alfonsine = {}
+				b_cesenatico = {}
+				b_gambettola = {}
+			}
+			c_rimini = {
+				color={ 220 245 220 }
+				color2={ 255 255 255 }
+
+				b_rimini = {}
+				b_pesaro = {}
+				b_gabicce = {}
+				b_gatteo = {}
+				b_poggio_berni = {}
+				b_pennabilli = {}
+				b_bellaria = {}
+			}
+		}
 		d_abruzzo = {
 			color={ 210 168 190 }
 			color2={ 255 255 255 }
@@ -9422,6 +9331,39 @@ e_byzantium = {
 				b_termoli = {}
 				b_atessa = {}
 				b_san_salvo = {}
+			}
+			c_ancona = {
+				color={ 224 249 224 }
+				color2={ 255 255 255 }
+				
+				greek = "Ankon"
+				
+				b_ancona = {
+					greek = "Ankon"
+				}
+				b_matelica = {}
+				b_osimo = {}
+				b_fermo = {}
+				b_recanati = {}
+				b_camerino = {}
+				b_senigallia = {}
+			}
+			c_capua = {
+				color = { 240 209 100 }
+				color2={ 255 255 255 }
+				
+				greek = "Gaeta"
+				
+				b_capua = {
+					greek = "Kapue"
+				}
+				b_aquino = {}
+				b_teano = {}
+				b_gaeta = {}
+				b_montecassino = {}
+				b_caserta = {}
+				b_calvi = {}
+				b_acerra = {}
 			}
 
 			c_aprutium = {
@@ -9465,25 +9407,37 @@ e_byzantium = {
 				b_lucania = {}
 				b_agropoli = {}
 				b_sarno = {}
-			}
-			c_taranto = {
-				color={ 235 190 195 }
+			}		
+			c_napoli = {
+				color = { 240 209 100 }
 				color2={ 255 255 255 }
 				
-				greek = "Lukania"
+				greek = "Neapolis"
 				
-				b_taranto = {
-					greek = "Tarantas"
+				b_napoli = {
+					greek = "Neapolis"
 				}
-				b_mottola = {}
-				b_castellaneta = {}
-				b_tursi = {}
-				b_montepeloso = {}
-				b_tricanico = {}
-				b_gravina = {}
-				b_cassano = {}
+				b_aversa = {}
+				b_cumae = {}
+				b_pozzuoli = {}
+				b_ischia = {}
+				b_portici={}
+				b_turris_octava={}
+				b_afragola={}
 			}
-			
+			c_benevento = {
+				color = { 209 170 75 }
+				color2={ 255 255 255 }
+				
+				b_benevento = {}
+				b_avellino = {}
+				b_ascoli = {}
+				b_montemarono = {}
+				b_frigento = {}
+				b_trevico = {}
+				b_conza = {}
+				b_sanangelo = {}
+			}
 			c_amalfi = {
 				color={ 120 200 225 }
 				color2 = { 255 255 255 }
@@ -9518,6 +9472,23 @@ e_byzantium = {
 				b_scalea = {}
 				b_cerenzia = {}
 			}
+			c_taranto = {
+				color={ 235 190 195 }
+				color2={ 255 255 255 }
+				
+				greek = "Lukania"
+				
+				b_taranto = {
+					greek = "Tarantas"
+				}
+				b_mottola = {}
+				b_castellaneta = {}
+				b_tursi = {}
+				b_montepeloso = {}
+				b_tricanico = {}
+				b_gravina = {}
+				b_cassano = {}
+			}
 			c_catanzaro = {
 				color={ 175 145 75 }
 				color2={ 255 255 255 }
@@ -9549,6 +9520,7 @@ e_byzantium = {
 				b_siderno = {}
 			}
 		}
+	}
 		d_sicily = {
 			color={ 155 254 86 }
 			color2={ 255 255 255 }
@@ -9677,7 +9649,6 @@ e_byzantium = {
 				b_alcarno = {}
 			}
 		}
-	}
 			c_malta = {
 				color={ 155 254 86 }
 				color2={ 255 255 255 }

@@ -779,3 +779,30 @@
 
 		}
 	}
+		d_benevento = {
+			color = { 209 170 75 }
+			color2={ 255 255 255 }
+			
+			capital = 335 # Benevento
+			
+			catholic = 250 # Crusade target weight
+			
+		}
+		d_capua = {
+			color = { 240 209 100 }
+			color2={ 255 255 255 }
+			
+			greek = "Neapolis"
+			
+			capital = 851 # Capua
+			
+			catholic = 250 # Crusade target weight
+			
+		}
+		d_ancona = {
+			color={ 230 227 180 }
+			color2={ 255 255 255 }
+			
+			capital = 350 # Ancona
+			
+		}	
