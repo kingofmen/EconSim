@@ -1,0 +1,405 @@
+909000000 = {
+	name="Ranger"
+	dynasty=3000000
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=visigothic
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=3200
+	}
+}
+909000001 = {
+	name="Ranger's First Son"
+	dynasty=3000000
+	father=909000000
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=visigothic
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=3200
+	}
+}
+909000002 = {
+	name="Ranger's Second Son"
+	dynasty=3000000
+	father=909000000
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=visigothic
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=3200
+	}
+}
+909000003 = {
+	name="Clonefusion"
+	dynasty=3000001
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=visigothic
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=110536
+	}
+}
+909000004 = {
+	name="Clonefusion's First Son"
+	dynasty=3000001
+	father=909000003
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=visigothic
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=110536
+	}
+}
+909000005 = {
+	name="Clonefusion's Second Son"
+	dynasty=3000001
+	father=909000003
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=visigothic
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=110536
+	}
+}
+909000006 = {
+	name="Yami"
+	dynasty=3000002
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=greek
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=262246
+	}
+}
+909000007 = {
+	name="Yami's First Son"
+	dynasty=3000002
+	father=909000006
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=greek
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=262246
+	}
+}
+909000008 = {
+	name="Yami's Second Son"
+	dynasty=3000002
+	father=909000006
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=greek
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=262246
+	}
+}
+
+909000009 = {
+	name="Sir Phoebos"
+	dynasty=3000003
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=italian
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=260618
+	}
+}
+909000010 = {
+	name="Sir Phoebos's First Son"
+	dynasty=3000003
+	father=909000009
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=260618
+	}
+}
+909000011 = {
+	name="Sir Phoebos's Second Son"
+	dynasty=3000003
+	father=909000009
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=260618
+	}
+}
+909000012 = {
+	name="Blayne"
+	dynasty=3000004
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=italian
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=1108
+	}
+}
+909000013 = {
+	name="Blayne's First Son"
+	dynasty=3000004
+	father=909000012
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=1108
+	}
+}
+909000014 = {
+	name="Blayne's Second Son"
+	dynasty=3000004
+	father=909000012
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=1108
+	}
+}
+
+909000015 = {
+	name="Mike"
+	dynasty=3000005
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=italian
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=7923
+	}
+}
+909000001 = {
+	name="Mike's First Son"
+	dynasty=3000005
+	father=909000015
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=7923
+	}
+}
+909000002 = {
+	name="Mike's Second Son"
+	dynasty=3000005
+	father=909000015
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=italian
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=7923
+	}
+}
+
+909000018 = {
+	name="James"
+	dynasty=3000006
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=occitan
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+909000019 = {
+	name="James's First Son"
+	dynasty=3000006
+	father=909000018
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=occitan
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+909000020 = {
+	name="James's Second Son"
+	dynasty=3000006
+	father=909000018
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=occitan
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+
+909000021 = {
+	name="Hagbard"
+	dynasty=3000007
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	health=7
+	fertility=1.0
+	culture=occitan
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+909000022 = {
+	name="Hagbard's First Son"
+	dynasty=3000007
+	father=909000021
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=occitan
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+909000023 = {
+	name="Hagbard's Second Son"
+	dynasty=3000007
+	father=909000021
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+	culture=occitan
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=90120
+	}
+}
+

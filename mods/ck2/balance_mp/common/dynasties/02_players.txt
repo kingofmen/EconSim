@@ -1,0 +1,66 @@
+3000000 = {
+	name="South Aragon"
+}
+3000001 = {
+	name="North Aragon"
+}
+3000002 = {
+	name="South Sicily"
+}
+3000003 = {
+	name="North Sicily"
+}
+3000004 = {
+	name="West Italy"
+}
+3000005 = {
+	name="East Italy"
+}
+3000006 = {
+	name="West Aquitaine"
+}
+3000007 = {
+	name="East Aquitaine"
+}
+3000008 = {
+	name="West Bavaria"
+}
+3000009 = {
+	name="East Bavaria"
+}
+3000010 = {
+	name="North Croatia"
+}
+3000011 = {
+	name="South Croatia"
+}
+3000012 = {
+	name="North Greece"
+}
+3000013 = {
+	name="South Greece"
+}
+3000014 = {
+	name="West Thrace"
+}
+3000015 = {
+	name="East Thrace"
+}
+3000016 = {
+	name="West Anatolia"
+}
+3000017 = {
+	name="East Anatolia"
+}
+3000018 = {
+	name="New Slot 1"
+}
+3000019 = {
+	name="New Slot 2"
+}
+3000020 = {
+	name="New Slot 3"
+}
+3000021 = {
+	name="New Slot 4"
+}
