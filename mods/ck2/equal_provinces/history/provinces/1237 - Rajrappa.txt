@@ -5,8 +5,9 @@ title = c_rajrappa
 
 # Settlements
 max_settlements = 7
- Jain Holy Site
+b_rajrappa = temple # Jain Holy Site
 b_kenduli = city
+b_kajgaon = castle
 
 # Misc
 culture = bengali

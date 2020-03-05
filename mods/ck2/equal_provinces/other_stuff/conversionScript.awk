@@ -6,6 +6,9 @@
 # unless there is a tribal barony, in which case they are left unchanged,
 # or there aren't any commented-out baronies to make three total, in which
 # case nothing is done.
+
+# NB this script creates bugs in files that have comments after the first column,
+# e.g. 'b_longuyon = castle # Longuyon'. TODO: Fix that.
 BEGIN {
   FS = " ";
   baronyCount = 0;

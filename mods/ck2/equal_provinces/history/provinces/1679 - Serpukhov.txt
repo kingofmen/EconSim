@@ -6,10 +6,10 @@ title = c_serpukhov
 # Settlements
 max_settlements = 7
 
-XIVth
+b_serpukhov = tribal	#XIVth
 
-b_dugna		#1689
-b_bogucharovo
+#b_dugna		#1689
+#b_bogucharovo
 #b_novogurovsky
 #b_zaokskiy
 #b_nenashevo
