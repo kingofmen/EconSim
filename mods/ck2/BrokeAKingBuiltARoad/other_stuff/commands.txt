@@ -1,0 +1,61 @@
+fow
+charinfo
+
+give_title c_murcia 909000000
+give_title c_denia 909000000
+give_title c_almeria 909000000
+usurp d_murcia 909000000
+prov_rel 168 catholic
+prov_rel 169 catholic
+prov_rel 170 catholic
+move 909000001 909000000
+move 909000002 909000000
+
+give_title c_barcelona 909000003
+usurp c_empuries 909000003
+give_title c_rosello 909000003
+usurp d_barcelona 909000003
+move 909000004 909000003
+move 909000005 909000003
+
+give_title c_lecce 909000006
+give_title c_taranto 909000006
+give_title c_salerno 909000006
+usurp d_salerno 909000006
+move 909000007 909000006
+move 909000008 909000006
+
+give_title c_ancona 909000009
+give_title c_aprutium 909000009
+give_title c_chieti 909000009
+usurp d_abruzzo 909000009
+move 909000010 909000009
+move 909000011 909000009
+
+give_title c_saluzzo 909000012
+give_title c_piemonte 909000012
+give_title c_monferrato 909000012
+usurp d_susa 909000012
+move 909000013 909000012
+move 909000014 909000012
+
+give_title c_padova 909000015
+give_title c_verona 909000015
+give_title c_mantua 909000015
+usurp d_verona 909000015
+move 909000016 909000015
+move 909000017 909000015
+
+give_title c_foix 909000018
+give_title c_toulouse 909000018
+give_title c_rouergue 909000018
+usurp d_aquitaine 909000018
+move 909000019 909000018
+move 909000020 909000018
+
+give_title c_dauphine_viennois 909000021
+give_title c_lyon 909000021
+give_title c_forcalquier 909000021
+usurp d_dauphine 909000021
+move 909000022 909000021
+move 909000023 909000021
