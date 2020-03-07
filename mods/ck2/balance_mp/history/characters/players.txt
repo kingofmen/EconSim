@@ -1,10 +1,11 @@
 909000000 = {
-	name="Ranger"
+	name="Sauron"
 	dynasty=3000000
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=visigothic
@@ -19,13 +20,14 @@
 	}
 }
 909000001 = {
-	name="Ranger's First Son"
+	name="Sauron's First Son"
 	dynasty=3000000
 	father=909000000
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=visigothic
 	religion=catholic
 	935.1.1={
@@ -34,13 +36,14 @@
 	}
 }
 909000002 = {
-	name="Ranger's Second Son"
+	name="Sauron's Second Son"
 	dynasty=3000000
 	father=909000000
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=visigothic
 	religion=catholic
 	936.1.1={
@@ -55,6 +58,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=visigothic
@@ -76,6 +80,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=visigothic
 	religion=catholic
 	935.1.1={
@@ -91,6 +96,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=visigothic
 	religion=catholic
 	936.1.1={
@@ -105,6 +111,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=greek
@@ -126,6 +133,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=greek
 	religion=orthodox
 	935.1.1={
@@ -141,6 +149,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=greek
 	religion=orthodox
 	936.1.1={
@@ -156,6 +165,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=italian
@@ -177,6 +187,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=italian
 	religion=catholic
 	935.1.1={
@@ -192,6 +203,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=italian
 	religion=catholic
 	936.1.1={
@@ -200,15 +212,20 @@
 	}
 }
 909000012 = {
-	name="Blayne"
+	name="Ancalagonae"
 	dynasty=3000004
+	female=yes
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=italian
+	race="dragon_culture"
+	dna="wydlmlhtfcv"
+        prp="cbwg0k00000000000000000000000000000000"
 	religion=catholic
 	trait="fortune_builder"
 	trait="just"
@@ -220,13 +237,17 @@
 	}
 }
 909000013 = {
-	name="Blayne's First Son"
+	name="Glaurung"
 	dynasty=3000004
-	father=909000012
+	mother=909000012
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
+	race="dragon_culture"
+        dna="acjrtocijht"
+        prp="vh0h0k00000000000000000000000000000000"
 	culture=italian
 	religion=catholic
 	935.1.1={
@@ -235,13 +256,17 @@
 	}
 }
 909000014 = {
-	name="Blayne's Second Son"
+	name="Goetia"
 	dynasty=3000004
-	father=909000012
+	mother=909000012
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
+        race="dragon_culture"
+        dna="mbjwljtwvwi"
+        prp="we0f0k00000000000000000000000000000000"
 	culture=italian
 	religion=catholic
 	936.1.1={
@@ -257,6 +282,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=italian
@@ -278,6 +304,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=italian
 	religion=catholic
 	935.1.1={
@@ -293,6 +320,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=italian
 	religion=catholic
 	936.1.1={
@@ -308,6 +336,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=occitan
@@ -329,6 +358,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=occitan
 	religion=catholic
 	935.1.1={
@@ -344,6 +374,7 @@
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=occitan
 	religion=catholic
 	936.1.1={
@@ -353,12 +384,13 @@
 }
 
 909000021 = {
-	name="Hagbard"
+	name="Otto"
 	dynasty=3000007
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	health=7
 	fertility=1.0
 	culture=occitan
@@ -373,13 +405,14 @@
 	}
 }
 909000022 = {
-	name="Hagbard's First Son"
+	name="Bellamuto"
 	dynasty=3000007
 	father=909000021
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=occitan
 	religion=catholic
 	935.1.1={
@@ -388,13 +421,14 @@
 	}
 }
 909000023 = {
-	name="Hagbard's Second Son"
+	name="Grimaldo"
 	dynasty=3000007
 	father=909000021
 	martial=5
 	diplomacy=5
 	intrigue=5
 	stewardship=5
+        learning=5
 	culture=occitan
 	religion=catholic
 	936.1.1={
@@ -403,3 +437,545 @@
 	}
 }
 
+909000024 = {
+	name="Ranger"
+	dynasty=3000008
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=german
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=7641
+	}
+}
+909000025 = {
+	name="Ranger's First Son"
+	dynasty=3000008
+	father=909000024
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=german
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=7641
+	}
+}
+909000026 = {
+	name="Ranger's Second Son"
+	dynasty=3000008
+	father=909000024
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=german
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=7641
+	}
+}
+
+909000027 = {
+	name="Mark"
+	dynasty=3000009
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=german
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=260633
+	}
+}
+909000028 = {
+	name="Mark's First Son"
+	dynasty=3000009
+	father=909000027
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=german
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=260633
+	}
+}
+909000029 = {
+	name="Mark's Second Son"
+	dynasty=3000009
+	father=909000027
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=german
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=260633
+	}
+}
+
+909000030 = {
+	name="Tazzzo"
+	dynasty=3000010
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=croatian
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=8606
+	}
+}
+909000031 = {
+	name="Tazzzo's First Son"
+	dynasty=3000010
+	father=909000030
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=croatian
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=8606
+	}
+}
+909000032 = {
+	name="Tazzzo's Second Son"
+	dynasty=3000010
+	father=909000030
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=croatian
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=8606
+	}
+}
+
+909000033 = {
+	name="Ragatokk"
+	dynasty=3000011
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=serbian
+	religion=catholic
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=262700
+	}
+}
+909000034 = {
+	name="Ragatokk's First Son"
+	dynasty=3000011
+	father=909000033
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=serbian
+	religion=catholic
+	935.1.1={
+		birth=yes
+		employer=262700
+	}
+}
+909000035 = {
+	name="Ragatokk's Second Son"
+	dynasty=3000011
+	father=909000033
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=serbian
+	religion=catholic
+	936.1.1={
+		birth=yes
+		employer=262700
+	}
+}
+
+
+909000036 = {
+	name="Kodalem"
+	dynasty=3000012
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=greek
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=260678
+	}
+}
+909000037 = {
+	name="Kodalem's First Son"
+	dynasty=3000012
+	father=909000036
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=260678
+	}
+}
+909000038 = {
+	name="Kodalem's Second Son"
+	dynasty=3000012
+	father=909000036
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=260678
+	}
+}
+
+909000039 = {
+	name="Shotgun"
+	dynasty=3000013
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=greek
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=260793
+	}
+}
+909000040 = {
+	name="Shotgun's First Son"
+	dynasty=3000013
+	father=909000039
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=260793
+	}
+}
+909000041 = {
+	name="Shotgun's Second Son"
+	dynasty=3000013
+	father=909000039
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=260793
+	}
+}
+
+909000042 = {
+	name="Nekronion"
+	dynasty=3000014
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=bulgarian
+	religion=iconoclast
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=70381
+	}
+}
+909000043 = {
+	name="Nekronion's First Son"
+	dynasty=3000014
+	father=909000042
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=bulgarian
+	religion=iconoclast
+	935.1.1={
+		birth=yes
+		employer=70381
+	}
+}
+909000044 = {
+	name="Nekronion's Second Son"
+	dynasty=3000014
+	father=909000042
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=bulgarian
+	religion=iconoclast
+	936.1.1={
+		birth=yes
+		employer=70381
+	}
+}
+
+909000045 = {
+	name="Mikael"
+	dynasty=3000015
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=greek
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=145224
+	}
+}
+909000046 = {
+	name="Iohannes"
+	dynasty=3000015
+	father=909000045
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=145224
+	}
+}
+909000047 = {
+	name="Arkadios"
+	dynasty=3000015
+	father=909000045
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=145224
+	}
+}
+
+909000048 = {
+	name="Eunike"
+	dynasty=3000016
+	female=yes
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=greek
+	dna="agghhdjaadu"
+	properties="em0cmk00000000000000000000000000000000"
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=250809
+	}
+}
+909000049 = {
+	name="Zirotron's First Son"
+	dynasty=3000016
+	father=909000048
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=250809
+	}
+}
+909000050 = {
+	name="Zirotron's Second Son"
+	dynasty=3000016
+	father=909000048
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=greek
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=250809
+	}
+}
+909000051 = {
+	name="Dragoon"
+	dynasty=3000017
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	health=7
+	fertility=1.0
+	culture=levantine
+	religion=orthodox
+	trait="fortune_builder"
+	trait="just"
+	trait="diligent"
+	disallow_random_traits=yes
+	920.1.1={
+		birth=yes
+		employer=20564
+	}
+}
+909000052 = {
+	name="Dragoon's First Son"
+	dynasty=3000017
+	father=909000051
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=levantine
+	religion=orthodox
+	935.1.1={
+		birth=yes
+		employer=20564
+	}
+}
+909000053 = {
+	name="Dragoon's Second Son"
+	dynasty=3000017
+	father=909000051
+	martial=5
+	diplomacy=5
+	intrigue=5
+	stewardship=5
+        learning=5
+	culture=levantine
+	religion=orthodox
+	936.1.1={
+		birth=yes
+		employer=20564
+	}
+}

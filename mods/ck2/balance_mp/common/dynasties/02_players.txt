@@ -1,66 +1,115 @@
 3000000 = {
-	name="South Aragon"
+	name="Gorthaurim"
 }
 3000001 = {
-	name="North Aragon"
+	name="Rohirrim"
 }
 3000002 = {
-	name="South Sicily"
+	name="Haradrim"
 }
 3000003 = {
-	name="North Sicily"
+	name="Numenoreans"
 }
 3000004 = {
-	name="West Italy"
+	name="Melkorohini"
+	culture="italian"
+            religion="catholic"
+            is_modified=yes
+            coat_of_arms=
+            {
+                data=
+                {
+                    3 2 0 1 3 5 3 1 0 22 0 5 2 2 0 2 0 5 1 2 0 2 0 5 1 
+                }
+                religion="catholic"
+            }
 }
 3000005 = {
-	name="East Italy"
+	name="Maiar"
 }
 3000006 = {
-	name="West Aquitaine"
+	name="Dunedain"
 }
 3000007 = {
-	name="East Aquitaine"
+        name="Canella"
+        culture="occitan"
+        religion="catholic"
+        is_modified=yes
+        coat_of_arms=
+        {
+            data=
+            {
+                0 0 0 32 1 3 0 2 0 32 2 1 0 2 0 32 2 1 0 2 0 32 2 1 0 
+            }
+            religion="catholic"
+        }
+        set_coat_of_arms=yes
 }
 3000008 = {
-	name="West Bavaria"
+	name="Khazad"
 }
 3000009 = {
-	name="East Bavaria"
+	name="Dunlending"
 }
 3000010 = {
-	name="North Croatia"
+	name="Umbaroi"
 }
 3000011 = {
-	name="South Croatia"
+	name="Nordlending"
 }
 3000012 = {
-	name="North Greece"
+	name="Druedain"
 }
 3000013 = {
-	name="South Greece"
+	name="Gondorim"
 }
 3000014 = {
-	name="West Thrace"
+	name="Nod"
 }
 3000015 = {
-	name="East Thrace"
+	name="KoMnenos"
+	is_modified=yes
+	coat_of_arms=
+	{
+		data=
+		{
+			0 0 0 14 5 7 5 1 0 22 9 5 0 1 0 22 9 5 0 1 0 22 9 5 0 
+		}
+		religion="orthodox"
+	}
 }
 3000016 = {
-	name="West Anatolia"
+	name="Eu Nike"
+	culture="assyrian"
+        religion="orthodox"
+        is_modified=yes
+        coat_of_arms=
+        {
+            data=
+            {
+                0 4 0 30 3 5 2 4 0 30 3 5 2 4 0 30 3 5 2 4 0 30 3 5 2 
+            }
+            religion="orthodox"
+	}
 }
 3000017 = {
-	name="East Anatolia"
+	name="Balrogir"
 }
 3000018 = {
-	name="New Slot 1"
+	name="Uniams"
 }
 3000019 = {
-	name="New Slot 2"
+	name="Ducalions"
 }
 3000020 = {
-	name="New Slot 3"
+	name="Trinaira"
 }
 3000021 = {
-	name="New Slot 4"
+	name="Quadrimanus"
+}
+3000022 = {
+	name="Quintils"
+}
+3000023 = {
+	name="Hexapodes"
 }
