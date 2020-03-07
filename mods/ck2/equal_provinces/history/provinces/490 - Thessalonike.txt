@@ -7,9 +7,7 @@ title = c_thessalonike
 max_settlements = 7
 b_thessaloniki = castle
 b_voden = city
- Hellenic Holy Site
-
-#b_hlerin = castle
+b_hlerin = temple
 #b_cemren = castle
 #b_veria = castle
 #b_elasson = castle

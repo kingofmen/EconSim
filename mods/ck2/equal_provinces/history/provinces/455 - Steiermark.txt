@@ -18,5 +18,6 @@ religion = slavic_pagan
 	religion = catholic
 	b_losenstein = castle
 	b_steyr = city
+	b_garstina = temple
 	capital = b_losenstein
 }

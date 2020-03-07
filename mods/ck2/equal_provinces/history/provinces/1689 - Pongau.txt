@@ -8,6 +8,7 @@ max_settlements = 7
 
 b_pongau = castle
 b_zelle = temple
+b_taemswich = city
 
 # Misc
 culture = german

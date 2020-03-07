@@ -7,6 +7,7 @@ title = c_kastoria
 max_settlements = 7
 b_kastoria = castle
 b_chlerinon = city
+b_kailara = temple
 
 # Misc
 culture = greek

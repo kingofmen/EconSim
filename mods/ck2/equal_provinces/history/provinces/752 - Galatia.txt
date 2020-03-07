@@ -8,9 +8,7 @@ max_settlements = 7
 
 b_mikissos = castle
 b_asponia = city
-
 b_tavia = temple
-
 #b_carissa = castle
 #b_kochisar = castle
 #b_karacaviran = castle

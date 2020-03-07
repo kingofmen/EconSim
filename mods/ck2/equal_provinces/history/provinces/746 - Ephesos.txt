@@ -8,7 +8,7 @@ max_settlements = 7
 
 b_ephesos = castle
 b_miletos = city
- Orthodox Holy Site
+b_lebedos = temple # Orthodox Holy Site
 
 #b_tralles = castle
 #b_iassos = city

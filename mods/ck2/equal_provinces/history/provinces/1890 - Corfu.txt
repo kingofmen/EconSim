@@ -6,6 +6,8 @@ title = c_corfu
 # Settlements
 max_settlements = 7
 b_korkyra = castle
+b_corfu = temple
+b_scheria = city
 
 # Misc
 culture = greek

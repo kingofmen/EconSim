@@ -8,6 +8,7 @@ max_settlements = 7
 
 b_enisiburg = castle
 b_linz = city
+b_wels = temple
 
 # Misc
 culture = german

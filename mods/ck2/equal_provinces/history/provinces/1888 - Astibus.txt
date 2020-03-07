@@ -7,6 +7,7 @@ title = c_astibus
 max_settlements = 7
 b_astibus = castle
 b_veles = city
+b_skopje = temple
 
 # Misc
 culture = serbian

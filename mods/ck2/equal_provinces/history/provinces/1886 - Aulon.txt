@@ -7,6 +7,7 @@ title = c_aulon
 max_settlements = 7
 b_aulon = castle
 b_spinarizza = city
+b_kanine = temple
 
 # Misc
 culture = greek
