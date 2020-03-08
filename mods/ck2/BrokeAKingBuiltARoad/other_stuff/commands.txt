@@ -10,6 +10,7 @@ prov_rel 169 catholic
 prov_rel 170 catholic
 move 909000001 909000000
 move 909000002 909000000
+titleowner b_almeria 909000000
 
 give_title c_barcelona 909000003
 usurp c_empuries 909000003
@@ -17,6 +18,8 @@ give_title c_rosello 909000003
 usurp d_barcelona 909000003
 move 909000004 909000003
 move 909000005 909000003
+titleowner b_cerdana 909000003
+titleowner b_girona 909000003
 
 give_title c_lecce 909000006
 give_title c_taranto 909000006
@@ -38,6 +41,9 @@ give_title c_monferrato 909000012
 usurp d_susa 909000012
 move 909000013 909000012
 move 909000014 909000012
+gfx_culture 909000012 dragon_culture
+gfx_culture 909000013 dragon_culture
+gfx_culture 909000014 dragon_culture
 
 give_title c_padova 909000015
 give_title c_verona 909000015
@@ -59,3 +65,89 @@ give_title c_forcalquier 909000021
 usurp d_dauphine 909000021
 move 909000022 909000021
 move 909000023 909000021
+
+give_title c_schwyz 909000024
+give_title c_chur 909000024
+give_title c_zurichgau 909000024
+usurp d_swabia 909000024
+move 909000025 909000024
+move 909000026 909000024
+
+give_title c_graz 909000027
+give_title c_leoben 909000027
+give_title c_friesach 909000027
+usurp d_styria 909000027
+move 909000028 909000027
+move 909000029 909000027
+
+give_title c_varadzin 909000030
+give_title c_zagreb 909000030
+give_title c_krizevci 909000030
+usurp d_slavonia 909000030
+move 909000031 909000030
+move 909000032 909000030
+
+give_title c_belgrade 909000033
+give_title c_hum 909000033
+give_title c_rama 909000033
+usurp d_bosnia 909000033
+move 909000034 909000033
+move 909000035 909000033
+
+give_title c_ochrid 909000036
+give_title c_aulon 909000036
+give_title c_dyrrachion 909000036
+usurp d_ohrid 909000036
+move 909000037 909000036
+move 909000038 909000036
+
+give_title c_monemvasia 909000039
+give_title c_methone 909000039
+give_title c_achaia 909000039
+usurp d_achaia 909000039
+move 909000040 909000039
+move 909000041 909000039
+
+give_title c_constantia 909000042
+give_title c_mesembria 909000042
+usurp c_karvuna 909000042
+usurp d_karvuna 909000042
+move 909000043 909000042
+move 909000044 909000042
+prov_rel 498 iconoclast
+prov_rel 509 iconoclast
+prov_rel 510 iconoclast
+titleowner b_silistria 909000042
+titleowner b_kaliakra 909000042
+
+give_title c_kyzikos 909000045
+give_title c_prusa 909000045
+usurp c_abydos 909000045
+usurp d_abydos 909000045
+move 909000046 909000045
+move 909000047 909000045
+titleowner b_alexandriatroas 909000045
+titleowner b_lampsakos 909000045
+
+give_title c_lykia 909000048
+give_title c_ephesos 909000048
+give_title c_attaleia 909000048
+usurp d_samos 909000048
+move 909000049 909000048
+move 909000050 909000048
+
+give_title c_tarsos 909000051
+give_title c_adana 909000051
+usurp c_teluch 909000051
+usurp d_armenia_minor 909000051
+move 909000052 909000051
+move 909000053 909000051
+prov_rel 761 orthodox
+prov_rel 762 orthodox
+prov_rel 735 orthodox
+titleowner b_germanias 909000051
+titleowner b_perre 909000051
+
+
+
+
