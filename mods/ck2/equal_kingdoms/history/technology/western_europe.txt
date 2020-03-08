@@ -1,0 +1,293 @@
+#WESTERN EUROPE
+
+
+technology = {
+	titles = {
+                d_navarra
+                d_galicia
+                d_leon
+                d_asturias
+                d_castilla
+        d_toledo
+                d_porto
+                d_balata
+                d_beja
+                d_sevilla
+                d_badajoz
+                d_aragon
+                d_barcelona
+                d_valencia
+                d_murcia
+                d_granada
+        d_mallorca
+                d_arabia_petrae
+                d_alexandria
+                d_damietta
+                d_cairo
+                d_faiyum
+                d_asyut
+                d_sinai
+                d_paraetonium
+                d_oultrejourdain
+                d_ascalon
+                d_aleppo
+                d_antioch
+                d_jerusalem
+                d_galilee
+                d_damascus
+                d_palmyra
+                d_jazira
+                d_mosul
+                d_mudar
+                d_marrakech
+                d_tangiers
+                d_fes
+                d_alger
+                d_tlemcen
+                d_tahert
+                d_tunis
+                d_tripolitania
+                d_syrte
+                d_jerid
+                d_cyrenaica
+                d_kabylia
+                d_mzab
+                d_bedford # Essex
+                d_canterbury # Sussex
+                d_gloucester # Hwicce
+                d_norfolk
+                d_hereford # Mercia
+                d_galloway
+                d_western_isles
+                d_lothian
+                d_albany
+                d_moray
+                d_ulster
+                d_connacht
+                d_meath
+                d_leinster
+                d_munster
+                d_gwynedd
+                d_lancaster
+                d_deheubarth
+                d_gwent
+                d_cornwall
+                d_northumberland
+d_york
+                d_durham_palatine
+                d_holland
+                d_saxony
+                d_brunswick
+                d_bremen
+                d_munster_germany
+                d_gelre
+                d_hesse
+                d_brabant
+                d_upper_lorraine
+                d_lower_lorraine
+                d_trier
+                d_koln
+                d_bavaria
+                d_raetia
+                d_salzburg
+                d_osterreich
+                d_styria
+                d_tyrol
+                d_friuli
+                d_carniola
+                d_alsace
+                d_genoa
+                d_pisa
+                d_ferrara
+                d_latium
+                d_toscana
+                d_verona
+                d_susa
+                d_lombardia
+                d_modena
+                d_venice
+                d_sardinia
+                d_corsica
+                d_paphlagonia
+                d_turnovo # Moesia
+                d_karvuna
+                d_strymon
+                d_abydos
+                d_thrace
+                d_adrianopolis
+                d_thessalonika
+                d_athens
+                d_achaia
+                d_ohrid
+                d_epirus
+                d_cephalonia
+                d_aegean_islands
+                d_cyprus
+                d_krete
+                d_nikaea
+                d_armenia_minor # Cilicia in-game
+                d_samos
+                d_anatolia
+                d_thracesia
+                d_charsianon
+                d_edessa
+                d_rashka
+                d_slavonia
+                d_syrmia
+                d_bosnia
+                d_croatia
+                d_dalmatia
+                d_benevento
+                d_capua
+                d_apulia
+                d_abruzzo
+                d_salerno
+                d_calabria
+                d_sicily
+                d_kartli
+                d_armenia
+                d_trebizond
+                d_tao
+                d_kakheti
+                d_gotland
+                d_uppland
+                d_ostergotland
+                d_norrland
+                d_bergslagen
+                d_smaland
+                d_skane
+                d_tioharad
+                d_sjaelland
+                d_slesvig # Jylland
+                d_holstein
+                d_agder
+                d_vestlandet
+                d_ostlandet
+                d_trondelag
+                d_jamtland
+                d_karelia
+                d_kola
+                d_finland
+                d_ostrobothnia              #New with HF
+                d_savonia           #New with HF
+                d_finnmark
+                d_mazovia
+		d_iceland
+		d_orkney
+                d_greater_poland
+                d_silesia
+                d_lesser_poland
+                d_kuyavia
+		d_yaroslavl
+		d_maris
+                d_lausitz
+                d_samogitia
+                d_prussia
+                d_rugen
+                d_pomeralia
+                d_brandenburg
+                d_esthonia
+                d_sakala            #New with HF
+                d_lithuanians
+                d_courland
+                d_latgale                                   #New with HF
+                d_nordgau
+                d_thuringia
+                d_franconia
+                d_bohemia
+        d_moravia
+                d_swabia
+                d_volhynia
+                d_cherven_cities
+                d_kiev
+                d_galich
+                d_turov
+                d_minsk
+                d_polotsk
+                d_smolensk
+                d_pereyaslavl
+                d_chernigov
+                d_novgorod-seversk # Called Bryansk in-game
+                d_mordvins
+                d_karachev
+                d_novosil
+                d_beloozero         #Veps
+                d_rostov
+                d_novgorod
+                d_yatviags
+                d_pskov
+                d_vladimir
+                d_ryazan
+                d_cheremisa
+                d_moskva
+                d_tver
+                d_valois
+                d_normandy
+                d_berry
+                d_orleans
+                d_picardie
+                d_penthievre
+                d_brittany
+                d_poitou
+                d_anjou
+                d_loire
+                d_provence
+                d_dauphine
+                d_gascogne
+                d_toulouse
+                d_aquitaine
+        d_flanders
+                d_burgundy
+                d_champagne
+                d_upper_burgundy
+                d_franche_comte
+                d_cumbria
+                d_auvergne
+                d_bourbon
+                d_savoie
+                d_wallachia         #Muntenia
+                d_oltenia
+                d_pecs
+                d_esztergom
+                d_nyitra
+                d_ungvar
+                d_transylvania
+                d_temes
+                d_crimea
+                d_moldau
+                d_bessarabia
+                d_cherson
+                d_wild_fields
+                d_alania
+                d_sarkel
+                d_caspian_steppe
+                d_azov
+                d_derbent
+	}
+
+	769 = {
+		military = 0.75
+		economy = 1.0
+		culture = 1.0
+		
+		TECH_INFANTRY = 1
+		TECH_CAVALRY = 1
+		TECH_CASTLE_CONSTRUCTION = 1.9
+		TECH_CITY_CONSTRUCTION = 2.2
+		TECH_FORTIFICATIONS_CONSTRUCTION = 2.0
+		TECH_CONSTRUCTION = 1
+	}
+		
+	1337 = {
+		military = 5.0
+		economy = 5.0
+		culture = 5.0
+		
+		TECH_FORTIFICATIONS_CONSTRUCTION = 5.75
+		TECH_CASTLE_CONSTRUCTION = 5.75
+	}
+}
+
+
+
+

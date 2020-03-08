@@ -43205,3 +43205,803 @@ d_guiyi = { #
 	}
 }
 
+
+
+
+
+# Backups
+
+		d_hampshire = {
+			color={ 241 45 53 }
+			color2={ 255 255 255 }
+			
+			capital = 26 # Winchester
+			
+			norman="Hampshire"
+			english="Hampshire"
+			
+		}
+		d_somerset = {
+			color={ 241 15 63 }
+			color2={ 255 255 255 }
+			
+			capital = 28 # Somerset
+			
+			norman="Somerset"
+			english="Somerset"
+			welsh = "Lloegyr"
+			
+		}
+		d_the_isles = {
+			color={ 10 48 243 }
+			color2={ 255 255 255 }
+
+			capital = 54 # Isle of Man
+			
+			welsh = Manaw
+			norwegian = "Mann"
+			danish = "Mann"
+			swedish = "Mann"
+			norse = "Mann"
+			pictish = "Manu"
+			irish = "Mhannin"
+			
+		}
+		d_powys = {
+			color={ 180 130 0 }
+			color2={ 255 255 255 }
+				
+			capital = 66 # Shrewsbury
+
+			allow = {
+				conditional_tooltip = {
+					trigger = {
+						d_powys = {
+							is_titular = yes
+						}
+					}
+					d_powys = {
+						is_titular = no
+					}
+				}
+				hidden_tooltip = {
+					OR = {
+						ai = no
+						culture = welsh
+						culture = irish
+						culture = breton
+					}
+				}
+			}
+
+		}
+	k_valencia = {
+		color={ 48 167 45 }
+		color2={ 255 255 255 }
+
+		capital = 171 # Valencia
+
+		visigothic = "Carthaginensis"
+		roman = "Carthaginensis"
+		greek = "Carthaginensis"
+
+		muslim = 25 # Crusade target weight
+
+	}
+	k_badajoz = {
+		color={ 138 243 51 }
+		color2={ 255 255 255 }
+
+		capital = 184 # Badajoz
+
+		visigothic = "Lusitania"
+		roman = "Lusitania"
+		greek = "Lusitania"
+		basque = "Lusitania"
+		castillan = "Lusitania"
+		catalan = "Lusitania"
+		portuguese = "Lusitania"
+
+		muslim = 25 # Crusade target weight
+
+		d_algarve = {
+			color = { 202 88 5 }
+			color2={ 255 255 255 }
+			
+			capital = 163 # Faro
+			
+		}
+	}
+
+	k_castille = { #Spain
+		color={ 243 209 23 }
+		color2={ 200 80 10 }
+		dignity = 2 # Counted as having 2 more counties than it does
+		
+		capital = 199 # Burgos
+		
+		culture = castillan
+		
+		allow = {
+			conditional_tooltip = {
+				trigger = {
+					k_castille = {
+						is_titular = yes
+					}
+				}
+				k_castille = {
+					is_titular = no
+				}
+			}
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					religion_group = christian
+				}
+			}	
+		}
+		
+		catholic = 250 # Crusade target weight
+		muslim = 25 # Crusade target weight
+		
+	}
+	
+
+	
+	k_navarra = {
+		color = { 150 120 5 }
+		capital = 152 # Navarra
+		
+		culture = basque
+
+		roman = "Vasconia"
+		
+		# Creation/usurpation trigger
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					AND = {
+						culture = basque
+						religion_group = christian
+					}
+				}
+			}
+		}
+		
+	}
+	
+	k_asturias = {
+		color = { 233 188 91 }
+		color2={ 255 255 255 }
+		
+		dignity = 10
+		
+		capital = 155 # Asturias de Oviedo
+		
+		culture = castillan
+		
+		# Creation/usurpation trigger
+		allow = {
+			conditional_tooltip = {
+				trigger = {
+					k_asturias = {
+						is_titular = yes
+					}
+				}
+				k_asturias = {
+					is_titular = no
+				}
+			}
+		}
+		
+		catholic = 250 # Crusade target weight
+		muslim = 25 # Crusade target weight
+		
+	}
+	
+	k_spanish_galicia = {
+		color={ 255 224 94 }
+		capital = 156 # Coruña
+		
+		culture = portuguese
+		
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					religion_group = christian
+				}
+			}
+			conditional_tooltip = {
+				trigger = {
+					k_spanish_galicia = {
+						is_titular = yes
+					}
+				}
+				k_spanish_galicia = {
+					is_titular = no
+				}
+			}	
+		}
+		
+		catholic = 250 # Crusade target weight
+		muslim = 25 # Crusade target weight
+		
+	}
+	k_andalusia = {
+		color = { 31 138 40 }
+		color2={ 255 255 255 }
+		
+		capital = 181 # Cordoba
+		
+		culture = andalusian_arabic
+		
+		roman = "Baetica"
+		greek = "Baetica"
+		visigothic = "Baetica"
+		basque = "Granada"
+		castillan = "Granada"
+		catalan = "Granada"
+		portuguese = "Granada"
+
+		muslim = 50 # Crusade target weight
+		west_african_pagan_reformed = 50
+		aztec_reformed = 2000
+		
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture_group = arabic
+				}
+			}
+		}
+		
+		d_cordoba = {
+			color = { 60 180 12 }
+			color2={ 255 255 255 }
+			
+			capital = 181 # Cordoba
+			
+		}	
+		d_spoleto = {
+			color={ 217 182 153 }
+			color2={ 255 255 255 }
+			
+			capital = 349 # Spoleto
+		}
+	k_epirus = {
+		color={ 150 40 60 }
+		color2={ 255 255 20 }
+
+		capital = 472 # Epieros
+		
+		#serbian = "Draugabitia"
+		hellenic_pagan_reformed = 2000 # Crusade target weight
+
+	}
+		d_dyrrachion = {
+			color={ 137 27 99 }
+			color2={ 255 255 20 }
+			
+			capital = 470 # Dyrrachion
+
+			arberian = "Arbanon"
+			
+		}
+	k_bulgaria = {
+		color={ 113 88 101 }
+		color2={ 255 255 255 }
+		
+		culture = bulgarian
+		
+		capital = 499 # Tyrnovo
+		
+		orthodox = 300 # Crusade target weight
+		catholic = 100 # Crusade target weight
+		slavic_pagan_reformed = 50 # Crusade target weight
+		tengri_pagan_reformed = 50
+		
+	}
+	
+	k_serbia = {
+		color={ 113 98 61 }
+		color2={ 255 255 255 }
+		
+		culture = serbian
+		
+		capital = 502 # Rashka
+		
+		orthodox = 300 # Crusade target weight
+		catholic = 100 # Crusade target weight
+		
+	}
+		d_optimatoi = {
+			color={ 225 90 190 }
+			color2={ 255 255 20 }
+
+			capital = 741 # Nikomedia
+
+			turkish = "Izmit"
+
+		}
+		d_vidin = {
+			color={ 122 103 58 }
+			color2={ 255 255 255 }
+			
+			capital = 506 # Vidin
+			
+			greek = "Bononia"
+			
+		}
+		d_dioclea = {
+			color={ 129 94 13 }
+			color2={ 255 255 255 }
+			
+			capital = 468 # Ragusa
+			
+			serbian = "Duklja"
+			croatian = "Duklja"
+			bulgarian = "Duklja"
+			bosnian = "Duklja"
+			roman = "Praevalitana"
+			
+		}
+		d_cibyrrhaeot = {
+			color={ 108 29 80 }
+			color2={ 255 255 20 }
+			
+			capital = 755 # Attaleia
+			
+		}
+		d_bucellarian = {
+			color={ 234 157 207 }
+			color2={ 255 255 20 }
+
+			capital = 753
+
+			greek = "Boukellarion"
+			turkish = "Ankara"
+
+		}
+		d_cappadocia = {
+			color={ 160 20 130 }
+			color2={ 255 255 20 }
+
+			capital = 760
+
+		}
+		d_abkhazia = {
+			color={ 255 173 196 }
+			color2={ 255 255 255 }
+			
+			capital = 601 # Imeretia
+			
+		}
+		d_mesopotamia = {
+			color={ 155 88 20 }
+			color2={ 255 255 255 }
+			
+			capital = 702 # Mesopotamia
+			
+		}
+	k_trebizond = {
+		color={ 100 151 33 }
+		capital = 678 # Trapezous
+		culture = greek
+		
+		orthodox = 1000 # Crusade target weight
+		hellenic_pagan_reformed = 5000 # Crusade target weight
+		
+		
+	}
+	k_armenia = {
+		color={ 172 82 55 }
+		color2={ 255 255 255 }
+		
+		capital = 681 #	Ani
+		
+		culture = armenian
+		
+		orthodox = 300 # Crusade target weight
+		muslim = 100 # Crusade target weight
+		zoroastrian_group = 300 # Crusade target weight
+		
+		# Creation/usurpation trigger
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					religion_group = christian
+				}
+			}
+		}
+	}
+		d_coloneia = {
+			color={ 195 125 55 }
+			color2={ 255 255 255 }
+			
+			capital = 706 # Koloneia
+			
+		}
+		d_armeniacon = {
+			color={ 125 190 75 }
+			color2={ 255 255 20 }
+			
+			capital = 738 # Amisos
+			
+		}
+	k_mesopotamia = {
+		color={ 75 185 47 }
+		color2={ 255 255 255 }
+		
+		capital	= 697 # Mosul
+		
+		culture = levantine_arabic
+		
+		roman = "Assyria"
+		armenian = "Assyria"
+		greek = "Assyria"
+		alan = "Assyria"
+		georgian = "Assyria"
+		assyrian = "Assyria"
+		
+		muslim = 400 # Crusade target weight
+		zoroastrian_group = 2000 # Crusade target weight
+		zun_pagan_reformed = 300 # Crusade target weight
+		jewish_group = 500 # Crusade target weight
+		
+	}
+		d_tripoli = {
+			color={ 71 150 32 }
+			color2={ 255 255 255 }
+			
+			capital = 767 # Tripoli
+		
+		}
+		d_aswan = {
+			color={ 41 188 120 }
+			color2={ 255 255 255 }
+			
+			capital = 794 # Aswan
+			
+			coptic = "Sowan"
+			
+		}
+	k_carinthia = {
+		color={ 140 240 200 }
+		color2={ 255 255 255 }
+
+		capital = 457 # Krain/Carniola/Krainburg
+
+		carantanian = "Carantania"
+
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture_group = south_slavic
+				}
+			}
+		}
+
+	}
+		d_carinthia = {
+			color={ 165 255 250 }
+			color2={ 255 255 255 }
+			
+			capital = 456 # Villach
+
+			german = "Kärnten"
+			carantanian = "Carantania"
+
+		}
+		d_thurgau = {
+			color={ 180 220 203 }
+			color2={ 255 255 255 }
+
+			capital = 248 # Thurgau
+
+			allow = {
+				conditional_tooltip = {
+					trigger = {
+						d_thurgau = {
+							is_titular = yes
+						}
+					}
+
+					d_thurgau = {
+						is_titular = no
+					}
+				}
+			}
+			
+		}
+		d_pest = {
+			color={ 150 51 51 }
+			color2={ 255 255 255 }
+			
+			capital = 522 # Pest
+			
+			polish = Peszt
+			slovieni = Pešt
+			bohemian = Pešt
+			serbian = Pešta
+			german = Pest
+			
+		}
+	k_dacia = {
+		color={ 220 132 40 }
+		color2={ 255 255 255 }
+		
+		culture = romanian
+		
+		capital = 515 # Tirgoviste
+		
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture = romanian
+				}
+			}
+		}
+		
+		
+	}
+	k_saxony = {
+		color={ 120 25 25 }
+		culture = old_saxon
+
+		capital = 257 # Brunswick
+
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture = old_saxon
+					culture = saxon
+				}
+			}
+		}
+		
+		catholic = 3000 # Crusade target weight
+		norse_pagan_reformed = 500 # Crusade target weight
+
+
+	}
+		d_baden = { 
+			color={ 115 109 109 }
+			color2={ 255 255 255 }
+			
+			capital = 125 #Baden
+		
+		}
+		d_angria = {
+			color={ 180 165 165 }
+			color2={ 255 255 255 }
+
+			capital = 1979 # Minden
+
+		}
+	k_germany = {
+		color={ 160 160 160 }
+		color2={ 220 220 20 }
+		
+		dignity = 30 # Counted as having this many more counties than it does
+		
+		culture = german
+		
+		capital = 254 # Würburg
+		
+		catholic = 5000 # Crusade target weight
+		
+		norse_pagan_reformed = 200 # Crusade target weight
+		slavic_pagan_reformed = 50 # Crusade target weight
+		baltic_pagan_reformed = 50 # Crusade target weight
+		
+	}
+		d_mainz = {
+			color={ 129 129 129 }
+			color2={ 255 255 255 }
+
+			capital = 123 # Mainz
+
+			allow = {
+				is_theocracy = yes
+			}
+		}
+		d_rhine = {
+			color={ 105 135 105 }
+			color2={ 255 255 255 }
+
+			capital = 123 # Mainz
+
+		}
+		d_meissen = {
+			color={ 182 188 181 }
+			color2={ 255 255 255 }
+			
+			capital = 312 #Meissen
+
+			pommeranian = Nisani
+		
+		}
+	k_estonia = {			#new with HF
+		color={ 125 75 75 }
+        color2={ 255 255 255 }
+        
+        culture = ugricbaltic
+        
+        capital = 378 # Kalevan
+        
+        catholic = 50 # Crusade target weight
+        finnish_pagan_reformed = 300 # Crusade target weight
+        baltic_pagan_reformed = 250 # Crusade target weight
+		
+
+	}
+		d_livonia = {
+			color={ 110 50 50 }
+			color2={ 255 255 255 }
+			
+			capital = 375 # Liivimaa
+			
+			pagan_coa = {
+				template = 0
+				layer = {
+					texture = 2
+					texture_internal = 2
+					emblem = 0
+					color = 0
+					color = 0
+					color = 0
+				}
+				religion = "norse_pagan"
+			}
+		}
+		d_pommerania = {
+			color={ 200 100 100 }
+			color2={ 255 255 255 }
+			
+			capital = 366 # Stettin
+		
+		}
+		d_mecklemburg = {
+			color={ 150 70 70 }
+			color2={ 255 255 255 }
+			
+			capital = 260 #mecklemburg
+			
+			pommeranian = Obotritia
+
+
+		}
+	k_galicia-volhynia = {
+		color={ 50 150 130 }
+		color2={ 255 255 255 }
+		
+		capital = 535 # Vladimir Volynsky
+		
+		culture = russian
+		
+		slavic_pagan_reformed = 200 # Crusade target weight
+		baltic_pagan_reformed = 50 # Crusade target weight
+		tengri_pagan_reformed = 50
+		finnish_pagan_reformed = 50
+		
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture_group = north_germanic
+					culture_group = east_slavic 
+				}
+			}
+		}
+	}
+		d_murom = {
+			color={ 100 130 50 }
+			color2={ 255 255 255 }
+			
+			capital = 581 # Murom
+			
+		}
+		d_vastergotland = {
+			color={ 46 30 205 }
+			color2={ 255 255 255 }
+			capital = 297 # Västergötland
+			
+			swedish = "Västergötland"
+			norwegian = "Vestergøtland"
+			danish = "Vestergøtland"
+			norse = "Vestergautland"
+			
+			pagan_coa = {
+				template = 0
+				layer = {
+					texture = 2
+					texture_internal = 11
+					emblem = 0
+					color = 0
+					color = 0
+					color = 0
+				}
+				religion = "norse_pagan"
+			}
+			
+		}
+
+	k_sapmi = {
+		color = { 255 125 69 }
+		color2={ 255 255 255 }
+		
+		capital = 279 # Sápmi
+		
+		culture = lappish
+		
+		finnish_pagan_reformed = 350 # Crusade target weight
+		baltic_pagan_reformed = 50
+		slavic_pagan_reformed = 25
+		catholic = 25
+		norse_pagan_reformed = 50 # Crusade target weight
+		
+		norse = Norðrríki
+		swedish = Nordarike
+		norwegian = Nordarike
+		danish = Nordarike
+		finnish = Lappi
+		lappish = Sápmi
+		
+		# Creation/usurpation trigger
+		allow = {
+			hidden_tooltip = {
+				OR = {
+					ai = no
+					culture_group = finno_ugric
+				}
+			}
+		}
+		d_sapmi = {
+			color={ 231 64 32 }
+			color2={ 255 255 255 }
+			
+			capital = 280 # Västerbotten
+			
+			norse = Norrland
+			norwegian = Norrland
+			swedish = Norrland
+			danish = Norrland
+			finnish=Lappi
+			lappish=Sápmi
+
+		}
+	}
+		d_benevento = {
+			color = { 209 170 75 }
+			color2={ 255 255 255 }
+			
+			capital = 335 # Benevento
+			
+			catholic = 250 # Crusade target weight
+			
+		}
+		d_capua = {
+			color = { 240 209 100 }
+			color2={ 255 255 255 }
+			
+			greek = "Neapolis"
+			
+			capital = 851 # Capua
+			
+			catholic = 250 # Crusade target weight
+			
+		}
+		d_ancona = {
+			color={ 210 168 190 }
+			color2={ 255 255 255 }
+			
+			capital = 350 # Ancona
+			
+		}	
