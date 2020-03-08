@@ -7,9 +7,8 @@ title = c_atheniai
 max_settlements = 7
 
 b_athens = castle
-b_megara = city
- Orthodox Holy Site
-
+b_megara = temple
+b_piraeaus = city
 #b_soula = castle
 #b_daphni = castle
 #b_karydi = castle

@@ -10,6 +10,7 @@ terrain = hills
 max_settlements = 7
 b_amorion = castle
 b_polybotos = temple
+b_krasos = city
 
 # Misc
 culture = greek

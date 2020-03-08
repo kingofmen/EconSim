@@ -6,6 +6,7 @@ title = c_osma
 # Settlements
 max_settlements = 7
 b_osma = castle
+b_ucero = city
 b_el_burgo = temple
 
 culture = visigothic

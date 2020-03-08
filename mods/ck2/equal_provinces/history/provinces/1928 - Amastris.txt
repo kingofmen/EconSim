@@ -7,6 +7,7 @@ title = c_amastris
 max_settlements = 7
 b_amasra = castle
 b_amastris = city
+b_cyttoros = temple
 
 # Misc
 culture = greek

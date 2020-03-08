@@ -5,7 +5,7 @@ title = c_huelva
 
 # Settlements
 max_settlements = 7
- (Umba)
+b_huelva = castle
 b_lepe = temple
 b_ayamonte = city
 #b_gibraleon = castle
