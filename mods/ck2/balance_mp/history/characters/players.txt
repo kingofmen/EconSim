@@ -895,9 +895,10 @@
 	}
 }
 909000049 = {
-	name="Zirotron's First Son"
+	name="Zirotron's First Daughter"
 	dynasty=3000016
-	father=909000048
+	mother=909000048
+	female=yes
 	martial=5
 	diplomacy=5
 	intrigue=5
@@ -911,9 +912,10 @@
 	}
 }
 909000050 = {
-	name="Zirotron's Second Son"
+	name="Zirotron's Second Daughter"
 	dynasty=3000016
-	father=909000048
+	mother=909000048
+	female=yes
 	martial=5
 	diplomacy=5
 	intrigue=5
@@ -936,45 +938,13 @@
         learning=5
 	health=7
 	fertility=1.0
-	culture=levantine
+	culture=greek
 	religion=orthodox
 	trait="fortune_builder"
 	trait="just"
 	trait="diligent"
 	disallow_random_traits=yes
 	920.1.1={
-		birth=yes
-		employer=20564
-	}
-}
-909000052 = {
-	name="Dragoon's First Son"
-	dynasty=3000017
-	father=909000051
-	martial=5
-	diplomacy=5
-	intrigue=5
-	stewardship=5
-        learning=5
-	culture=levantine
-	religion=orthodox
-	935.1.1={
-		birth=yes
-		employer=20564
-	}
-}
-909000053 = {
-	name="Dragoon's Second Son"
-	dynasty=3000017
-	father=909000051
-	martial=5
-	diplomacy=5
-	intrigue=5
-	stewardship=5
-        learning=5
-	culture=levantine
-	religion=orthodox
-	936.1.1={
 		birth=yes
 		employer=20564
 	}
