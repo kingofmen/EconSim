@@ -16,6 +16,7 @@
 #include "colony/interface/proto/actions.pb.h"
 #include "game/game_world.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
@@ -425,55 +426,15 @@ TextInterface::loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
 
   scenario_.Clear();
-  std::experimental::filesystem::path base_path = setup.root_path();
-  for (const auto& filename : setup.auto_production()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
-  for (const auto& filename : setup.production_chains()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
-  for (const auto& filename : setup.trade_goods()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
-  for (const auto& filename : setup.consumption()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
-  for (const auto& filename : setup.unit_templates()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &scenario_);
-    if (!status.ok()) {
-      return status;
-    }
-  }
-
-  game_world_.Clear();
-  std::experimental::filesystem::path world_path = base_path / setup.world_file();
-  auto status = util::proto::ParseProtoFile(world_path.string(), &game_world_);
+  auto status = games::setup::LoadScenario(setup, &scenario_);
   if (!status.ok()) {
     return status;
   }
-  for (const auto& filename : setup.factions()) {
-    std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &game_world_);
-    if (!status.ok()) {
-      return status;
-    }
+
+  game_world_.Clear();
+  status = games::setup::LoadWorld(setup, &game_world_);
+  if (!status.ok()) {
+    return status;
   }
 
   std::vector<std::string> errors =
@@ -486,9 +447,10 @@ TextInterface::loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
 
   graphics_.Clear();
+  std::experimental::filesystem::path base_path = setup.root_path();
   for (const auto& filename : setup.graphics()) {
     std::experimental::filesystem::path full_path = base_path / filename;
-    auto status = util::proto::MergeProtoFile(full_path.string(), &graphics_);
+    status = util::proto::MergeProtoFile(full_path.string(), &graphics_);
     if (!status.ok()) {
       return status;
     }
