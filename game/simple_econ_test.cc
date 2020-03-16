@@ -34,11 +34,11 @@ namespace {
 
 google::protobuf::util::Status ReadFile(const std::string filename,
                                         google::protobuf::Message* proto) {
-  // This is a workaround for Bazel issues 4102 and 4292. When they are
-  // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
-  const std::string kTestDir = "C:/Users/Rolf/base";
+  const std::string kTestDir = std::getenv("TEST_SRCDIR");
+  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
   return util::proto::ParseProtoFile(
-      absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), proto);
+      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
+      proto);
 }
 
 }
