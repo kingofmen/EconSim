@@ -14,7 +14,8 @@ google::protobuf::util::Status
 ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   std::ifstream reader(filename);
   if (!reader.good()) {
-    return util::InvalidArgumentError("Could not open file");
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not open file $0", filename));
   }
   google::protobuf::io::IstreamInputStream input(&reader);
   if (!google::protobuf::TextFormat::Parse(&input, proto)) {
@@ -29,7 +30,8 @@ google::protobuf::util::Status
 MergeProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   std::ifstream reader(filename);
   if (!reader.good()) {
-    return util::InvalidArgumentError("Could not open file");
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not open file $0", filename));
   }
   google::protobuf::io::IstreamInputStream input(&reader);
   if (!google::protobuf::TextFormat::Merge(&input, proto)) {
