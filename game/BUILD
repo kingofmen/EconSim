@@ -44,6 +44,7 @@ cc_test(
     deps = [
         ":game_world",
         "//games/setup/validation:validation",
+        "//games/setup:setup",
         "//market:goods_utils",
         "//util/proto:file",
         "//util/status:status",
@@ -52,11 +53,11 @@ cc_test(
         "@gtest//:gtest_main",
     ],
     data = [
-        ":test_data/simple.pb.txt",
-        ":test_data/simple_economy.pb.txt",
-        ":test_data/fixcap.pb.txt",
-        ":test_data/fixcap_economy.pb.txt",
-        ":test_data/trade.pb.txt",
-        ":test_data/trade_economy.pb.txt",
+        ":test_data/simple/world.pb.txt",
+        ":test_data/simple/scenario.pb.txt",
+        ":test_data/fixcap/world.pb.txt",
+        ":test_data/fixcap/scenario.pb.txt",
+        ":test_data/trade/world.pb.txt",
+        ":test_data/trade/scenario.pb.txt",
     ],
 )

@@ -7,6 +7,7 @@
 #include "absl/strings/substitute.h"
 #include "game/game_world.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
 #include "geography/proto/geography.pb.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
@@ -21,41 +22,28 @@
 
 namespace simple_economy_test {
 const std::string kTestDataLocation = "game/test_data";
-const std::string kSimpleSetup = "simple.pb.txt";
-const std::string kSimpleEconomy = "simple_economy.pb.txt";
-
-const std::string kFixcapSetup = "fixcap.pb.txt";
-const std::string kFixcapEconomy = "fixcap_economy.pb.txt";
-
-const std::string kTradeSetup = "trade.pb.txt";
-const std::string kTradeEconomy = "trade_economy.pb.txt";
-
-namespace {
-
-google::protobuf::util::Status ReadFile(const std::string filename,
-                                        google::protobuf::Message* proto) {
-  const std::string kTestDir = std::getenv("TEST_SRCDIR");
-  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
-  return util::proto::ParseProtoFile(
-      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
-      proto);
-}
-
-}
+const std::string kWorld = "world.pb.txt";
+const std::string kScenario = "scenario.pb.txt";
 
 class EconomyTest : public testing::Test {
 protected:
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_;
 
-  google::protobuf::util::Status ReadWorld(const std::string& setup,
-                                           const std::string& scenario) {
+  google::protobuf::util::Status LoadTestData(const std::string& location) {
     market::ClearGoods();
-    auto status = ReadFile(setup, &world_proto_);
+    games::setup::proto::ScenarioFiles config;
+    const std::string kTestDir = std::getenv("TEST_SRCDIR");
+    const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
+    const std::string kBase =
+        absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
+
+    auto status = util::proto::ParseProtoFile(
+        absl::StrJoin({kBase, kScenario}, "/"), &scenario_);
     if (!status.ok()) return status;
-    status = ReadFile(scenario, &scenario_);
-    if (!status.ok()) return status;
-    return util::OkStatus();
+
+    config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
+    return games::setup::LoadWorld(config, &world_proto_);
   }
 
   void validate() {
@@ -111,7 +99,7 @@ protected:
 };
 
 TEST_F(EconomyTest, TestSimpleSteadyState) {
-  auto status = ReadWorld(kSimpleSetup, kSimpleEconomy);
+  auto status = LoadTestData("simple");
   EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
@@ -119,7 +107,7 @@ TEST_F(EconomyTest, TestSimpleSteadyState) {
 }
 
 TEST_F(EconomyTest, TestFixcapSteadyState) {
-  auto status = ReadWorld(kFixcapSetup, kFixcapEconomy);
+  auto status = LoadTestData("fixcap");
   EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
@@ -127,7 +115,7 @@ TEST_F(EconomyTest, TestFixcapSteadyState) {
 }
 
 TEST_F(EconomyTest, TestTradingSteadyState) {
-  auto status = ReadWorld(kTradeSetup, kTradeEconomy);
+  auto status = LoadTestData("trade");
   EXPECT_OK(status) << status.error_message();
   status = SteadyStateTest();
   EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
