@@ -1,0 +1,70 @@
+trade_goods {
+  name: "labour"
+  decay_rate_u: 1000000
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "sheep"
+  decay_rate_u: 0
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "grain"
+  decay_rate_u: 50000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "silver"
+  decay_rate_u: 0
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "cloth"
+  decay_rate_u: 25000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "wool"
+  decay_rate_u: 20000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "timber"
+  decay_rate_u: 10000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "iron"
+  decay_rate_u: 0
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "tools"
+  decay_rate_u: 100000
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "food"
+  decay_rate_u: 0
+  bulk_u: 1
+  weight_u: 1
+}
+trade_goods {
+  name: "mana"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "trees"
+  decay_rate_u: 0
+  bulk_u: 1
+  weight_u: 1
+}

@@ -1,0 +1,11 @@
+# Economic setup with fixed capital production, decay, and install.
+# There are three abstract goods: Labour, capital, and output.
+
+auto_production {
+  output {
+    quantities {
+      key: "labour"
+      value: 1000000
+    }
+  }
+}

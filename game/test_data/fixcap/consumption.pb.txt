@@ -1,0 +1,15 @@
+# Economic setup with fixed capital production, decay, and install.
+# There are three abstract goods: Labour, capital, and output.
+
+consumption {
+  name: "Consumption"
+  packages {
+    consumed {
+      quantities {
+        key: "output"
+        value: 100000
+      }
+    }
+  }
+}
+

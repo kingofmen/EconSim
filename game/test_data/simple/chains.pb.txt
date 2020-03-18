@@ -1,0 +1,232 @@
+production_chains {
+  name: "wheat_fields"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 500000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 100000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "food"
+      value: 2000000
+    }
+  }
+  land_type: LT_FIELDS
+  scaling {
+    size_u: 1000000
+    effect_u: 1000000
+  }
+  experience_effect_u: 100000
+}
+
+production_chains {
+  name: "fell_timber"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 500000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 700000
+	}
+      }
+      raw_materials {
+        quantities {
+	  key: "trees"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "timber"
+      value: 900000
+    }
+  }
+  land_type: LT_ORCHARDS
+  experience_effect_u: 100000
+}
+
+production_chains {
+  name: "bog_iron"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 500000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 500000
+	}
+      }
+      raw_materials {
+        quantities {
+	  key: "iron"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "iron"
+      value: 500000
+    }
+  }
+  land_type: LT_ORCHARDS
+  experience_effect_u: 100000
+}
+
+production_chains {
+  name: "forge_tools"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 700000
+	}
+        quantities {
+	  key: "timber"
+	  value: 500000
+	}
+        quantities {
+	  key: "iron"
+	  value: 500000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 1100000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "tools"
+      value: 600000
+    }
+  }
+  land_type: LT_LIGHT_INDUSTRY
+  experience_effect_u: 100000
+}
+
+production_chains {
+  name: "keep_sheep"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 600000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 100000
+	}
+      }
+      fixed_capital {
+        quantities {
+	  key: "sheep"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "wool"
+      value: 600000
+    }
+  }
+  land_type: LT_PASTURE
+  experience_effect_u: 100000
+}
+
+production_chains {
+  name: "make_cloth"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 500000
+	}
+        quantities {
+	  key: "wool"
+	  value: 600000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "cloth"
+      value: 800000
+    }
+  }
+  land_type: LT_LIGHT_INDUSTRY
+  experience_effect_u: 100000
+}
+

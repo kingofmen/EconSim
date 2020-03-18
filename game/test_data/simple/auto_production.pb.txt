@@ -1,0 +1,28 @@
+auto_production {
+  output {
+    quantities {
+      key: "labour"
+      value: 2000000
+    }
+  }
+}
+
+tag_decay_rates {
+  quantities {
+    key: "life_support"
+    value: 0
+  }
+  quantities {
+    key: "subsistence"
+    value: 1000000
+  }
+  quantities {
+    key: "clothing"
+    value: 10000
+  }
+  quantities {
+    key: "culture"
+    value: 0
+  }
+}
+

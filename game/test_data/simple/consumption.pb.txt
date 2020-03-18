@@ -1,0 +1,227 @@
+
+consumption {
+  name: "Dummy consumption"
+  packages {
+    consumed {
+      quantities {
+        key: "mana"
+        value: 100000
+      }
+    }
+  }
+}
+consumption {
+  name: "Minimal life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 100000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 100000
+    }
+    quantities {
+      key: "subsistence"
+      value: 500000
+    }
+  }
+}
+consumption {
+  name: "Reasonable life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 200000
+      }
+    }
+    capital {
+      quantities {
+        key: "timber"
+        value: 50000
+      }
+      quantities {
+        key: "cloth"
+        value: 50000
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 250000
+      }
+    }
+    capital {
+      quantities {
+        key: "cloth"
+        value: 50000
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 250000
+      }
+    }
+    capital {
+      quantities {
+        key: "timber"
+        value: 50000
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 300000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 300000
+    }
+    quantities {
+      key: "subsistence"
+      value: 500000
+    }
+  }
+}
+
+consumption {
+  name: "Minimal culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 100000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 100000
+    }
+  }
+}
+
+consumption {
+  name: "Good life support"
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 600000
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 400000
+      }
+    }
+    capital {
+      quantities {
+        key: "timber"
+        value: 200000
+      }
+    }
+  }
+  packages {
+    consumed {
+      quantities {
+        key: "food"
+        value: 400000
+      }
+    }
+    capital {
+      quantities {
+        key: "timber"
+        value: 100000
+      }
+      quantities {
+        key: "cloth"
+        value: 100000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "life_support"
+      value: 600000
+    }
+  }
+}
+
+consumption {
+  name: "Basic culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 100000
+      }
+      quantities {
+        key: "cloth"
+        value: 100000
+      }
+    }
+    capital {
+      quantities {
+        key: "tools"
+        value: 100000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 100000
+    }
+  }
+}
+consumption {
+  name: "Serious culture"
+  packages {
+    consumed {
+      quantities {
+        key: "labour"
+        value: 100000
+      }
+      quantities {
+        key: "cloth"
+        value: 100000
+      }
+      quantities {
+        key: "timber"
+        value: 100000
+      }
+    }
+    capital {
+      quantities {
+        key: "tools"
+        value: 250000
+      }
+    }
+  }
+  tags {
+    quantities {
+      key: "culture"
+      value: 300000
+    }
+  }
+}

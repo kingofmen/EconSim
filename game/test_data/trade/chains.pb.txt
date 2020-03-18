@@ -1,0 +1,52 @@
+# Economic setup with trade. The intermediate good input is required
+# to produce output, which is consumed; both required labour.
+
+production_chains {
+  name: "industry"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+        quantities {
+	  key: "input"
+	  value: 500000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "output"
+      value: 2000000
+    }
+  }
+  land_type: LT_FIELDS
+}
+production_chains {
+  name: "invest"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "input"
+      value: 500000
+    }
+  }
+  land_type: LT_HEAVY_INDUSTRY
+}
+

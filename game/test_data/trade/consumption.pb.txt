@@ -1,0 +1,13 @@
+# Economic setup with trade. The intermediate good input is required
+# to produce output, which is consumed; both required labour.
+consumption {
+  name: "Consumption"
+  packages {
+    consumed {
+      quantities {
+        key: "output"
+        value: 1000000
+      }
+    }
+  }
+}
