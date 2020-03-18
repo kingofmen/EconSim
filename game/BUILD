@@ -38,6 +38,11 @@ cc_binary(
     ],
 )
 
+filegroup(
+    name = "testdata",
+    srcs = glob(["test_data/*/*.pb.txt"]),
+)
+
 cc_test(
     name = "simple_econ_test",
     srcs = ["simple_econ_test.cc"],
@@ -52,12 +57,5 @@ cc_test(
         "@gtest//:gtest",
         "@gtest//:gtest_main",
     ],
-    data = [
-        ":test_data/simple/world.pb.txt",
-        ":test_data/simple/scenario.pb.txt",
-        ":test_data/fixcap/world.pb.txt",
-        ":test_data/fixcap/scenario.pb.txt",
-        ":test_data/trade/world.pb.txt",
-        ":test_data/trade/scenario.pb.txt",
-    ],
+    data = [":testdata"],
 )

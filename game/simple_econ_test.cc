@@ -23,7 +23,12 @@
 namespace simple_economy_test {
 const std::string kTestDataLocation = "game/test_data";
 const std::string kWorld = "world.pb.txt";
-const std::string kScenario = "scenario.pb.txt";
+const std::string kAutoProd = "auto_production.pb.txt";
+const std::string kChains = "chains.pb.txt";
+const std::string kTradeGoods = "goods.pb.txt";
+const std::string kConsumption = "consumption.pb.txt";
+const std::string kUnits = "units.pb.txt";
+
 
 class EconomyTest : public testing::Test {
 protected:
@@ -38,8 +43,12 @@ protected:
     const std::string kBase =
         absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
 
-    auto status = util::proto::ParseProtoFile(
-        absl::StrJoin({kBase, kScenario}, "/"), &scenario_);
+    config.add_auto_production(absl::StrJoin({kBase, kAutoProd}, "/"));
+    config.add_production_chains(absl::StrJoin({kBase, kChains}, "/"));
+    config.add_trade_goods(absl::StrJoin({kBase, kTradeGoods}, "/"));
+    config.add_consumption(absl::StrJoin({kBase, kConsumption}, "/"));
+    config.add_unit_templates(absl::StrJoin({kBase, kUnits}, "/"));
+    auto status = games::setup::LoadScenario(config, &scenario_);
     if (!status.ok()) return status;
 
     config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
