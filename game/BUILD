@@ -10,6 +10,7 @@ cc_library(
         "//ai:planner",
         "//factions/proto:factions_proto",
         "//factions:factions",
+        "//games/setup:setup",
         "//games/setup/proto:setup_proto",
         "//geography:connection",
         "//geography:geography",
@@ -24,6 +25,7 @@ cc_library(
         "//util/arithmetic:microunits",
         "//util/logging:logging",
         "//util/keywords:keywords",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

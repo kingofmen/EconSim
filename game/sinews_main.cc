@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include "absl/strings/str_join.h"
+#include "games/setup/setup.h"
 #include "games/setup/proto/setup.pb.h"
 #include "game/game_world.h"
 #include "geography/proto/geography.pb.h"
@@ -13,17 +15,31 @@
 #include "util/proto/file.h"
 
 int main(int /*argc*/, char** /*argv*/) {
+  games::setup::proto::Scenario scenario;
   games::setup::proto::GameWorld world_proto;
-  auto status =
-      util::proto::ParseProtoFile(".\\test_data\\simple.pb.txt", &world_proto);
+  games::setup::proto::ScenarioFiles config;
+  const std::string kBase = ".\\test_data\\simple";
+  const std::string kWorld = "world.pb.txt";
+  const std::string kAutoProd = "auto_production.pb.txt";
+  const std::string kChains = "chains.pb.txt";
+  const std::string kTradeGoods = "goods.pb.txt";
+  const std::string kConsumption = "consumption.pb.txt";
+  const std::string kUnits = "units.pb.txt";
+
+  config.add_auto_production(absl::StrJoin({kBase, kAutoProd}, "/"));
+  config.add_production_chains(absl::StrJoin({kBase, kChains}, "/"));
+  config.add_trade_goods(absl::StrJoin({kBase, kTradeGoods}, "/"));
+  config.add_consumption(absl::StrJoin({kBase, kConsumption}, "/"));
+  config.add_unit_templates(absl::StrJoin({kBase, kUnits}, "/"));
+  config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
+
+  auto status = games::setup::LoadScenario(config, &scenario);
   if (!status.ok()) {
     std::cout << status.error_message() << "\n";
     return 1;
   }
 
-  games::setup::proto::Scenario scenario;
-  status = util::proto::ParseProtoFile(".\\test_data\\simple_economy.pb.txt",
-                                       &scenario);
+  status = games::setup::LoadWorld(config, &world_proto);
   if (!status.ok()) {
     std::cout << status.error_message() << "\n";
     return 1;
