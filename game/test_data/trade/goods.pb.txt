@@ -1,15 +1,5 @@
 # Economic setup with trade. The intermediate good input is required
 # to produce output, which is consumed; both required labour.
-
-auto_production {
-  output {
-    quantities {
-      key: "labour"
-      value: 1000000
-    }
-  }
-}
-
 trade_goods {
   name: "labour"
   decay_rate_u: 1000000
@@ -28,75 +18,4 @@ trade_goods {
   bulk_u: 1000000
   weight_u: 1000000
   transport_type: TTT_STANDARD
-}
-
-production_chains {
-  name: "industry"
-  steps {
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 1000000
-	}
-        quantities {
-	  key: "input"
-	  value: 500000
-	}
-      }
-    }
-    weather_effect_u: 0
-    skip_effect_u: 0
-  }
-  outputs {
-    quantities {
-      key: "output"
-      value: 2000000
-    }
-  }
-  land_type: LT_FIELDS
-}
-production_chains {
-  name: "invest"
-  steps {
-    variants {
-      consumables {
-        quantities {
-	  key: "labour"
-	  value: 1000000
-	}
-      }
-    }
-    weather_effect_u: 0
-    skip_effect_u: 0
-  }
-  outputs {
-    quantities {
-      key: "input"
-      value: 500000
-    }
-  }
-  land_type: LT_HEAVY_INDUSTRY
-}
-
-consumption {
-  name: "Consumption"
-  packages {
-    consumed {
-      quantities {
-        key: "output"
-        value: 1000000
-      }
-    }
-  }
-}
-
-unit_templates {
-  name: "ShuttleTrader"
-  id: 1
-  mobility {
-    speed_u: 1
-    max_bulk_u: 1000000
-    max_weight_u: 1000000
-  }
 }
