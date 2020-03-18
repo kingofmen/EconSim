@@ -1,3 +1,5 @@
 name: "Dev Scenario"
 description: "For development work."
 world_file: "development/dev_world.pb.txt"
+auto_production: "development/auto_prod.pb.txt"
+trade_goods: "development/trade_goods.pb.txt"

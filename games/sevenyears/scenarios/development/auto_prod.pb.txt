@@ -1,0 +1,9 @@
+auto_production {
+  output {
+    quantities {
+      key: "supplies"
+      value: 1000000
+    }
+  }
+}
+
