@@ -4,6 +4,7 @@
 
 #include "absl/strings/substitute.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
 #include "interface/base.h"
 #include "interface/proto/config.pb.h"
@@ -79,16 +80,19 @@ util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
   Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
 
-  std::experimental::filesystem::path base_path = setup.root_path();
   games::setup::proto::GameWorld game_world;
-  std::experimental::filesystem::path world_path = base_path / setup.world_file();
-  status = util::proto::ParseProtoFile(world_path.string(), &game_world);
+  status = games::setup::LoadWorld(setup, &game_world);
+  if (!status.ok()) {
+    return status;
+  }
+  games::setup::proto::Scenario scenario;
+  status = games::setup::LoadScenario(setup, &scenario);
   if (!status.ok()) {
     return status;
   }
 
   std::vector<std::string> errors =
-      games::setup::validation::Validate({}, game_world);
+      games::setup::validation::Validate(scenario, game_world);
   if (!errors.empty()) {
     for (const auto err : errors) {
       Log::Error(err);
