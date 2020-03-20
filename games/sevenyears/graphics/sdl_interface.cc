@@ -229,8 +229,13 @@ void SDLInterface::drawMap() {
 void SDLInterface::EventLoop() {
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0) {
-    if (e.type == SDL_QUIT) {
-      receiver_->QuitToDesktop();
+    switch (e.type) {
+      case SDL_QUIT:
+        receiver_->QuitToDesktop();
+        break;
+      case SDL_KEYUP:
+        receiver_->HandleKeyRelease(e.key.keysym);
+        break;
     }
   }
 

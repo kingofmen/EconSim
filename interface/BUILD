@@ -7,5 +7,6 @@ cc_library(
     deps = [
         "//interface/proto:config_proto",
         "//util/status",
+        "@sdl2//:SDL2",
     ],
 )

@@ -135,9 +135,25 @@ public:
 
   bool quit() const { return quit_; }
 
+  void HandleKeyRelease(const SDL_Keysym& keysym);
+
 private:
   bool quit_;
 };
+
+void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
+  switch (keysym.sym) {
+    case SDLK_KP_ENTER:
+    case SDLK_RETURN:
+      Log::Info("New turn");
+      break;
+    case SDLK_q:
+      quit_ = true;
+      break;
+    default:
+      break;
+  }
+}
 
 int main(int /*argc*/, char** /*argv*/) {
   Log::Register(Log::coutLogger);

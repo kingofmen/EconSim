@@ -2,6 +2,7 @@
 #define INTERFACE_INTERFACE_H
 
 #include "interface/proto/config.pb.h"
+#include "SDL_keyboard.h"
 #include "util/status/status.h"
 
 namespace interface {
@@ -12,7 +13,13 @@ class Receiver {
    Receiver() = default;
    ~Receiver() = default;
 
+  // General methods.
+  // Quit signal.
   virtual void QuitToDesktop() = 0;
+
+  // SDL methods.
+  // Key release.
+  virtual void HandleKeyRelease(const SDL_Keysym& keysym) = 0;
 };
 
 // Base is an abstract class exposing a minimal set of interactions.
