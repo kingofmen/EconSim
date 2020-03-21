@@ -12959,30 +12959,26 @@ e_wendish_empire = {
 					b_nymburk = {}
 				}
 				c_hradec = {
-                	color={ 200 104 38 }
-            		color2={ 255 255 255 }
+        			       	color={ 200 104 38 }
+            				color2={ 255 255 255 }
 				
 					german = "Grätz"
                 
-                	b_hradeckralove = {
+					b_hradeckralove = {
 						german = "Grätz"
-                	}
+                			}
 					b_kladsko = {
 						german = "Glatz"
 						polish = "Klodzko"
 					}
-					b_zleby = {
-               		}
-					b_chrudim = {
-					}
-					b_caslav = {
-                	}
-					b_jaromer = {
-                	}
-                	b_litomysl = {
-                	}
+					b_zleby = {}
+					b_chrudim = {}
+					b_caslav = {}
+					b_jaromer = {}
+  					b_litomysl = {}
 				}
-        }
+        		}
+		}
 	k_moravia = {
 		color={ 158 102 36 }
 		color2={ 200 0 0 }
