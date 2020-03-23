@@ -73,36 +73,6 @@ getScenarios(const std::vector<std::experimental::filesystem::path> paths) {
   return scenarios;
 }
 
-util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup) {
-  auto status = validateSetup(setup);
-  if (!status.ok()) {
-    return status;
-  }
-  Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
-
-  games::setup::proto::GameWorld game_world;
-  status = games::setup::LoadWorld(setup, &game_world);
-  if (!status.ok()) {
-    return status;
-  }
-  games::setup::proto::Scenario scenario;
-  status = games::setup::LoadScenario(setup, &scenario);
-  if (!status.ok()) {
-    return status;
-  }
-
-  std::vector<std::string> errors =
-      games::setup::validation::Validate(scenario, game_world);
-  if (!errors.empty()) {
-    for (const auto err : errors) {
-      Log::Error(err);
-    }
-    return util::InvalidArgumentError("Validation errors in scenario");
-  }
-
-  return util::OkStatus();
-}
-
 sevenyears::graphics::SevenYearsInterface* createInterface() {
   return new sevenyears::graphics::SDLInterface();
 }
@@ -125,9 +95,58 @@ loadGraphicsInfo(sevenyears::graphics::SevenYearsInterface* interface) {
   return interface->ScenarioGraphics(graphics);
 }
 
+// Class for running actual game mechanics.
+class SevenYears {
+ public:
+  SevenYears() = default;
+  ~SevenYears() = default;
+
+  util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
+  void NewTurn();
+
+ private:
+  games::setup::proto::GameWorld game_world_;
+  games::setup::proto::Scenario scenario_;
+};
+
+void SevenYears::NewTurn() {
+  Log::Info("New turn");
+}
+
+util::Status
+SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
+  auto status = validateSetup(setup);
+  if (!status.ok()) {
+    return status;
+  }
+  Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
+
+  status = games::setup::LoadWorld(setup, &game_world_);
+  if (!status.ok()) {
+    return status;
+  }
+  status = games::setup::LoadScenario(setup, &scenario_);
+  if (!status.ok()) {
+    return status;
+  }
+
+  std::vector<std::string> errors =
+      games::setup::validation::Validate(scenario_, game_world_);
+  if (!errors.empty()) {
+    for (const auto err : errors) {
+      Log::Error(err);
+    }
+    return util::InvalidArgumentError("Validation errors in scenario");
+  }
+
+  return util::OkStatus();
+}
+
+
+
 class EventHandler : public interface::Receiver {
 public:
-  EventHandler() : quit_(false) {}
+  EventHandler(SevenYears* game) : game_(game), quit_(false) {}
 
   void QuitToDesktop() override {
     quit_ = true;
@@ -139,13 +158,14 @@ public:
 
 private:
   bool quit_;
+  SevenYears* game_;
 };
 
 void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
   switch (keysym.sym) {
     case SDLK_KP_ENTER:
     case SDLK_RETURN:
-      Log::Info("New turn");
+      game_->NewTurn();
       break;
     case SDLK_q:
       quit_ = true;
@@ -169,8 +189,9 @@ int main(int /*argc*/, char** /*argv*/) {
     return 2;
   }
 
+  SevenYears sevenYears;
   if (scenarios.size() == 1) {
-    auto status = loadScenario(scenarios[0]);
+    auto status = sevenYears.LoadScenario(scenarios[0]);
     if (!status.ok()) {
       Log::Errorf("Error loading scenario: %s", status.error_message());
       return 3;
@@ -179,7 +200,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   interface::proto::Config config;
   config.set_screen_size(interface::proto::Config::SS_1440_900);
-  EventHandler handler;
+  EventHandler handler(&sevenYears);
 
   sevenyears::graphics::SevenYearsInterface* graphics = createInterface();
   graphics->SetReceiver(&handler);
