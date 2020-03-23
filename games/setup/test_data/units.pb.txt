@@ -1,1 +1,10 @@
 # Test proto.
+unit_templates {
+  name: "brig"
+  id: 1
+  mobility {
+    speed_u: 1200000
+    max_bulk_u: 2000000
+    max_weight_u: 10000000
+  }
+}

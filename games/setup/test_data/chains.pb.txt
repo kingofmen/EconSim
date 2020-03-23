@@ -1,1 +1,52 @@
 # Test proto.
+production_chains {
+  name: "wheat_fields"
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 500000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "labour"
+	  value: 1000000
+	}
+      }
+      movable_capital {
+        quantities {
+	  key: "tools"
+	  value: 100000
+	}
+      }
+    }
+    weather_effect_u: 0
+    skip_effect_u: 0
+  }
+  outputs {
+    quantities {
+      key: "food"
+      value: 2000000
+    }
+  }
+  land_type: LT_FIELDS
+  scaling {
+    size_u: 1000000
+    effect_u: 1000000
+  }
+  experience_effect_u: 100000
+}

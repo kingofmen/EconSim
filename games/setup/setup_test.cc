@@ -17,6 +17,7 @@ TEST(SetupTest, TestIdempotency) {
   games::setup::proto::Scenario scenario;
   games::setup::proto::GameWorld gameworld;
   games::setup::proto::ScenarioFiles config;
+  google::protobuf::util::MessageDifferencer differ;
 
   const std::string kTestDir = std::getenv("TEST_SRCDIR");
   const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
@@ -32,6 +33,29 @@ TEST(SetupTest, TestIdempotency) {
 
   auto status = games::setup::LoadScenario(config, &scenario);
   EXPECT_TRUE(status.ok()) << status.error_message();
+  games::setup::Constants constants(scenario);
+  // Add better tests here.
+  ASSERT_EQ(constants.auto_production_.size(), scenario.auto_production_size());
+  for (int i = 0; i < constants.auto_production_.size(); ++i) {
+    const auto* loaded = constants.auto_production_[i];
+    const auto& original = scenario.auto_production(i);
+    EXPECT_TRUE(differ.Equals(*loaded, original))
+        << loaded->DebugString() << "\n\ndiffers from\n"
+        << original.DebugString();
+  }
+  ASSERT_EQ(constants.production_chains_.size(), scenario.production_chains_size());
+  for (int i = 0; i < constants.production_chains_.size(); ++i) {
+    const auto* loaded = constants.production_chains_[i];
+    const auto& original = scenario.production_chains(i);
+    EXPECT_TRUE(differ.Equals(*loaded, original))
+        << loaded->DebugString() << "\n\ndiffers from\n"
+        << original.DebugString();
+  }
+  for (const auto& temp_proto : scenario.unit_templates()) {
+    auto* temp = units::Unit::TemplateById(temp_proto.id());
+    EXPECT_TRUE(temp != NULL)
+        << "No template created for " << temp_proto.DebugString();
+  }
 
   status = games::setup::LoadWorld(config, &gameworld);
   EXPECT_TRUE(status.ok()) << status.error_message();
@@ -43,8 +67,8 @@ TEST(SetupTest, TestIdempotency) {
   status = world->ToProto(&save);
   EXPECT_TRUE(status.ok()) << status.error_message();
 
-  google::protobuf::util::MessageDifferencer differ;
   EXPECT_TRUE(differ.Equals(gameworld, save))
       << gameworld.DebugString() << "\n\ndiffers from\n"
       << save.DebugString();
 }
+
