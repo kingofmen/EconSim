@@ -1,0 +1,28 @@
+# Test proto for world loading.
+areas {
+  id: 1
+  pop_ids: 1
+  fields {
+    land_type: LT_ORCHARDS
+    owner_id: 1
+  }
+}
+areas {
+  id: 2
+}
+connections {
+  type: CT_OPEN_SEA
+  id: 1
+  distance_u: 1000000
+  width_u: 1000000
+  a: 1
+  z: 2
+}
+pops {
+  pop_id: 1
+  males: 1
+  women: 1
+  wealth {
+    quantities { key: "apples" value: 1 }
+  }
+}
