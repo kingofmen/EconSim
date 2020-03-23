@@ -1,0 +1,31 @@
+unit_templates {
+  name: "brig"
+  id: 1
+  # Medium fast, can handle a lot of weight for its bulk.
+  mobility {
+    speed_u: 1200000
+    max_bulk_u: 2000000
+    max_weight_u: 10000000
+  }
+}
+unit_templates {
+  name: "schooner"
+  id: 2
+  # Fastest carrier, prefers bulk to weight.
+  mobility {
+    speed_u: 1300000
+    max_bulk_u: 2000000
+    max_weight_u: 5000000
+  }
+}
+unit_templates {
+  name: "threemaster"
+  id: 3
+  # Slow but lots of capacity.
+  mobility {
+    speed_u: 1000000
+    max_bulk_u: 5000000
+    max_weight_u: 15000000
+  }
+}
+
