@@ -20,6 +20,8 @@ namespace setup {
 
 // Object to hold unchanging scenario information.
 struct Constants {
+  Constants() {}
+  Constants(const Constants& other) = default;
   Constants(const games::setup::proto::Scenario& scenario);
   std::vector<const population::proto::AutoProduction*> auto_production_;
   std::vector<const industry::proto::Production*> production_chains_;
@@ -54,7 +56,7 @@ util::Status LoadWorld(const proto::ScenarioFiles& config,
 // Load world and constants protos from config. Note that this
 // resets the world pointer.
 util::Status CreateWorld(const proto::ScenarioFiles& config,
-                         std::unique_ptr<World>& world, Constants* constants) {
+                         std::unique_ptr<World>& world, Constants* constants);
 
 } // namespace setup
 }  // namespace games

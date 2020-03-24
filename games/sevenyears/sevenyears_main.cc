@@ -5,7 +5,6 @@
 #include "absl/strings/substitute.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
-#include "games/setup/validation/validation.h"
 #include "interface/base.h"
 #include "interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/sdl_interface.h"
@@ -98,15 +97,15 @@ loadGraphicsInfo(sevenyears::graphics::SevenYearsInterface* interface) {
 // Class for running actual game mechanics.
 class SevenYears {
  public:
-  SevenYears() = default;
-  ~SevenYears() = default;
+   SevenYears() {}
+   ~SevenYears() {}
 
-  util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
-  void NewTurn();
+   util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
+   void NewTurn();
 
  private:
-  games::setup::proto::GameWorld game_world_;
-  games::setup::proto::Scenario scenario_;
+  std::unique_ptr<games::setup::World> game_world_;
+  games::setup::Constants constants_;
 };
 
 void SevenYears::NewTurn() {
@@ -121,25 +120,7 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
   Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
 
-  status = games::setup::LoadWorld(setup, &game_world_);
-  if (!status.ok()) {
-    return status;
-  }
-  status = games::setup::LoadScenario(setup, &scenario_);
-  if (!status.ok()) {
-    return status;
-  }
-
-  std::vector<std::string> errors =
-      games::setup::validation::Validate(scenario_, game_world_);
-  if (!errors.empty()) {
-    for (const auto err : errors) {
-      Log::Error(err);
-    }
-    return util::InvalidArgumentError("Validation errors in scenario");
-  }
-
-  return util::OkStatus();
+  return games::setup::CreateWorld(setup, game_world_, &constants_);
 }
 
 

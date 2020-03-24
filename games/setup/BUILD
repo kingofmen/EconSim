@@ -8,6 +8,7 @@ cc_library(
         "//factions/proto:factions_proto",
         "//factions:factions",
         "//games/setup/proto:setup_proto",
+        "//games/setup/validation:validation",
         "//geography:connection",
         "//geography:geography",
         "//population:population",

@@ -2,6 +2,7 @@
 
 #include <experimental/filesystem>
 
+#include "games/setup/validation/validation.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
 #include "industry/decisions/production_evaluator.h"
@@ -159,11 +160,20 @@ util::Status CreateWorld(const proto::ScenarioFiles& config,
     return util::InvalidArgumentError(
         "Non-empty world pointer passed to CreateWorld.");
   }
+
   proto::GameWorld world_proto;
   proto::Scenario scenario_proto;
   auto status = LoadScenario(config, &scenario_proto);
   if (!status.ok()) {
     return status;
+  }
+  std::vector<std::string> errors =
+      validation::Validate(scenario_proto, world_proto);
+  if (!errors.empty()) {
+    for (const auto err : errors) {
+      Log::Error(err);
+    }
+    return util::InvalidArgumentError("Validation errors in scenario");
   }
 
   *constants = Constants(scenario_proto);
