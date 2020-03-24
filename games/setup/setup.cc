@@ -153,5 +153,28 @@ util::Status LoadWorld(const proto::ScenarioFiles& config,
   return util::OkStatus();
 }
 
+util::Status CreateWorld(const proto::ScenarioFiles& config,
+                         std::unique_ptr<World>& world, Constants* constants) {
+  if (world) {
+    return util::InvalidArgumentError(
+        "Non-empty world pointer passed to CreateWorld.");
+  }
+  proto::GameWorld world_proto;
+  proto::Scenario scenario_proto;
+  auto status = LoadScenario(config, &scenario_proto);
+  if (!status.ok()) {
+    return status;
+  }
+
+  *constants = Constants(scenario_proto);
+
+  status = LoadWorld(config, &world_proto);
+  if (!status.ok()) {
+    return status;
+  }
+  world = World::FromProto(world_proto);
+  return util::OkStatus();
+}
+
 }  // namespace setup
 }  // namespace games

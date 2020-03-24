@@ -51,7 +51,12 @@ util::Status LoadScenario(const proto::ScenarioFiles& config,
 util::Status LoadWorld(const proto::ScenarioFiles& config,
                        proto::GameWorld* world);
 
-}  // namespace setup
+// Load world and constants protos from config. Note that this
+// resets the world pointer.
+util::Status CreateWorld(const proto::ScenarioFiles& config,
+                         std::unique_ptr<World>& world, Constants* constants) {
+
+} // namespace setup
 }  // namespace games
 
 #endif
