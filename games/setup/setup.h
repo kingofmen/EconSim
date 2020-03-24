@@ -29,7 +29,7 @@ struct Constants {
 };
 
 // Object to hold current state in memory.
-class World {
+struct World {
  public:
   // TODO: Make this a StatusOr when Abseil releases that.
   // Create a World from the proto object.
@@ -38,7 +38,6 @@ class World {
   // Save state to proto, which must not be null.
   util::Status ToProto(proto::GameWorld* proto);
 
-private:
   // World-state information.
   std::vector<std::unique_ptr<factions::FactionController>> factions_;
   std::vector<std::unique_ptr<population::PopUnit>> pops_;

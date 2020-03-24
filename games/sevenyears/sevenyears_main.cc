@@ -123,8 +123,6 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   return games::setup::CreateWorld(setup, game_world_, &constants_);
 }
 
-
-
 class EventHandler : public interface::Receiver {
 public:
   EventHandler(SevenYears* game) : game_(game), quit_(false) {}
