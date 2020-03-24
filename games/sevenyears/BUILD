@@ -4,6 +4,10 @@ cc_binary(
     name = "sevenyears",
     srcs = ["sevenyears_main.cc"],
     deps = [
+        "//actions/proto:plan_proto",
+        "//actions/proto:strategy_proto",
+        "//ai:executer",
+        "//ai:planner",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/sevenyears/graphics:sdl_interface",

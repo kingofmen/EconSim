@@ -3,6 +3,10 @@
 #include <vector>
 
 #include "absl/strings/substitute.h"
+#include "actions/proto/plan.pb.h"
+#include "actions/proto/strategy.pb.h"
+#include "ai/executer.h"
+#include "ai/planner.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "interface/base.h"
@@ -110,6 +114,33 @@ class SevenYears {
 
 void SevenYears::NewTurn() {
   Log::Info("New turn");
+  // Units all plan simultaneously.
+  for (auto& unit : game_world_->units_) {
+    actions::proto::Strategy* strategy = unit->mutable_strategy();
+    if (strategy->strategy_case() ==
+        actions::proto::Strategy::STRATEGY_NOT_SET) {
+      // TODO: Strategic AI.
+      continue;
+    }
+    actions::proto::Plan* plan = unit->mutable_plan();
+    if (plan->steps_size() == 0) {
+      *plan = ai::MakePlan(*unit, unit->strategy());
+    }
+  }
+
+  // Execute in single steps.
+  while (true) {
+    int count = 0;
+    for (auto& unit : game_world_->units_) {
+      if (ai::ExecuteStep(unit->plan(), unit.get())) {
+        ai::DeleteStep(unit->mutable_plan());
+        ++count;
+      }
+    }
+    if (count == 0) {
+      break;
+    }
+  }
 }
 
 util::Status
