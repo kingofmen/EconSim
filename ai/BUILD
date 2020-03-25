@@ -8,6 +8,7 @@ cc_library(
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
         "//units",
+        "//util/status:status",
     ],
 )
 
@@ -20,6 +21,8 @@ cc_library(
         ":unit_ai",
         "//ai/impl:unit_ai_impl",
         "//units",
+        "//util/status:status",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

@@ -130,13 +130,12 @@ void GoBuySell(const units::Unit& unit, uint64 target_id, const std::string& buy
 
 }
 
-void ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
-                                   const actions::proto::Strategy& strategy,
-                                   actions::proto::Plan* plan) const {
+util::Status
+ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
+                              const actions::proto::Strategy& strategy,
+                              actions::proto::Plan* plan) const {
   if (!strategy.has_shuttle_trade()) {
-    // TODO: Handle this as error? It seems to indicate something unexpected
-    // anyway.
-    return;
+    return util::NotFoundError("No ShuttleTrader strategy");
   }
   const actions::proto::ShuttleTrade& info = strategy.shuttle_trade();
   switch (info.state()) {
@@ -149,17 +148,18 @@ void ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
     default:
       break;
   }
+  return util::OkStatus();
 }
 
-void SevenYearsMerchant::AddStepsToPlan(
-    const units::Unit& unit, const actions::proto::Strategy& strategy,
-    actions::proto::Plan* plan) const {
+util::Status
+SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
+                                   const actions::proto::Strategy& strategy,
+                                   actions::proto::Plan* plan) const {
   if (!strategy.has_seven_years_merchant()) {
-    // TODO: Error.
-    return;
+    return util::NotFoundError("No SevenYearsMerchant strategy");
   }
 
-  return;
+  return util::OkStatus();
 }
 
 } // namespace impl

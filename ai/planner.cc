@@ -2,8 +2,10 @@
 
 #include <unordered_map>
 
+#include "absl/strings/substitute.h"
 #include "ai/unit_ai.h"
 #include "ai/impl/unit_ai_impl.h"
+#include "util/status/status.h"
 
 namespace ai {
 
@@ -12,16 +14,16 @@ std::unordered_map<actions::proto::Strategy::StrategyCase, UnitAi*> unit_ai_map 
   {actions::proto::Strategy::kSevenYearsMerchant, new impl::SevenYearsMerchant()},
 };
 
-actions::proto::Plan MakePlan(const units::Unit& unit,
-                              const actions::proto::Strategy& strategy) {
-  actions::proto::Plan plan;
+util::Status MakePlan(const units::Unit& unit,
+                      const actions::proto::Strategy& strategy,
+                      actions::proto::Plan* plan) {
   if (unit_ai_map.find(strategy.strategy_case()) == unit_ai_map.end()) {
-    // TODO: This is an error, handle it.
-    return plan;
+    return util::NotFoundError(
+        absl::Substitute("Unknown strategy case $0 in $1",
+                         strategy.strategy_case(), strategy.DebugString()));
   }
 
-  unit_ai_map[strategy.strategy_case()]->AddStepsToPlan(unit, strategy, &plan);
-  return plan;
+  return unit_ai_map[strategy.strategy_case()]->AddStepsToPlan(unit, strategy, plan);
 }
 
 } // namespace ai

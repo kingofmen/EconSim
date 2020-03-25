@@ -124,7 +124,12 @@ void SevenYears::NewTurn() {
     }
     actions::proto::Plan* plan = unit->mutable_plan();
     if (plan->steps_size() == 0) {
-      *plan = ai::MakePlan(*unit, unit->strategy());
+      auto status = ai::MakePlan(*unit, unit->strategy(), plan);
+      if (!status.ok()) {
+        Log::Warnf("Could not create plan for unit %s: %s",
+                   unit->ID().DebugString(), status.error_message());
+        continue;
+      }
     }
   }
 

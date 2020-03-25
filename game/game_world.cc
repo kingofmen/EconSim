@@ -297,7 +297,8 @@ void GameWorld::TimeStep(
     }
     actions::proto::Plan* plan = unit->mutable_plan();
     if (plan->steps_size() == 0) {
-      *plan = ai::MakePlan(*unit, unit->strategy());
+      // TODO: Handle bad status here.
+      ai::MakePlan(*unit, unit->strategy(), plan);
     }
   }
 

@@ -74,7 +74,9 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
   trade->set_area_z_id(area3_->id());
   trade->set_state(actions::proto::ShuttleTrade::STS_BUY_A);
 
-  actions::proto::Plan plan = ai::MakePlan(*unit_, strategy_);
+  actions::proto::Plan plan;
+  auto status = ai::MakePlan(*unit_, strategy_, &plan);
+  EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(3, plan.steps_size());
   if (plan.steps_size() == 3) {
     EXPECT_EQ(actions::proto::AA_SELL, plan.steps(0).action());
@@ -88,7 +90,9 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
   market::SetAmount(kTestGood2, 0, unit_->mutable_resources());
   trade->set_state(actions::proto::ShuttleTrade::STS_BUY_Z);
 
-  plan = ai::MakePlan(*unit_, strategy_);
+  plan.Clear();
+  status = ai::MakePlan(*unit_, strategy_, &plan);
+  EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(5, plan.steps_size());
   if (plan.steps_size() >= 2) {
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(0).action());
