@@ -26,4 +26,14 @@ util::Status MakePlan(const units::Unit& unit,
   return unit_ai_map[strategy.strategy_case()]->AddStepsToPlan(unit, strategy, plan);
 }
 
+util::Status RegisterPlanner(const actions::proto::Strategy& strategy,
+                             UnitAi* planner) {
+  if (planner == NULL) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Null planner passed for $0", strategy.DebugString()));
+  }
+  unit_ai_map[strategy.strategy_case()] = planner;
+  return util::OkStatus();
+}
+
 } // namespace ai
