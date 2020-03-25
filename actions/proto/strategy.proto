@@ -1,6 +1,7 @@
 syntax = "proto2";
 package actions.proto;
 
+// Simple test strategies, not meant for serious use.
 // Buy apples in Appleville, carry to Orangetown, sell apples, buy oranges,
 // go back and sell the oranges, repeat.
 message ShuttleTrade {
@@ -16,9 +17,15 @@ message ShuttleTrade {
   optional uint64 tolerance = 6 [default = 900000];
 }
 
+// Strategies for SevenYears naval-management minigame.
+message SevenYearsMerchant {
+  optional uint64 base_area_id = 1;
+}
+
 message Strategy {
   oneof strategy {
     ShuttleTrade shuttle_trade = 1;
+    SevenYearsMerchant seven_years_merchant = 2;
   }
 }
 

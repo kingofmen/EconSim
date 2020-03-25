@@ -18,6 +18,15 @@ public:
 private:
 };
 
+class SevenYearsMerchant : public ai::UnitAi {
+public:
+  void AddStepsToPlan(const units::Unit& unit,
+                      const actions::proto::Strategy& strategy,
+                      actions::proto::Plan* plan) const override;
+
+private:
+};
+
 } // namespace impl
 } // namespace ai
 

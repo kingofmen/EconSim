@@ -52,3 +52,17 @@ connections {
   z: 5
 }
 
+units {
+  unit_id {
+    type: 1
+    number: 1
+  }
+  location {
+    source_area_id: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id: 1
+    }
+  }
+}

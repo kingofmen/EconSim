@@ -151,5 +151,16 @@ void ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
   }
 }
 
+void SevenYearsMerchant::AddStepsToPlan(
+    const units::Unit& unit, const actions::proto::Strategy& strategy,
+    actions::proto::Plan* plan) const {
+  if (!strategy.has_seven_years_merchant()) {
+    // TODO: Error.
+    return;
+  }
+
+  return;
+}
+
 } // namespace impl
 } // namespace ai
