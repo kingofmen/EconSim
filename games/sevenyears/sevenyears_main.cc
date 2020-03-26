@@ -98,6 +98,26 @@ loadGraphicsInfo(sevenyears::graphics::SevenYearsInterface* interface) {
   return interface->ScenarioGraphics(graphics);
 }
 
+class SevenYearsMerchant : public ai::UnitAi {
+public:
+  util::Status AddStepsToPlan(const units::Unit& unit,
+                              const actions::proto::Strategy& strategy,
+                              actions::proto::Plan* plan) const override;
+
+private:
+};
+
+util::Status
+SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
+                                   const actions::proto::Strategy& strategy,
+                                   actions::proto::Plan* plan) const {
+  if (!strategy.has_seven_years_merchant()) {
+    return util::NotFoundError("No SevenYearsMerchant strategy");
+  }
+
+  return util::OkStatus();
+}
+
 // Class for running actual game mechanics.
 class SevenYears {
  public:
@@ -190,6 +210,14 @@ void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
   }
 }
 
+util::Status InitialiseAI() {
+  actions::proto::Strategy strategy;
+  strategy.mutable_seven_years_merchant()->set_base_area_id(1);
+  // This leaks, but no matter, it's max a hundred bytes.
+  SevenYearsMerchant* merchant_ai = new SevenYearsMerchant();;
+  return ai::RegisterPlanner(strategy, merchant_ai);
+}
+
 int main(int /*argc*/, char** /*argv*/) {
   Log::Register(Log::coutLogger);
   auto paths = getScenarioPaths();
@@ -213,6 +241,12 @@ int main(int /*argc*/, char** /*argv*/) {
     }
   }
 
+  auto status = InitialiseAI();
+  if (!status.ok()) {
+    Log::Errorf("Error initialising AI: %s", status.error_message());
+    return 3;
+  }
+  
   interface::proto::Config config;
   config.set_screen_size(interface::proto::Config::SS_1440_900);
   EventHandler handler(&sevenYears);
@@ -220,7 +254,7 @@ int main(int /*argc*/, char** /*argv*/) {
   sevenyears::graphics::SevenYearsInterface* graphics = createInterface();
   graphics->SetReceiver(&handler);
 
-  auto status = graphics->Initialise(config);
+  status = graphics->Initialise(config);
   if (!status.ok()) {
     Log::Errorf("Error initialising interface: %s", status.error_message());
     graphics->Cleanup();

@@ -151,16 +151,5 @@ ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
   return util::OkStatus();
 }
 
-util::Status
-SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
-                                   const actions::proto::Strategy& strategy,
-                                   actions::proto::Plan* plan) const {
-  if (!strategy.has_seven_years_merchant()) {
-    return util::NotFoundError("No SevenYearsMerchant strategy");
-  }
-
-  return util::OkStatus();
-}
-
 } // namespace impl
 } // namespace ai

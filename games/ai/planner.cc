@@ -11,7 +11,6 @@ namespace ai {
 
 std::unordered_map<actions::proto::Strategy::StrategyCase, UnitAi*> unit_ai_map = {
   {actions::proto::Strategy::kShuttleTrade, new impl::ShuttleTrader()},
-  {actions::proto::Strategy::kSevenYearsMerchant, new impl::SevenYearsMerchant()},
 };
 
 util::Status MakePlan(const units::Unit& unit,
