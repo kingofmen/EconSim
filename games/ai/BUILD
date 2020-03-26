@@ -18,7 +18,7 @@ cc_library(
     hdrs = ["planner.h"],
     deps = [
         ":unit_ai",
-        "//ai/impl:unit_ai_impl",
+        "//games/ai/impl:unit_ai_impl",
         "//units",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
@@ -31,7 +31,7 @@ cc_library(
     hdrs = ["executer.h"],
     deps = [
         "//actions/proto:plan_proto",
-        "//ai/impl:executor_impl",
+        "//games/ai/impl:executor_impl",
         "//units",
     ],
 )

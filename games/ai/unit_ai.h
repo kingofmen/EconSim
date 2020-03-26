@@ -1,5 +1,5 @@
-#ifndef AI_UNIT_AI_H
-#define AI_UNIT_AI_H
+#ifndef GAMES_AI_UNIT_AI_H
+#define GAMES_AI_UNIT_AI_H
 
 #include "actions/proto/strategy.pb.h"
 #include "actions/proto/plan.pb.h"

@@ -1,8 +1,8 @@
-#include "ai/impl/unit_ai_impl.h"
+#include "games/ai/impl/unit_ai_impl.h"
 
 #include "actions/proto/strategy.pb.h"
 #include "actions/proto/plan.pb.h"
-#include "ai/planner.h"
+#include "games/ai/planner.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
 #include "geography/mobile.h"

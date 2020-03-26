@@ -1,4 +1,4 @@
-package(default_visibility = ["//ai:__pkg__"])
+package(default_visibility = ["//games/ai:__pkg__"])
 
 cc_library(
     name = "unit_ai_impl",
@@ -7,7 +7,7 @@ cc_library(
     deps = [
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
-        "//ai:unit_ai",
+        "//games/ai:unit_ai",
         "//geography:connection",
         "//market:goods_utils",
         "//units:units",
@@ -40,8 +40,8 @@ cc_test(
         ":unit_ai_impl",
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
-        "//ai:planner",
-        "//ai:unit_ai",
+        "//games/ai:planner",
+        "//games/ai:unit_ai",
         "//geography:connection",
         "//geography:geography",
         "//geography/proto:geography_proto",

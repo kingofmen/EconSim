@@ -6,8 +6,8 @@ cc_library(
     deps = [
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
-        "//ai:executer",
-        "//ai:planner",
+        "//games/ai:executer",
+        "//games/ai:planner",
         "//factions/proto:factions_proto",
         "//factions:factions",
         "//games/setup:setup",

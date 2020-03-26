@@ -1,5 +1,5 @@
-#ifndef AI_IMPL_EXECUTOR_IMPL_H
-#define AI_IMPL_EXECUTOR_IMPL_H
+#ifndef GAMES_AI_IMPL_EXECUTOR_IMPL_H
+#define GAMES_AI_IMPL_EXECUTOR_IMPL_H
 
 #include "actions/proto/plan.pb.h"
 #include "units/unit.h"

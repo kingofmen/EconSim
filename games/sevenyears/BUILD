@@ -6,8 +6,8 @@ cc_binary(
     deps = [
         "//actions/proto:plan_proto",
         "//actions/proto:strategy_proto",
-        "//ai:executer",
-        "//ai:planner",
+        "//games/ai:executer",
+        "//games/ai:planner",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/sevenyears/graphics:sdl_interface",

@@ -2,8 +2,8 @@
 
 #include "actions/proto/plan.pb.h"
 #include "actions/proto/strategy.pb.h"
-#include "ai/executer.h"
-#include "ai/planner.h"
+#include "games/ai/executer.h"
+#include "games/ai/planner.h"
 #include "geography/geography.h"
 #include "industry/decisions/production_evaluator.h"
 #include "industry/worker.h"

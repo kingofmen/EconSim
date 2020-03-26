@@ -1,10 +1,10 @@
-#include "ai/planner.h"
+#include "games/ai/planner.h"
 
 #include <unordered_map>
 
 #include "absl/strings/substitute.h"
-#include "ai/unit_ai.h"
-#include "ai/impl/unit_ai_impl.h"
+#include "games/ai/unit_ai.h"
+#include "games/ai/impl/unit_ai_impl.h"
 #include "util/status/status.h"
 
 namespace ai {

@@ -1,9 +1,9 @@
-#ifndef AI_IMPL_UNIT_AI_IMPL_H
-#define AI_IMPL_UNIT_AI_IMPL_H
+#ifndef GAMES_AI_IMPL_UNIT_AI_IMPL_H
+#define GAMES_AI_IMPL_UNIT_AI_IMPL_H
 
 #include "actions/proto/strategy.pb.h"
 #include "actions/proto/plan.pb.h"
-#include "ai/unit_ai.h"
+#include "games/ai/unit_ai.h"
 #include "units/unit.h"
 #include "util/status/status.h"
 
