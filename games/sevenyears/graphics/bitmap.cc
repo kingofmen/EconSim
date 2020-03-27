@@ -30,6 +30,21 @@ util::Status LoadForSdl(const std::experimental::filesystem::path file,
   return util::OkStatus();
 }
 
+util::Status MakeTexture(const std::experimental::filesystem::path& file,
+                         SDL_Renderer* renderer, SDL_Texture*& tex) {
+  SDL_Surface* surface = NULL;
+  auto status = LoadForSdl(file, surface);
+  if (!status.ok()) {
+    return status;
+  }
+  tex = SDL_CreateTextureFromSurface(renderer, surface);
+  if (!tex) {
+    return util::InvalidArgumentError(absl::Substitute(
+        "Could not convert $0 to texture: $1", file.string(), SDL_GetError()));
+  }
+  SDL_FreeSurface(surface);
+  return util::OkStatus();
+}
 
 }  // namespace bitmap
 }  // namespace graphics

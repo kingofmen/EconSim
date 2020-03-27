@@ -9,6 +9,7 @@
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/sevenyears/graphics/sevenyears_interface.h"
 #include "interface/proto/config.pb.h"
+#include "util/headers/int_types.h"
 #include "util/status/status.h"
 #include "SDL.h"
 
@@ -54,6 +55,7 @@ private:
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, Map> maps_;
+  std::unordered_map<uint64, SDL_Texture*> unit_types_;
   std::string current_map_;
   SDL_Rect map_rectangle_;
 };

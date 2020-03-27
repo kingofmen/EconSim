@@ -80,3 +80,8 @@ maps {
   }
 }
 
+unit_types {
+  display_name: "Brig"
+  filename: "BrigIcon.bmp"
+  template_id: 1 
+}

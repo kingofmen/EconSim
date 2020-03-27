@@ -15,6 +15,9 @@ namespace bitmap {
 util::Status LoadForSdl(const std::experimental::filesystem::path file,
                         SDL_Surface*& img);
 
+// Creates a texture from the file and loads it into the texture pointer.
+util::Status MakeTexture(const std::experimental::filesystem::path& file,
+                         SDL_Renderer* renderer, SDL_Texture*& tex);
 
 }  // namespace bitmap
 }  // namespace graphics

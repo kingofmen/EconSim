@@ -195,8 +195,11 @@ util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
 }
 
 void SDLInterface::Cleanup() {
-  for (auto map : maps_) {
+  for (auto& map : maps_) {
     SDL_DestroyTexture(map.second.background_);
+  }
+  for (auto& ut : unit_types_) {
+    SDL_DestroyTexture(ut.second);
   }
   window_.reset(nullptr); // Also calls deleter.
   renderer_.reset(nullptr);
@@ -223,6 +226,13 @@ void SDLInterface::drawMap() {
   SDL_RenderCopy(renderer_.get(), currMap.background_, NULL, &map_rectangle_);
   for (const Area& area : currMap.areas_) {
     drawArea(area);
+  }
+
+  int xc = 16;
+  for (const auto& ut : unit_types_) {
+    SDL_Rect fillRect = {xc, 16, xc+16, 32};
+    SDL_RenderCopy(renderer_.get(), ut.second, NULL, &fillRect);
+    xc += 24;
   }
 }
 
@@ -316,6 +326,7 @@ SDLInterface::Area::Area(const proto::Area& proto,
 SDLInterface::Map::Map(const proto::Map& proto) : background_(NULL) {
 }
 
+
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   auto status = validate(scenario);
   if (!status.ok()) {
@@ -337,19 +348,11 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
 
     Map curr(map);
     auto current_path = base_path / map.filename();
-    SDL_Surface* surface = NULL;
-    status = bitmap::LoadForSdl(current_path, surface);
+    status =
+        bitmap::MakeTexture(current_path, renderer_.get(), curr.background_);
     if (!status.ok()) {
       return status;
     }
-    curr.background_ = SDL_CreateTextureFromSurface(renderer_.get(), surface);
-    if (!curr.background_) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Could not convert $0 to texture: $1",
-                           current_path.string(), SDL_GetError()));
-    }
-    SDL_FreeSurface(surface);
-
     int seconds_per_pixel_high =
         seconds_north(map.left_top()) - seconds_north(map.right_bottom());
     seconds_per_pixel_high /= map_rectangle_.h;
@@ -362,6 +365,21 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
     }
     maps_.emplace(map.name(), std::move(curr));
     current_map_ = map.name();
+  }
+
+  for (const auto& ut : scenario.unit_types()) {
+    if (unit_types_.find(ut.template_id()) != unit_types_.end()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Duplicate unit graphics for $0: $1",
+                           ut.display_name(), ut.DebugString()));
+    }
+    auto current_path = base_path / ut.filename();
+    SDL_Texture* tex = NULL;
+    status = bitmap::MakeTexture(current_path, renderer_.get(), tex);
+    if (!status.ok()) {
+      return status;
+    }
+    unit_types_[ut.template_id()] = tex;
   }
 
   return util::OkStatus();

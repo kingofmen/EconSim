@@ -29,8 +29,15 @@ message Map {
   optional LatLong right_bottom = 5;
 }
 
+message UnitType {
+  optional string display_name = 1 [default = "UNKNOWN UNIT TYPE"];
+  optional string filename = 2;
+  optional uint64 template_id = 3;
+}
+
 message Scenario {
   // Relative to executable.
   optional string root_gfx_path = 1;
   repeated Map maps = 2;
+  repeated UnitType unit_types = 3;
 }
