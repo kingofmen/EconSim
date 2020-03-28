@@ -85,3 +85,13 @@ unit_types {
   filename: "BrigIcon.bmp"
   template_id: 1 
 }
+unit_types {
+  display_name: "Schooner"
+  filename: "SchoonerIcon.bmp"
+  template_id: 2
+}
+unit_types {
+  display_name: "Fullrigger"
+  filename: "FullRiggerIcon.bmp"
+  template_id: 3 
+}

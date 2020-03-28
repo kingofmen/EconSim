@@ -230,7 +230,7 @@ void SDLInterface::drawMap() {
 
   int xc = 16;
   for (const auto& ut : unit_types_) {
-    SDL_Rect fillRect = {xc, 16, xc+16, 32};
+    SDL_Rect fillRect = {xc, 16, 16, 16};
     SDL_RenderCopy(renderer_.get(), ut.second, NULL, &fillRect);
     xc += 24;
   }
