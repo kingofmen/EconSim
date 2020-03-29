@@ -41,8 +41,23 @@ proto_library(
 cc_library(
     name = "object_id",
     hdrs = ["object_id.h"],
+    srcs = ["object_id.cc"],
     deps = [
         "//util/headers:int_types",
         "//util/proto:object_id_proto",
+        "//util/status:status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "object_id_test",
+    srcs = ["object_id_test.cc"],
+    deps = [
+        ":object_id",
+        "//util/status:status",
+        "@com_google_absl//absl/strings",
+        "@gtest",
+        "@gtest//:gtest_main",
     ],
 )
