@@ -3,6 +3,7 @@
 
 #include "interface/proto/config.pb.h"
 #include "SDL_keyboard.h"
+#include "units/proto/units.pb.h"
 #include "util/status/status.h"
 
 namespace interface {
@@ -25,16 +26,17 @@ class Receiver {
 // Base is an abstract class exposing a minimal set of interactions.
 // Implementations may store state.
 class Base {
- public:
-   Base() = default;
-   ~Base() = default;
+public:
+  Base() = default;
+  ~Base() = default;
 
-   virtual util::Status Initialise(const interface::proto::Config& config) = 0;
-   virtual void Cleanup() = 0;
-   virtual void EventLoop() = 0;
-   void SetReceiver(Receiver* c) { receiver_ = c; }
+  virtual util::Status Initialise(const interface::proto::Config& config) = 0;
+  virtual void Cleanup() = 0;
+  virtual void EventLoop() = 0;
+  void SetReceiver(Receiver* c) { receiver_ = c; }
+  virtual void DisplayUnits(const std::vector<util::proto::ObjectId>& ids) = 0;
 
- protected:
+protected:
   Receiver* receiver_;
 };
 

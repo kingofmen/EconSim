@@ -51,6 +51,8 @@ public:
   // by bulk or weight.
   market::Measure Capacity(const std::string& good) const;
 
+  uint64 template_id() const { return proto_.unit_id().type(); }
+
 private:
   Unit(const proto::Unit& proto);
 

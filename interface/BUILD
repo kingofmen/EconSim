@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["base.h"],
     deps = [
         "//interface/proto:config_proto",
+        "//units/proto:units_proto",
         "//util/status",
         "@sdl2//:SDL2",
     ],

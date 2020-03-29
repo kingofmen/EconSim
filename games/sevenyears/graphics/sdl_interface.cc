@@ -6,6 +6,9 @@
 #include "absl/strings/substitute.h"
 #include "interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
+#include "geography/connection.h"
+#include "units/unit.h"
+#include "util/logging/logging.h"
 #include "util/status/status.h"
 #include "SDL.h"
 
@@ -72,95 +75,6 @@ void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width,
   map_rectangle->w = 792;
 }
 
-util::Status validate(const proto::Scenario& scenario) {
-  if (scenario.maps().empty()) {
-    return util::NotFoundError("Scenario has no maps.");
-  }
-
-  if (!scenario.has_root_gfx_path() || scenario.root_gfx_path().empty()) {
-    return util::NotFoundError("Scenario has no root graphics path.");
-  }
-
-  int counter = 0;
-  std::unordered_map<int, std::string> area_ids;
-  for (const auto& map : scenario.maps()) {
-    counter++;
-    if (map.name().empty()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no name.", counter));
-    }
-    if (map.filename().empty()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no filename.", map.name()));
-    }
-    if (!map.has_left_top()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no left-top coordinate.", map.name()));
-    }
-    if (!map.has_right_bottom()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no right-bottom coordinate.", map.name()));
-    }
-    if (seconds_north(map.left_top()) <= seconds_north(map.right_bottom())) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has left top south of right bottom.", map.name()));
-    }
-    if (seconds_east(map.left_top()) >= seconds_east(map.right_bottom())) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has left top east of right bottom.", map.name()));
-    }
-    if (map.areas().empty()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Map $0 has no areas.", map.name()));
-    }
-
-    int top_seconds = seconds_north(map.left_top());
-    int left_seconds = seconds_east(map.left_top());
-    int bottom_seconds = seconds_north(map.right_bottom());
-    int right_seconds = seconds_east(map.right_bottom());
-    for (const auto& area : map.areas()) {
-      if (!area.has_area_id()) {
-        continue;
-      }
-      int curr_id = area.area_id();
-      if (area_ids.find(curr_id) != area_ids.end()) {
-        return util::InvalidArgumentError(
-            absl::Substitute("Duplicate area $0 in map $1, previous was in $2",
-                             curr_id, map.name(), area_ids[curr_id]));
-      }
-      area_ids[curr_id] = map.name();
-
-      if (!area.has_position()) {
-        return util::InvalidArgumentError(absl::Substitute(
-            "Area $0 in map $1 has no coordinates.", curr_id, map.name()));
-      }
-      const auto& pos = area.position();
-      if (seconds_north(pos) > top_seconds) {
-        return util::InvalidArgumentError(
-            absl::Substitute("Area $0 in map $1 is north of the map top edge.",
-                             curr_id, map.name()));
-      }
-      if (seconds_east(pos) < left_seconds) {
-        return util::InvalidArgumentError(
-            absl::Substitute("Area $0 in map $1 is west of the map left edge.",
-                             curr_id, map.name()));
-      }
-      if (seconds_north(pos) < bottom_seconds) {
-        return util::InvalidArgumentError(absl::Substitute(
-            "Area $0 in map $1 is south of the map bottom edge.", curr_id,
-            map.name()));
-      }
-      if (seconds_east(pos) > right_seconds) {
-        return util::InvalidArgumentError(
-            absl::Substitute("Area $0 in map $1 is east of the map right edge.",
-                             curr_id, map.name()));
-      }
-    }
-  }
-
-  return util::OkStatus();
-}
-
 
 }  // namespace
 
@@ -215,6 +129,26 @@ void SDLInterface::drawArea(const Area& area) {
   SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), &fillRect);
+  int numTypes = area.unit_numbers_.size();
+  static const int kIncrement = 24;
+  static const int kWidth = 16;
+  int start = area.xpos_ - kIncrement * (numTypes / 2) - kWidth / 2;
+  start += (kIncrement / 2) * (1 - numTypes % 2);
+  int idx = 0;
+  SDL_Rect loc;
+  loc.w = kWidth;
+  loc.h = kWidth;
+  for (const auto& units : area.unit_numbers_) {
+    SDL_Texture* tex = unit_types_[units.first];
+    int number = units.second;
+    loc.x = start + kIncrement * idx++;
+    loc.y = area.ypos_ - (kIncrement/2 + kWidth);
+    for (int i = 0; i < number; ++i) {
+      SDL_RenderCopy(renderer_.get(), tex, NULL, &loc);
+      loc.x += 3;
+      loc.y -= 3;
+    }
+  }
 }
 
 void SDLInterface::drawMap() {
@@ -228,12 +162,163 @@ void SDLInterface::drawMap() {
     drawArea(area);
   }
 
-  int xc = 16;
-  for (const auto& ut : unit_types_) {
-    SDL_Rect fillRect = {xc, 16, 16, 16};
-    SDL_RenderCopy(renderer_.get(), ut.second, NULL, &fillRect);
-    xc += 24;
+  for (const auto& unit : currMap.unit_locations_) {
+    if (unit_types_.find(unit.first) == unit_types_.end()) {
+      continue;
+    }
+    auto* icon = unit_types_[unit.first];
+    for (const auto& loc : unit.second) {
+      SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
+    }
   }
+}
+
+util::Status SDLInterface::validate(const proto::Scenario& scenario) {
+  if (scenario.maps().empty()) {
+    return util::NotFoundError("Scenario has no maps.");
+  }
+
+  if (!scenario.has_root_gfx_path() || scenario.root_gfx_path().empty()) {
+    return util::NotFoundError("Scenario has no root graphics path.");
+  }
+
+  int counter = 0;
+  for (const auto& map : scenario.maps()) {
+    counter++;
+    if (map.name().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no name.", counter));
+    }
+    if (map.filename().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no filename.", map.name()));
+    }
+    if (!map.has_left_top()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no left-top coordinate.", map.name()));
+    }
+    if (!map.has_right_bottom()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no right-bottom coordinate.", map.name()));
+    }
+    if (seconds_north(map.left_top()) <= seconds_north(map.right_bottom())) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has left top south of right bottom.", map.name()));
+    }
+    if (seconds_east(map.left_top()) >= seconds_east(map.right_bottom())) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has left top east of right bottom.", map.name()));
+    }
+    if (map.areas().empty()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Map $0 has no areas.", map.name()));
+    }
+
+    int top_seconds = seconds_north(map.left_top());
+    int left_seconds = seconds_east(map.left_top());
+    int bottom_seconds = seconds_north(map.right_bottom());
+    int right_seconds = seconds_east(map.right_bottom());
+    for (const auto& area : map.areas()) {
+      if (!area.has_area_id()) {
+        continue;
+      }
+      int curr_id = area.area_id();
+      if (area_map_.find(curr_id) != area_map_.end()) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Duplicate area $0 in map $1, previous was in $2",
+                             curr_id, map.name(), area_map_[curr_id].first));
+      }
+      area_map_.emplace(std::make_pair(curr_id, std::make_pair(map.name(), 0)));
+
+      if (!area.has_position()) {
+        return util::InvalidArgumentError(absl::Substitute(
+            "Area $0 in map $1 has no coordinates.", curr_id, map.name()));
+      }
+      const auto& pos = area.position();
+      if (seconds_north(pos) > top_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is north of the map top edge.",
+                             curr_id, map.name()));
+      }
+      if (seconds_east(pos) < left_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is west of the map left edge.",
+                             curr_id, map.name()));
+      }
+      if (seconds_north(pos) < bottom_seconds) {
+        return util::InvalidArgumentError(absl::Substitute(
+            "Area $0 in map $1 is south of the map bottom edge.", curr_id,
+            map.name()));
+      }
+      if (seconds_east(pos) > right_seconds) {
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 is east of the map right edge.",
+                             curr_id, map.name()));
+      }
+    }
+  }
+
+  return util::OkStatus();
+}
+
+void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
+  for (auto& cm : maps_) {
+    cm.second.unit_locations_.clear();
+    for (auto& area : cm.second.areas_) {
+      area.unit_numbers_.clear();
+    }
+  }
+  for (const auto& id : ids) {
+    units::Unit* unit = units::Unit::ById(id);
+    if (unit == NULL) {
+      continue;
+    }
+    const auto& location = unit->location();
+    if (location.has_connection_id()) {
+      const auto* connection =
+          geography::Connection::ById(location.connection_id());
+      if (connection == NULL) {
+        continue;
+      }
+      uint64 a_id = location.source_area_id();
+      uint64 z_id = location.destination_area_id();
+      double a_weight = location.progress_u();
+      a_weight /= connection->length_u();
+      // TODO: Handle connections between different maps.
+      if (area_map_[a_id].first != area_map_[z_id].first) {
+        continue;
+      }
+      if (maps_.find(area_map_[a_id].first) == maps_.end()) {
+        Log::Debugf("Could not find area %d: %s", a_id, area_map_[a_id].first);
+        continue;
+      }
+      Map& currMap = maps_.at(area_map_[a_id].first);
+      double xpos = 0;
+      double ypos = 0;
+      for (const auto& area : currMap.areas_) {
+        if (area.area_id_ == a_id) {
+          xpos += area.xpos_ * a_weight;
+          ypos += area.ypos_ * a_weight;
+        } else if (area.area_id_ == z_id) {
+          xpos += area.xpos_ * (1 - a_weight);
+          ypos += area.ypos_ * (1 - a_weight);
+        }
+      }
+      currMap.unit_locations_[unit->template_id()].push_back(
+          {(int)floor(xpos + 0.5), (int)floor(ypos + 0.5), 16, 16});
+    } else {
+      if (area_map_.find(location.source_area_id()) == area_map_.end()) {
+        continue;
+      }
+      Area& area = getAreaById(location.source_area_id());
+      area.unit_numbers_[unit->template_id()]++;
+    }
+  }
+}
+
+SDLInterface::Area& SDLInterface::getAreaById(uint64 area_id) {
+  const auto& area_idx = area_map_[area_id];
+  return maps_.at(area_idx.first).areas_[area_idx.second];
 }
 
 void SDLInterface::EventLoop() {
@@ -321,11 +406,11 @@ SDLInterface::Area::Area(const proto::Area& proto,
   ypos_ = seconds / seconds_per_pixel_high;
   seconds = seconds_east(proto.position()) - seconds_east(topleft);
   xpos_ = seconds / seconds_per_pixel_wide;
+  area_id_ = proto.area_id();
 }
 
-SDLInterface::Map::Map(const proto::Map& proto) : background_(NULL) {
-}
-
+SDLInterface::Map::Map(const proto::Map& proto)
+    : background_(NULL), name_(proto.name()) {}
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   auto status = validate(scenario);
@@ -360,6 +445,7 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
         seconds_east(map.right_bottom()) - seconds_east(map.left_top());
     seconds_per_pixel_wide /= map_rectangle_.w;
     for (const auto& area_proto : map.areas()) {
+      area_map_[area_proto.area_id()].second = curr.areas_.size();
       curr.areas_.emplace_back(area_proto, map.left_top(),
                                seconds_per_pixel_high, seconds_per_pixel_wide);
     }

@@ -120,14 +120,16 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
 
 // Class for running actual game mechanics.
 class SevenYears {
- public:
-   SevenYears() {}
-   ~SevenYears() {}
+public:
+  SevenYears() : dirtyGraphics_(true) {}
+  ~SevenYears() {}
 
-   util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
-   void NewTurn();
+  util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
+  void NewTurn();
+  void UpdateGraphicsInfo(interface::Base* gfx);
 
- private:
+private:
+  bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
 };
@@ -166,6 +168,19 @@ void SevenYears::NewTurn() {
       break;
     }
   }
+
+  dirtyGraphics_ = true;
+}
+
+void SevenYears::UpdateGraphicsInfo(interface::Base* gfx) {
+  if (!dirtyGraphics_) {
+    return;
+  }
+  std::vector<util::proto::ObjectId> unit_ids;
+  for (const auto& unit : game_world_->units_) {
+    unit_ids.push_back(unit->ID());
+  }
+  gfx->DisplayUnits(unit_ids);
 }
 
 util::Status
@@ -270,6 +285,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   while (!handler.quit()) {
     graphics->EventLoop();
+    sevenYears.UpdateGraphicsInfo(graphics);
   }
 
   graphics->Cleanup();

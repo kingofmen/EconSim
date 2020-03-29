@@ -41,6 +41,8 @@ public:
   Area* z() { return Area::GetById(proto_.z()); }
   const Area* a() const { return Area::GetById(proto_.a()); }
   const Area* z() const { return Area::GetById(proto_.z()); }
+  uint64 a_id() const { return proto_.a(); }
+  uint64 z_id() const { return proto_.z(); }
 
   // ID of the other side.
   uint64 OtherSide(uint64 area_id) const;

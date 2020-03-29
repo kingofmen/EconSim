@@ -59,6 +59,69 @@ units {
   }
   location {
     source_area_id: 1
+    destination_area_id: 2
+    progress_u: 500000
+    connection_id: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id: 1
+    }
+  }
+}
+
+units {
+  unit_id {
+    type: 1
+    number: 2
+  }
+  location {
+    source_area_id: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id: 1
+    }
+  }
+}
+
+units {
+  unit_id {
+    type: 1
+    number: 3
+  }
+  location {
+    source_area_id: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id: 1
+    }
+  }
+}
+
+units {
+  unit_id {
+    type: 2
+    number: 1
+  }
+  location {
+    source_area_id: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id: 1
+    }
+  }
+}
+
+units {
+  unit_id {
+    type: 3
+    number: 1
+  }
+  location {
+    source_area_id: 1
   }
   strategy {
     seven_years_merchant {
