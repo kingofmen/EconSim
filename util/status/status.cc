@@ -9,6 +9,10 @@ const Status& OkStatus() {
   return ok_status;
 }
 
+Status AlreadyExistsError(const std::string& msg) {
+  return Status(Code::ALREADY_EXISTS, msg);
+}
+
 Status InvalidArgumentError(const std::string& msg) {
   return Status(Code::INVALID_ARGUMENT, msg);
 }
