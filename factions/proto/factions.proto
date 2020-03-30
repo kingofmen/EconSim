@@ -1,5 +1,6 @@
 syntax = "proto2";
 package factions.proto;
+import "util/proto/object_id.proto";
 
 enum Privilege {
   P_NONE = 0;
@@ -9,8 +10,11 @@ enum Privilege {
 
 message Faction {
   // Faction ID.
-  optional uint64 id = 1;
+  // Deprecated; use faction_id below instead.
+  optional uint64 id = 1 [deprecated = true];
   // IDs of full citizens.
   repeated uint64 pop_ids = 2;
   map<uint64, int32> privileges = 3;
+
+  optional util.proto.ObjectId faction_id = 4;
 }

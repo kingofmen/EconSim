@@ -8,4 +8,5 @@ cc_proto_library(
 proto_library(
     name = "factions_proto_lib",
     srcs = ["factions.proto"],
+    deps = ["//util/proto:object_id_proto_lib"],
 )

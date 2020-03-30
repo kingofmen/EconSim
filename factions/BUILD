@@ -8,6 +8,7 @@ cc_library(
         "//factions/proto:factions_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/proto:object_id",
     ],
 )
 
@@ -18,6 +19,7 @@ cc_test(
         ":factions",
         "//factions/proto:factions_proto",
         "//util/arithmetic:microunits",
+        "//util/proto:object_id",
         "@gtest",
         "@gtest//:gtest_main",
     ],

@@ -16,7 +16,9 @@ public:
   FromProto(const proto::Faction& proto);
 
   // Returns the faction id.
+  // DEPRECATED: Use the ObjectId instead.
   uint64 id() const { return proto_.id(); }
+  const util::proto::ObjectId& faction_id() const;
 
   // Returns true if the POP is a direct member of the faction, a full citizen.
   // DEPRECATED: Use a privilege mask instead.
@@ -29,7 +31,9 @@ public:
   bool HasAnyPrivilege(uint64 pop_id, int32 mask) const;
 
   // Returns the controller with the given ID.
+  // DEPRECATED: Use the ObjectId instead.
   static FactionController* GetByID(uint64 id);
+  static FactionController* GetByID(const util::proto::ObjectId& id);
 
   // Read access to the protobuf.
   const proto::Faction& Proto() { return proto_; }
