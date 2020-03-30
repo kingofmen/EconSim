@@ -7,7 +7,11 @@
 #include "industry/proto/industry.pb.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
+#include "util/logging/logging.h"
+#include "util/proto/object_id.h"
 #include "util/status/status.h"
+
+std::unordered_map<util::proto::ObjectId, geography::Area*> area_id_map_;
 
 namespace geography {
 
@@ -87,34 +91,67 @@ GenerateTransitionProcess(const proto::Field& field,
 }
 
 std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
+  proto::Area proto_(area);
   std::unique_ptr<Area> ret;
-  if (area.id() == 0) {
-    // TODO: Actually handle some errors here and below.
+  // TODO: Actually handle some errors here and below.
+  if (proto_.has_id() && proto_.has_area_id()) {
     return ret;
   }
-  if (id_map_.find(area.id()) != id_map_.end()) {
+  if (proto_.has_id()) {
+    if (proto_.id() == 0) {
+      return ret;
+    }
+    if (id_map_.find(proto_.id()) != id_map_.end()) {
+      return ret;
+    }
+  } else if (proto_.has_area_id()) {
+    auto status = util::objectid::Canonicalise(proto_.mutable_area_id());
+    if (!status.ok()) {
+      Log::Errorf("Could not canonicalise area ID: %s",
+                  proto_.area_id().DebugString());
+      return ret;
+    }
+    if (proto_.area_id().number() == 0) {
+      return ret;
+    }
+    if (area_id_map_.find(proto_.area_id()) != area_id_map_.end()) {
+      Log::Errorf("Area %s already exists", proto_.area_id().DebugString());
+      return ret;
+    }
+  } else {
     return ret;
   }
-  ret.reset(new Area(area));
+  ret.reset(new Area(proto_));
   return ret;
 }
 
 Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
-  if (proto_.id() == 0) {
-    // TODO: Handle error here.
+  uint64 id = 0;
+  if (proto_.has_id()) {
+    id = proto_.id();
   }
-  id_map_[id()] = this;
-  if (id() > max_id_) {
-    max_id_ = id();
+  if (proto_.has_area_id()) {
+    util::objectid::Canonicalise(proto_.mutable_area_id());
+    id = proto_.area_id().number();
+    proto_.set_id(id);
+    area_id_map_[proto_.area_id()] = this;
   }
-  if (id() < min_id_) {
-    min_id_ = id();
+
+  id_map_[id] = this;
+  if (id > max_id_) {
+    max_id_ = id;
+  }
+  if (id < min_id_) {
+    min_id_ = id;
   }
 }
 
 Area::~Area() {
   uint64 erased = id();
   id_map_.erase(erased);
+  if (proto_.has_area_id()) {
+    area_id_map_.erase(proto_.area_id());
+  }
   if (erased == max_id_ || erased == min_id_) {
     uint64 least = std::numeric_limits<uint64>::max();
     uint64 most = 0;
@@ -131,8 +168,19 @@ Area::~Area() {
   }
 }
 
+const util::proto::ObjectId& Area::area_id() const {
+  return proto_.area_id();
+}
+
 Area* Area::GetById(uint64 id) {
   return id_map_[id];
+}
+
+Area* Area::GetById(const util::proto::ObjectId& area_id) {
+  if (area_id_map_.find(area_id) == area_id_map_.end()) {
+    return nullptr;
+  }
+  return area_id_map_.at(area_id);
 }
 
 void Area::Update() {

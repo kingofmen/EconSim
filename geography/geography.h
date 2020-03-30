@@ -38,7 +38,9 @@ public:
   }
   void Update();
 
+  // Deprecated, use area_id instead.
   uint64 id() const { return proto_.id(); }
+  const util::proto::ObjectId& area_id() const;
 
   proto::Area* Proto() { return &proto_; }
   const proto::Area* Proto() const { return &proto_; }
@@ -50,7 +52,9 @@ public:
   const std::vector<const proto::Field*> fields() const;
   proto::Field* mutable_field(int idx) { return proto_.mutable_fields(idx); }
 
+  // Deprecated, use the ObjectId version instead.
   static Area* GetById(uint64 id);
+  static Area* GetById(const util::proto::ObjectId& id);
   static std::unique_ptr<Area> FromProto(const proto::Area& area);
   static uint64 MaxId() { return max_id_; }
   static uint64 MinId() { return min_id_; }

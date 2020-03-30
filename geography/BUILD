@@ -8,7 +8,9 @@ cc_library(
         "//geography/proto:geography_proto",
         "//industry",
         "//market/proto:goods_proto",
-        "//util/status",
+        "//util/logging:logging",
+        "//util/proto:object_id",
+        "//util/status:status",
         "@com_google_protobuf//:protobuf",
     ],
 )
@@ -18,7 +20,8 @@ cc_test(
     srcs = ["geography_test.cc"],
     deps = [
         ":geography",
-        "//util/status",
+        "//util/proto:object_id",
+        "//util/status:status",
         "@gtest",
         "@gtest//:gtest_main",
     ],
