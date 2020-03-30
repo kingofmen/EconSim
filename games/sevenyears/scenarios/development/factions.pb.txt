@@ -1,0 +1,21 @@
+factions {
+  faction_id {
+    type: 1
+    number: 1
+    tag: "england"
+  }
+}
+factions {
+  faction_id {
+    type: 1
+    number: 2
+    tag: "france"
+  }
+}
+factions {
+  faction_id {
+    type: 1
+    number: 3
+    tag: "denmark_norway"
+  }
+}

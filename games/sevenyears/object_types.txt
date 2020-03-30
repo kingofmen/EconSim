@@ -1,0 +1,5 @@
+In SevenYears the ObjectId types are thus:
+
+1: Factions
+2: Areas
+1000-2000: Unit types.
