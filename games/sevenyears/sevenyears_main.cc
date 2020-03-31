@@ -9,8 +9,8 @@
 #include "games/ai/planner.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
-#include "interface/base.h"
-#include "interface/proto/config.pb.h"
+#include "games/interface/base.h"
+#include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/sdl_interface.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
@@ -262,8 +262,8 @@ int main(int /*argc*/, char** /*argv*/) {
     return 3;
   }
   
-  interface::proto::Config config;
-  config.set_screen_size(interface::proto::Config::SS_1440_900);
+  games::interface::proto::Config config;
+  config.set_screen_size(games::interface::proto::Config::SS_1440_900);
   EventHandler handler(&sevenYears);
 
   sevenyears::graphics::SevenYearsInterface* graphics = createInterface();

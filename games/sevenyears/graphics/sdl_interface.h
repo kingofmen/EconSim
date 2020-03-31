@@ -8,7 +8,7 @@
 
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/sevenyears/graphics/sevenyears_interface.h"
-#include "interface/proto/config.pb.h"
+#include "games/interface/proto/config.pb.h"
 #include "util/headers/int_types.h"
 #include "util/status/status.h"
 #include "SDL.h"
@@ -18,7 +18,8 @@ namespace graphics {
 
 class SDLInterface : public SevenYearsInterface {
 public:
-  util::Status Initialise(const interface::proto::Config& config) override;
+  util::Status
+  Initialise(const games::interface::proto::Config& config) override;
   void Cleanup() override;
   void EventLoop() override;
 

@@ -5,9 +5,9 @@ cc_library(
     srcs = ["base.cc"],
     hdrs = ["base.h"],
     deps = [
-        "//interface/proto:config_proto",
+        "//games/interface/proto:config_proto",
         "//units/proto:units_proto",
-        "//util/status",
+        "//util/status:status",
         "@sdl2//:SDL2",
     ],
 )

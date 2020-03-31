@@ -17,8 +17,8 @@ cc_library(
     hdrs = ["sevenyears_interface.h"],
     deps = [
         "//games/sevenyears/graphics/proto:graphics_proto",
-        "//interface:base",
-        "//interface/proto:config_proto",
+        "//games/interface:base",
+        "//games/interface/proto:config_proto",
         "//util/status:status",
     ],
 )
@@ -33,8 +33,8 @@ cc_library(
         "//games/sevenyears/graphics/proto:graphics_proto",
         "//geography:connection",
         "//geography:geography",
-        "//interface:base",
-        "//interface/proto:config_proto",
+        "//games/interface:base",
+        "//games/interface/proto:config_proto",
         "//units:units",
         "//util/headers:int_types",
         "//util/logging:logging",

@@ -1,5 +1,5 @@
 syntax = "proto2";
-package interface.proto;
+package games.interface.proto;
 
 message Config {
   enum ScreenSize {

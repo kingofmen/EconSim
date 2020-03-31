@@ -1,7 +1,7 @@
-#ifndef INTERFACE_INTERFACE_H
-#define INTERFACE_INTERFACE_H
+#ifndef GAMES_INTERFACE_INTERFACE_H
+#define GAMES_INTERFACE_INTERFACE_H
 
-#include "interface/proto/config.pb.h"
+#include "games/interface/proto/config.pb.h"
 #include "SDL_keyboard.h"
 #include "units/proto/units.pb.h"
 #include "util/status/status.h"
@@ -30,7 +30,8 @@ public:
   Base() = default;
   ~Base() = default;
 
-  virtual util::Status Initialise(const interface::proto::Config& config) = 0;
+  virtual util::Status
+  Initialise(const games::interface::proto::Config& config) = 0;
   virtual void Cleanup() = 0;
   virtual void EventLoop() = 0;
   void SetReceiver(Receiver* c) { receiver_ = c; }

@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "absl/strings/substitute.h"
-#include "interface/proto/config.pb.h"
+#include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
 #include "geography/connection.h"
 #include "units/unit.h"
@@ -37,35 +37,35 @@ int seconds_east(const proto::LatLong& coord) {
   return -seconds(coord.west());
 }
 
-void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width,
-                    int& height, SDL_Rect* map_rectangle) {
+void widthAndHeight(const games::interface::proto::Config::ScreenSize& ss,
+                    int& width, int& height, SDL_Rect* map_rectangle) {
   switch (ss) {
-    case interface::proto::Config::SS_1280_800:
+    case games::interface::proto::Config::SS_1280_800:
       width = 1280;
       height = 800;
       break;
-    case interface::proto::Config::SS_1280_1024:
+    case games::interface::proto::Config::SS_1280_1024:
       width = 1280;
       height = 1024;
       break;
-    case interface::proto::Config::SS_1366_768:
+    case games::interface::proto::Config::SS_1366_768:
       width = 1366;
       height = 768;
       break;
-    case interface::proto::Config::SS_1440_900:
+    case games::interface::proto::Config::SS_1440_900:
       width = 1440;
       height = 900;
       break;
-    case interface::proto::Config::SS_1600_900:
+    case games::interface::proto::Config::SS_1600_900:
       width = 1600;
       height = 900;
       break;
-    case interface::proto::Config::SS_1920_1080:
+    case games::interface::proto::Config::SS_1920_1080:
       width = 1920;
       height = 1080;
       break;
       
-    case interface::proto::Config::SS_DEFAULT:
+    case games::interface::proto::Config::SS_DEFAULT:
     default:
       break;
   }
@@ -78,8 +78,8 @@ void widthAndHeight(const interface::proto::Config::ScreenSize& ss, int& width,
 
 }  // namespace
 
-
-util::Status SDLInterface::Initialise(const interface::proto::Config& config) {
+util::Status
+SDLInterface::Initialise(const games::interface::proto::Config& config) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     return util::FailedPreconditionError(
         absl::Substitute("Could not initialise SDL: $0", SDL_GetError()));
