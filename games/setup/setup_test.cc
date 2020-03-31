@@ -80,20 +80,33 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   faction->mutable_faction_id()->set_tag("faction_one");
 
   auto* area = gameworld.add_areas();
-  area->mutable_area_id()->set_type(1);
+  area->mutable_area_id()->set_type(2);
   area->mutable_area_id()->set_number(51);
   area->mutable_area_id()->set_tag("area_fifty_one");
 
+  // Test canonicalisation.
   auto status = games::setup::CanonicaliseWorld(&gameworld);
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_TRUE(area->area_id().tag().empty()) << area->DebugString();
   EXPECT_TRUE(faction->faction_id().tag().empty()) << faction->DebugString();
 
+  // Test lookups.
   auto world = games::setup::World::FromProto(gameworld);
+  ASSERT_EQ(1, world->areas_.size());
+  auto* alookup = geography::Area::GetById(area->area_id());
+  EXPECT_EQ(world->areas_[0].get(), alookup);
+
+  ASSERT_EQ(1, world->factions_.size());
+  auto* flookup = factions::FactionController::GetByID(faction->faction_id());
+  EXPECT_EQ(world->factions_[0].get(), flookup);
+
+  // Test restoration.
   gameworld.Clear();
   status = world->ToProto(&gameworld);
   EXPECT_EQ(gameworld.factions(0).faction_id().tag(), "faction_one");
   EXPECT_EQ(gameworld.factions(0).faction_id().number(), 1);
   EXPECT_EQ(gameworld.areas(0).area_id().tag(), "area_fifty_one");
   EXPECT_EQ(gameworld.areas(0).area_id().number(), 51);
+
+
 }

@@ -148,20 +148,4 @@ TEST_F(GeographyTest, Transition) {
   EXPECT_EQ(2, production_->Proto()->steps_size());
 }
 
-TEST_F(GeographyTest, ObjectId) {
-  proto::Area proto_;
-  proto_.mutable_area_id()->set_type(1);
-  proto_.mutable_area_id()->set_number(1);
-  proto_.mutable_area_id()->set_tag("one");
-
-  auto area = Area::FromProto(proto_);
-  EXPECT_NE(area.get(), nullptr);
-
-  auto* lookup = Area::GetById(proto_.area_id());
-  EXPECT_EQ(area.get(), lookup);
-
-  auto area2 = Area::FromProto(proto_);
-  EXPECT_EQ(area2.get(), nullptr);
-}
-
 }  // namespace geography

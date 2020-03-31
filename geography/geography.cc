@@ -91,37 +91,34 @@ GenerateTransitionProcess(const proto::Field& field,
 }
 
 std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
-  proto::Area proto_(area);
   std::unique_ptr<Area> ret;
   // TODO: Actually handle some errors here and below.
-  if (proto_.has_id() && proto_.has_area_id()) {
+  if (area.has_id() && area.has_area_id()) {
+    Log::Errorf("Area %s has both id and area_id", area.DebugString());
     return ret;
   }
-  if (proto_.has_id()) {
-    if (proto_.id() == 0) {
+  if (area.has_id()) {
+    if (area.id() == 0) {
+      Log::Errorf("Invalid area id 0: %s", area.DebugString());
       return ret;
     }
-    if (id_map_.find(proto_.id()) != id_map_.end()) {
+    if (id_map_.find(area.id()) != id_map_.end()) {
+      Log::Errorf("Duplicate area id %d: %s", area.id(), area.DebugString());
       return ret;
     }
-  } else if (proto_.has_area_id()) {
-    auto status = util::objectid::Canonicalise(proto_.mutable_area_id());
-    if (!status.ok()) {
-      Log::Errorf("Could not canonicalise area ID: %s",
-                  proto_.area_id().DebugString());
+  } else if (area.has_area_id()) {
+    if (area.area_id().number() == 0) {
+      Log::Errorf("Invalid area id 0: %s", area.DebugString());
       return ret;
     }
-    if (proto_.area_id().number() == 0) {
-      return ret;
-    }
-    if (area_id_map_.find(proto_.area_id()) != area_id_map_.end()) {
-      Log::Errorf("Area %s already exists", proto_.area_id().DebugString());
+    if (area_id_map_.find(area.area_id()) != area_id_map_.end()) {
+      Log::Errorf("Area %s already exists", area.area_id().DebugString());
       return ret;
     }
   } else {
     return ret;
   }
-  ret.reset(new Area(proto_));
+  ret.reset(new Area(area));
   return ret;
 }
 
@@ -131,7 +128,6 @@ Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
     id = proto_.id();
   }
   if (proto_.has_area_id()) {
-    util::objectid::Canonicalise(proto_.mutable_area_id());
     id = proto_.area_id().number();
     proto_.set_id(id);
     area_id_map_[proto_.area_id()] = this;

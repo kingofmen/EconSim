@@ -51,20 +51,4 @@ TEST_F(FactionControllerTest, TestPrivileges) {
       2, factions::proto::P_OVERRIDE_PRODUCTION | factions::proto::P_MIGRATE));
 }
 
-TEST_F(FactionControllerTest, TestObjectId) {
-  proto_.clear_id();
-  proto_.mutable_faction_id()->set_type(1);
-  proto_.mutable_faction_id()->set_number(1);
-  proto_.mutable_faction_id()->set_tag("one");
-
-  auto faction = FactionController::FromProto(proto_);
-  EXPECT_NE(faction.get(), nullptr);
-  auto* lookup = FactionController::GetByID(proto_.faction_id());
-  EXPECT_EQ(faction.get(), lookup);
-  std::equal_to<util::proto::ObjectId> equals;
-  EXPECT_TRUE(equals(proto_.faction_id(), faction->faction_id()))
-      << "Not equal: " << proto_.faction_id().DebugString() << "\nvs\n"
-      << faction->faction_id().DebugString();
-}
-
 }  // namespace factions

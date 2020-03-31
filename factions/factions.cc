@@ -10,8 +10,8 @@ std::unordered_map<util::proto::ObjectId, FactionController*> id_faction_map_;
 FactionController::FactionController(const proto::Faction& p)
     : proto_(p), privileges_(p.privileges().begin(), p.privileges().end()) {
   if (proto_.has_faction_id()) {
-    util::objectid::Canonicalise(proto_.mutable_faction_id());
     id_faction_map_[faction_id()] = this;
+    faction_map_[faction_id().number()] = this;
   }
   if (proto_.has_id()) {
     faction_map_[id()] = this;
