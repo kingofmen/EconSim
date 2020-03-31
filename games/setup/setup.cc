@@ -3,6 +3,7 @@
 #include <experimental/filesystem>
 
 #include "games/setup/validation/validation.h"
+#include "factions/proto/factions.pb.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
 #include "industry/decisions/production_evaluator.h"
@@ -61,7 +62,33 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
   return world;
 }
 
+void World::restoreTags() {
+  for (auto& area : areas_) {
+    auto* area_proto = area->Proto();
+    if (!area_proto->has_area_id()) {
+      continue;
+    }
+    std::string tag = util::objectid::Tag(area_proto->area_id());
+    if (tag.empty()) {
+      continue;
+    }
+    area_proto->mutable_area_id()->set_tag(tag);
+  }
+  for (auto& faction : factions_) {
+    auto* faction_proto = faction->mutable_proto();
+    if (!faction_proto->has_faction_id()) {
+      continue;
+    }
+    std::string tag = util::objectid::Tag(faction_proto->faction_id());
+    if (tag.empty()) {
+      continue;
+    }
+    faction_proto->mutable_faction_id()->set_tag(tag);
+  }
+}
+
 util::Status World::ToProto(proto::GameWorld* proto) {
+  restoreTags();
   for (const auto& pop : pops_) {
     *proto->add_pops() = *pop->Proto();
   }
@@ -151,6 +178,30 @@ util::Status LoadWorld(const proto::ScenarioFiles& config,
     }
   }
 
+  return util::OkStatus();
+}
+
+util::Status CanonicaliseScenario(proto::Scenario* scenario) {
+  return util::OkStatus();
+}
+
+util::Status CanonicaliseWorld(proto::GameWorld* world) {
+  // First canonicalise all self-id objects.
+  for (auto& faction : *(world->mutable_factions())) {
+    auto status = util::objectid::Canonicalise(faction.mutable_faction_id());
+    if (!status.ok()) {
+      return status;
+    }
+  }
+  for (auto& area : *(world->mutable_areas())) {
+    auto status = util::objectid::Canonicalise(area.mutable_area_id());
+    if (!status.ok()) {
+      return status;
+    }
+  }
+
+  // Only now do the references.
+  
   return util::OkStatus();
 }
 

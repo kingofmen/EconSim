@@ -72,3 +72,28 @@ TEST(SetupTest, TestIdempotency) {
       << save.DebugString();
 }
 
+TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
+  games::setup::proto::GameWorld gameworld;
+  auto* faction = gameworld.add_factions();
+  faction->mutable_faction_id()->set_type(1);
+  faction->mutable_faction_id()->set_number(1);
+  faction->mutable_faction_id()->set_tag("faction_one");
+
+  auto* area = gameworld.add_areas();
+  area->mutable_area_id()->set_type(1);
+  area->mutable_area_id()->set_number(51);
+  area->mutable_area_id()->set_tag("area_fifty_one");
+
+  auto status = games::setup::CanonicaliseWorld(&gameworld);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(area->area_id().tag().empty()) << area->DebugString();
+  EXPECT_TRUE(faction->faction_id().tag().empty()) << faction->DebugString();
+
+  auto world = games::setup::World::FromProto(gameworld);
+  gameworld.Clear();
+  status = world->ToProto(&gameworld);
+  EXPECT_EQ(gameworld.factions(0).faction_id().tag(), "faction_one");
+  EXPECT_EQ(gameworld.factions(0).faction_id().number(), 1);
+  EXPECT_EQ(gameworld.areas(0).area_id().tag(), "area_fifty_one");
+  EXPECT_EQ(gameworld.areas(0).area_id().number(), 51);
+}

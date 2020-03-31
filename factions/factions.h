@@ -35,8 +35,9 @@ public:
   static FactionController* GetByID(uint64 id);
   static FactionController* GetByID(const util::proto::ObjectId& id);
 
-  // Read access to the protobuf.
+  // Access to the protobuf.
   const proto::Faction& Proto() { return proto_; }
+  proto::Faction* mutable_proto() { return &proto_; }
 
 private:
   // Constructor.

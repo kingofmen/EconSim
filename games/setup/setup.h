@@ -35,7 +35,7 @@ struct World {
   // Create a World from the proto object.
   static std::unique_ptr<World> FromProto(const proto::GameWorld& proto);
 
-  // Save state to proto, which must not be null.
+  // Save state to proto, which must not be null. Restores tags.
   util::Status ToProto(proto::GameWorld* proto);
 
   // World-state information.
@@ -44,6 +44,10 @@ struct World {
   std::vector<std::unique_ptr<geography::Area>> areas_;
   std::vector<std::unique_ptr<geography::Connection>> connections_;
   std::vector<std::unique_ptr<units::Unit>> units_;
+
+ private:
+  // Restores ObjectId protos to have tags, where they exist.
+  void restoreTags();
 };
 
 util::Status LoadScenario(const proto::ScenarioFiles& config,
@@ -51,6 +55,15 @@ util::Status LoadScenario(const proto::ScenarioFiles& config,
 
 util::Status LoadWorld(const proto::ScenarioFiles& config,
                        proto::GameWorld* world);
+
+
+// Canonicalises all ObjectIds in the provided proto, returning an
+// error if it encounters any tags without referent.
+util::Status CanonicaliseScenario(proto::Scenario* scenario);
+
+// Canonicalises all ObjectIds in the provided proto, returning an
+// error if it encounters any tags without referent.
+util::Status CanonicaliseWorld(proto::GameWorld* world);
 
 // Load world and constants protos from config. Note that this
 // resets the world pointer.

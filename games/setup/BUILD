@@ -15,7 +15,8 @@ cc_library(
         "//population/proto:population_proto",
         "//units:units",
         "//util/proto:file",
-        "//util/status",
+        "//util/proto:object_id",
+        "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],
 )
@@ -30,6 +31,10 @@ cc_test(
     srcs = ["setup_test.cc"],
     deps = [
         ":setup",
+        "//factions/proto:factions_proto",
+        "//geography/proto:geography_proto",
+        "//util/proto:object_id",
+        "//util/status:status",
         "@gtest//:gtest",
         "@gtest//:gtest_main",
         "@com_google_protobuf_cc//:protobuf",
