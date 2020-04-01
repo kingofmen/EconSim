@@ -2,7 +2,9 @@ syntax = "proto2";
 package util.proto;
 
 message ObjectId {
-  optional uint64 type = 1;
+  // Deprecated; use 'kind' instead.
+  optional uint64 type = 1 [deprecated = true];
   optional uint64 number = 2;
   optional string tag = 3;
+  optional string kind = 4;
 }

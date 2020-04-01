@@ -26,16 +26,26 @@ namespace std {
 
 template <> class hash<util::proto::ObjectId> {
 public:
-  size_t operator()(const util::proto::ObjectId& unit_id) const {
+  size_t operator()(const util::proto::ObjectId& object_id) const {
     static hash<uint64> hasher;
-    return 31 * hasher(unit_id.type()) + hasher(unit_id.number());
+    static hash<std::string> str_hasher;
+    if (object_id.has_kind()) {
+      return 31 * str_hasher(object_id.kind()) + hasher(object_id.number());
+    }
+    return 31 * hasher(object_id.type()) + hasher(object_id.number());
   }
 };
 
 template <> struct equal_to<util::proto::ObjectId> {
   bool operator()(const util::proto::ObjectId& lhs,
                   const util::proto::ObjectId& rhs) const {
-    return lhs.type() == rhs.type() && lhs.number() == rhs.number();
+    if (lhs.number() != rhs.number()) {
+      return false;
+    }
+    if (lhs.has_kind()) {
+      return lhs.kind() == rhs.kind();
+    }
+    return lhs.type() == rhs.type();
   }
 };
 
