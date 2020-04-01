@@ -46,6 +46,17 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
 
   for (const auto& area : proto.areas()) {
     world->areas_.emplace_back(geography::Area::FromProto(area));
+    auto& curr = world->areas_.back();
+    if (!curr) {
+      Log::Errorf("Could not load area: %s", area.DebugString());
+      continue;
+    }
+    if (curr->Proto()->has_area_id()) {
+      const auto& id = curr->Proto()->area_id();
+      if (!id.has_kind() && !id.has_type()) {
+        curr->Proto()->mutable_area_id()->set_kind("area");
+      }
+    }
   }
 
   for (const auto& conn : proto.connections()) {
@@ -58,6 +69,17 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
 
   for (const auto& faction : proto.factions()) {
     world->factions_.emplace_back(factions::FactionController::FromProto(faction));
+    auto& curr = world->factions_.back();
+    if (!curr) {
+      Log::Errorf("Could not load faction: %s", faction.DebugString());
+      continue;
+    }
+    if (curr->Proto().has_faction_id()) {
+      const auto& id = curr->Proto().faction_id();
+      if (!id.has_kind() && !id.has_type()) {
+        curr->mutable_proto()->mutable_faction_id()->set_kind("faction");
+      }
+    }
   }
   return world;
 }
