@@ -2,34 +2,34 @@
 
 areas {
   area_id {
-    type: 2
+    kind: "area"
     number: 1
     tag: "London"
   }
 }
 areas {
   area_id {
-    type: 2
+    kind: "area"
     number: 2
     tag: "Brest"
   }
 }
 areas {
   area_id {
-    type: 2
+    kind: "area"
     number: 3
     tag: "Bergen"
   }
 }
 areas {
   area_id {
-    type: 2
+    kind: "area"
     number: 4
   }
 }
 areas {
   area_id {
-    type: 2
+    kind: "area"
     number: 5
   }
 }

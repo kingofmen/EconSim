@@ -1,20 +1,20 @@
 factions {
   faction_id {
-    type: 1
+    kind: "faction"
     number: 1
     tag: "england"
   }
 }
 factions {
   faction_id {
-    type: 1
+    kind: "faction"
     number: 2
     tag: "france"
   }
 }
 factions {
   faction_id {
-    type: 1
+    kind: "faction"
     number: 3
     tag: "denmark_norway"
   }
