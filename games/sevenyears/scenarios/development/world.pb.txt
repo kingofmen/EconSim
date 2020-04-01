@@ -1,19 +1,37 @@
 # World file for dev work.
 
 areas {
-  id: 1
+  area_id {
+    type: 2
+    number: 1
+    tag: "London"
+  }
 }
 areas {
-  id: 2
+  area_id {
+    type: 2
+    number: 2
+    tag: "Brest"
+  }
 }
 areas {
-  id: 3
+  area_id {
+    type: 2
+    number: 3
+    tag: "Bergen"
+  }
 }
 areas {
-  id: 4
+  area_id {
+    type: 2
+    number: 4
+  }
 }
 areas {
-  id: 5
+  area_id {
+    type: 2
+    number: 5
+  }
 }
 
 connections {
@@ -39,17 +57,8 @@ connections {
   id: 3
   distance_u: 1000000
   width_u: 1000000
-  a: 1
-  z: 4
-}
-
-connections {
-  type: CT_OPEN_SEA
-  id: 4
-  distance_u: 1000000
-  width_u: 1000000
-  a: 1
-  z: 5
+  a: 2
+  z: 3
 }
 
 units {
