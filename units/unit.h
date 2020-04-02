@@ -11,7 +11,7 @@
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
 #include "util/headers/int_types.h"
-#include "util/proto/object_id.h"
+#include "util/proto/object_id.pb.h"
 
 namespace units {
 
@@ -24,7 +24,10 @@ public:
   static std::unique_ptr<Unit> FromProto(const proto::Unit& proto);
   static bool RegisterTemplate(const proto::Template& proto);
   // TODO: Make this a StatusOr<Template&> when Abseil releases StatusOr.
+  // Deprecated; use the ObjectId version instead.
   static const proto::Template* TemplateById(uint64 id);
+  static const proto::Template* TemplateById(const util::proto::ObjectId& id);
+  static const proto::Template* TemplateByKind(const std::string& kind);
   static Unit* ById(const util::proto::ObjectId& id);
 
   // Template and proto access.
@@ -52,6 +55,7 @@ public:
   market::Measure Capacity(const std::string& good) const;
 
   uint64 template_id() const { return proto_.unit_id().type(); }
+  const std::string& template_kind() const { return proto_.unit_id().kind(); }
 
 private:
   Unit(const proto::Unit& proto);

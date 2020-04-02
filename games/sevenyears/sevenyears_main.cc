@@ -178,9 +178,14 @@ void SevenYears::UpdateGraphicsInfo(interface::Base* gfx) {
   }
   std::vector<util::proto::ObjectId> unit_ids;
   for (const auto& unit : game_world_->units_) {
+    if (!unit) {
+      Log::Warn("Null unit!");
+      continue;
+    }
     unit_ids.push_back(unit->ID());
   }
   gfx->DisplayUnits(unit_ids);
+  dirtyGraphics_ = false;
 }
 
 util::Status
@@ -255,6 +260,7 @@ int main(int /*argc*/, char** /*argv*/) {
       return 3;
     }
   }
+  Log::Infof("Created world");
 
   auto status = InitialiseAI();
   if (!status.ok()) {

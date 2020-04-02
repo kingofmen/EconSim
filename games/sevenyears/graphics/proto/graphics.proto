@@ -32,7 +32,8 @@ message Map {
 message UnitType {
   optional string display_name = 1 [default = "UNKNOWN UNIT TYPE"];
   optional string filename = 2;
-  optional uint64 template_id = 3;
+  optional uint64 template_id = 3 [deprecated = true];
+  optional string template_kind = 4;
 }
 
 message Scenario {

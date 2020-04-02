@@ -304,14 +304,14 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
           ypos += area.ypos_ * (1 - a_weight);
         }
       }
-      currMap.unit_locations_[unit->template_id()].push_back(
+      currMap.unit_locations_[unit->template_kind()].push_back(
           {(int)floor(xpos + 0.5), (int)floor(ypos + 0.5), 16, 16});
     } else {
       if (area_map_.find(location.source_area_id()) == area_map_.end()) {
         continue;
       }
       Area& area = getAreaById(location.source_area_id());
-      area.unit_numbers_[unit->template_id()]++;
+      area.unit_numbers_[unit->template_kind()]++;
     }
   }
 }
@@ -454,7 +454,7 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   }
 
   for (const auto& ut : scenario.unit_types()) {
-    if (unit_types_.find(ut.template_id()) != unit_types_.end()) {
+    if (unit_types_.find(ut.template_kind()) != unit_types_.end()) {
       return util::InvalidArgumentError(
           absl::Substitute("Duplicate unit graphics for $0: $1",
                            ut.display_name(), ut.DebugString()));
@@ -465,7 +465,7 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
     if (!status.ok()) {
       return status;
     }
-    unit_types_[ut.template_id()] = tex;
+    unit_types_[ut.template_kind()] = tex;
   }
 
   return util::OkStatus();

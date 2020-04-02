@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "market/goods_utils.h"
 #include "market/proto/goods.pb.h"
+#include "src/google/protobuf/util/message_differencer.h"
 #include "units/proto/templates.pb.h"
 #include "units/proto/units.pb.h"
 #include "util/arithmetic/microunits.h"
@@ -17,14 +18,14 @@ namespace units {
 class UnitTest : public testing::Test {
  protected:
   void SetUp() override {
-    template_.set_id(1);
+    template_.mutable_template_id()->set_kind("template");
     template_.mutable_mobility()->set_speed_u(1);
     template_.mutable_mobility()->set_max_bulk_u(micro::kOneInU);
     template_.mutable_mobility()->set_max_weight_u(micro::kOneInU);
     template_.set_name("test_unit");
     Unit::RegisterTemplate(template_);
 
-    unit_proto_.mutable_unit_id()->set_type(1);
+    unit_proto_.mutable_unit_id()->set_kind("template");
     unit_proto_.mutable_unit_id()->set_number(1);
     unit_ = Unit::FromProto(unit_proto_);
   }
@@ -36,9 +37,36 @@ class UnitTest : public testing::Test {
 
 TEST_F(UnitTest, GetById) {
   util::proto::ObjectId id;
-  id.set_type(1);
+  id.set_kind("template");
   id.set_number(1);
   EXPECT_EQ(unit_.get(), Unit::ById(id));
+}
+
+TEST_F(UnitTest, GetTemplate) {
+  google::protobuf::util::MessageDifferencer differ;
+  const auto* lookup = Unit::TemplateById(0);
+  EXPECT_NE(nullptr, lookup);
+  if (lookup != nullptr) {
+    EXPECT_TRUE(differ.Equals(*lookup, template_))
+        << lookup->DebugString() << "\ndiffers from\n"
+        << template_.DebugString();
+  }
+
+  lookup = Unit::TemplateByKind("template");
+  EXPECT_NE(nullptr, lookup);
+  if (lookup != nullptr) {
+    EXPECT_TRUE(differ.Equals(*lookup, template_))
+        << lookup->DebugString() << "\ndiffers from\n"
+        << template_.DebugString();
+  }
+
+  lookup = Unit::TemplateById(template_.template_id());
+  EXPECT_NE(nullptr, lookup);
+  if (lookup != nullptr) {
+    EXPECT_TRUE(differ.Equals(*lookup, template_))
+        << lookup->DebugString() << "\ndiffers from\n"
+        << template_.DebugString();
+  }
 }
 
 TEST_F(UnitTest, Capacity) {

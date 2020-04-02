@@ -12,6 +12,7 @@
 std::unordered_map<std::string, market::proto::TradeGood> goods;
 std::unordered_map<uint64, geography::proto::Area> areas;
 std::unordered_map<uint64, units::proto::Template> templates;
+std::unordered_map<std::string, units::proto::Template> template_map;
 std::unordered_map<uint64, geography::proto::Connection> connections;
 std::unordered_map<uint64, population::proto::PopUnit> pops;
 std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
@@ -140,12 +141,26 @@ void checkConsumption(const games::setup::proto::Scenario& scenario,
 void checkTemplates(const games::setup::proto::Scenario& scenario,
                     std::vector<std::string>* errors) {
   for (const auto& temp : scenario.unit_templates()) {
-    if (!temp.has_id()) {
+    if (!temp.has_id() && !temp.has_template_id()) {
       errors->push_back(
           absl::Substitute("Template without ID: $0", temp.DebugString()));
       continue;
     }
-    templates[temp.id()] = temp;
+    if (temp.has_id()) {
+      if (templates.find(temp.id()) != templates.end()) {
+        errors->push_back(absl::Substitute("Template ID is not unique: $0",
+                                           temp.DebugString()));
+        continue;
+      }
+      templates[temp.id()] = temp;
+    } else {
+      if (template_map.find(temp.template_id().kind()) != template_map.end()) {
+        errors->push_back(absl::Substitute("Template kind is not unique: $0",
+                                           temp.DebugString()));
+        continue;
+      }
+      template_map[temp.template_id().kind()] = temp;
+    }
   }
 }
 
@@ -240,14 +255,22 @@ void validateUnits(const games::setup::proto::GameWorld& world,
       continue;
     }
     const auto& unit_id = unit.unit_id();
-    if (!unit_id.has_type() || !unit_id.has_number()) {
+    if ((!unit_id.has_type() && (!unit_id.has_kind())) ||
+        !unit_id.has_number()) {
       errors->push_back(
           absl::Substitute("Bad unit ID: $0", unit.DebugString()));
       continue;
     }
-    if (templates.find(unit_id.type()) == templates.end()) {
+    if (unit_id.has_type() &&
+        templates.find(unit_id.type()) == templates.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has bad type",
                                          unit_id.type(), unit_id.number()));
+      continue;
+    }
+    if (unit_id.has_kind() && template_map.find(unit_id.kind()) != template_map.end()) {
+      errors->push_back(absl::Substitute("Unit {$0, $1} has bad kind",
+                                         unit_id.kind(), unit_id.number()));
+      continue;
     }
     if (unit_map.find(unit_id) != unit_map.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} is not unique",

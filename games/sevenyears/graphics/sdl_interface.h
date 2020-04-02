@@ -43,15 +43,15 @@ private:
     int xpos_;
     int ypos_;
     uint64 area_id_;
-    std::unordered_map<uint64, int> unit_numbers_;
+    std::unordered_map<std::string, int> unit_numbers_;
   };
 
   struct Map {
     Map(const sevenyears::graphics::proto::Map& proto);
     SDL_Texture* background_;
     std::vector<Area> areas_;
-    // Map from template type to graphic locations.
-    std::unordered_map<uint64, std::vector<SDL_Rect>> unit_locations_;
+    // Map from template kind to graphic locations.
+    std::unordered_map<std::string, std::vector<SDL_Rect>> unit_locations_;
     std::string name_;
   };
 
@@ -65,7 +65,7 @@ private:
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, Map> maps_;
-  std::unordered_map<uint64, SDL_Texture*> unit_types_;
+  std::unordered_map<std::string, SDL_Texture*> unit_types_;
   std::unordered_map<uint64, std::pair<std::string, uint64>> area_map_;
   std::string current_map_;
   SDL_Rect map_rectangle_;

@@ -8,6 +8,7 @@ import "market/proto/goods.proto";
 import "util/proto/object_id.proto";
 
 message Unit {
+  // The kind corresponds to the kind of a unit template.
   optional util.proto.ObjectId unit_id = 1;
   optional geography.proto.Location location = 2;
   optional market.proto.Container resources = 3;

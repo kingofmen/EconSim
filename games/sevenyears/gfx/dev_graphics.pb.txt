@@ -83,15 +83,15 @@ maps {
 unit_types {
   display_name: "Brig"
   filename: "BrigIcon.bmp"
-  template_id: 1000
+  template_kind: "brig"
 }
 unit_types {
   display_name: "Schooner"
   filename: "SchoonerIcon.bmp"
-  template_id: 1001
+  template_kind: "schooner"
 }
 unit_types {
   display_name: "Fullrigger"
   filename: "FullRiggerIcon.bmp"
-  template_id: 1002
+  template_kind: "threemaster"
 }

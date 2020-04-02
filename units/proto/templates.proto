@@ -1,6 +1,8 @@
 syntax = "proto2";
 package units.proto;
 
+import "util/proto/object_id.proto";
+
 message Mobility {
   optional uint64 speed_u = 1;
   optional uint64 max_weight_u = 2;
@@ -8,7 +10,10 @@ message Mobility {
 }
 
 message Template {
-  optional uint64 id = 1;
+  // Deprecated; use template_id instead.
+  optional uint64 id = 1 [deprecated = true];
   optional Mobility mobility = 2;
-  optional string name = 3;
+  // Deprecated; use template_id instead.
+  optional string name = 3 [deprecated = true];
+  optional util.proto.ObjectId template_id = 4;
 }

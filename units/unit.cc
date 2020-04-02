@@ -3,8 +3,12 @@
 #include <unordered_map>
 
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
+#include "util/proto/object_id.h"
+#include "util/proto/object_id.pb.h"
 
 std::unordered_map<uint64, const units::proto::Template> units::Unit::templates_;
+std::unordered_map<util::proto::ObjectId, const units::proto::Template> template_map_;
 std::unordered_map<util::proto::ObjectId, units::Unit*> units::Unit::units_;
 
 namespace units {
@@ -13,15 +17,24 @@ std::unique_ptr<Unit> Unit::FromProto(const proto::Unit& proto) {
   std::unique_ptr<Unit> ret;
   // TODO: Actually handle the errors when we get support for StatusOr<unique_ptr>.
   if (!proto.has_unit_id()) {
+    Log::Warnf("Unit without ID: %s", proto.DebugString());
     return ret;
   }
-  if (!proto.unit_id().has_type()) {
+  if (!proto.unit_id().has_type() && !proto.unit_id().has_kind()) {
+    Log::Warnf("Unit without type or kind: %s", proto.DebugString());
     return ret;
   }
-  if (TemplateById(proto.unit_id().type()) == NULL) {
+  if (proto.unit_id().has_kind()) {
+    if (TemplateByKind(proto.unit_id().kind()) == nullptr) {
+      Log::Warnf("Unit with unknown template kind: %s", proto.DebugString());
+      return ret;
+    }
+  } else if (TemplateById(proto.unit_id().type()) == nullptr) {
+    Log::Warnf("Unit with unknown template type: %s", proto.DebugString());
     return ret;
   }
-  if (ById(proto.unit_id()) != NULL) {
+  if (ById(proto.unit_id()) != nullptr) {
+    Log::Warnf("Duplicate unit: %s", proto.DebugString());
     return ret;
   }
 
@@ -30,13 +43,23 @@ std::unique_ptr<Unit> Unit::FromProto(const proto::Unit& proto) {
 }
 
 bool Unit::RegisterTemplate(const proto::Template& proto) {
-  if (!proto.has_id()) {
+  if (!proto.has_id() && !proto.has_template_id()) {
     return false;
   }
-  if (TemplateById(proto.id()) != NULL) {
+
+  if (proto.has_id()) {
+    uint64 id = proto.id();
+    if (TemplateById(id) != nullptr) {
+      return false;
+    }
+    templates_.insert({id, proto});
+    return true;
+  }
+
+  if (template_map_.find(proto.template_id()) != template_map_.end()) {
     return false;
   }
-  templates_.insert({proto.id(), proto});
+  template_map_.emplace(proto.template_id(), proto);
   return true;
 }
 
@@ -45,6 +68,19 @@ const proto::Template* Unit::TemplateById(uint64 id) {
     return NULL;
   }
   return &templates_[id];
+}
+
+const proto::Template* Unit::TemplateById(const util::proto::ObjectId& id) {
+  if (template_map_.find(id) == template_map_.end()) {
+    return NULL;
+  }
+  return &template_map_.at(id);
+}
+
+const proto::Template* Unit::TemplateByKind(const std::string& kind) {
+  util::proto::ObjectId id;
+  id.set_kind(kind);
+  return TemplateById(id);
 }
 
 Unit* Unit::ById(const util::proto::ObjectId& id) {

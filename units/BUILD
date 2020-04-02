@@ -11,6 +11,7 @@ cc_library(
         "//units/proto:unit_templates_proto",
         "//units/proto:units_proto",
         "//util/arithmetic:microunits",
+        "//util/logging:logging",
         "//util/proto:object_id",
         "@com_google_protobuf//:protobuf",
     ],

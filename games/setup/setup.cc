@@ -65,6 +65,10 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
 
   for (const auto& unit : proto.units()) {
     world->units_.emplace_back(units::Unit::FromProto(unit));
+    if (!world->units_.back()) {
+      Log::Warnf("Could not create unit from proto: %s", unit.DebugString());
+      world->units_.pop_back();
+    }
   }
 
   for (const auto& faction : proto.factions()) {
