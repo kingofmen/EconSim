@@ -1,7 +1,8 @@
 
 unit_templates {
-  name: "ShuttleTrader"
-  id: 1
+  template_id {
+    kind: "ShuttleTrader"
+  }
   mobility {
     speed_u: 1
     max_bulk_u: 1000000

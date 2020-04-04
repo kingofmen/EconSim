@@ -88,7 +88,16 @@ Unit* Unit::ById(const util::proto::ObjectId& id) {
 }
 
 const proto::Template& Unit::Template() const {
-  const proto::Template* t = TemplateById(proto_.unit_id().type());
+  const proto::Template* t = nullptr;
+  if (proto_.unit_id().has_kind()) {
+    t = TemplateByKind(proto_.unit_id().kind());
+  } else {
+    t = TemplateById(proto_.unit_id().type());
+  }
+  if (!t) {
+    Log::Errorf("Could not find template for unit ID %s",
+                proto_.unit_id().DebugString());
+  }
   return *t;
 }
 

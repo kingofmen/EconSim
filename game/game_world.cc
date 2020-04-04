@@ -220,6 +220,10 @@ GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
 
   for (const auto& unit : world.units()) {
     units_.emplace_back(units::Unit::FromProto(unit));
+    if (!units_.back()) {
+      Log::Warnf("Null unit from proto: %s", unit.DebugString());
+      units_.pop_back();
+    }
   }
 
   for (const auto& faction : world.factions()) {

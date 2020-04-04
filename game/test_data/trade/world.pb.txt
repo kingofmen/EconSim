@@ -73,7 +73,7 @@ pops {
 
 units {
   unit_id {
-    type: 1
+    kind: "ShuttleTrader"
     number: 1
   }
   location {
@@ -95,7 +95,7 @@ units {
 }
 units {
   unit_id {
-    type: 1
+    kind: "ShuttleTrader"
     number: 2
   }
   location {
