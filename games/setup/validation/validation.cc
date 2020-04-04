@@ -255,7 +255,7 @@ void validateUnits(const games::setup::proto::GameWorld& world,
       continue;
     }
     const auto& unit_id = unit.unit_id();
-    if ((!unit_id.has_type() && (!unit_id.has_kind())) ||
+    if ((!unit_id.has_type() && !unit_id.has_kind()) ||
         !unit_id.has_number()) {
       errors->push_back(
           absl::Substitute("Bad unit ID: $0", unit.DebugString()));
@@ -265,9 +265,8 @@ void validateUnits(const games::setup::proto::GameWorld& world,
         templates.find(unit_id.type()) == templates.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has bad type",
                                          unit_id.type(), unit_id.number()));
-      continue;
     }
-    if (unit_id.has_kind() && template_map.find(unit_id.kind()) != template_map.end()) {
+    if (unit_id.has_kind() && template_map.find(unit_id.kind()) == template_map.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has bad kind",
                                          unit_id.kind(), unit_id.number()));
       continue;
