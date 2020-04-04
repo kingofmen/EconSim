@@ -1,7 +1,8 @@
 # Test proto.
 unit_templates {
-  name: "brig"
-  id: 1
+  template_id {
+    kind: "brig"
+  }
   mobility {
     speed_u: 1200000
     max_bulk_u: 2000000

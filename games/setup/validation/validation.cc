@@ -141,26 +141,17 @@ void checkConsumption(const games::setup::proto::Scenario& scenario,
 void checkTemplates(const games::setup::proto::Scenario& scenario,
                     std::vector<std::string>* errors) {
   for (const auto& temp : scenario.unit_templates()) {
-    if (!temp.has_id() && !temp.has_template_id()) {
+    if (!temp.has_template_id()) {
       errors->push_back(
           absl::Substitute("Template without ID: $0", temp.DebugString()));
       continue;
     }
-    if (temp.has_id()) {
-      if (templates.find(temp.id()) != templates.end()) {
-        errors->push_back(absl::Substitute("Template ID is not unique: $0",
-                                           temp.DebugString()));
-        continue;
-      }
-      templates[temp.id()] = temp;
-    } else {
-      if (template_map.find(temp.template_id().kind()) != template_map.end()) {
-        errors->push_back(absl::Substitute("Template kind is not unique: $0",
-                                           temp.DebugString()));
-        continue;
-      }
-      template_map[temp.template_id().kind()] = temp;
+    if (template_map.find(temp.template_id().kind()) != template_map.end()) {
+      errors->push_back(absl::Substitute("Template kind is not unique: $0",
+                                         temp.DebugString()));
+      continue;
     }
+    template_map[temp.template_id().kind()] = temp;
   }
 }
 
@@ -255,39 +246,37 @@ void validateUnits(const games::setup::proto::GameWorld& world,
       continue;
     }
     const auto& unit_id = unit.unit_id();
-    if ((!unit_id.has_type() && !unit_id.has_kind()) ||
-        !unit_id.has_number()) {
+    if (unit_id.has_type()) {
+      errors->push_back("Field 'type' is deprecated in unit ID");
+      continue;
+    }
+    if (!unit_id.has_kind() || !unit_id.has_number()) {
       errors->push_back(
           absl::Substitute("Bad unit ID: $0", unit.DebugString()));
       continue;
     }
-    if (unit_id.has_type() &&
-        templates.find(unit_id.type()) == templates.end()) {
-      errors->push_back(absl::Substitute("Unit {$0, $1} has bad type",
-                                         unit_id.type(), unit_id.number()));
-    }
-    if (unit_id.has_kind() && template_map.find(unit_id.kind()) == template_map.end()) {
+    if (template_map.find(unit_id.kind()) == template_map.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has bad kind",
                                          unit_id.kind(), unit_id.number()));
       continue;
     }
     if (unit_map.find(unit_id) != unit_map.end()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} is not unique",
-                                         unit_id.type(), unit_id.number()));
+                                         unit_id.kind(), unit_id.number()));
       continue;
     }
     unit_map[unit_id] = unit;
     checkGoodsExist(
         unit.resources(),
-        absl::Substitute("Unit {$0, $1}", unit_id.type(), unit_id.number()),
+        absl::Substitute("Unit {$0, $1}", unit_id.kind(), unit_id.number()),
         errors);
     const auto& location = unit.location();
     if (!location.has_source_area_id()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has no location",
-                                         unit_id.type(), unit_id.number()));
+                                         unit_id.kind(), unit_id.number()));
     } else if (areas.find(location.source_area_id()) == areas.end()) {
       errors->push_back(absl::Substitute(
-          "Unit {$0, $1} has nonexistent location $2", unit_id.type(),
+          "Unit {$0, $1} has nonexistent location $2", unit_id.kind(),
           unit_id.number(), location.source_area_id()));
     }
     if (location.has_connection_id()) {
@@ -295,7 +284,7 @@ void validateUnits(const games::setup::proto::GameWorld& world,
       if (connections.find(conn_id) == connections.end()) {
         errors->push_back(
             absl::Substitute("Unit {$0, $1} has nonexistent connection $2",
-                             unit_id.type(), unit_id.number(), conn_id));
+                             unit_id.kind(), unit_id.number(), conn_id));
       } else {
         const auto& conn = connections[conn_id];
         if (conn.a() != location.source_area_id() &&
@@ -303,7 +292,7 @@ void validateUnits(const games::setup::proto::GameWorld& world,
           errors->push_back(
               absl::Substitute("Unit {$0, $1} is in connection $2 which does "
                                "not connect source $3",
-                               unit_id.type(), unit_id.number(), conn_id,
+                               unit_id.kind(), unit_id.number(), conn_id,
                                location.source_area_id()));
         }
       }

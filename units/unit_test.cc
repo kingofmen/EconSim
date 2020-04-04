@@ -22,7 +22,6 @@ class UnitTest : public testing::Test {
     template_.mutable_mobility()->set_speed_u(1);
     template_.mutable_mobility()->set_max_bulk_u(micro::kOneInU);
     template_.mutable_mobility()->set_max_weight_u(micro::kOneInU);
-    template_.set_name("test_unit");
     Unit::RegisterTemplate(template_);
 
     unit_proto_.mutable_unit_id()->set_kind("template");
@@ -44,15 +43,7 @@ TEST_F(UnitTest, GetById) {
 
 TEST_F(UnitTest, GetTemplate) {
   google::protobuf::util::MessageDifferencer differ;
-  const auto* lookup = Unit::TemplateById(0);
-  EXPECT_NE(nullptr, lookup);
-  if (lookup != nullptr) {
-    EXPECT_TRUE(differ.Equals(*lookup, template_))
-        << lookup->DebugString() << "\ndiffers from\n"
-        << template_.DebugString();
-  }
-
-  lookup = Unit::TemplateByKind("template");
+  const auto* lookup = Unit::TemplateByKind("template");
   EXPECT_NE(nullptr, lookup);
   if (lookup != nullptr) {
     EXPECT_TRUE(differ.Equals(*lookup, template_))

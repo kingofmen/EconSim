@@ -102,6 +102,7 @@ consumption {
 }
 
 unit_templates {
-  id: 1
-  name: "Generic unit"
+  template_id {
+    kind: "Generic unit"
+  }
 }

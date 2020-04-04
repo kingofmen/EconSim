@@ -52,7 +52,7 @@ TEST(SetupTest, TestIdempotency) {
         << original.DebugString();
   }
   for (const auto& temp_proto : scenario.unit_templates()) {
-    auto* temp = units::Unit::TemplateById(temp_proto.id());
+    auto* temp = units::Unit::TemplateById(temp_proto.template_id());
     EXPECT_TRUE(temp != NULL)
         << "No template created for " << temp_proto.DebugString();
   }

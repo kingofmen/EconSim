@@ -70,15 +70,15 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Connection 3 has A end 5, which doesn't exist",
     "Connection 3 has Z end 6, which doesn't exist",
     "Connection ID 3 is not unique",
-    "Unit {10, 1} has bad type",
-    "Unit {10, 1} has no location",
-    "Unit {1, 1}: Good iron does not exist.",
-    "Bad unit ID: unit_id {\n  type: 1\n}\n",
+    "Unit {Bad unit, 1} has bad kind",
+    "Unit {Generic unit, 4} has no location",
+    "Unit {Generic unit, 1}: Good iron does not exist.",
+    "Bad unit ID: unit_id {\n  kind: \"Generic unit\"\n}\n",
     "Unit without ID: \"\"",
-    "Unit {1, 1} has nonexistent location 5",
-    "Unit {1, 2} has nonexistent connection 12",
-    "Unit {1, 3} is in connection 3 which does not connect source 1",
-    "Unit {1, 3} is not unique",
+    "Unit {Generic unit, 1} has nonexistent location 5",
+    "Unit {Generic unit, 2} has nonexistent connection 12",
+    "Unit {Generic unit, 3} is in connection 3 which does not connect source 1",
+    "Unit {Generic unit, 3} is not unique",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {

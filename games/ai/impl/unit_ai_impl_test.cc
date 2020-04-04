@@ -46,12 +46,11 @@ class UnitAiImplTest : public testing::Test {
     connection_23 = geography::Connection::FromProto(conn);
 
     units::proto::Template temp;
-    temp.set_id(1);
+    temp.mutable_template_id()->set_kind("one");
     units::Unit::RegisterTemplate(temp);
 
     units::proto::Unit unit;
-    unit.mutable_unit_id()->set_number(1);
-    unit.mutable_unit_id()->set_type(1);
+    unit.mutable_unit_id()->set_kind("one");
     unit.mutable_location()->set_source_area_id(area1_->id());
     unit_ = units::Unit::FromProto(unit);
   }

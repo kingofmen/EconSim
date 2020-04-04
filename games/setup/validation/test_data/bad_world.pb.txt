@@ -67,18 +67,18 @@ units {}
 
 units {
   unit_id {
-    type: 1
+    kind: "Generic unit"
   }
 }
 units {
   unit_id {
-    type: 10
+    kind: "Bad unit"
     number: 1
   }
 }
 units {
   unit_id {
-    type: 1
+    kind: "Generic unit"
     number: 1
   }
   resources {
@@ -93,7 +93,7 @@ units {
 }
 units {
   unit_id {
-    type: 1
+    kind: "Generic unit"
     number: 2
   }
   location {
@@ -103,7 +103,7 @@ units {
 }
 units {
   unit_id {
-    type: 1
+    kind: "Generic unit"
     number: 3
   }
   location {
@@ -113,8 +113,14 @@ units {
 }
 units {
   unit_id {
-    type: 1
+    kind: "Generic unit"
     number: 3
+  }
+}
+units {
+  unit_id {
+    kind: "Generic unit"
+    number: 4
   }
 }
 

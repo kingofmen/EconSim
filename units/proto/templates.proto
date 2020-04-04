@@ -10,10 +10,6 @@ message Mobility {
 }
 
 message Template {
-  // Deprecated; use template_id instead.
-  optional uint64 id = 1 [deprecated = true];
-  optional Mobility mobility = 2;
-  // Deprecated; use template_id instead.
-  optional string name = 3 [deprecated = true];
-  optional util.proto.ObjectId template_id = 4;
+  optional Mobility mobility = 1;
+  optional util.proto.ObjectId template_id = 2;
 }
