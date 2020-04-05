@@ -104,5 +104,11 @@ std::string Tag(const util::proto::ObjectId& obj_id) {
   return numToTagMap[numkey];
 }
 
+bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
+  static std::equal_to<util::proto::ObjectId> ids_equal;
+  return ids_equal(one, two);
+}
+
+
 }  // namespace objectid
 }  // namespace util

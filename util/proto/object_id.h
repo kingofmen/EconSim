@@ -18,6 +18,9 @@ util::Status Canonicalise(util::proto::ObjectId* obj_id);
 // Returns the associated tag.
 std::string Tag(const util::proto::ObjectId& obj_id);
 
+// Returns true if the ObjectIds are equal.
+bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
+
 }  // namespace objectid
 }  // namespace util
 
