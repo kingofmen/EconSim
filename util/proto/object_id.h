@@ -21,6 +21,11 @@ std::string Tag(const util::proto::ObjectId& obj_id);
 // Returns true if the ObjectIds are equal.
 bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
 
+// Returns true if obj_id compares equal to a null ObjectId with no fields set.
+bool IsNull(const util::proto::ObjectId& obj_id);
+
+extern const util::proto::ObjectId kNullId;
+
 }  // namespace objectid
 }  // namespace util
 
@@ -53,5 +58,11 @@ template <> struct equal_to<util::proto::ObjectId> {
 };
 
 }
+
+bool operator==(const util::proto::ObjectId& one,
+                const util::proto::ObjectId& two);
+
+bool operator!=(const util::proto::ObjectId& one,
+                const util::proto::ObjectId& two);
 
 #endif

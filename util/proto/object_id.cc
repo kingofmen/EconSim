@@ -40,6 +40,8 @@ std::unordered_map<std::pair<std::string, std::string>, uint64> tagToNumMap;
 namespace util {
 namespace objectid {
 
+const util::proto::ObjectId kNullId;
+
 util::Status Canonicalise(util::proto::ObjectId* obj_id) {
   if (!obj_id->has_type() && !obj_id->has_kind()) {
     return util::InvalidArgumentError(absl::Substitute(
@@ -109,6 +111,21 @@ bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
   return ids_equal(one, two);
 }
 
+bool IsNull(const util::proto::ObjectId& obj_id) {
+  return Equal(obj_id, kNullId);
+}
 
 }  // namespace objectid
 }  // namespace util
+
+bool operator==(const util::proto::ObjectId& one,
+                const util::proto::ObjectId& two) {
+  return util::objectid::Equal(one, two);
+}
+
+bool operator!=(const util::proto::ObjectId& one,
+                const util::proto::ObjectId& two) {
+  return !(one == two);
+}
+
+
