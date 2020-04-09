@@ -73,7 +73,7 @@ void Error(const std::string& message) {
 void User(const std::string& message) {
   internal::Log(message, P_USER);
 }
-void Stream(const std::string& message, Priority p) {
+void Stream(Priority p, const std::string& message) {
   switch (p) {
     case P_TRACE:
       Trace(message);

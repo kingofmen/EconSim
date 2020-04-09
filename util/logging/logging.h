@@ -95,6 +95,7 @@ void Verbosef(int level, const char* file, int line,
 #define VLOG(level, m) Log::Verbose(level, __FILE__, __LINE__, m);
 #define VLOGF(level, format, ...) Log::Verbosef(level, __FILE__, __LINE__, format, __VA_ARGS__);
 
+// Activate debug logs with --copt="-DDEBUG" to Bazel.
 #ifdef DEBUG
 #define DLOG(p, m) Log::Stream(p, m);
 #define DLOGF(p, format, ...) Log::Streamf(p, format, __VA_ARGS__);
