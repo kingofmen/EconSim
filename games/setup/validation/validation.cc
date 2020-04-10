@@ -10,7 +10,7 @@
 #include "util/proto/object_id.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods;
-std::unordered_map<uint64, geography::proto::Area> areas;
+std::unordered_map<util::proto::ObjectId, geography::proto::Area> areas;
 std::unordered_map<uint64, units::proto::Template> templates;
 std::unordered_map<std::string, units::proto::Template> template_map;
 std::unordered_map<uint64, geography::proto::Connection> connections;
@@ -159,16 +159,17 @@ void checkTemplates(const games::setup::proto::Scenario& scenario,
 void validateAreas(const games::setup::proto::GameWorld& world,
                    std::vector<std::string>* errors) {
   for (const auto& area : world.areas()) {
-    if (!area.has_id()) {
+    if (!area.has_area_id()) {
       errors->push_back(
           absl::Substitute("Area without ID: \"$0\"", area.DebugString()));
-    } else if (area.id() < 1) {
-      errors->push_back(absl::Substitute("Bad area ID: $0", area.id()));
-    } else if (areas.find(area.id()) != areas.end()) {
+    } else if (!area.area_id().has_number() || area.area_id().number() < 1) {
       errors->push_back(
-          absl::Substitute("Area ID $0 is not unique", area.id()));
+          absl::Substitute("Bad area ID: $0", area.area_id().DebugString()));
+    } else if (areas.find(area.area_id()) != areas.end()) {
+      errors->push_back(absl::Substitute("Area ID $0 is not unique",
+                                         area.area_id().DebugString()));
     } else
-      areas[area.id()] = area;
+      areas[area.area_id()] = area;
   }
 }
 
@@ -210,19 +211,19 @@ void validateConnections(const games::setup::proto::GameWorld& world,
       continue;
     }
     connections[conn.id()] = conn;
-    if (!conn.has_a() || !conn.has_z()) {
+    if (!conn.has_a_area_id() || !conn.has_z_area_id()) {
       errors->push_back(
           absl::Substitute("Connection $0 does not connect", conn.id()));
     } else {
-      if (areas.find(conn.a()) == areas.end()) {
+      if (areas.find(conn.a_area_id()) == areas.end()) {
         errors->push_back(
             absl::Substitute("Connection $0 has A end $1, which doesn't exist",
-                             conn.id(), conn.a()));
+                             conn.id(), conn.a_area_id().DebugString()));
       }
-      if (areas.find(conn.z()) == areas.end()) {
+      if (areas.find(conn.z_area_id()) == areas.end()) {
         errors->push_back(
             absl::Substitute("Connection $0 has Z end $1, which doesn't exist",
-                             conn.id(), conn.z()));
+                             conn.id(), conn.z_area_id().DebugString()));
       }
     }
     if (conn.distance_u() < 1) {
@@ -271,13 +272,13 @@ void validateUnits(const games::setup::proto::GameWorld& world,
         absl::Substitute("Unit {$0, $1}", unit_id.kind(), unit_id.number()),
         errors);
     const auto& location = unit.location();
-    if (!location.has_source_area_id()) {
+    if (!location.has_a_area_id()) {
       errors->push_back(absl::Substitute("Unit {$0, $1} has no location",
                                          unit_id.kind(), unit_id.number()));
-    } else if (areas.find(location.source_area_id()) == areas.end()) {
+    } else if (areas.find(location.a_area_id()) == areas.end()) {
       errors->push_back(absl::Substitute(
           "Unit {$0, $1} has nonexistent location $2", unit_id.kind(),
-          unit_id.number(), location.source_area_id()));
+          unit_id.number(), location.a_area_id().DebugString()));
     }
     if (location.has_connection_id()) {
       uint64 conn_id = location.connection_id();
@@ -287,13 +288,13 @@ void validateUnits(const games::setup::proto::GameWorld& world,
                              unit_id.kind(), unit_id.number(), conn_id));
       } else {
         const auto& conn = connections[conn_id];
-        if (conn.a() != location.source_area_id() &&
-            conn.z() != location.source_area_id()) {
+        if (conn.a_area_id() != location.a_area_id() &&
+            conn.z_area_id() != location.a_area_id()) {
           errors->push_back(
               absl::Substitute("Unit {$0, $1} is in connection $2 which does "
                                "not connect source $3",
                                unit_id.kind(), unit_id.number(), conn_id,
-                               location.source_area_id()));
+                               location.a_area_id().DebugString()));
         }
       }
     }

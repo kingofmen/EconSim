@@ -10,6 +10,8 @@
 #include "games/sevenyears/graphics/sevenyears_interface.h"
 #include "games/interface/proto/config.pb.h"
 #include "util/headers/int_types.h"
+#include "util/proto/object_id.pb.h"
+#include "util/proto/object_id.h"
 #include "util/status/status.h"
 #include "SDL.h"
 
@@ -42,7 +44,7 @@ private:
     // From top-left of screen.
     int xpos_;
     int ypos_;
-    uint64 area_id_;
+    util::proto::ObjectId area_id_;
     std::unordered_map<std::string, int> unit_numbers_;
   };
 
@@ -56,7 +58,7 @@ private:
   };
 
   void clearScreen();
-  Area& getAreaById(uint64 area_id);
+  Area& getAreaById(const util::proto::ObjectId& area_id);
   void drawArea(const Area& area);
   void drawMap();
   void drawUnit();
@@ -66,7 +68,8 @@ private:
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, Map> maps_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;
-  std::unordered_map<uint64, std::pair<std::string, uint64>> area_map_;
+  std::unordered_map<util::proto::ObjectId, std::pair<std::string, uint64>>
+      area_map_;
   std::string current_map_;
   SDL_Rect map_rectangle_;
 };

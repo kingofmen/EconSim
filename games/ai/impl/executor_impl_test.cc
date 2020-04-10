@@ -21,15 +21,15 @@ class ExecutorImplTest : public testing::Test {
  protected:
   void SetUp() override {
     geography::proto::Area area;
-    area.set_id(1);
+    area.mutable_area_id()->set_number(1);
     area1_ = geography::Area::FromProto(area);
-    area.set_id(2);
+    area.mutable_area_id()->set_number(2);
     area2_ = geography::Area::FromProto(area);
 
     geography::proto::Connection conn;
     conn.set_id(1);
-    conn.set_a(1);
-    conn.set_z(2);
+    conn.mutable_a_area_id()->set_number(1);
+    conn.mutable_z_area_id()->set_number(2);
     conn.set_distance_u(1);
     conn.set_width_u(1);
     connection_12 = geography::Connection::FromProto(conn);
@@ -41,7 +41,7 @@ class ExecutorImplTest : public testing::Test {
 
     units::proto::Unit unit;
     unit.mutable_unit_id()->set_kind("one");
-    unit.mutable_location()->set_source_area_id(1);
+    *unit.mutable_location()->mutable_a_area_id() = area1_->area_id();
     unit_ = units::Unit::FromProto(unit);
   }
   
@@ -58,7 +58,7 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   step->set_connection_id(connection_12->ID());
 
   EXPECT_TRUE(MoveUnit(plan_.steps(0), unit_.get()));
-  EXPECT_EQ(2, unit_->location().source_area_id());
+  EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
 }
 
 TEST_F(ExecutorImplTest, TestBuy) {

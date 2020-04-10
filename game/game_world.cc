@@ -206,6 +206,10 @@ GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
 
   for (const auto& area : world.areas()) {
     areas_.emplace_back(geography::Area::FromProto(area));
+    if (!areas_.back()) {
+      Log::Warnf("Null area from proto: %s", area.DebugString());
+      areas_.pop_back();
+    }
   }
 
   for (const auto& conn : world.connections()) {
@@ -310,9 +314,15 @@ void GameWorld::TimeStep(
   while (true) {
     int count = 0;
     for (auto& unit : units_) {
+      if (unit->plan().steps().empty()) {
+        continue;
+      }
       if (ai::ExecuteStep(unit->plan(), unit.get())) {
         ai::DeleteStep(unit->mutable_plan());
         ++count;
+      } else {
+        Log::Warnf("Could not execute step in plan: %s",
+                   unit->plan().DebugString());
       }
     }
     if (count == 0) {
@@ -379,7 +389,7 @@ void GameWorld::SaveToProto(games::setup::proto::GameWorld* proto) const {
 }
 
 void GameWorld::SetProductionEvaluator(
-    uint64 area_id, uint64 field_idx,
+    const util::proto::ObjectId& area_id, uint64 field_idx,
     industry::decisions::ProductionEvaluator* eval) {
   geography::Area* area = geography::Area::GetById(area_id);
   if (area == NULL) {

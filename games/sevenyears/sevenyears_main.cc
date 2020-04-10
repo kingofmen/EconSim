@@ -232,7 +232,8 @@ void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
 
 util::Status InitialiseAI() {
   actions::proto::Strategy strategy;
-  strategy.mutable_seven_years_merchant()->set_base_area_id(1);
+  strategy.mutable_seven_years_merchant()->mutable_base_area_id()->set_number(
+      1);
   // This leaks, but no matter, it's max a hundred bytes.
   SevenYearsMerchant* merchant_ai = new SevenYearsMerchant();;
   return ai::RegisterPlanner(strategy, merchant_ai);

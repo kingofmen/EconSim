@@ -5,7 +5,7 @@ cc_library(
     srcs = ["bitmap.cc"],
     hdrs = ["bitmap.h"],
     deps = [
-        "//util/status",
+        "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@sdl2//:SDL2",
     ],
@@ -38,6 +38,7 @@ cc_library(
         "//units:units",
         "//util/headers:int_types",
         "//util/logging:logging",
+        "//util/proto:object_id",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@sdl2//:SDL2",

@@ -37,15 +37,15 @@ public:
               std::vector<Detection>* detections) const;
 
   // Endpoint access.
-  Area* a() { return Area::GetById(proto_.a()); }
-  Area* z() { return Area::GetById(proto_.z()); }
-  const Area* a() const { return Area::GetById(proto_.a()); }
-  const Area* z() const { return Area::GetById(proto_.z()); }
-  uint64 a_id() const { return proto_.a(); }
-  uint64 z_id() const { return proto_.z(); }
+  Area* a() { return Area::GetById(proto_.a_area_id()); }
+  Area* z() { return Area::GetById(proto_.z_area_id()); }
+  const Area* a() const { return Area::GetById(proto_.a_area_id()); }
+  const Area* z() const { return Area::GetById(proto_.z_area_id()); }
+  const util::proto::ObjectId& a_id() const { return proto_.a_area_id(); }
+  const util::proto::ObjectId& z_id() const { return proto_.z_area_id(); }
 
   // ID of the other side.
-  uint64 OtherSide(uint64 area_id) const;
+  const util::proto::ObjectId& OtherSide(const util::proto::ObjectId& id) const;
 
   // Other-side area.
   Area* OtherSide(const Area* area);
@@ -58,16 +58,18 @@ public:
 
   // Proto access.
   const proto::Connection& Proto() const { return proto_; }
+  proto::Connection* mutable_proto() { return &proto_; }
 
   // Builder method.
   static std::unique_ptr<Connection> FromProto(const proto::Connection& conn);
 
   // Lookup by endpoint; both A and Z connections are returned.
-  static const std::unordered_set<Connection*>& ByEndpoint(uint64 area_id);
+  static const std::unordered_set<Connection*>&
+  ByEndpoint(const util::proto::ObjectId& id);
 
   // Lookup by both endpoints.
-  static const std::unordered_set<Connection*>& ByEndpoints(uint64 area_one,
-                                                            uint64 area_two);
+  static const std::unordered_set<Connection*>&
+  ByEndpoints(const util::proto::ObjectId& a, const util::proto::ObjectId& z);
 
   // Lookup by connection ID.
   static Connection* ById(uint64 conn_id);
@@ -81,17 +83,6 @@ private:
 
   // Listener map.
   std::unordered_map<util::proto::ObjectId, Listener> listeners_;
-
-  // ID mapping.
-  static std::unordered_map<uint64, Connection*> id_map_;
-
-  // Endpoint mapping.
-  static std::unordered_map<uint64, std::unordered_set<Connection*>>
-      endpoint_map_;
-
-  // Mapping by both endpoints.
-  static std::unordered_map<uint64, std::unordered_set<Connection*>>
-      both_endpoints_map_;
 };
 
 // Interface for moving Mobiles.

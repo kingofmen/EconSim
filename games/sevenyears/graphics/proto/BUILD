@@ -9,5 +9,6 @@ proto_library(
     name = "graphics_proto_lib",
     srcs = ["graphics.proto"],
     deps = [
+        "//util/proto:object_id_proto_lib",
     ],
 )

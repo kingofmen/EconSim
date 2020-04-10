@@ -15,6 +15,7 @@
 #include "game/game_world.h"
 #include "games/setup/proto/setup.pb.h"
 #include "src/google/protobuf/stubs/status.h"
+#include "util/proto/object_id.pb.h"
 
 namespace interface {
 namespace text {
@@ -43,7 +44,7 @@ class TextInterface : public interface::UserInterface {
   colony::graphics::proto::WorldGraphics graphics_;
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
-  uint64 selected_area_id_;
+  util::proto::ObjectId selected_area_id_;
   InputArea selected_input_area_;
   uint64 selected_detail_idx_;
   uint64 player_faction_id_;

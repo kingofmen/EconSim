@@ -38,9 +38,7 @@ message Area {
   optional ResourceLimits limits = 2;
   repeated uint64 pop_ids = 3;
   optional market.proto.MarketProto market = 4;
-  // Deprecated, use area_id instead.
-  optional uint64 id = 5 [deprecated = true];
-  optional util.proto.ObjectId area_id = 6;
+  optional util.proto.ObjectId area_id = 5;
 }
 
 // A series of steps by which a Field can be converted from one LandType to
@@ -87,14 +85,14 @@ message Connection {
   optional int32 ruggedness = 5;
   optional int32 chokepoints = 6;
 
-  optional uint64 a = 7;
-  optional uint64 z = 8;
+  optional util.proto.ObjectId a_area_id = 7;
+  optional util.proto.ObjectId z_area_id = 8;
   // TODO: Infrastructure, vulnerability.
 }
 
 message Location {
-  optional uint64 source_area_id = 1;
-  optional uint64 destination_area_id = 2;
+  optional util.proto.ObjectId a_area_id = 1;
+  optional util.proto.ObjectId z_area_id = 2;
   optional uint64 progress_u = 3;
   optional uint64 connection_id = 4;
 }

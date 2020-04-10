@@ -39,8 +39,14 @@ connections {
   id: 1
   distance_u: 1000000
   width_u: 1000000
-  a: 1
-  z: 2
+  a_area_id {
+    kind: "area"
+    number: 1
+  }
+  z_area_id {
+    kind: "area"
+    number: 2
+  }
 }
 
 connections {
@@ -48,8 +54,14 @@ connections {
   id: 2
   distance_u: 1000000
   width_u: 1000000
-  a: 1
-  z: 3
+  a_area_id {
+    kind: "area"
+    number: 1
+  }
+  z_area_id {
+    kind: "area"
+    number: 3
+  }
 }
 
 connections {
@@ -57,8 +69,14 @@ connections {
   id: 3
   distance_u: 1000000
   width_u: 1000000
-  a: 2
-  z: 3
+  a_area_id {
+    kind: "area"
+    number: 2
+  }
+  z_area_id {
+    kind: "area"
+    number: 3
+  }
 }
 
 units {
@@ -67,14 +85,23 @@ units {
     number: 1
   }
   location {
-    source_area_id: 1
-    destination_area_id: 2
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+    z_area_id {
+      kind: "area"
+      number: 2
+    }
     progress_u: 500000
     connection_id: 1
   }
   strategy {
     seven_years_merchant {
-      base_area_id: 1
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
     }
   }
 }
@@ -85,11 +112,17 @@ units {
     number: 2
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
   }
   strategy {
     seven_years_merchant {
-      base_area_id: 1
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
     }
   }
 }
@@ -100,11 +133,17 @@ units {
     number: 3
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
   }
   strategy {
     seven_years_merchant {
-      base_area_id: 1
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
     }
   }
 }
@@ -115,11 +154,17 @@ units {
     number: 1
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
   }
   strategy {
     seven_years_merchant {
-      base_area_id: 1
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
     }
   }
 }
@@ -130,11 +175,17 @@ units {
     number: 1
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
   }
   strategy {
     seven_years_merchant {
-      base_area_id: 1
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
     }
   }
 }

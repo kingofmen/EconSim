@@ -15,9 +15,8 @@ std::unordered_map<util::proto::ObjectId, geography::Area*> area_id_map_;
 
 namespace geography {
 
-std::unordered_map<uint64, Area*> Area::id_map_;
-uint64 Area::max_id_ = 0;
-uint64 Area::min_id_ = std::numeric_limits<uint64>::max();
+util::proto::ObjectId Area::max_id_ = util::objectid::kNullId;
+util::proto::ObjectId Area::min_id_ = util::objectid::kNullId;
 
 bool HasFixedCapital(const proto::Field& field,
                      const industry::Production& production) {
@@ -93,29 +92,17 @@ GenerateTransitionProcess(const proto::Field& field,
 std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
   std::unique_ptr<Area> ret;
   // TODO: Actually handle some errors here and below.
-  if (area.has_id() && area.has_area_id()) {
-    Log::Errorf("Area %s has both id and area_id", area.DebugString());
+  if (!area.has_area_id()) {
+    Log::Errorf("Area %s has no area_id", area.DebugString());
     return ret;
   }
-  if (area.has_id()) {
-    if (area.id() == 0) {
-      Log::Errorf("Invalid area id 0: %s", area.DebugString());
-      return ret;
-    }
-    if (id_map_.find(area.id()) != id_map_.end()) {
-      Log::Errorf("Duplicate area id %d: %s", area.id(), area.DebugString());
-      return ret;
-    }
-  } else if (area.has_area_id()) {
-    if (area.area_id().number() == 0) {
-      Log::Errorf("Invalid area id 0: %s", area.DebugString());
-      return ret;
-    }
-    if (area_id_map_.find(area.area_id()) != area_id_map_.end()) {
-      Log::Errorf("Area %s already exists", area.area_id().DebugString());
-      return ret;
-    }
-  } else {
+
+  if (area.area_id().number() == 0) {
+    Log::Errorf("Invalid area id 0: %s", area.DebugString());
+    return ret;
+  }
+  if (area_id_map_.find(area.area_id()) != area_id_map_.end()) {
+    Log::Errorf("Area %s already exists", area.area_id().DebugString());
     return ret;
   }
   ret.reset(new Area(area));
@@ -123,53 +110,39 @@ std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
 }
 
 Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
-  uint64 id = 0;
-  if (proto_.has_id()) {
-    id = proto_.id();
+  area_id_map_[proto_.area_id()] = this;
+  uint64 number = proto_.area_id().number();
+  if (number > max_id_.number() || min_id_ == util::objectid::kNullId) {
+    max_id_ = proto_.area_id();
   }
-  if (proto_.has_area_id()) {
-    id = proto_.area_id().number();
-    proto_.set_id(id);
-    area_id_map_[proto_.area_id()] = this;
-  }
-
-  id_map_[id] = this;
-  if (id > max_id_) {
-    max_id_ = id;
-  }
-  if (id < min_id_) {
-    min_id_ = id;
+  if (number < min_id_.number() || min_id_ == util::objectid::kNullId) {
+    min_id_ = proto_.area_id();
   }
 }
 
 Area::~Area() {
-  uint64 erased = id();
-  id_map_.erase(erased);
-  if (proto_.has_area_id()) {
-    area_id_map_.erase(proto_.area_id());
-  }
-  if (erased == max_id_ || erased == min_id_) {
+  uint64 erased = proto_.area_id().number();
+  area_id_map_.erase(proto_.area_id());
+
+  if (erased == max_id_.number() || erased == min_id_.number()) {
     uint64 least = std::numeric_limits<uint64>::max();
     uint64 most = 0;
-    for (const auto& area : id_map_) {
-      if (area.first > most) {
-        most = area.first;
+    for (const auto& area : area_id_map_) {
+      uint64 number = area.first.number();
+      if (number > most) {
+        most = number;
       }
-      if (area.first < least) {
-        least = area.first;
+      if (number < least) {
+        least = number;
       }
     }
-    max_id_ = most;
-    min_id_ = least;
+    max_id_.set_number(most);
+    min_id_.set_number(least);
   }
 }
 
 const util::proto::ObjectId& Area::area_id() const {
   return proto_.area_id();
-}
-
-Area* Area::GetById(uint64 id) {
-  return id_map_[id];
 }
 
 Area* Area::GetById(const util::proto::ObjectId& area_id) {

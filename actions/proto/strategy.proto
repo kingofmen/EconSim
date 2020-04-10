@@ -1,14 +1,16 @@
 syntax = "proto2";
 package actions.proto;
 
+import "util/proto/object_id.proto";
+
 // Simple test strategies, not meant for serious use.
 // Buy apples in Appleville, carry to Orangetown, sell apples, buy oranges,
 // go back and sell the oranges, repeat.
 message ShuttleTrade {
   optional string good_a = 1;
   optional string good_z = 2;
-  optional uint64 area_a_id = 3;
-  optional uint64 area_z_id = 4;
+  optional util.proto.ObjectId area_a_id = 3;
+  optional util.proto.ObjectId area_z_id = 4;
   enum State {
     STS_BUY_A = 0;
     STS_BUY_Z = 1;
@@ -19,7 +21,7 @@ message ShuttleTrade {
 
 // Strategies for SevenYears naval-management minigame.
 message SevenYearsMerchant {
-  optional uint64 base_area_id = 1;
+  optional util.proto.ObjectId base_area_id = 1;
 }
 
 message Strategy {

@@ -1,6 +1,8 @@
 syntax = "proto2";
 package colony.graphics.proto;
 
+import "util/proto/object_id.proto";
+
 message Point {
   optional int32 x = 1;
   optional int32 y = 2;
@@ -8,7 +10,7 @@ message Point {
 
 message AreaGraphics {
   optional Point coord = 1;
-  optional uint64 area_id = 2;
+  optional util.proto.ObjectId area_id = 2;
 }
 
 message WorldGraphics {

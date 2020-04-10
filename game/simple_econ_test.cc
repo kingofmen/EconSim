@@ -17,6 +17,7 @@
 #include "gtest/gtest.h"
 #include "industry/proto/decisions.pb.h"
 #include "market/goods_utils.h"
+#include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
 
@@ -29,12 +30,15 @@ const std::string kTradeGoods = "goods.pb.txt";
 const std::string kConsumption = "consumption.pb.txt";
 const std::string kUnits = "units.pb.txt";
 
-
 class EconomyTest : public testing::Test {
+public:
+  EconomyTest() { Log::Register(Log::coutLogger); }
+  ~EconomyTest() { Log::UnRegister(Log::coutLogger); }
+
 protected:
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_;
-
+  
   google::protobuf::util::Status LoadTestData(const std::string& location) {
     market::ClearGoods();
     games::setup::proto::ScenarioFiles config;
@@ -80,16 +84,15 @@ protected:
 
       world_proto_.Clear();
       game_world.SaveToProto(&world_proto_);
-
       for (int aa = 0; aa < world_proto_.areas_size(); ++aa) {
         const auto& area = world_proto_.areas(aa);
         auto& current_prices = area.market().prices_u();
         for (const auto& good : initial_prices[aa].quantities()) {
           auto curr_price = market::GetAmount(current_prices, good.first);
           if (good.second != curr_price) {
-            return util::FailedPreconditionError(
-                absl::Substitute("Turn $0 area $4: $1 price $2 does not match initial $3",
-                                 i, good.first, curr_price, good.second, area.id()));
+            return util::FailedPreconditionError(absl::Substitute(
+                "Turn $0 area $4: $1 price $2 does not match initial $3", i,
+                good.first, curr_price, good.second, area.area_id().number()));
           }
         }
         for (const auto& good : current_prices.quantities()) {
@@ -98,7 +101,8 @@ protected:
             return util::FailedPreconditionError(absl::Substitute(
                 "Turn $0 area $4: $1 initial price $3 does not match current "
                 "$2",
-                i, good.first, good.second, init_price, area.id()));
+                i, good.first, good.second, init_price,
+                area.area_id().number()));
           }
         }
       }

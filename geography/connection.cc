@@ -2,36 +2,44 @@
 
 #include <functional>
 
+#include "util/proto/object_id.h"
+
+std::unordered_map<util::proto::ObjectId,
+                   std::unordered_set<geography::Connection*>>
+    endpoint_map_;
 std::unordered_map<uint64, std::unordered_set<geography::Connection*>>
-    geography::Connection::endpoint_map_;
-std::unordered_map<uint64, std::unordered_set<geography::Connection*>>
-    geography::Connection::both_endpoints_map_;
-std::unordered_map<uint64, geography::Connection*>
-    geography::Connection::id_map_;
+    both_endpoints_map_;
+std::unordered_map<uint64, geography::Connection*> id_map_;
+std::equal_to<util::proto::ObjectId> ids_equal;
 
 namespace geography {
 namespace {
 
-uint64 Fingerprint(uint64 one, uint64 two) {
-  static std::hash<uint64> hasher;
+uint64 Fingerprint(const util::proto::ObjectId& one,
+                   const util::proto::ObjectId& two) {
+  static std::hash<util::proto::ObjectId> hasher;
   return 31 * hasher(one) + hasher(two);
 }
 
 } // namespace
 
 Connection::Connection(const proto::Connection& conn) : proto_(conn) {
-  endpoint_map_[proto_.a()].insert(this);
-  endpoint_map_[proto_.z()].insert(this);
-  both_endpoints_map_[Fingerprint(proto_.a(), proto_.z())].insert(this);
-  both_endpoints_map_[Fingerprint(proto_.z(), proto_.a())].insert(this);
+  endpoint_map_[proto_.a_area_id()].insert(this);
+  endpoint_map_[proto_.z_area_id()].insert(this);
+  both_endpoints_map_[Fingerprint(proto_.a_area_id(), proto_.z_area_id())]
+      .insert(this);
+  both_endpoints_map_[Fingerprint(proto_.z_area_id(), proto_.a_area_id())]
+      .insert(this);
   id_map_[proto_.id()] = this;
 }
 
 Connection::~Connection() {
-  endpoint_map_[proto_.a()].erase(this);
-  endpoint_map_[proto_.z()].erase(this);
-  both_endpoints_map_[Fingerprint(proto_.a(), proto_.z())].erase(this);
-  both_endpoints_map_[Fingerprint(proto_.z(), proto_.a())].erase(this);
+  endpoint_map_[proto_.a_area_id()].erase(this);
+  endpoint_map_[proto_.z_area_id()].erase(this);
+  both_endpoints_map_[Fingerprint(proto_.a_area_id(), proto_.z_area_id())]
+      .erase(this);
+  both_endpoints_map_[Fingerprint(proto_.z_area_id(), proto_.a_area_id())]
+      .erase(this);
   id_map_.erase(ID());
 }
 
@@ -54,13 +62,13 @@ Connection::FromProto(const proto::Connection& conn) {
   if (ById(conn.id()) != NULL) {
     return ret;
   }
-  if (conn.a() == 0) {
+  if (!conn.has_a_area_id()) {
     return ret;
   }
-  if (conn.z() == 0) {
+  if (!conn.has_z_area_id()) {
     return ret;
   }
-  if (conn.a() == conn.z()) {
+  if (ids_equal(conn.a_area_id(), conn.z_area_id())) {
     return ret;
   }
   if (conn.distance_u() == 0) {
@@ -74,25 +82,29 @@ Connection::FromProto(const proto::Connection& conn) {
   return ret;
 }
 
-const std::unordered_set<Connection*>& Connection::ByEndpoint(uint64 area_id) {
+const std::unordered_set<Connection*>&
+Connection::ByEndpoint(const util::proto::ObjectId& area_id) {
   return endpoint_map_[area_id];
 }
 
 const std::unordered_set<Connection*>&
-Connection::ByEndpoints(uint64 area_one, uint64 area_two) {
+Connection::ByEndpoints(const util::proto::ObjectId& area_one,
+                        const util::proto::ObjectId& area_two) {
   return both_endpoints_map_[Fingerprint(area_one, area_two)];
 }
 
 Connection* Connection::ById(uint64 conn_id) { return id_map_[conn_id]; }
 
-uint64 Connection::OtherSide(uint64 area_id) const {
-  if (area_id == proto_.a()) {
-    return proto_.z();
+const util::proto::ObjectId&
+Connection::OtherSide(const util::proto::ObjectId& area_id) const {
+  std::equal_to<util::proto::ObjectId> comp;
+  if (ids_equal(area_id, proto_.a_area_id())) {
+    return proto_.z_area_id();
   }
-  if (area_id == proto_.z()) {
-    return proto_.a();
+  if (ids_equal(area_id, proto_.z_area_id())) {
+    return proto_.a_area_id();
   }
-  return 0;
+  return util::objectid::kNullId;
 }
 
 Area* Connection::OtherSide(const Area* area) {
@@ -148,10 +160,10 @@ bool DefaultTraverser::Traverse(const Mobile& mobile,
 
   if (distance_u >= length_u) {
     location->clear_progress_u();
-    location->set_source_area_id(conn->OtherSide(location->source_area_id()));
+    *location->mutable_a_area_id() = conn->OtherSide(location->a_area_id());
     location->clear_connection_id();
-    if (location->source_area_id() == location->destination_area_id()) {
-      location->clear_destination_area_id();
+    if (ids_equal(location->a_area_id(), location->z_area_id())) {
+      location->clear_z_area_id();
       return true;
     }
   } else {

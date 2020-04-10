@@ -80,7 +80,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   faction->mutable_faction_id()->set_tag("faction_one");
 
   auto* area = gameworld.add_areas();
-  area->mutable_area_id()->set_type(2);
+  area->mutable_area_id()->set_kind("area");
   area->mutable_area_id()->set_number(51);
   area->mutable_area_id()->set_tag("area_fifty_one");
 

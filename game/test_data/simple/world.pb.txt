@@ -1,5 +1,8 @@
 areas {
-  id: 1
+  area_id {
+    number: 1
+    kind: "area"
+  }
   fields {
     land_type: LT_FIELDS
     owner_id: 1

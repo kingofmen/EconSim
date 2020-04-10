@@ -1,5 +1,8 @@
 areas {
-  id: 1
+  area_id {
+    kind: "area"
+    number: 1
+  }
   limits {
     maximum {
       quantities { key: "trees" value: 1000000000 }

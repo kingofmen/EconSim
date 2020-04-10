@@ -53,6 +53,7 @@ cc_test(
         "//games/setup/validation:validation",
         "//games/setup:setup",
         "//market:goods_utils",
+        "//util/logging:logging",
         "//util/proto:file",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",

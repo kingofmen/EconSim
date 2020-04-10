@@ -1,6 +1,8 @@
 syntax = "proto2";
 package sevenyears.graphics.proto;
 
+import "util/proto/object_id.proto";
+
 message Coord {
   optional int32 degrees = 1;
   optional int32 minutes = 2;
@@ -16,7 +18,7 @@ message LatLong {
 }
 
 message Area {
-  optional uint64 area_id = 1;
+  optional util.proto.ObjectId area_id = 1;
   optional LatLong position = 2;
   optional string display_name = 3 [default = "UNKNOWN"];
 }

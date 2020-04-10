@@ -16,6 +16,7 @@
 #include "population/popunit.h"
 #include "population/proto/population.pb.h"
 #include "units/unit.h"
+#include "util/proto/object_id.pb.h"
 
 namespace game {
 
@@ -34,7 +35,8 @@ public:
   };
 
   // Sets the production evaluator for the field.
-  void SetProductionEvaluator(uint64 area_id, uint64 field_idx,
+  void SetProductionEvaluator(const util::proto::ObjectId& area_id,
+                              uint64 field_idx,
                               industry::decisions::ProductionEvaluator* eval);
 
   // Moves the simulation forward one step.

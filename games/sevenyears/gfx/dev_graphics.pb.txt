@@ -27,7 +27,10 @@ maps {
     }
   }
   areas {
-    area_id: 1
+    area_id {
+      kind: "area"
+      number: 1
+    }
     position {
       north {
         degrees: 48
@@ -45,7 +48,10 @@ maps {
     display_name: "Brest"
   }
   areas {
-    area_id: 2
+    area_id {
+      kind: "area"
+      number: 2
+    }
     position {
       north {
         degrees: 51
@@ -61,7 +67,10 @@ maps {
     display_name: "London"
   }
   areas {
-    area_id: 3
+    area_id {
+      kind: "area"
+      number: 3
+    }
     position {
       north {
         degrees: 60

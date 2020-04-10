@@ -13,6 +13,8 @@ cc_library(
         "//units:units",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
     ],
 )
 
@@ -30,6 +32,8 @@ cc_library(
         "//units:units",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
     ],
 )
 

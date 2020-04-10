@@ -5,6 +5,8 @@
 #include "geography/proto/geography.pb.h"
 #include "market/market.h"
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
+#include "util/proto/object_id.h"
 
 namespace ai {
 namespace impl {
@@ -20,18 +22,27 @@ bool MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
       return false;
     }
   } else {
-    if (!location->has_source_area_id()) {
+    if (!location->has_a_area_id()) {
       return false;
     }
-    if (geography::Connection::ById(step.connection_id())
-            ->OtherSide(location->source_area_id()) == 0) {
+    const auto* connection = geography::Connection::ById(step.connection_id());
+    if (!connection) {
+      DLOGF(Log::P_DEBUG, "  MoveUnit could not find connection ID %d",
+            step.connection_id());
       return false;
     }
+
+    if (util::objectid::IsNull(connection->OtherSide(location->a_area_id()))) {
+      return false;
+    }
+
+    // Step into the connection before starting traverse.
     location->set_connection_id(step.connection_id());
   }
-  
+
   static geography::DefaultTraverser traverser;
   traverser.Traverse(*unit, location);
+
   return true;
 }
 
@@ -50,7 +61,7 @@ bool BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {
     return false;
   }
 
-  geography::Area* area = geography::Area::GetById(location.source_area_id());
+  geography::Area* area = geography::Area::GetById(location.a_area_id());
   if (area == NULL) {
     // Something is really weird.
     // TODO: Fail more obviously here, this should never happen.
@@ -70,6 +81,7 @@ bool BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {
                       market::GetAmount(unit->resources(), step.good()),
                       unit->mutable_resources());
   }
+
   return true;
 }
 

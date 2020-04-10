@@ -11,6 +11,7 @@ proto_library(
     deps = [
         "//geography/proto:geography_proto_lib",
         "//market/proto:goods_proto_lib",
+        "//util/proto:object_id_proto_lib",
     ],
 )
 

@@ -2,10 +2,14 @@
 # factories, and the output to the input workers.
 
 areas {
-  id: 1
+  area_id {
+    number: 1
+    kind: "area"
+  }
   fields {
     land_type: LT_FIELDS
     owner_id: 1
+    name: "Field 1"
   }
   pop_ids: 1
   market {
@@ -24,10 +28,14 @@ areas {
 }
 
 areas {
-  id: 2
+  area_id {
+    number: 2
+    kind: "area"
+  }
   fields {
     land_type: LT_HEAVY_INDUSTRY
     owner_id: 2
+    name: "Field 2"
   }
   pop_ids: 2
   market {
@@ -47,8 +55,14 @@ connections {
   id: 1
   distance_u: 1
   width_u: 1
-  a: 1
-  z: 2
+  a_area_id {
+    number: 1
+    kind: "area"
+  }
+  z_area_id {
+    number: 2
+    kind: "area"
+  }
 }
 
 pops {
@@ -77,14 +91,23 @@ units {
     number: 1
   }
   location {
-    source_area_id: 2
+    a_area_id {
+      number: 2
+      kind: "area"
+    }
   }
   strategy {
     shuttle_trade {
       good_a: "output"
       good_z: "input"
-      area_a_id: 1
-      area_z_id: 2
+      area_a_id {
+        number: 1
+	kind: "area"
+      }
+      area_z_id {
+        number: 2
+	kind: "area"
+      }
       state: STS_BUY_A
       tolerance: 400000
     }
@@ -99,14 +122,23 @@ units {
     number: 2
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      number: 1
+      kind: "area"
+    }
   }
   strategy {
     shuttle_trade {
       good_a: "output"
       good_z: "input"
-      area_a_id: 1
-      area_z_id: 2
+      area_a_id {
+        number: 1
+	kind: "area"
+      }
+      area_z_id {
+        number: 2
+	kind: "area"
+      }
       state: STS_BUY_Z
       tolerance: 400000
     }

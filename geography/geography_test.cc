@@ -25,7 +25,8 @@ class GeographyTest : public testing::Test {
          new industry::Production());
      stuff_.set_kind("stuff");
      proto::Area proto;
-     proto.set_id(1);
+     proto.mutable_area_id()->set_number(1);
+     proto.mutable_area_id()->set_kind("area");
      area_ = Area::FromProto(proto);
      area_proto_ = area_->Proto();
      field_ = area_proto_->add_fields();

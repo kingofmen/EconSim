@@ -217,7 +217,7 @@ void TextInterface::drawInfoBox() {
     return;
   }
   output(sidebarLimit + 22, 1, 0,
-         absl::Substitute("Area $0", selected_area_id_));
+         absl::Substitute("Area $0", selected_area_id_.number()));
   const std::vector<uint64>& pop_ids = area->pop_ids();
   int line = 3;
 
@@ -310,7 +310,7 @@ void TextInterface::drawWorld() {
     int x = ag.coord().x() + (columns / 2) - center_.x();
     int y = ag.coord().y() + (rows / 2) - center_.y();
     for (int f = 0; f < proto->fields_size(); ++f) {
-      std::string idString = absl::Substitute("$0", ag.area_id());
+      std::string idString = absl::Substitute("$0", ag.area_id().number());
       if (x >= 0 && x < sidebarLimit && y >= 0 && y < firstMessageLine) {
         int code = FG_BOLD;
         if (ag.area_id() == selected_area_id_) {
@@ -471,7 +471,8 @@ void TextInterface::newGameHandler(char inp) {
           for (int f = 0; f < area->fields_size(); ++f) {
             auto* field = area->mutable_fields(f);
             if (!field->has_name()) {
-              field->set_name(absl::Substitute("Area $0 Field $1", area->id(), f+1));
+              field->set_name(absl::Substitute(
+                  "Area $0 Field $1", area->area_id().number(), f + 1));
             }
           }
         }
@@ -584,21 +585,21 @@ void TextInterface::runGameHandler(char inp) {
       center_.set_x(center_.x() + 50);
       break;
     case '`':
-      selected_area_id_ = geography::Area::MaxId() + 1;
+      selected_area_id_.set_number(1 + geography::Area::MaxId().number());
       selected_detail_idx_ = 0;
       break;
     case '+':
-      ++selected_area_id_;
+      selected_area_id_.set_number(1 + selected_area_id_.number());
       selected_detail_idx_ = 0;
-      if (selected_area_id_ > geography::Area::MaxId()) {
+      if (selected_area_id_.number() > geography::Area::MaxId().number()) {
         selected_area_id_ = geography::Area::MinId();
       }
       selected_detail_idx_ = 0;
       break;
     case '-':
-      --selected_area_id_;
+      selected_area_id_.set_number(selected_area_id_.number() - 1);
       selected_detail_idx_ = 0;
-      if (selected_area_id_ < geography::Area::MinId()) {
+      if (selected_area_id_.number() < geography::Area::MinId().number()) {
         selected_area_id_ = geography::Area::MaxId();
       }
       selected_detail_idx_ = 0;
@@ -660,7 +661,7 @@ geography::proto::Field* TextInterface::getField() {
   if (selected_detail_idx_ >= area->num_fields()) {
     message(FG_RED,
             absl::Substitute("Bad field index $0 in area $1",
-                             selected_detail_idx_, selected_area_id_));
+                             selected_detail_idx_, selected_area_id_.number()));
     selected_detail_idx_ = 0;
     return NULL;
   }
@@ -700,7 +701,7 @@ void TextInterface::changeFieldProcess(bool pos) {
     field_action_idx = actions_.size();
     actions_.emplace_back();
     setProduction = actions_.back().mutable_set_production();
-    setProduction->set_area_id(selected_area_id_);
+    *(setProduction->mutable_area_id()) = selected_area_id_;
     setProduction->set_field_idx(selected_detail_idx_);
     field_overrides_[field] = field_action_idx;
   }

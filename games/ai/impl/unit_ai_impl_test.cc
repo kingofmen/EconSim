@@ -26,23 +26,23 @@ class UnitAiImplTest : public testing::Test {
  protected:
   void SetUp() override {
     geography::proto::Area area;
-    area.set_id(1);
+    area.mutable_area_id()->set_number(1);
     area1_ = geography::Area::FromProto(area);
-    area.set_id(2);
+    area.mutable_area_id()->set_number(2);
     area2_ = geography::Area::FromProto(area);
-    area.set_id(3);
+    area.mutable_area_id()->set_number(3);
     area3_ = geography::Area::FromProto(area);
 
     geography::proto::Connection conn;
     conn.set_id(1);
-    conn.set_a(1);
-    conn.set_z(2);
+    conn.mutable_a_area_id()->set_number(1);
+    conn.mutable_z_area_id()->set_number(2);
     conn.set_distance_u(1);
     conn.set_width_u(1);
     connection_12 = geography::Connection::FromProto(conn);
     conn.set_id(2);
-    conn.set_a(3);
-    conn.set_z(2);
+    conn.mutable_a_area_id()->set_number(3);
+    conn.mutable_z_area_id()->set_number(2);
     connection_23 = geography::Connection::FromProto(conn);
 
     units::proto::Template temp;
@@ -51,7 +51,7 @@ class UnitAiImplTest : public testing::Test {
 
     units::proto::Unit unit;
     unit.mutable_unit_id()->set_kind("one");
-    unit.mutable_location()->set_source_area_id(area1_->id());
+    *unit.mutable_location()->mutable_a_area_id() = area1_->area_id();
     unit_ = units::Unit::FromProto(unit);
   }
 
@@ -69,8 +69,8 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
   actions::proto::ShuttleTrade* trade = strategy_.mutable_shuttle_trade();
   trade->set_good_a(kTestGood1);
   trade->set_good_z(kTestGood2);
-  trade->set_area_a_id(area1_->id());
-  trade->set_area_z_id(area3_->id());
+  *trade->mutable_area_a_id() = area1_->area_id();
+  *trade->mutable_area_z_id() = area3_->area_id();
   trade->set_state(actions::proto::ShuttleTrade::STS_BUY_A);
 
   actions::proto::Plan plan;

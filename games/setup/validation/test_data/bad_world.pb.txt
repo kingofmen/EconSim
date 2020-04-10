@@ -3,19 +3,27 @@
 areas {}
 
 areas {
-  id: 0
+  area_id {
+    number: 0
+  }
 }
 
 areas {
-  id: 1
+  area_id {
+    number: 1
+  }
 }
 
 areas {
-  id: 2
+  area_id {
+    number: 2
+  }
 }
 
 areas {
-  id: 2
+  area_id {
+    number: 2
+  }
 }
 
 pops {}
@@ -39,8 +47,12 @@ connections {
   id: 1
   distance_u: 1
   width_u: 1
-  a: 1
-  z: 2
+  a_area_id {
+    number: 1
+  }
+  z_area_id {
+    number: 2
+  }
 }
 
 connections {
@@ -55,8 +67,12 @@ connections {
   id: 3
   distance_u: 1
   width_u: 1
-  a: 5
-  z: 6
+  a_area_id {
+    number: 5
+  }
+  z_area_id {
+    number: 6
+  }
 }
 
 connections {
@@ -88,7 +104,9 @@ units {
     }
   }
   location {
-    source_area_id: 5
+    a_area_id {
+      number: 5
+    }
   }
 }
 units {
@@ -97,7 +115,9 @@ units {
     number: 2
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      number: 1
+    }
     connection_id: 12
   }
 }
@@ -107,7 +127,9 @@ units {
     number: 3
   }
   location {
-    source_area_id: 1
+    a_area_id {
+      number: 1
+    }
     connection_id: 3
   }
 }

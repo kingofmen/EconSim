@@ -53,7 +53,7 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
     }
     if (curr->Proto()->has_area_id()) {
       const auto& id = curr->Proto()->area_id();
-      if (!id.has_kind() && !id.has_type()) {
+      if (!id.has_kind()) {
         curr->Proto()->mutable_area_id()->set_kind("area");
       }
     }
@@ -61,6 +61,17 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
 
   for (const auto& conn : proto.connections()) {
     world->connections_.emplace_back(geography::Connection::FromProto(conn));
+    auto& curr = world->connections_.back();
+    if (!curr) {
+      Log::Errorf("Could not load connection: %s", conn.DebugString());
+      continue;
+    }
+    if (!curr->Proto().a_area_id().has_kind()) {
+      curr->mutable_proto()->mutable_a_area_id()->set_kind("area");
+    }
+    if (!curr->Proto().z_area_id().has_kind()) {
+      curr->mutable_proto()->mutable_z_area_id()->set_kind("area");
+    }
   }
 
   for (const auto& unit : proto.units()) {

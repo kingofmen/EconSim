@@ -9,6 +9,7 @@
 #include "geography/connection.h"
 #include "units/unit.h"
 #include "util/logging/logging.h"
+#include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
 #include "SDL.h"
 
@@ -222,38 +223,39 @@ util::Status SDLInterface::validate(const proto::Scenario& scenario) {
       if (!area.has_area_id()) {
         continue;
       }
-      int curr_id = area.area_id();
+      const util::proto::ObjectId& curr_id = area.area_id();
       if (area_map_.find(curr_id) != area_map_.end()) {
-        return util::InvalidArgumentError(
-            absl::Substitute("Duplicate area $0 in map $1, previous was in $2",
-                             curr_id, map.name(), area_map_[curr_id].first));
+        return util::InvalidArgumentError(absl::Substitute(
+            "Duplicate area $0 in map $1, previous was in $2",
+            curr_id.DebugString(), map.name(), area_map_[curr_id].first));
       }
       area_map_.emplace(std::make_pair(curr_id, std::make_pair(map.name(), 0)));
 
       if (!area.has_position()) {
-        return util::InvalidArgumentError(absl::Substitute(
-            "Area $0 in map $1 has no coordinates.", curr_id, map.name()));
+        return util::InvalidArgumentError(
+            absl::Substitute("Area $0 in map $1 has no coordinates.",
+                             curr_id.DebugString(), map.name()));
       }
       const auto& pos = area.position();
       if (seconds_north(pos) > top_seconds) {
         return util::InvalidArgumentError(
             absl::Substitute("Area $0 in map $1 is north of the map top edge.",
-                             curr_id, map.name()));
+                             curr_id.DebugString(), map.name()));
       }
       if (seconds_east(pos) < left_seconds) {
         return util::InvalidArgumentError(
             absl::Substitute("Area $0 in map $1 is west of the map left edge.",
-                             curr_id, map.name()));
+                             curr_id.DebugString(), map.name()));
       }
       if (seconds_north(pos) < bottom_seconds) {
         return util::InvalidArgumentError(absl::Substitute(
-            "Area $0 in map $1 is south of the map bottom edge.", curr_id,
-            map.name()));
+            "Area $0 in map $1 is south of the map bottom edge.",
+            curr_id.DebugString(), map.name()));
       }
       if (seconds_east(pos) > right_seconds) {
         return util::InvalidArgumentError(
             absl::Substitute("Area $0 in map $1 is east of the map right edge.",
-                             curr_id, map.name()));
+                             curr_id.DebugString(), map.name()));
       }
     }
   }
@@ -280,8 +282,8 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
       if (connection == NULL) {
         continue;
       }
-      uint64 a_id = location.source_area_id();
-      uint64 z_id = location.destination_area_id();
+      const util::proto::ObjectId& a_id = location.a_area_id();
+      const util::proto::ObjectId& z_id = location.z_area_id();
       double a_weight = location.progress_u();
       a_weight /= connection->length_u();
       // TODO: Handle connections between different maps.
@@ -289,7 +291,8 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
         continue;
       }
       if (maps_.find(area_map_[a_id].first) == maps_.end()) {
-        Log::Debugf("Could not find area %d: %s", a_id, area_map_[a_id].first);
+        Log::Debugf("Could not find area %d: %s", a_id.DebugString(),
+                    area_map_[a_id].first);
         continue;
       }
       Map& currMap = maps_.at(area_map_[a_id].first);
@@ -307,16 +310,17 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
       currMap.unit_locations_[unit->template_kind()].push_back(
           {(int)floor(xpos + 0.5), (int)floor(ypos + 0.5), 16, 16});
     } else {
-      if (area_map_.find(location.source_area_id()) == area_map_.end()) {
+      if (area_map_.find(location.a_area_id()) == area_map_.end()) {
         continue;
       }
-      Area& area = getAreaById(location.source_area_id());
+      Area& area = getAreaById(location.a_area_id());
       area.unit_numbers_[unit->template_kind()]++;
     }
   }
 }
 
-SDLInterface::Area& SDLInterface::getAreaById(uint64 area_id) {
+SDLInterface::Area&
+SDLInterface::getAreaById(const util::proto::ObjectId& area_id) {
   const auto& area_idx = area_map_[area_id];
   return maps_.at(area_idx.first).areas_[area_idx.second];
 }
