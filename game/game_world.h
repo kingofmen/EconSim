@@ -8,6 +8,7 @@
 #include "factions/factions.h"
 #include "factions/proto/factions.pb.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/setup/setup.h"
 #include "geography/connection.h"
 #include "geography/geography.h"
 #include "geography/proto/geography.pb.h"
@@ -62,11 +63,7 @@ private:
   Scenario scenario_;
 
   // World-state information.
-  std::vector<std::unique_ptr<factions::FactionController>> factions_;
-  std::vector<std::unique_ptr<population::PopUnit>> pops_;
-  std::vector<std::unique_ptr<geography::Area>> areas_;
-  std::vector<std::unique_ptr<geography::Connection>> connections_;
-  std::vector<std::unique_ptr<units::Unit>> units_;
+  std::unique_ptr<games::setup::World> world_state_;
   std::unordered_map<std::string, const industry::Production*> production_map_;
   industry::decisions::ProductionEvaluator* default_evaluator_;
 

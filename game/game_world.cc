@@ -200,38 +200,12 @@ GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
     : scenario_(scenario),
       default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
 
-  for (const auto& pop : world.pops()) {
-    pops_.emplace_back(new population::PopUnit(pop));
-  }
-
-  for (const auto& area : world.areas()) {
-    areas_.emplace_back(geography::Area::FromProto(area));
-    if (!areas_.back()) {
-      Log::Warnf("Null area from proto: %s", area.DebugString());
-      areas_.pop_back();
-    }
-  }
-
-  for (const auto& conn : world.connections()) {
-    connections_.emplace_back(geography::Connection::FromProto(conn));
-  }
+  world_state_ = games::setup::World::FromProto(world);
 
   for (const auto* prod_proto : scenario_.production_chains_) {
     production_map_.emplace(prod_proto->name(),
                             new industry::Production(*prod_proto));
     chain_names_.push_back(prod_proto->name());
-  }
-
-  for (const auto& unit : world.units()) {
-    units_.emplace_back(units::Unit::FromProto(unit));
-    if (!units_.back()) {
-      Log::Warnf("Null unit from proto: %s", unit.DebugString());
-      units_.pop_back();
-    }
-  }
-
-  for (const auto& faction : world.factions()) {
-    factions_.emplace_back(factions::FactionController::FromProto(faction));
   }
 }
 
@@ -240,7 +214,7 @@ void GameWorld::TimeStep(
         industry::decisions::proto::ProductionDecision>* decisions) {
   static PossibilityFilter possible;
 
-  for (auto& area : areas_) {
+  for (auto& area : world_state_->areas_) {
     auto* market = area->mutable_market();
     for (const auto pop_id : area->Proto()->pop_ids()) {
       auto* pop = population::PopUnit::GetPopId(pop_id);
@@ -296,7 +270,7 @@ void GameWorld::TimeStep(
   }
 
   // Units all plan simultaneously.
-  for (auto& unit : units_) {
+  for (auto& unit : world_state_->units_) {
     actions::proto::Strategy* strategy = unit->mutable_strategy();
     if (strategy->strategy_case() ==
         actions::proto::Strategy::STRATEGY_NOT_SET) {
@@ -313,7 +287,7 @@ void GameWorld::TimeStep(
   // Execute in single steps.
   while (true) {
     int count = 0;
-    for (auto& unit : units_) {
+    for (auto& unit : world_state_->units_) {
       if (unit->plan().steps().empty()) {
         continue;
       }
@@ -333,7 +307,7 @@ void GameWorld::TimeStep(
   // Must consume with levels in the outside loop, otherwise
   // one POP may eat everything and leave nothing for others.
   // Need to do by areas to get the markets.
-  for (auto& area : areas_) {
+  for (auto& area : world_state_->areas_) {
     for (const auto& level : scenario_.proto_.consumption()) {
       for (const auto pop_id : area->Proto()->pop_ids()) {
         auto* pop = population::PopUnit::GetPopId(pop_id);
@@ -345,10 +319,10 @@ void GameWorld::TimeStep(
     }
   }
 
-  for (auto& pop : pops_) {
+  for (auto& pop : world_state_->pops_) {
     pop->EndTurn(scenario_.decay_rates_);
   }
-  for (auto& area : areas_) {
+  for (auto& area : world_state_->areas_) {
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
@@ -361,31 +335,7 @@ void GameWorld::TimeStep(
 }
 
 void GameWorld::SaveToProto(games::setup::proto::GameWorld* proto) const {
-  for (const auto& pop : pops_) {
-    *proto->add_pops() = *pop->Proto();
-  }
-  for (const auto& area : areas_) {
-    auto* area_proto = proto->add_areas();
-    *area_proto = *area->Proto();
-    auto* market = area->mutable_market();
-    auto* market_proto = area_proto->mutable_market();
-    *market_proto = *market->Proto();
-  }
-  for (const auto& conn : connections_) {
-    auto* conn_proto = proto->add_connections();
-    *conn_proto = conn->Proto();
-  }
-
-  for (const auto& unit : units_) {
-    market::CleanContainer(unit->mutable_resources());
-    auto& unit_proto = *proto->add_units();
-    unit_proto = unit->Proto();
-  }
-
-  for (const auto& faction : factions_) {
-    auto* faction_proto = proto->add_factions();
-    *faction_proto = faction->Proto();
-  }
+  world_state_->ToProto(proto);
 }
 
 void GameWorld::SetProductionEvaluator(
