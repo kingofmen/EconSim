@@ -14,6 +14,7 @@ cc_library(
         "//population:population",
         "//population/proto:population_proto",
         "//units:units",
+        "//util/keywords:keywords",
         "//util/proto:file",
         "//util/proto:object_id",
         "//util/status:status",

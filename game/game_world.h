@@ -26,15 +26,6 @@ public:
   GameWorld(const games::setup::proto::GameWorld& world, games::setup::proto::Scenario* scenario);
   ~GameWorld();
 
-  struct Scenario {
-    Scenario(games::setup::proto::Scenario* scenario);
-    std::vector<const population::proto::AutoProduction*> auto_production_;
-    std::vector<const industry::proto::Production*> production_chains_;
-    std::vector<const population::proto::ConsumptionLevel*> subsistence_;
-    market::proto::Container decay_rates_;
-    games::setup::proto::Scenario proto_;
-  };
-
   // Sets the production evaluator for the field.
   void SetProductionEvaluator(const util::proto::ObjectId& area_id,
                               uint64 field_idx,
@@ -59,8 +50,11 @@ public:
   }
 
 private:
-  // 'Setup' information that does not change in the simulation.
-  Scenario scenario_;
+  // Setup information that does not change in the simulation.
+  std::unique_ptr<games::setup::Constants> constants_;
+  // Hack to retain pointers of the Scenario proto.
+  // TODO: Make copies so we don't need to do this.
+  games::setup::proto::Scenario scenario_;
 
   // World-state information.
   std::unique_ptr<games::setup::World> world_state_;

@@ -10,6 +10,7 @@
 #include "market/market.h"
 #include "units/unit.h"
 #include "util/arithmetic/microunits.h"
+#include "util/keywords/keywords.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
 #include "util/logging/logging.h"
@@ -32,6 +33,19 @@ Constants::Constants(const games::setup::proto::Scenario& proto) {
   production_chains_.insert(production_chains_.end(),
                             proto.production_chains().pointer_begin(),
                             proto.production_chains().pointer_end());
+
+  for (const auto& tag_decay_rate : proto.tag_decay_rates().quantities()) {
+    market::SetAmount(tag_decay_rate.first,
+                      micro::kOneInU - tag_decay_rate.second, &decay_rates_);
+    Log::Debugf("%s tag survival rate: %d",
+                market::GetAmount(decay_rates_, tag_decay_rate.first));
+  }
+
+  for (const auto& level : proto.consumption()) {
+    if (market::GetAmount(level.tags(), keywords::kSubsistenceTag) > 0) {
+      subsistence_.push_back(&level);
+    }
+  }
 
   for (const auto& temp : proto.unit_templates()) {
     units::Unit::RegisterTemplate(temp);

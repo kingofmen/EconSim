@@ -9,7 +9,6 @@
 #include "industry/worker.h"
 #include "units/unit.h"
 #include "util/arithmetic/microunits.h"
-#include "util/keywords/keywords.h"
 #include "util/logging/logging.h"
 
 using geography::proto::Field;
@@ -158,51 +157,14 @@ GameWorld::~GameWorld() {
   production_map_.clear();
 }
 
-// TODO: This really needs to handle errors, e.g. in registering templates.
-GameWorld::Scenario::Scenario(games::setup::proto::Scenario* scenario) {
-  Log::Trace("Entering scenario builder");
-  proto_.Swap(scenario);
-  for (const auto& good : proto_.trade_goods()) {
-    auto& name = good.name();
-    market::CreateTradeGood(good);
-    market::SetAmount(name, micro::kOneInU - good.decay_rate_u(),
-                      &decay_rates_);
-    Log::Debugf("Created %s with survival rate %d", good.name(),
-                market::GetAmount(decay_rates_, name));
-  }
-  auto_production_.insert(auto_production_.end(),
-                          proto_.auto_production().pointer_begin(),
-                          proto_.auto_production().pointer_end());
-  production_chains_.insert(production_chains_.end(),
-                            proto_.production_chains().pointer_begin(),
-                            proto_.production_chains().pointer_end());
-
-  for (const auto& tag_decay_rate : proto_.tag_decay_rates().quantities()) {
-    market::SetAmount(tag_decay_rate.first,
-                      micro::kOneInU - tag_decay_rate.second, &decay_rates_);
-    Log::Debugf("%s tag survival rate: %d",
-                market::GetAmount(decay_rates_, tag_decay_rate.first));
-  }
-
-  for (const auto& level : proto_.consumption()) {
-    if (market::GetAmount(level.tags(), keywords::kSubsistenceTag) > 0) {
-      subsistence_.push_back(&level);
-    }
-  }
-
-  for (const auto& temp : proto_.unit_templates()) {
-    units::Unit::RegisterTemplate(temp);
-  }
-}
-
 GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
                      games::setup::proto::Scenario* scenario)
-    : scenario_(scenario),
-      default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
-
+    : default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
+  scenario_.Swap(scenario);
+  constants_ = std::make_unique<games::setup::Constants>(scenario_);
   world_state_ = games::setup::World::FromProto(world);
 
-  for (const auto* prod_proto : scenario_.production_chains_) {
+  for (const auto* prod_proto : constants_->production_chains_) {
     production_map_.emplace(prod_proto->name(),
                             new industry::Production(*prod_proto));
     chain_names_.push_back(prod_proto->name());
@@ -221,8 +183,8 @@ void GameWorld::TimeStep(
       if (pop == nullptr) {
         continue;
       }
-      pop->StartTurn(scenario_.subsistence_, market);
-      pop->AutoProduce(scenario_.auto_production_, market);
+      pop->StartTurn(constants_->subsistence_, market);
+      pop->AutoProduce(constants_->auto_production_, market);
     }
 
     std::unordered_map<population::PopUnit*, ProductionContext> contexts;
@@ -308,7 +270,7 @@ void GameWorld::TimeStep(
   // one POP may eat everything and leave nothing for others.
   // Need to do by areas to get the markets.
   for (auto& area : world_state_->areas_) {
-    for (const auto& level : scenario_.proto_.consumption()) {
+    for (const auto& level : scenario_.consumption()) {
       for (const auto pop_id : area->Proto()->pop_ids()) {
         auto* pop = population::PopUnit::GetPopId(pop_id);
         if (pop == nullptr) {
@@ -320,16 +282,16 @@ void GameWorld::TimeStep(
   }
 
   for (auto& pop : world_state_->pops_) {
-    pop->EndTurn(scenario_.decay_rates_);
+    pop->EndTurn(constants_->decay_rates_);
   }
   for (auto& area : world_state_->areas_) {
     market::proto::Container volumes =
         area->mutable_market()->Proto()->volume();
     area->mutable_market()->FindPrices();
     PrintMarket(area->market().Proto(), volumes);
-    area->mutable_market()->DecayGoods(scenario_.decay_rates_);
+    area->mutable_market()->DecayGoods(constants_->decay_rates_);
     for (auto& field : *area->Proto()->mutable_fields()) {
-      micro::MultiplyU(*field.mutable_fixed_capital(), scenario_.decay_rates_);
+      micro::MultiplyU(*field.mutable_fixed_capital(), constants_->decay_rates_);
     }
   }
 }
