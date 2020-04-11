@@ -78,6 +78,7 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
     auto& curr = world->connections_.back();
     if (!curr) {
       Log::Errorf("Could not load connection: %s", conn.DebugString());
+      world->connections_.pop_back();
       continue;
     }
     if (!curr->Proto().a_area_id().has_kind()) {
@@ -113,6 +114,14 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
   return world;
 }
 
+void tagIfPossible(util::proto::ObjectId* proto) {
+  std::string tag = util::objectid::Tag(*proto);
+  if (!tag.empty()) {
+    proto->clear_number();
+    proto->set_tag(tag);
+  }
+}
+
 void World::restoreTags() {
   for (auto& area : areas_) {
     auto* area_proto = area->Proto();
@@ -136,6 +145,20 @@ void World::restoreTags() {
     }
     faction_proto->mutable_faction_id()->set_tag(tag);
   }
+
+  for (auto& conn : connections_) {
+    auto* proto = conn->mutable_proto();
+    tagIfPossible(proto->mutable_a_area_id());
+    tagIfPossible(proto->mutable_z_area_id());
+  }
+
+  for (auto& unit : units_) {
+    auto* loc = unit->mutable_location();
+    tagIfPossible(loc->mutable_a_area_id());
+    if (loc->has_z_area_id()) {
+      tagIfPossible(loc->mutable_z_area_id());
+    }
+  }
 }
 
 util::Status World::ToProto(proto::GameWorld* proto) {
@@ -152,6 +175,7 @@ util::Status World::ToProto(proto::GameWorld* proto) {
       *market_proto = *market->Proto();
     }
   }
+
   for (const auto& conn : connections_) {
     auto* conn_proto = proto->add_connections();
     *conn_proto = conn->Proto();
@@ -252,7 +276,60 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
   }
 
   // Only now do the references.
-  
+  for (auto& conn : *(world->mutable_connections())) {
+    auto status = util::objectid::Canonicalise(conn.mutable_a_area_id());
+    if (!status.ok()) {
+      return status;
+    }
+    status = util::objectid::Canonicalise(conn.mutable_z_area_id());
+    if (!status.ok()) {
+      return status;
+    }
+  }
+
+  for (auto& unit : *(world->mutable_units())) {
+    if (unit.has_location()) {
+      auto* loc = unit.mutable_location();
+      if (loc->has_a_area_id()) {
+        auto status = util::objectid::Canonicalise(loc->mutable_a_area_id());
+        if (!status.ok()) {
+          return status;
+        }
+      }
+      if (loc->has_z_area_id()) {
+        auto status = util::objectid::Canonicalise(loc->mutable_z_area_id());
+        if (!status.ok()) {
+          return status;
+        }
+      }
+    }
+    if (unit.has_strategy()) {
+      if (unit.strategy().has_shuttle_trade()) {
+        auto* st = unit.mutable_strategy()->mutable_shuttle_trade();
+        if (st->has_area_a_id()) {
+          auto status = util::objectid::Canonicalise(st->mutable_area_a_id());
+          if (!status.ok()) {
+            return status;
+          }
+        }
+        if (st->has_area_z_id()) {
+          auto status = util::objectid::Canonicalise(st->mutable_area_z_id());
+          if (!status.ok()) {
+            return status;
+          }
+        }
+      } else if (unit.strategy().has_seven_years_merchant()) {
+        auto* st = unit.mutable_strategy()->mutable_seven_years_merchant();
+        if (st->has_base_area_id()) {
+          auto status = util::objectid::Canonicalise(st->mutable_base_area_id());
+          if (!status.ok()) {
+            return status;
+          }
+        }
+      }
+    }
+  }
+
   return util::OkStatus();
 }
 
