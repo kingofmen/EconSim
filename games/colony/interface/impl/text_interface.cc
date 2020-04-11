@@ -1,4 +1,4 @@
-#include "colony/interface/impl/text_interface.h"
+#include "games/colony/interface/impl/text_interface.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -12,8 +12,8 @@
 
 #include "absl/strings/substitute.h"
 #include "absl/strings/str_join.h"
-#include "colony/controller/controller.h"
-#include "colony/interface/proto/actions.pb.h"
+#include "games/colony/controller/controller.h"
+#include "games/colony/interface/proto/actions.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"

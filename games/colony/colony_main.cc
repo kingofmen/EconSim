@@ -1,6 +1,6 @@
-#include "colony/controller/controller.h"
-#include "colony/interface/user_interface.h"
-#include "colony/interface/factory.h"
+#include "games/colony/controller/controller.h"
+#include "games/colony/interface/user_interface.h"
+#include "games/colony/interface/factory.h"
 
 int main(int /*argc*/, char** /*argv*/) {
   interface::UserInterface* ui =

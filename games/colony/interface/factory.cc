@@ -1,7 +1,7 @@
-#include "colony/interface/factory.h"
+#include "games/colony/interface/factory.h"
 
-#include "colony/controller/controller.h"
-#include "colony/interface/impl/text_interface.h"
+#include "games/colony/controller/controller.h"
+#include "games/colony/interface/impl/text_interface.h"
 
 namespace interface {
 namespace factory {

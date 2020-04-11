@@ -1,4 +1,4 @@
-#include "colony/controller/controller.h"
+#include "games/colony/controller/controller.h"
 
 namespace controller {
 

@@ -8,10 +8,10 @@
 #include <tuple>
 #include <vector>
 
-#include "colony/controller/controller.h"
-#include "colony/graphics/proto/graphics.pb.h"
-#include "colony/interface/user_interface.h"
-#include "colony/interface/proto/actions.pb.h"
+#include "games/colony/controller/controller.h"
+#include "games/colony/graphics/proto/graphics.pb.h"
+#include "games/colony/interface/user_interface.h"
+#include "games/colony/interface/proto/actions.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/sinews/game_world.h"
 #include "src/google/protobuf/stubs/status.h"

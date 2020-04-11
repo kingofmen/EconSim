@@ -1,19 +1,19 @@
-package(default_visibility = ["//colony:__subpackages__"])
+package(default_visibility = ["//games/colony:__subpackages__"])
 
 cc_library(
     name = "text_interface",
     srcs = ["text_interface.cc"],
     hdrs = ["text_interface.h"],
     deps = [
-        "//colony/controller:controller",
-        "//colony/graphics/proto:graphics_proto",
-        "//colony/interface:user_interface",
-        "//colony/interface/proto:actions_proto",
-        "//industry/proto:industry_proto",
+        "//games/colony/controller:controller",
+        "//games/colony/graphics/proto:graphics_proto",
+        "//games/colony/interface:user_interface",
+        "//games/colony/interface/proto:actions_proto",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/setup/validation:validation",
         "//games/sinews:game_world",
+        "//industry/proto:industry_proto",
         "//market:goods_utils",
         "//market:market",
         "//util/arithmetic:microunits",
