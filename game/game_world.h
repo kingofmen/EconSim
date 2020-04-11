@@ -49,6 +49,10 @@ public:
     return *(production_map_.at(name));
   }
 
+  // Access the underlying data.
+  const games::setup::World& World() const { return *world_state_; }
+  games::setup::World* mutable_world() { return world_state_.get(); }
+
 private:
   // Setup information that does not change in the simulation.
   std::unique_ptr<games::setup::Constants> constants_;

@@ -52,17 +52,12 @@ public:
 
   static Area* GetById(const util::proto::ObjectId& id);
   static std::unique_ptr<Area> FromProto(const proto::Area& area);
-  static const util::proto::ObjectId& MaxId() { return max_id_; }
-  static const util::proto::ObjectId& MinId() { return min_id_; }
 
 private:
   Area() = delete;
   Area(const proto::Area& area);
   proto::Area proto_;
   market::Market market_;
-
-  static util::proto::ObjectId max_id_;
-  static util::proto::ObjectId min_id_;
 };
 
 } // namespace geography

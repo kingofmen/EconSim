@@ -15,9 +15,6 @@ std::unordered_map<util::proto::ObjectId, geography::Area*> area_id_map_;
 
 namespace geography {
 
-util::proto::ObjectId Area::max_id_ = util::objectid::kNullId;
-util::proto::ObjectId Area::min_id_ = util::objectid::kNullId;
-
 bool HasFixedCapital(const proto::Field& field,
                      const industry::Production& production) {
   const auto* proto = production.Proto();
@@ -111,34 +108,10 @@ std::unique_ptr<Area> Area::FromProto(const proto::Area& area) {
 
 Area::Area(const proto::Area& area) : proto_(area), market_(area.market()) {
   area_id_map_[proto_.area_id()] = this;
-  uint64 number = proto_.area_id().number();
-  if (number > max_id_.number() || min_id_ == util::objectid::kNullId) {
-    max_id_ = proto_.area_id();
-  }
-  if (number < min_id_.number() || min_id_ == util::objectid::kNullId) {
-    min_id_ = proto_.area_id();
-  }
 }
 
 Area::~Area() {
-  uint64 erased = proto_.area_id().number();
   area_id_map_.erase(proto_.area_id());
-
-  if (erased == max_id_.number() || erased == min_id_.number()) {
-    uint64 least = std::numeric_limits<uint64>::max();
-    uint64 most = 0;
-    for (const auto& area : area_id_map_) {
-      uint64 number = area.first.number();
-      if (number > most) {
-        most = number;
-      }
-      if (number < least) {
-        least = number;
-      }
-    }
-    max_id_.set_number(most);
-    min_id_.set_number(least);
-  }
 }
 
 const util::proto::ObjectId& Area::area_id() const {

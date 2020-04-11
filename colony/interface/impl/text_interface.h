@@ -45,6 +45,7 @@ class TextInterface : public interface::UserInterface {
   colony::graphics::proto::Point center_;
   std::unique_ptr<game::GameWorld> world_model_;
   util::proto::ObjectId selected_area_id_;
+  int64 selected_area_index_;
   InputArea selected_input_area_;
   uint64 selected_detail_idx_;
   uint64 player_faction_id_;
@@ -76,6 +77,7 @@ class TextInterface : public interface::UserInterface {
   // Finders for current selections.
   geography::Area* getArea();
   geography::proto::Field* getField();
+  void selectArea(int idx);
   
   // Changes which element is displayed in detail.
   void changeDetailIndex(bool pos);

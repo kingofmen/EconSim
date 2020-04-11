@@ -33,6 +33,7 @@ constexpr int columns = 250;
 constexpr int numMessageLines = 3;
 constexpr int firstMessageLine = 57;
 constexpr int sidebarLimit = 200;
+constexpr int kNullAreaIndex = -666;
 std::ofstream* debugFile = NULL;
 
 namespace interface {
@@ -478,7 +479,7 @@ void TextInterface::newGameHandler(char inp) {
         }
       }
       world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
-      selected_area_id_ = geography::Area::MinId();
+      selectArea(0);
       selected_detail_idx_ = 0;
       gameDisplay();
     } else {
@@ -585,23 +586,15 @@ void TextInterface::runGameHandler(char inp) {
       center_.set_x(center_.x() + 50);
       break;
     case '`':
-      selected_area_id_.set_number(1 + geography::Area::MaxId().number());
+      selectArea(kNullAreaIndex);
       selected_detail_idx_ = 0;
       break;
     case '+':
-      selected_area_id_.set_number(1 + selected_area_id_.number());
-      selected_detail_idx_ = 0;
-      if (selected_area_id_.number() > geography::Area::MaxId().number()) {
-        selected_area_id_ = geography::Area::MinId();
-      }
+      selectArea(selected_area_index_ + 1);
       selected_detail_idx_ = 0;
       break;
     case '-':
-      selected_area_id_.set_number(selected_area_id_.number() - 1);
-      selected_detail_idx_ = 0;
-      if (selected_area_id_.number() < geography::Area::MinId().number()) {
-        selected_area_id_ = geography::Area::MaxId();
-      }
+      selectArea(selected_area_index_ - 1);
       selected_detail_idx_ = 0;
       break;
     case '2':
@@ -643,11 +636,27 @@ bool possible(const geography::proto::Field& field, const industry::Production& 
   return true;
 }
 
+void TextInterface::selectArea(int idx) {
+  if (idx == kNullAreaIndex) {
+    selected_area_index_ = -1;
+    selected_area_id_ = util::objectid::kNullId;
+    return;
+  }
+  if (idx >= world_model_->World().areas_.size()) {
+    idx = 0;
+  } else if (idx < 0) {
+    idx = world_model_->World().areas_.size() - 1;
+  }
+  selected_area_index_ = idx;
+  selected_area_id_ =
+      world_model_->World().areas_[selected_area_index_]->area_id();
+}
+
 geography::Area* TextInterface::getArea() {
   geography::Area* area = geography::Area::GetById(selected_area_id_);
   if (area == NULL) {
     message(FG_RED, absl::Substitute("Unknown area $0, this should never happen."));
-    selected_area_id_ = geography::Area::MinId();
+    selectArea(0);
     return NULL;
   }
   return area;
