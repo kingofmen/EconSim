@@ -12,8 +12,8 @@
 #include "colony/graphics/proto/graphics.pb.h"
 #include "colony/interface/user_interface.h"
 #include "colony/interface/proto/actions.pb.h"
-#include "game/game_world.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/sinews/game_world.h"
 #include "src/google/protobuf/stubs/status.h"
 #include "util/proto/object_id.pb.h"
 

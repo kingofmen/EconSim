@@ -1,4 +1,4 @@
-#include "game/game_world.h"
+#include "games/sinews/game_world.h"
 
 #include "actions/proto/plan.pb.h"
 #include "actions/proto/strategy.pb.h"

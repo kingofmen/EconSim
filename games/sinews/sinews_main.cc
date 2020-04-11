@@ -6,7 +6,7 @@
 #include "absl/strings/str_join.h"
 #include "games/setup/setup.h"
 #include "games/setup/proto/setup.pb.h"
-#include "game/game_world.h"
+#include "games/sinews/game_world.h"
 #include "geography/proto/geography.pb.h"
 #include "google/protobuf/stubs/logging.h"
 #include "google/protobuf/text_format.h"
