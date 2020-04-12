@@ -31,9 +31,9 @@ Constants::Constants(const games::setup::proto::Scenario& proto) {
   for (const auto& prod : proto.auto_production()) {
     auto_production_.push_back(prod);
   }
-  production_chains_.insert(production_chains_.end(),
-                            proto.production_chains().pointer_begin(),
-                            proto.production_chains().pointer_end());
+  for (const auto& chain : proto.production_chains()) {
+    production_chains_.push_back(chain);
+  }
 
   for (const auto& tag_decay_rate : proto.tag_decay_rates().quantities()) {
     market::SetAmount(tag_decay_rate.first,

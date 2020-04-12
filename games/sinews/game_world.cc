@@ -164,10 +164,10 @@ GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
   constants_ = std::make_unique<games::setup::Constants>(scenario_);
   world_state_ = games::setup::World::FromProto(world);
 
-  for (const auto* prod_proto : constants_->production_chains_) {
-    production_map_.emplace(prod_proto->name(),
-                            new industry::Production(*prod_proto));
-    chain_names_.push_back(prod_proto->name());
+  for (const auto& prod_proto : constants_->production_chains_) {
+    production_map_.emplace(prod_proto.name(),
+                            new industry::Production(prod_proto));
+    chain_names_.push_back(prod_proto.name());
   }
 }
 

@@ -46,10 +46,10 @@ TEST(SetupTest, TestIdempotency) {
   }
   ASSERT_EQ(constants.production_chains_.size(), scenario.production_chains_size());
   for (int i = 0; i < constants.production_chains_.size(); ++i) {
-    const auto* loaded = constants.production_chains_[i];
+    const auto& loaded = constants.production_chains_[i];
     const auto& original = scenario.production_chains(i);
-    EXPECT_TRUE(differ.Equals(*loaded, original))
-        << loaded->DebugString() << "\n\ndiffers from\n"
+    EXPECT_TRUE(differ.Equals(loaded, original))
+        << loaded.DebugString() << "\n\ndiffers from\n"
         << original.DebugString();
   }
   for (const auto& temp_proto : scenario.unit_templates()) {
