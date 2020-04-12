@@ -196,7 +196,29 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
   Log::Infof("Loaded \"%s\": %s", setup.name(), setup.description());
 
-  return games::setup::CreateWorld(setup, game_world_, &constants_);
+  games::setup::proto::Scenario scenario_proto;
+  status = games::setup::LoadScenario(setup, &scenario_proto);
+  if (!status.ok()) {
+    return status;
+  }
+  constants_ = games::setup::Constants(scenario_proto);
+
+  games::setup::proto::GameWorld world_proto;
+  status = games::setup::LoadWorld(setup, &world_proto);
+  if (!status.ok()) {
+    return status;
+  }
+  status = games::setup::CanonicaliseWorld(&world_proto);
+  if (!status.ok()) {
+    return status;
+  }
+  game_world_ = games::setup::World::FromProto(world_proto);
+  if (!game_world_) {
+    return util::InvalidArgumentError(
+        "Failed to create game world from proto.");
+  }
+
+  return util::OkStatus();
 }
 
 class EventHandler : public interface::Receiver {

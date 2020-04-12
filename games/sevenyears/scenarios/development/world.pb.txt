@@ -41,11 +41,11 @@ connections {
   width_u: 1000000
   a_area_id {
     kind: "area"
-    number: 1
+    tag: "London"
   }
   z_area_id {
     kind: "area"
-    number: 2
+    tag: "Brest"
   }
 }
 
@@ -56,11 +56,11 @@ connections {
   width_u: 1000000
   a_area_id {
     kind: "area"
-    number: 1
+    tag: "London"
   }
   z_area_id {
     kind: "area"
-    number: 3
+    tag: "Bergen"
   }
 }
 
@@ -71,11 +71,11 @@ connections {
   width_u: 1000000
   a_area_id {
     kind: "area"
-    number: 2
+    tag: "Brest"
   }
   z_area_id {
     kind: "area"
-    number: 3
+    tag: "Bergen"
   }
 }
 
@@ -87,11 +87,11 @@ units {
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
     z_area_id {
       kind: "area"
-      number: 2
+      tag: "Brest"
     }
     progress_u: 500000
     connection_id: 1
@@ -100,7 +100,7 @@ units {
     seven_years_merchant {
       base_area_id {
         kind: "area"
-	number: 1
+	tag: "London"
       }
     }
   }
@@ -114,14 +114,14 @@ units {
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
   }
   strategy {
     seven_years_merchant {
       base_area_id {
         kind: "area"
-	number: 1
+	tag: "London"
       }
     }
   }
@@ -135,14 +135,14 @@ units {
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
   }
   strategy {
     seven_years_merchant {
       base_area_id {
         kind: "area"
-	number: 1
+	tag: "London"
       }
     }
   }
@@ -156,14 +156,14 @@ units {
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
   }
   strategy {
     seven_years_merchant {
       base_area_id {
         kind: "area"
-	number: 1
+	tag: "London"
       }
     }
   }
@@ -177,14 +177,14 @@ units {
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
   }
   strategy {
     seven_years_merchant {
       base_area_id {
         kind: "area"
-	number: 1
+	tag: "London"
       }
     }
   }
