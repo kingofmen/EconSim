@@ -158,10 +158,9 @@ GameWorld::~GameWorld() {
 }
 
 GameWorld::GameWorld(const games::setup::proto::GameWorld& world,
-                     games::setup::proto::Scenario* scenario)
+                     const games::setup::proto::Scenario& scenario)
     : default_evaluator_(new industry::decisions::LocalProfitMaximiser()) {
-  scenario_.Swap(scenario);
-  constants_ = std::make_unique<games::setup::Constants>(scenario_);
+  constants_ = std::make_unique<games::setup::Constants>(scenario);
   world_state_ = games::setup::World::FromProto(world);
 
   for (const auto& prod_proto : constants_->production_chains_) {
@@ -270,7 +269,7 @@ void GameWorld::TimeStep(
   // one POP may eat everything and leave nothing for others.
   // Need to do by areas to get the markets.
   for (auto& area : world_state_->areas_) {
-    for (const auto& level : scenario_.consumption()) {
+    for (const auto& level : constants_->consumption_) {
       for (const auto pop_id : area->Proto()->pop_ids()) {
         auto* pop = population::PopUnit::GetPopId(pop_id);
         if (pop == nullptr) {

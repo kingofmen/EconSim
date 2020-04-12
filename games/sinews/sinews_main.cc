@@ -43,7 +43,7 @@ int main(int /*argc*/, char** /*argv*/) {
     return 1;
   }
 
-  game::GameWorld game_world(world_proto, &scenario);
+  game::GameWorld game_world(world_proto, scenario);
   std::unordered_map<geography::proto::Field*,
                      industry::decisions::proto::ProductionDecision>
       production_info;

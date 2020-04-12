@@ -25,7 +25,9 @@ struct Constants {
   Constants(const games::setup::proto::Scenario& scenario);
   std::vector<population::proto::AutoProduction> auto_production_;
   std::vector<industry::proto::Production> production_chains_;
+  // TODO: Don't store the subsistence levels twice.
   std::vector<population::proto::ConsumptionLevel> subsistence_;
+  std::vector<population::proto::ConsumptionLevel> consumption_;
   market::proto::Container decay_rates_;
 };
 

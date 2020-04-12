@@ -23,7 +23,8 @@ namespace game {
 
 class GameWorld {
 public:
-  GameWorld(const games::setup::proto::GameWorld& world, games::setup::proto::Scenario* scenario);
+  GameWorld(const games::setup::proto::GameWorld& world,
+            const games::setup::proto::Scenario& scenario);
   ~GameWorld();
 
   // Sets the production evaluator for the field.
@@ -56,9 +57,6 @@ public:
 private:
   // Setup information that does not change in the simulation.
   std::unique_ptr<games::setup::Constants> constants_;
-  // Hack to retain pointers of the Scenario proto.
-  // TODO: Make copies so we don't need to do this.
-  games::setup::proto::Scenario scenario_;
 
   // World-state information.
   std::unique_ptr<games::setup::World> world_state_;

@@ -478,7 +478,7 @@ void TextInterface::newGameHandler(char inp) {
           }
         }
       }
-      world_model_ = std::make_unique<game::GameWorld>(game_world_, &scenario_);
+      world_model_ = std::make_unique<game::GameWorld>(game_world_, scenario_);
       selectArea(0);
       selected_detail_idx_ = 0;
       gameDisplay();

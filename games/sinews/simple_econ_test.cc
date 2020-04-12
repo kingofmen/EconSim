@@ -66,7 +66,7 @@ protected:
 
   util::Status SteadyStateTest() {
     validate();
-    game::GameWorld game_world(world_proto_, &scenario_);
+    game::GameWorld game_world(world_proto_, scenario_);
     std::vector<market::proto::Container> initial_prices;
     for (const auto& area : world_proto_.areas()) {
       initial_prices.push_back(area.market().prices_u());
