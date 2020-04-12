@@ -1,10 +1,10 @@
-#include "industry/decisions/production_evaluator.h"
+#include "games/industry/decisions/production_evaluator.h"
 
-#include "industry/proto/decisions.pb.h"
-#include "market/goods_utils.h"
-#include "market/market.h"
-#include "util/arithmetic/microunits.h"
+#include "games/industry/proto/decisions.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/market/market.h"
 #include "gtest/gtest.h"
+#include "util/arithmetic/microunits.h"
 
 namespace industry {
 namespace decisions {

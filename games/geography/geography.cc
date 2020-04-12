@@ -1,12 +1,12 @@
-#include "geography/geography.h"
+#include "games/geography/geography.h"
 
 #include <cmath>
 #include <limits>
 #include <vector>
 
-#include "industry/proto/industry.pb.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.h"
 #include "util/status/status.h"

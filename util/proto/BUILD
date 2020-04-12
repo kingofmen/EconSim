@@ -5,7 +5,7 @@ cc_library(
     srcs = ["file.cc"],
     hdrs = ["file.h"],
     deps = [
-        "//util/status",
+        "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@com_google_protobuf//:protobuf",
     ],
@@ -19,8 +19,8 @@ cc_test(
     ],
     deps = [
         ":file",
-        "//industry/proto:industry_proto",
-        "//util/status",
+        "//games/industry/proto:industry_proto",
+        "//util/status:status",
         "@com_google_absl//absl/strings",
         "@gtest",
         "@gtest//:gtest_main",
@@ -35,7 +35,7 @@ cc_proto_library(
 proto_library(
     name = "object_id_proto_lib",
     srcs = ["object_id.proto"],
-    deps = ["//market/proto:goods_proto_lib"],
+    deps = ["//games/market/proto:goods_proto_lib"],
 )
 
 cc_library(

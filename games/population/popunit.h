@@ -6,13 +6,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "geography/proto/geography.pb.h"
-#include "industry/decisions/production_evaluator.h"
-#include "industry/industry.h"
-#include "industry/proto/industry.pb.h"
-#include "market/market.h"
-#include "market/proto/goods.pb.h"
-#include "population/proto/population.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/decisions/production_evaluator.h"
+#include "games/industry/industry.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/market.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/population/proto/population.pb.h"
 #include "util/headers/int_types.h"
 
 namespace population {

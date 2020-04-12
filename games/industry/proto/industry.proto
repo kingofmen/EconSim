@@ -1,7 +1,7 @@
 syntax = "proto3";
 package industry.proto;
 
-import "market/proto/goods.proto";
+import "games/market/proto/goods.proto";
 
 enum LandType {
   LT_PASTURE = 0;

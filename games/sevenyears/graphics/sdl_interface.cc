@@ -6,14 +6,13 @@
 #include "absl/strings/substitute.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
-#include "geography/connection.h"
-#include "units/unit.h"
+#include "games/geography/connection.h"
+#include "games/units/unit.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
-#include "SDL.h"
 
-#include "util/logging/logging.h"
+#include "SDL.h"
 
 namespace sevenyears {
 namespace graphics {

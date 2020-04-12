@@ -1,4 +1,4 @@
-#include "factions/factions.h"
+#include "games/factions/factions.h"
 
 #include "gtest/gtest.h"
 #include "util/proto/object_id.h"

@@ -2,10 +2,10 @@
 #ifndef POPULATION_PRODUCTION_EVALUATOR
 #define POPULATION_PRODUCTION_EVALUATOR
 
-#include "geography/proto/geography.pb.h"
-#include "industry/industry.h"
-#include "industry/proto/decisions.pb.h"
-#include "market/proto/goods.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/industry.h"
+#include "games/industry/proto/decisions.pb.h"
+#include "games/market/proto/goods.pb.h"
 
 namespace industry {
 namespace decisions {

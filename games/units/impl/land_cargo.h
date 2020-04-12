@@ -2,9 +2,9 @@
 #ifndef BASE_UNIT_IMPL_LAND_CARGO_H
 #define BASE_UNIT_IMPL_LAND_CARGO_H
 
-#include "geography/proto/geography.pb.h"
-#include "market/proto/goods.pb.h"
-#include "geography/mobile.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/geography/mobile.h"
+#include "games/market/proto/goods.pb.h"
 
 namespace units {
 namespace impl {

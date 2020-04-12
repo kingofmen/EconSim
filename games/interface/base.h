@@ -2,8 +2,8 @@
 #define GAMES_INTERFACE_INTERFACE_H
 
 #include "games/interface/proto/config.pb.h"
+#include "games/units/proto/units.pb.h"
 #include "SDL_keyboard.h"
-#include "units/proto/units.pb.h"
 #include "util/status/status.h"
 
 namespace interface {

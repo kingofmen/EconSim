@@ -1,8 +1,8 @@
-#include "market/market.h"
+#include "games/market/market.h"
 
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
-#include "market/proto/market.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/market/proto/market.pb.h"
 #include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"
 

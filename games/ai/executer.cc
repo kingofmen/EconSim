@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "actions/proto/plan.pb.h"
+#include "games/actions/proto/plan.pb.h"
 #include "games/ai/impl/executor_impl.h"
 
 namespace ai {

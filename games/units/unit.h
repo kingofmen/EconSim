@@ -4,12 +4,12 @@
 #include <string>
 #include <unordered_map>
 
-#include "geography/mobile.h"
-#include "geography/proto/geography.pb.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
-#include "units/proto/templates.pb.h"
-#include "units/proto/units.pb.h"
+#include "games/geography/mobile.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/units/proto/templates.pb.h"
+#include "games/units/proto/units.pb.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.pb.h"
 

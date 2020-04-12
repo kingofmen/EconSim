@@ -7,9 +7,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "geography/geography.h"
-#include "geography/mobile.h"
-#include "geography/proto/geography.pb.h"
+#include "games/geography/geography.h"
+#include "games/geography/mobile.h"
+#include "games/geography/proto/geography.pb.h"
 #include "util/proto/object_id.h"
 #include "util/headers/int_types.h"
 

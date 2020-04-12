@@ -5,7 +5,7 @@ cc_library(
     srcs = ["factions.cc"],
     hdrs = ["factions.h"],
     deps = [
-        "//factions/proto:factions_proto",
+        "//games/factions/proto:factions_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
         "//util/proto:object_id",
@@ -17,7 +17,7 @@ cc_test(
     srcs = ["factions_test.cc"],
     deps = [
         ":factions",
-        "//factions/proto:factions_proto",
+        "//games/factions/proto:factions_proto",
         "//util/arithmetic:microunits",
         "//util/proto:object_id",
         "@gtest",

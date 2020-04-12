@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "absl/strings/substitute.h"
-#include "market/proto/goods.pb.h"
+#include "games/market/proto/goods.pb.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.h"
 

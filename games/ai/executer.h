@@ -1,8 +1,8 @@
 #ifndef GAMES_AI_EXECUTER_H
 #define GAMES_AI_EXECUTER_H
 
-#include "actions/proto/plan.pb.h"
-#include "units/unit.h"
+#include "games/actions/proto/plan.pb.h"
+#include "games/units/unit.h"
 
 namespace ai {
 

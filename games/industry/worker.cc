@@ -1,7 +1,7 @@
-#include "industry/worker.h"
+#include "games/industry/worker.h"
 
 #include "absl/strings/substitute.h"
-#include "market/goods_utils.h"
+#include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 

@@ -38,10 +38,10 @@ TEST(SetupTest, TestIdempotency) {
   // Add better tests here.
   ASSERT_EQ(constants.auto_production_.size(), scenario.auto_production_size());
   for (int i = 0; i < constants.auto_production_.size(); ++i) {
-    const auto* loaded = constants.auto_production_[i];
+    const auto& loaded = constants.auto_production_[i];
     const auto& original = scenario.auto_production(i);
-    EXPECT_TRUE(differ.Equals(*loaded, original))
-        << loaded->DebugString() << "\n\ndiffers from\n"
+    EXPECT_TRUE(differ.Equals(loaded, original))
+        << loaded.DebugString() << "\n\ndiffers from\n"
         << original.DebugString();
   }
   ASSERT_EQ(constants.production_chains_.size(), scenario.production_chains_size());

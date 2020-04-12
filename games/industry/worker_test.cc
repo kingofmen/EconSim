@@ -1,15 +1,15 @@
 // Tests for worker methods.
-#include "industry/worker.h"
+#include "games/industry/worker.h"
 
 #include <memory>
 
-#include "geography/proto/geography.pb.h"
-#include "industry/industry.h"
-#include "industry/proto/decisions.pb.h"
-#include "industry/proto/industry.pb.h"
-#include "market/market.h"
-#include "util/arithmetic/microunits.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/industry.h"
+#include "games/industry/proto/decisions.pb.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/market.h"
 #include "gtest/gtest.h"
+#include "util/arithmetic/microunits.h"
 
 namespace industry {
 

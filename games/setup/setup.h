@@ -4,15 +4,15 @@
 #include <memory>
 #include <vector>
 
-#include "factions/factions.h"
-#include "factions/proto/factions.pb.h"
+#include "games/factions/factions.h"
+#include "games/factions/proto/factions.pb.h"
 #include "games/setup/proto/setup.pb.h"
-#include "geography/connection.h"
-#include "geography/geography.h"
-#include "geography/proto/geography.pb.h"
-#include "population/popunit.h"
-#include "population/proto/population.pb.h"
-#include "units/unit.h"
+#include "games/geography/connection.h"
+#include "games/geography/geography.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/population/popunit.h"
+#include "games/population/proto/population.pb.h"
+#include "games/units/unit.h"
 #include "util/status/status.h"
 
 namespace games {

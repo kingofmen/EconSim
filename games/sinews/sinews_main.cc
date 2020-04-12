@@ -7,11 +7,11 @@
 #include "games/setup/setup.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/sinews/game_world.h"
-#include "geography/proto/geography.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/proto/decisions.pb.h"
 #include "google/protobuf/stubs/logging.h"
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/io/zero_copy_stream_impl.h"
-#include "industry/proto/decisions.pb.h"
 #include "util/proto/file.h"
 
 int main(int /*argc*/, char** /*argv*/) {

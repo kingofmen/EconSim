@@ -6,8 +6,8 @@ cc_library(
     hdrs = ["market.h"],
     deps = [
         ":goods_utils",
-        "//market/proto:goods_proto",
-        "//market/proto:market_proto",
+        "//games/market/proto:goods_proto",
+        "//games/market/proto:market_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
     ],
@@ -18,7 +18,7 @@ cc_library(
     srcs = ["goods_utils.cc"],
     hdrs = ["goods_utils.h"],
     deps = [
-        "//market/proto:goods_proto",
+        "//games/market/proto:goods_proto",
         "//util/headers:int_types",
     ],
 )

@@ -1,8 +1,8 @@
-#include "market/goods_utils.h"
+#include "games/market/goods_utils.h"
 
 #include <string>
 
-#include "market/proto/goods.pb.h"
+#include "games/market/proto/goods.pb.h"
 #include "gtest/include/gtest/gtest.h"
 
 namespace market {

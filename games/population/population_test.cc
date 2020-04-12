@@ -1,14 +1,14 @@
 // Tests for population units.
-#include "population/popunit.h"
+#include "games/population/popunit.h"
 
-#include "geography/proto/geography.pb.h"
-#include "industry/industry.h"
-#include "industry/proto/industry.pb.h"
-#include "market/market.h"
-#include "population/proto/population.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/industry.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/market.h"
+#include "games/population/proto/population.pb.h"
+#include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
-#include "gtest/gtest.h"
 
 namespace population {
 namespace {
@@ -40,8 +40,6 @@ protected:
   void SetupMarket() {
     market_.RegisterGood(fish_.kind());
     market_.RegisterGood(youtube_.kind());
-    //market_.RegisterGood(dinner_.kind());
-    //market_.RegisterGood(grain_.kind());
     market_.RegisterGood(house_.kind());
     market_.Proto()->set_credit_limit(micro::kHundredInU);
     market_.Proto()->set_name("market");

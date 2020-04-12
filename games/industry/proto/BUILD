@@ -13,11 +13,11 @@ cc_proto_library(
 proto_library(
     name = "industry_proto_lib",
     srcs = ["industry.proto"],
-    deps = ["//market/proto:goods_proto_lib"],
+    deps = ["//games/market/proto:goods_proto_lib"],
 )
 
 proto_library(
     name = "industry_decisions_proto_lib",
     srcs = ["decisions.proto"],
-    deps = ["//market/proto:goods_proto_lib"],
+    deps = ["//games/market/proto:goods_proto_lib"],
 )

@@ -1,7 +1,7 @@
 syntax = "proto2";
 package consumption.proto;
 
-import "market/proto/goods.proto";
+import "games/market/proto/goods.proto";
 
 // A set of goods that can substitute for each other.
 message Substitutes {

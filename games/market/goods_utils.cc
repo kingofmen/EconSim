@@ -1,10 +1,10 @@
 // Utility functions for goods protos.
-#include "goods_utils.h"
+#include "games/market/goods_utils.h"
 
 #include <limits>
 #include <unordered_map>
 
-#include "market/proto/goods.pb.h"
+#include "games/market/proto/goods.pb.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods_map_;
 std::vector<std::string> goods_names_;

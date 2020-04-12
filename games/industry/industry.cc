@@ -1,9 +1,9 @@
 // Implementation of production chains.
-#include "industry.h"
+#include "games/industry/industry.h"
 
 #include <cmath>
 
-#include "market/goods_utils.h"
+#include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 

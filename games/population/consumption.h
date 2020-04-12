@@ -1,9 +1,9 @@
 #ifndef BASE_POPULATION_CONSUMPTION_H
 #define BASE_POPULATION_CONSUMPTION_H
 
-#include "market/market.h"
-#include "market/proto/goods.pb.h"
-#include "population/proto/consumption.pb.h"
+#include "games/market/market.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/population/proto/consumption.pb.h"
 #include "util/headers/int_types.h"
 #include "util/status/status.h"
 

@@ -1,13 +1,13 @@
 syntax = "proto2";
 package games.setup.proto;
 
-import "factions/proto/factions.proto";
-import "geography/proto/geography.proto";
-import "industry/proto/industry.proto";
-import "market/proto/goods.proto";
-import "population/proto/population.proto";
-import "units/proto/templates.proto";
-import "units/proto/units.proto";
+import "games/factions/proto/factions.proto";
+import "games/geography/proto/geography.proto";
+import "games/industry/proto/industry.proto";
+import "games/market/proto/goods.proto";
+import "games/population/proto/population.proto";
+import "games/units/proto/templates.proto";
+import "games/units/proto/units.proto";
 
 message ScenarioFiles {
   repeated string auto_production = 1;

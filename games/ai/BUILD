@@ -5,9 +5,9 @@ cc_library(
     srcs = ["unit_ai.cc"],
     hdrs = ["unit_ai.h"],
     deps = [
-        "//actions/proto:plan_proto",
-        "//actions/proto:strategy_proto",
-        "//units",
+        "//games/actions/proto:plan_proto",
+        "//games/actions/proto:strategy_proto",
+        "//games/units:units",
         "//util/status:status",
     ],
 )
@@ -19,7 +19,7 @@ cc_library(
     deps = [
         ":unit_ai",
         "//games/ai/impl:unit_ai_impl",
-        "//units",
+        "//games/units:units",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],
@@ -30,9 +30,9 @@ cc_library(
     srcs = ["executer.cc"],
     hdrs = ["executer.h"],
     deps = [
-        "//actions/proto:plan_proto",
+        "//games/actions/proto:plan_proto",
         "//games/ai/impl:executor_impl",
-        "//units",
+        "//games/units:units",
     ],
 )
 
@@ -41,7 +41,7 @@ cc_test(
     srcs = ["executer_test.cc"],
     deps = [
         ":executer",
-        "//actions/proto:plan_proto",
+        "//games/actions/proto:plan_proto",
         "@gtest",
         "@gtest//:gtest_main",
     ],

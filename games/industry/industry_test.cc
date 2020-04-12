@@ -1,12 +1,12 @@
-#include "industry/industry.h"
+#include "games/industry/industry.h"
 
 #include <memory>
 
-#include "industry/proto/industry.pb.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
-#include "util/arithmetic/microunits.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
 #include "gtest/gtest.h"
+#include "util/arithmetic/microunits.h"
 
 namespace industry {
 namespace {

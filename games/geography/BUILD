@@ -5,9 +5,9 @@ cc_library(
     srcs = ["geography.cc"],
     hdrs = ["geography.h"],
     deps = [
-        "//geography/proto:geography_proto",
-        "//industry",
-        "//market/proto:goods_proto",
+        "//games/geography/proto:geography_proto",
+        "//games/industry:industry",
+        "//games/market/proto:goods_proto",
         "//util/logging:logging",
         "//util/proto:object_id",
         "//util/status:status",
@@ -31,7 +31,7 @@ cc_library(
     name = "mobile",
     hdrs = ["mobile.h"],
     deps = [
-        "//geography/proto:geography_proto",
+        "//games/geography/proto:geography_proto",
         "//util/headers:int_types",
         "@com_google_protobuf//:protobuf",
     ],
@@ -44,7 +44,7 @@ cc_library(
     deps = [
         ":geography",
         ":mobile",
-        "//geography/proto:geography_proto",
+        "//games/geography/proto:geography_proto",
         "//util/headers:int_types",
         "//util/proto:object_id",
         "@com_google_protobuf//:protobuf",
@@ -57,7 +57,7 @@ cc_test(
     deps = [
         ":connection",
         ":mobile",
-        "//geography/proto:geography_proto",
+        "//games/geography/proto:geography_proto",
         "//util/headers:int_types",
         "@gtest",
         "@gtest//:gtest_main",

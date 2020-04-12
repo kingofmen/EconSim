@@ -2,11 +2,11 @@
 #ifndef BASE_INDUSTRY_WORKER_H
 #define BASE_INDUSTRY_WORKER_H
 
-#include "geography/proto/geography.pb.h"
-#include "industry/decisions/production_evaluator.h"
-#include "industry/industry.h"
-#include "market/market.h"
-#include "market/proto/goods.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/decisions/production_evaluator.h"
+#include "games/industry/industry.h"
+#include "games/market/market.h"
+#include "games/market/proto/goods.pb.h"
 
 namespace industry {
 

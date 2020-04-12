@@ -1,10 +1,10 @@
 syntax = "proto2";
 package units.proto;
 
-import "actions/proto/plan.proto";
-import "actions/proto/strategy.proto";
-import "geography/proto/geography.proto";
-import "market/proto/goods.proto";
+import "games/actions/proto/plan.proto";
+import "games/actions/proto/strategy.proto";
+import "games/geography/proto/geography.proto";
+import "games/market/proto/goods.proto";
 import "util/proto/object_id.proto";
 
 message Unit {

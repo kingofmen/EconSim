@@ -1,13 +1,13 @@
-#include "unit_ai_impl.h"
+#include "games/ai/impl/unit_ai_impl.h"
 
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
-#include "market/goods_utils.h"
-#include "geography/connection.h"
-#include "units/unit.h"
+#include "games/market/goods_utils.h"
+#include "games/geography/connection.h"
+#include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 #include "util/logging/logging.h"

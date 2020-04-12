@@ -1,8 +1,8 @@
-#include "market.h"
+#include "games/market/market.h"
 
 #include <algorithm>
 
-#include "market/goods_utils.h"
+#include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 
 namespace market {

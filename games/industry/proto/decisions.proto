@@ -1,7 +1,7 @@
 syntax = "proto3";
 package industry.decisions.proto;
 
-import "market/proto/goods.proto";
+import "games/market/proto/goods.proto";
 
 message VariantInfo {
   // Cost per unit of consumable inputs.

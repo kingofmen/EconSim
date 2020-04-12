@@ -1,13 +1,13 @@
-#include "geography/geography.h"
+#include "games/geography/geography.h"
 
 #include <memory>
 
-#include "geography/proto/geography.pb.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/industry/industry.h"
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
 #include "gtest/gtest.h"
-#include "industry/proto/industry.pb.h"
-#include "industry/industry.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
 
 namespace geography {
 namespace {

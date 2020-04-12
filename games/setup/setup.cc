@@ -3,12 +3,12 @@
 #include <experimental/filesystem>
 
 #include "games/setup/validation/validation.h"
-#include "factions/proto/factions.pb.h"
-#include "geography/connection.h"
-#include "geography/geography.h"
-#include "industry/decisions/production_evaluator.h"
-#include "market/market.h"
-#include "units/unit.h"
+#include "games/factions/proto/factions.pb.h"
+#include "games/geography/connection.h"
+#include "games/geography/geography.h"
+#include "games/industry/decisions/production_evaluator.h"
+#include "games/market/market.h"
+#include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 #include "util/proto/file.h"

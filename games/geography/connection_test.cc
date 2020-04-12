@@ -1,13 +1,13 @@
-#include "geography/connection.h"
+#include "games/geography/connection.h"
 
 #include <memory>
 
-#include "geography/geography.h"
-#include "geography/mobile.h"
-#include "geography/proto/geography.pb.h"
+#include "games/geography/geography.h"
+#include "games/geography/mobile.h"
+#include "games/geography/proto/geography.pb.h"
+#include "gtest/gtest.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.h"
-#include "gtest/gtest.h"
 
 namespace geography {
 

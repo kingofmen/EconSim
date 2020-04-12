@@ -1,13 +1,13 @@
-#include "units/unit.h"
+#include "games/units/unit.h"
 
 #include <memory>
 
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/units/proto/templates.pb.h"
+#include "games/units/proto/units.pb.h"
 #include "gtest/gtest.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
 #include "src/google/protobuf/util/message_differencer.h"
-#include "units/proto/templates.pb.h"
-#include "units/proto/units.pb.h"
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.h"

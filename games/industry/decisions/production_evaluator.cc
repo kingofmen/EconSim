@@ -1,10 +1,10 @@
-#include "industry/decisions/production_evaluator.h"
+#include "games/industry/decisions/production_evaluator.h"
 
 #include <string>
 
 #include "absl/strings/substitute.h"
-#include "market/goods_utils.h"
-#include "market/market.h"
+#include "games/market/goods_utils.h"
+#include "games/market/market.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 

@@ -18,10 +18,10 @@ proto_library(
     name = "units_proto_lib",
     srcs = ["units.proto"],
     deps = [
-        "//actions/proto:plan_proto_lib",
-        "//actions/proto:strategy_proto_lib",
-        "//geography/proto:geography_proto_lib",
-        "//market/proto:goods_proto_lib",
+        "//games/actions/proto:plan_proto_lib",
+        "//games/actions/proto:strategy_proto_lib",
+        "//games/geography/proto:geography_proto_lib",
+        "//games/market/proto:goods_proto_lib",
         "//util/proto:object_id_proto_lib",
     ],
 )
@@ -30,7 +30,7 @@ proto_library(
     name = "unit_templates_proto_lib",
     srcs = ["templates.proto"],
     deps = [
-        "//market/proto:goods_proto_lib",
+        "//games/market/proto:goods_proto_lib",
         "//util/proto:object_id_proto_lib",
     ],
 )

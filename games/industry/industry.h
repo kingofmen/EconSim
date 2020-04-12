@@ -2,9 +2,9 @@
 #ifndef BASE_INDUSTRY_INDUSTRY_H
 #define BASE_INDUSTRY_INDUSTRY_H
 
-#include "industry/proto/industry.pb.h"
-#include "market/market.h"
-#include "market/proto/goods.pb.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/market/market.h"
+#include "games/market/proto/goods.pb.h"
 
 namespace industry {
 

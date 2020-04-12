@@ -1,4 +1,4 @@
-#include "population/popunit.h"
+#include "games/population/popunit.h"
 
 #include <cmath>
 #include <limits>
@@ -6,8 +6,8 @@
 #include <iostream>
 
 #include "absl/algorithm/container.h"
-#include "geography/proto/geography.pb.h"
-#include "industry/industry.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/industry.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 

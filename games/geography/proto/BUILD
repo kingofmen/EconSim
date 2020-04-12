@@ -9,9 +9,9 @@ proto_library(
     name = "geography_proto_lib",
     srcs = ["geography.proto"],
     deps = [
-        "//industry/proto:industry_proto_lib",
-        "//market/proto:goods_proto_lib",
-        "//market/proto:market_proto_lib",
+        "//games/industry/proto:industry_proto_lib",
+        "//games/market/proto:goods_proto_lib",
+        "//games/market/proto:market_proto_lib",
         "//util/proto:object_id_proto_lib",
     ],
 )

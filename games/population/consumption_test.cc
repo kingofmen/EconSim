@@ -1,12 +1,12 @@
 // Tests for consumption math.
-#include "population/consumption.h"
+#include "games/population/consumption.h"
 
 #include <functional>
 
+#include "games/market/goods_utils.h"
+#include "games/population/proto/consumption.pb.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "market/goods_utils.h"
-#include "population/proto/consumption.pb.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 

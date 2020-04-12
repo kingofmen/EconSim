@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "factions/proto/factions.pb.h"
+#include "games/factions/proto/factions.pb.h"
 #include "util/headers/int_types.h"
 
 namespace factions {

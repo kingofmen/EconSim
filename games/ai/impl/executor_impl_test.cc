@@ -1,13 +1,13 @@
-#include "executor_impl.h"
+#include "games/ai/impl/executor_impl.h"
 
-#include "actions/proto/plan.pb.h"
-#include "geography/connection.h"
-#include "geography/geography.h"
-#include "geography/proto/geography.pb.h"
+#include "games/actions/proto/plan.pb.h"
+#include "games/geography/connection.h"
+#include "games/geography/geography.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/units/unit.h"
+#include "games/units/proto/templates.pb.h"
+#include "games/units/proto/units.pb.h"
 #include "gtest/gtest.h"
-#include "units/unit.h"
-#include "units/proto/templates.pb.h"
-#include "units/proto/units.pb.h"
 
 namespace ai {
 namespace impl {

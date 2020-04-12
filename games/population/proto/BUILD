@@ -9,7 +9,7 @@ proto_library(
     name = "population_proto_lib",
     srcs = ["population.proto"],
     deps = [
-        "//market/proto:goods_proto_lib",
+        "//games/market/proto:goods_proto_lib",
     ],
 )
 
@@ -22,6 +22,6 @@ proto_library(
     name = "consumption_proto_lib",
     srcs = ["consumption.proto"],
     deps = [
-        "//market/proto:goods_proto_lib",
+        "//games/market/proto:goods_proto_lib",
     ],
 )

@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "absl/strings/substitute.h"
-#include "actions/proto/plan.pb.h"
-#include "actions/proto/strategy.pb.h"
+#include "games/actions/proto/plan.pb.h"
+#include "games/actions/proto/strategy.pb.h"
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
 #include "games/setup/proto/setup.pb.h"

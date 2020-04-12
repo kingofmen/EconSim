@@ -5,9 +5,9 @@
 #include <limits>
 #include <string>
 
+#include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
 #include "util/headers/int_types.h"
-#include "market/goods_utils.h"
-#include "market/proto/goods.pb.h"
 
 namespace micro {
 

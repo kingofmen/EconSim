@@ -1,9 +1,9 @@
-#include "population/consumption.h"
+#include "games/population/consumption.h"
 
 #include "absl/strings/substitute.h"
-#include "market/proto/goods.pb.h"
-#include "market/goods_utils.h"
-#include "population/proto/consumption.pb.h"
+#include "games/market/proto/goods.pb.h"
+#include "games/market/goods_utils.h"
+#include "games/population/proto/consumption.pb.h"
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
 #include "util/logging/logging.h"

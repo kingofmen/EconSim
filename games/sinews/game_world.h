@@ -5,18 +5,18 @@
 #include <memory>
 #include <vector>
 
-#include "factions/factions.h"
-#include "factions/proto/factions.pb.h"
+#include "games/factions/factions.h"
+#include "games/factions/proto/factions.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
-#include "geography/connection.h"
-#include "geography/geography.h"
-#include "geography/proto/geography.pb.h"
-#include "industry/decisions/production_evaluator.h"
-#include "industry/proto/industry.pb.h"
-#include "population/popunit.h"
-#include "population/proto/population.pb.h"
-#include "units/unit.h"
+#include "games/geography/connection.h"
+#include "games/geography/geography.h"
+#include "games/geography/proto/geography.pb.h"
+#include "games/industry/decisions/production_evaluator.h"
+#include "games/industry/proto/industry.pb.h"
+#include "games/population/popunit.h"
+#include "games/population/proto/population.pb.h"
+#include "games/units/unit.h"
 #include "util/proto/object_id.pb.h"
 
 namespace game {
