@@ -9,10 +9,8 @@
 #include "games/sinews/game_world.h"
 #include "games/geography/proto/geography.pb.h"
 #include "games/industry/proto/decisions.pb.h"
-#include "google/protobuf/stubs/logging.h"
-#include "google/protobuf/text_format.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
 #include "util/proto/file.h"
+#include "util/status/status.h"
 
 int main(int /*argc*/, char** /*argv*/) {
   games::setup::proto::Scenario scenario;

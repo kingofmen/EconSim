@@ -419,7 +419,7 @@ void TextInterface::loadGameHandler(char inp) {
   }
 }
 
-google::protobuf::util::Status
+util::Status
 TextInterface::loadScenario(const games::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_world_file()) {
     return util::InvalidArgumentError(

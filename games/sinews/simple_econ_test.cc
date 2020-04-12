@@ -12,10 +12,6 @@
 #include "games/geography/proto/geography.pb.h"
 #include "games/industry/proto/decisions.pb.h"
 #include "games/market/goods_utils.h"
-#include "google/protobuf/io/zero_copy_stream_impl.h"
-#include "google/protobuf/stubs/logging.h"
-#include "google/protobuf/stubs/status.h"
-#include "google/protobuf/text_format.h"
 #include "gtest/gtest.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
@@ -39,7 +35,7 @@ protected:
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_;
   
-  google::protobuf::util::Status LoadTestData(const std::string& location) {
+  util::Status LoadTestData(const std::string& location) {
     market::ClearGoods();
     games::setup::proto::ScenarioFiles config;
     const std::string kTestDir = std::getenv("TEST_SRCDIR");
@@ -68,7 +64,7 @@ protected:
     }
   }
 
-  google::protobuf::util::Status SteadyStateTest() {
+  util::Status SteadyStateTest() {
     validate();
     game::GameWorld game_world(world_proto_, &scenario_);
     std::vector<market::proto::Container> initial_prices;

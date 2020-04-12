@@ -14,7 +14,7 @@
 #include "games/colony/interface/proto/actions.pb.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/sinews/game_world.h"
-#include "src/google/protobuf/stubs/status.h"
+#include "util/status/status.h"
 #include "util/proto/object_id.pb.h"
 
 namespace interface {
@@ -101,8 +101,7 @@ class TextInterface : public interface::UserInterface {
   void flip() const;
 
   // Load scenario into memory.
-  google::protobuf::util::Status
-  loadScenario(const games::setup::proto::ScenarioFiles& setup);
+  util::Status loadScenario(const games::setup::proto::ScenarioFiles& setup);
   void loadWorld(const std::string& filename);
   void output(int x, int y, int mask, const std::string& words);
 };

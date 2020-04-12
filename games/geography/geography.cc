@@ -59,10 +59,9 @@ bool HasRawMaterials(const proto::Field& field,
   return true;
 }
 
-google::protobuf::util::Status
-GenerateTransitionProcess(const proto::Field& field,
-                          const proto::Transition& transition,
-                          industry::Production* production) {
+util::Status GenerateTransitionProcess(const proto::Field& field,
+                                       const proto::Transition& transition,
+                                       industry::Production* production) {
   auto* proto = production->Proto();
   if (field.land_type() != transition.source()) {
     return util::InvalidArgumentError("Invalid land type");

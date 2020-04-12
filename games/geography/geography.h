@@ -8,7 +8,7 @@
 #include "games/industry/industry.h"
 #include "games/market/market.h"
 #include "games/market/proto/market.pb.h"
-#include "google/protobuf/stubs/status.h"
+#include "util/status/status.h"
 
 namespace geography {
 
@@ -22,10 +22,9 @@ bool HasRawMaterials(const proto::Field& field,
                      const industry::Production& production);
 
 // Returns a production chain to transform the field into a different land type.
-google::protobuf::util::Status
-GenerateTransitionProcess(const proto::Field& field,
-                          const proto::Transition& transition,
-                          industry::Production* production);
+util::Status GenerateTransitionProcess(const proto::Field& field,
+                                       const proto::Transition& transition,
+                                       industry::Production* production);
 
 // Class representing a collection of economic activity close enough together
 // that internal logistics can reasonably be abstracted over.

@@ -11,7 +11,6 @@ cc_library(
         "//util/logging:logging",
         "//util/proto:object_id",
         "//util/status:status",
-        "@com_google_protobuf//:protobuf",
     ],
 )
 
@@ -33,7 +32,7 @@ cc_library(
     deps = [
         "//games/geography/proto:geography_proto",
         "//util/headers:int_types",
-        "@com_google_protobuf//:protobuf",
+        "//util/status:status",
     ],
 )
 
@@ -47,7 +46,7 @@ cc_library(
         "//games/geography/proto:geography_proto",
         "//util/headers:int_types",
         "//util/proto:object_id",
-        "@com_google_protobuf//:protobuf",
+        "//util/status:status",
     ],
 )
 
