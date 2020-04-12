@@ -6,12 +6,12 @@ cc_library(
     hdrs = ["popunit.h"],
     deps = [
         "//games/geography/proto:geography_proto",
-        "//games/industry",
+        "//games/industry:industry",
         "//games/industry/decisions:production_evaluator",
         "//games/market/proto:goods_proto",
         "//games/population/proto:population_proto",
         "//util/headers:int_types",
-        "//util/keywords",
+        "//util/keywords:keywords",
         "@com_google_absl//absl/algorithm:container",
     ],
 )

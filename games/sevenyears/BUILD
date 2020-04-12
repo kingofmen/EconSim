@@ -16,7 +16,7 @@ cc_binary(
         "//games/interface/proto:config_proto",
         "//util/proto:file",
         "//util/logging:logging",
-        "//util/status",
+        "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@com_google_protobuf//:protobuf",
         "@sdl2//:SDL2",

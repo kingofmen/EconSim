@@ -6,7 +6,7 @@ cc_library(
     hdrs = ["industry.h"],
     deps = [
         "//games/industry/proto:industry_proto",
-        "//games/market",
+        "//games/market:market",
         "//games/market/proto:goods_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
@@ -20,7 +20,7 @@ cc_library(
     deps = [
         ":industry",
         "//games/industry/decisions:production_evaluator",
-        "//games/market",
+        "//games/market:market",
         "//games/market/proto:goods_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
