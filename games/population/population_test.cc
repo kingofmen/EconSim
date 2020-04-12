@@ -297,7 +297,7 @@ TEST_F(PopulationTest, SellSurplus) {
   package = level2.add_packages();
   market::SetAmount(youtube_, package->mutable_consumed());
 
-  pop_.StartTurn({&level_, &level2}, &market_);
+  pop_.StartTurn({level_, level2}, &market_);
   *pop_.mutable_wealth() << fish_;
   *pop_.mutable_wealth() << youtube_;
   EXPECT_EQ(micro::kOneInU, market::GetAmount(pop_.wealth(), youtube_));

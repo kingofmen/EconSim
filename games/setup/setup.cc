@@ -44,7 +44,7 @@ Constants::Constants(const games::setup::proto::Scenario& proto) {
 
   for (const auto& level : proto.consumption()) {
     if (market::GetAmount(level.tags(), keywords::kSubsistenceTag) > 0) {
-      subsistence_.push_back(&level);
+      subsistence_.push_back(level);
     }
   }
 

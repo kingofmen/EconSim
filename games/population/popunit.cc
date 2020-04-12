@@ -185,20 +185,19 @@ int PopUnit::GetSize() const {
   return size;
 }
 
-void PopUnit::StartTurn(
-    const std::vector<const proto::ConsumptionLevel*>& levels,
-    market::Market* market) {
+void PopUnit::StartTurn(const std::vector<proto::ConsumptionLevel>& levels,
+                        market::Market* market) {
   packages_ordered_ = 0;
   subsistence_need_.Clear();
   market::Measure found = 0;
   const proto::ConsumptionPackage* cheapest = nullptr;
-  for (const auto* level : levels) {
-    auto amount = market::GetAmount(level->tags(), keywords::kSubsistenceTag);
+  for (const auto& level : levels) {
+    auto amount = market::GetAmount(level.tags(), keywords::kSubsistenceTag);
     if (amount <= 0) {
       continue;
     }
     const proto::ConsumptionPackage* best_package =
-        CheapestPackage(*level, *market, cheapest);
+        CheapestPackage(level, *market, cheapest);
     if (best_package == nullptr) {
       best_package = cheapest;
     }

@@ -49,7 +49,7 @@ public:
 
   // Start-of-turn setup. Finds the cheapest packages within levels to add up to
   // one unit of 'subsistence', and reserves that amount for internal use.
-  void StartTurn(const std::vector<const proto::ConsumptionLevel*>& levels,
+  void StartTurn(const std::vector<proto::ConsumptionLevel>& levels,
                  market::Market* market);
 
   static PopUnit* GetPopId(uint64 id) { return id_to_pop_map_[id]; }
