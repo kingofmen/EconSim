@@ -27,9 +27,10 @@ Constants::Constants(const games::setup::proto::Scenario& proto) {
     Log::Debugf("Created %s with survival rate %d", good.name(),
                 market::GetAmount(decay_rates_, name));
   }
-  auto_production_.insert(auto_production_.end(),
-                          proto.auto_production().pointer_begin(),
-                          proto.auto_production().pointer_end());
+
+  for (const auto& prod : proto.auto_production()) {
+    auto_production_.push_back(prod);
+  }
   production_chains_.insert(production_chains_.end(),
                             proto.production_chains().pointer_begin(),
                             proto.production_chains().pointer_end());

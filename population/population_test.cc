@@ -235,7 +235,7 @@ TEST_F(PopulationTest, AutoProduction) {
   *market_.Proto()->mutable_prices_u() << words;
 
   // Prayer is cheaper, so the pop should choose to work.
-  std::vector<const proto::AutoProduction*> production = {&labour, &prayer};
+  std::vector<proto::AutoProduction> production = {labour, prayer};
   pop_.AutoProduce(production, &market_);
   EXPECT_EQ(market_.AvailableImmediately(work.kind()), micro::kOneInU);
   EXPECT_EQ(market_.AvailableImmediately(words.kind()), 0);
@@ -243,7 +243,7 @@ TEST_F(PopulationTest, AutoProduction) {
   market::proto::Quantity culture;
   culture.set_kind(kTestCulture2);
   culture += micro::kOneInU;
-  *labour.mutable_required_tags() << culture;
+  *(production[0].mutable_required_tags()) << culture;
 
   // Pop can no longer work, so now it should pray.
   pop_.AutoProduce(production, &market_);

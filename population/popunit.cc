@@ -58,25 +58,26 @@ PopUnit::PopUnit(const proto::PopUnit& proto) : proto_(proto) {
 }
 
 void PopUnit::AutoProduce(
-    const std::vector<const proto::AutoProduction*>& production,
+    const std::vector<proto::AutoProduction>& production,
     market::Market* market) {
-  const proto::AutoProduction* best_prod = nullptr;
+  int bestIndex = -1;
   market::Measure best_price = 0;
-  for (const auto* p : production) {
-    if (!(proto_.tags() > p->required_tags())) {
+  for (int idx = 0; idx < production.size(); ++idx) {
+    const auto& p = production[idx];
+    if (!(proto_.tags() > p.required_tags())) {
       continue;
     }
-    auto curr_price = market->GetPriceU(p->output());
+    auto curr_price = market->GetPriceU(p.output());
     if (curr_price < best_price) {
       continue;
     }
     best_price = curr_price;
-    best_prod = p;
+    bestIndex = idx;
   }
-  if (best_prod == nullptr) {
+  if (bestIndex < 0) {
     return;
   }
-  *mutable_wealth() += best_prod->output() * GetSize();
+  *mutable_wealth() += production[bestIndex].output() * GetSize();
   SellSurplus(market);
 }
 

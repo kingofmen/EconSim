@@ -25,7 +25,7 @@ public:
   // Add to lowest age group and subtract from oldest.
   void BirthAndDeath();
 
-  void AutoProduce(const std::vector<const proto::AutoProduction*>& production,
+  void AutoProduce(const std::vector<proto::AutoProduction>& production,
                    market::Market* market);
 
   // Looks for packages in level that are possible to consume, either from
