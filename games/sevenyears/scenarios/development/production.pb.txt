@@ -1,0 +1,52 @@
+# Home production is one supply unit directly, or 1.2 with
+# an intermediate step of trading it in a European port.
+# TODO: Balancing!
+production_chains {
+  name: "home_production_supplies"
+  outputs {
+    quantities {
+      key: "supplies"
+      value: 1000000
+    }
+  }
+}
+production_chains {
+  name: "home_production_trade"
+  outputs {
+    quantities {
+      key: "trade_goods"
+      value: 600000
+    }
+  }
+}
+# Colonies produce a lot of trade goods.
+production_chains {
+  name: "colonial_production"
+  outputs {
+    quantities {
+      key: "trade_goods"
+      value: 1000000
+    }
+  }
+}
+# Trade produces supplies easily due to gains from specialisation.
+production_chains {
+  name: "european_trade"
+  outputs {
+    quantities {
+      key: "supplies"
+      value: 2000000
+    }
+  }
+  steps {
+    variants {
+      consumables {
+        quantities {
+	  key: "trade_goods"
+	  value: 1000000
+	}
+      }
+    }
+  }
+  # TODO: Effects of friendly and unfriendly tags.
+}

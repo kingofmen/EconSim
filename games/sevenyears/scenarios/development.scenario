@@ -1,7 +1,7 @@
 name: "Dev Scenario"
 description: "For development work."
 world_file: "development/world.pb.txt"
-auto_production: "development/auto_prod.pb.txt"
+production_chains: "development/production.pb.txt"
 trade_goods: "development/trade_goods.pb.txt"
 unit_templates: "development/merchant_ships.pb.txt"
 factions: "development/factions.pb.txt"
