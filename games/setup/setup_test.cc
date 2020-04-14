@@ -25,12 +25,13 @@ TEST(SetupTest, TestIdempotency) {
 
   const std::string kBase =
       absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation}, "/");
-  config.add_auto_production(absl::StrJoin({kBase, kAutoProd}, "/"));
-  config.add_production_chains(absl::StrJoin({kBase, kChains}, "/"));
-  config.add_trade_goods(absl::StrJoin({kBase, kTradeGoods}, "/"));
-  config.add_consumption(absl::StrJoin({kBase, kConsumption}, "/"));
-  config.add_unit_templates(absl::StrJoin({kBase, kUnits}, "/"));
-  config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
+  config.set_root_path(kBase);
+  config.add_auto_production(kAutoProd);
+  config.add_production_chains(kChains);
+  config.add_trade_goods(kTradeGoods);
+  config.add_consumption(kConsumption);
+  config.add_unit_templates(kUnits);
+  config.set_world_file(kWorld);
 
   auto status = games::setup::LoadScenario(config, &scenario);
   EXPECT_TRUE(status.ok()) << status.error_message();
@@ -173,4 +174,21 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   EXPECT_FALSE(unit_z.has_number()) << unit_z.DebugString();
   EXPECT_EQ(unit_a.tag(), "area_fifty_one");
   EXPECT_EQ(unit_z.tag(), "area_one_oh_one");
+}
+
+TEST(SetupTest, TestLoadExtras) {
+  games::setup::proto::ScenarioFiles config;
+  games::setup::proto::Scenario scenario;
+  const std::string kTestDir = std::getenv("TEST_SRCDIR");
+  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
+
+  const std::string kBase =
+      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation}, "/");
+  config.set_root_path(kBase);
+  (*config.mutable_extras())["chains"] = kChains;
+  std::unordered_map<std::string, google::protobuf::Message*> loads;
+  loads["chains"] = &scenario;
+  auto status = games::setup::LoadExtras(config, loads);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_GT(scenario.production_chains().size(), 0);
 }

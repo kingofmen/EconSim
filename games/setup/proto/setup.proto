@@ -22,6 +22,7 @@ message ScenarioFiles {
   repeated string includes = 10;
   repeated string graphics = 11;
   repeated string factions = 12;
+  map<string, string> extras = 13;
 }
 
 message Scenario {

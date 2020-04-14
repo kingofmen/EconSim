@@ -242,7 +242,7 @@ util::Status LoadScenario(const proto::ScenarioFiles& config,
 util::Status LoadWorld(const proto::ScenarioFiles& config,
                        proto::GameWorld* world) {
   std::experimental::filesystem::path base_path = config.root_path();
-    std::experimental::filesystem::path world_path = base_path / config.world_file();
+  std::experimental::filesystem::path world_path = base_path / config.world_file();
   auto status = util::proto::ParseProtoFile(world_path.string(), world);
   if (!status.ok()) {
     return status;
@@ -257,6 +257,31 @@ util::Status LoadWorld(const proto::ScenarioFiles& config,
 
   return util::OkStatus();
 }
+
+util::Status
+LoadExtras(const proto::ScenarioFiles& config,
+           std::unordered_map<std::string, google::protobuf::Message*> extras) {
+  std::experimental::filesystem::path base_path = config.root_path();
+  const auto& locations = config.extras();
+  for (auto& extra : extras) {
+    const std::string& key = extra.first;
+    if (locations.find(key) == locations.end()) {
+      Log::Warnf("Could not load expected extra field \"%s\", it is not in the "
+                 "location map.",
+                 key);
+      continue;
+    }
+    std::experimental::filesystem::path extra_path =
+        base_path / locations.at(key);
+    auto status =
+        util::proto::MergeProtoFile(extra_path.string(), extra.second);
+    if (!status.ok()) {
+      return status;
+    }
+  }
+  return util::OkStatus();
+}
+
 
 util::Status CanonicaliseScenario(proto::Scenario* scenario) {
   return util::OkStatus();
@@ -366,6 +391,8 @@ util::Status CreateWorld(const proto::ScenarioFiles& config,
   world = World::FromProto(world_proto);
   return util::OkStatus();
 }
+
+
 
 }  // namespace setup
 }  // namespace games

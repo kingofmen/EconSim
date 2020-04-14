@@ -13,6 +13,7 @@
 #include "games/population/popunit.h"
 #include "games/population/proto/population.pb.h"
 #include "games/units/unit.h"
+#include "src/google/protobuf/message.h"
 #include "util/status/status.h"
 
 namespace games {
@@ -59,6 +60,11 @@ util::Status LoadScenario(const proto::ScenarioFiles& config,
 util::Status LoadWorld(const proto::ScenarioFiles& config,
                        proto::GameWorld* world);
 
+// Load arbitrary protos with locations specified by the 'extras' field in the
+// config.
+util::Status
+LoadExtras(const proto::ScenarioFiles& config,
+           std::unordered_map<std::string, google::protobuf::Message*> extras);
 
 // Canonicalises all ObjectIds in the provided proto, returning an
 // error if it encounters any tags without referent.

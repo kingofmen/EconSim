@@ -19,6 +19,7 @@ cc_library(
         "//util/proto:object_id",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
+        "@com_google_protobuf//:protobuf",
     ],
 )
 
