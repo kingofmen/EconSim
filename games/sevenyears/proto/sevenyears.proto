@@ -1,0 +1,11 @@
+syntax = "proto2";
+package sevenyears.proto;
+
+import "util/proto/object_id.proto";
+
+message AreaInfo {
+  optional util.proto.ObjectId area_id = 1;
+  optional util.proto.ObjectId owner_id = 2;
+  repeated string production = 3;
+}
+

@@ -11,6 +11,7 @@ cc_binary(
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/sevenyears/graphics:sdl_interface",
+        "//games/sevenyears/proto:sevenyears_proto",
         "//games/geography:geography",
         "//games/interface:base",
         "//games/interface/proto:config_proto",
