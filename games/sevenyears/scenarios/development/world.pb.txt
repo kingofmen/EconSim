@@ -192,3 +192,17 @@ units {
     }
   }
 }
+
+[sevenyears.proto.WorldState.sevenyears_state] {
+  area_states {
+    area_id {
+      kind: "area"
+      number: 1
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    production: "home_production_supplies"
+  }
+}

@@ -2,13 +2,19 @@ syntax = "proto2";
 package sevenyears.proto;
 
 import "util/proto/object_id.proto";
+import "games/setup/proto/setup.proto";
 
-message AreaInfo {
+message AreaState {
   optional util.proto.ObjectId area_id = 1;
   optional util.proto.ObjectId owner_id = 2;
   repeated string production = 3;
 }
 
 message WorldState {
-  repeated AreaInfo area_infos = 1;
+  extend games.setup.proto.GameWorld {
+    optional WorldState sevenyears_state = 100;
+  }
+
+  repeated AreaState area_states = 1;
 }
+

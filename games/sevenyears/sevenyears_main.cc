@@ -134,8 +134,8 @@ private:
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
   std::unordered_map<std::string, int> chain_indices_;
-  std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaInfo>
-      area_infos_;
+  std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
+      area_states_;
 };
 
 void SevenYears::NewTurn() {
@@ -144,16 +144,16 @@ void SevenYears::NewTurn() {
   const std::string defaultChain = constants_.production_chains_[0].name();
   for (const auto& area : game_world_->areas_) {
     const auto& area_id = area->area_id();
-    if (area_infos_.find(area_id) == area_infos_.end()) {
-      Log::Debugf("Could not find info for area %d", area_id.number());
+    if (area_states_.find(area_id) == area_states_.end()) {
+      Log::Debugf("Could not find state for area %d", area_id.number());
       continue;
     }
-    const auto& area_info = area_infos_.at(area_id);
+    const auto& area_state = area_states_.at(area_id);
     for (int i = 0; i < area->num_fields(); ++i) {
       geography::proto::Field* field = area->mutable_field(i);
       std::string chain = defaultChain;
-      if (area_info.production_size() > i) {
-        chain = area_info.production(i);
+      if (area_state.production_size() > i) {
+        chain = area_state.production(i);
       }
       Log::Infof("Area %d field %d running chain %s", area_id.number(), i,
                  chain);
@@ -232,6 +232,13 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   if (!status.ok()) {
     return status;
   }
+
+  if (!world_proto.HasExtension(sevenyears::proto::WorldState::sevenyears_state)) {
+    return util::InvalidArgumentError(
+        "World file does not have SevenYears state extension (should open with "
+        "\"[sevenyears.proto.WorldState.sevenyears_state] {\".)");
+  }
+
   status = games::setup::CanonicaliseWorld(&world_proto);
   if (!status.ok()) {
     return status;
@@ -249,18 +256,13 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
     return util::InvalidArgumentError("No production chains found.");
   }
 
-  sevenyears::proto::WorldState world_state;
-  std::unordered_map<std::string, google::protobuf::Message*> locations = {
-      {"area_info", &world_state}};
-  status = games::setup::LoadExtras(setup, locations);
-  if (!status.ok()) {
-    return status;
+  const sevenyears::proto::WorldState& world_state =
+      world_proto.GetExtension(sevenyears::proto::WorldState::sevenyears_state);
+
+  for (const auto& ai : world_state.area_states()) {
+    area_states_[ai.area_id()] = ai;
   }
 
-  for (const auto& ai : world_state.area_infos()) {
-    area_infos_[ai.area_id()] = ai;
-  }
-  
   return util::OkStatus();
 }
 

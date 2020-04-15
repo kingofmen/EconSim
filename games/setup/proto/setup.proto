@@ -40,4 +40,8 @@ message GameWorld {
   repeated geography.proto.Connection connections = 3;
   repeated units.proto.Unit units = 4;
   repeated factions.proto.Faction factions = 5;
+  // Extensions are used for game-specific information
+  // and defined in the individual game proto libraries
+  // by 'extend GameWorld' messages.
+  extensions 100 to 199;
 }
