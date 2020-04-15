@@ -6,6 +6,9 @@ areas {
     number: 1
     tag: "London"
   }
+  fields {
+    name: "LondOne"
+  }
 }
 areas {
   area_id {

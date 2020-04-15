@@ -9,3 +9,6 @@ message AreaInfo {
   repeated string production = 3;
 }
 
+message WorldState {
+  repeated AreaInfo area_infos = 1;
+}

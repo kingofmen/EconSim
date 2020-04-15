@@ -1,0 +1,11 @@
+area_infos {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supplies"
+}

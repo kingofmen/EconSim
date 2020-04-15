@@ -5,4 +5,8 @@ production_chains: "development/production.pb.txt"
 trade_goods: "development/trade_goods.pb.txt"
 unit_templates: "development/merchant_ships.pb.txt"
 factions: "development/factions.pb.txt"
+extras {
+  key: "area_info"
+  value: "development/area_info.pb.txt"
+}
 

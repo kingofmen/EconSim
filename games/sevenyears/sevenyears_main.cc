@@ -12,6 +12,7 @@
 #include "games/interface/base.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/sdl_interface.h"
+#include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
@@ -132,10 +133,33 @@ private:
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
+  std::unordered_map<std::string, int> chain_indices_;
+  std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaInfo>
+      area_infos_;
 };
 
 void SevenYears::NewTurn() {
   Log::Info("New turn");
+
+  const std::string defaultChain = constants_.production_chains_[0].name();
+  for (const auto& area : game_world_->areas_) {
+    const auto& area_id = area->area_id();
+    if (area_infos_.find(area_id) == area_infos_.end()) {
+      Log::Debugf("Could not find info for area %d", area_id.number());
+      continue;
+    }
+    const auto& area_info = area_infos_.at(area_id);
+    for (int i = 0; i < area->num_fields(); ++i) {
+      geography::proto::Field* field = area->mutable_field(i);
+      std::string chain = defaultChain;
+      if (area_info.production_size() > i) {
+        chain = area_info.production(i);
+      }
+      Log::Infof("Area %d field %d running chain %s", area_id.number(), i,
+                 chain);
+    }
+  }
+
   // Units all plan simultaneously.
   for (auto& unit : game_world_->units_) {
     actions::proto::Strategy* strategy = unit->mutable_strategy();
@@ -218,6 +242,25 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
         "Failed to create game world from proto.");
   }
 
+  for (int i = 0; i < constants_.production_chains_.size(); ++i) {
+    chain_indices_[constants_.production_chains_[i].name()] = i;
+  }
+  if (chain_indices_.empty()) {
+    return util::InvalidArgumentError("No production chains found.");
+  }
+
+  sevenyears::proto::WorldState world_state;
+  std::unordered_map<std::string, google::protobuf::Message*> locations = {
+      {"area_info", &world_state}};
+  status = games::setup::LoadExtras(setup, locations);
+  if (!status.ok()) {
+    return status;
+  }
+
+  for (const auto& ai : world_state.area_infos()) {
+    area_infos_[ai.area_id()] = ai;
+  }
+  
   return util::OkStatus();
 }
 
