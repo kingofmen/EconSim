@@ -9,6 +9,16 @@ production_chains {
       value: 1000000
     }
   }
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+          key: "war_production_capital"
+          value: 1
+        }
+      }
+    }
+  }
 }
 production_chains {
   name: "home_production_trade"
@@ -16,6 +26,16 @@ production_chains {
     quantities {
       key: "trade_goods"
       value: 600000
+    }
+  }
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+          key: "export_production_capital"
+          value: 1
+        }
+      }
     }
   }
 }
@@ -26,6 +46,16 @@ production_chains {
     quantities {
       key: "trade_goods"
       value: 1000000
+    }
+  }
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+          key: "colonial_extraction_infrastructure"
+          value: 1
+        }
+      }
     }
   }
 }
@@ -42,9 +72,15 @@ production_chains {
     variants {
       consumables {
         quantities {
-	  key: "trade_goods"
-	  value: 1000000
-	}
+          key: "trade_goods"
+          value: 1000000
+        }
+      }
+      raw_materials {
+        quantities {
+          key: "colonial_extraction_infrastructure"
+          value: 1
+        }
       }
     }
   }

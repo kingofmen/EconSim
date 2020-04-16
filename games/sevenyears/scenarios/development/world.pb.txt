@@ -7,7 +7,17 @@ areas {
     tag: "London"
   }
   fields {
-    name: "LondOne"
+    name: "London"
+    fixed_capital {
+      quantities {
+        key: "war_production_capital"
+        value: 1
+      }
+      quantities {
+        key: "export_production_capital"
+        value: 1
+      }
+    }
   }
 }
 areas {
