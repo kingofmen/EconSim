@@ -31,7 +31,42 @@ util::Status validateSetup(const games::setup::proto::ScenarioFiles& setup) {
   return util::OkStatus();
 }
 
-util::Status validateWorldState() {
+util::Status
+validateWorldState(const std::unordered_map<std::string, int>& chains,
+                   proto::WorldState* state) {
+  for (int i = 0; i < state->area_states_size(); ++i) {
+    auto* area_state = state->mutable_area_states(i);
+    auto status = util::objectid::Canonicalise(area_state->mutable_area_id());
+    if (!status.ok()) {
+      return status;
+    }
+    const auto& area_id = area_state->area_id();
+    auto* area = geography::Area::GetById(area_id);
+    if (area == nullptr) {
+      return util::NotFoundError(
+          absl::Substitute("Could not find area $0", area_id.DebugString()));
+    }
+
+    int numFields = area->num_fields();
+    int numProd = area_state->production_size();
+    if (numFields < numProd) {
+      Log::Warnf(
+          "In area %d: %d fields, %d production strings, ignoring surplus",
+          area_id.number(), numFields, numProd);
+      area_state->mutable_production()->DeleteSubrange(numFields,
+                                                       numProd - numFields);
+    }
+
+    numProd = area_state->production_size();
+    for (int i = 0; i < numProd; ++i) {
+      const auto& prod = area_state->production(i);
+      if (chains.find(prod) == chains.end()) {
+        return util::NotFoundError(absl::Substitute(
+            "Invalid production type $0 in area $1", prod, area_id.number()));
+      }
+    }
+  }
+
   return util::OkStatus();
 }
 
@@ -185,10 +220,14 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
     return util::InvalidArgumentError("No production chains found.");
   }
 
-  const sevenyears::proto::WorldState& world_state =
-      world_proto.GetExtension(sevenyears::proto::WorldState::sevenyears_state);
+  sevenyears::proto::WorldState* world_state = world_proto.MutableExtension(
+      sevenyears::proto::WorldState::sevenyears_state);
+  status = validateWorldState(chain_indices_, world_state);
+  if (!status.ok()) {
+    return status;
+  }
 
-  for (const auto& ai : world_state.area_states()) {
+  for (const auto& ai : world_state->area_states()) {
     area_states_[ai.area_id()] = ai;
   }
 
