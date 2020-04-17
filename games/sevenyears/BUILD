@@ -9,6 +9,7 @@ cc_library(
         "//games/actions/proto:strategy_proto",
         "//games/ai:executer",
         "//games/ai:planner",
+        "//games/industry:industry",
         "//games/interface:base",
         "//games/interface/proto:config_proto",
         "//games/market:goods_utils",

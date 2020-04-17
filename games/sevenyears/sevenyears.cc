@@ -5,11 +5,13 @@
 #include "games/actions/proto/strategy.pb.h"
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
+#include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 #include "util/status/status.h"
 
@@ -33,9 +35,9 @@ util::Status validateSetup(const games::setup::proto::ScenarioFiles& setup) {
   return util::OkStatus();
 }
 
-util::Status
-validateWorldState(const std::unordered_map<std::string, int>& chains,
-                   proto::WorldState* state) {
+util::Status validateWorldState(
+    const std::unordered_map<std::string, industry::Production>& chains,
+    proto::WorldState* state) {
   for (int i = 0; i < state->area_states_size(); ++i) {
     auto* area_state = state->mutable_area_states(i);
     auto status = util::objectid::Canonicalise(area_state->mutable_area_id());
@@ -125,15 +127,29 @@ void SevenYears::NewTurn() {
       Log::Debugf("Could not find state for area %d", area_id.number());
       continue;
     }
-    const auto& area_state = area_states_.at(area_id);
+    auto& area_state = area_states_.at(area_id);
     for (int i = 0; i < area->num_fields(); ++i) {
       geography::proto::Field* field = area->mutable_field(i);
-      std::string chain = defaultChain;
+      std::string chain_name = defaultChain;
       if (area_state.production_size() > i) {
-        chain = area_state.production(i);
+        chain_name = area_state.production(i);
       }
-      Log::Infof("Area %d field %d running chain %s", area_id.number(), i,
-                 chain);
+      const auto& chain = production_chains_[chain_name];
+
+      if (!field->has_progress() || chain.Complete(field->progress())) {
+        *field->mutable_progress() = chain.MakeProgress(micro::kOneInU);
+      }
+
+      // TODO: Treat trade specially here.
+      market::Measure institutional_capital = 0;
+      chain.PerformStep(
+          field->fixed_capital(), institutional_capital, 0,
+          area_state.mutable_warehouse(), field->mutable_resources(),
+          area_state.mutable_warehouse(), area_state.mutable_warehouse(),
+          field->mutable_progress());
+      if (chain.Complete(field->progress())) {
+        field->clear_progress();
+      }
     }
   }
 
@@ -237,15 +253,18 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
 
   for (int i = 0; i < constants_.production_chains_.size(); ++i) {
-    chain_indices_[constants_.production_chains_[i].name()] = i;
+    const auto& proto = constants_.production_chains_[i];
+    //production_chains_[proto.name()] =
+    production_chains_.emplace(constants_.production_chains_[i].name(),
+                               industry::Production(proto));
   }
-  if (chain_indices_.empty()) {
+  if (production_chains_.empty()) {
     return util::InvalidArgumentError("No production chains found.");
   }
 
   sevenyears::proto::WorldState* world_state = world_proto.MutableExtension(
       sevenyears::proto::WorldState::sevenyears_state);
-  status = validateWorldState(chain_indices_, world_state);
+  status = validateWorldState(production_chains_, world_state);
   if (!status.ok()) {
     return status;
   }

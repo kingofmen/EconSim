@@ -23,7 +23,7 @@ private:
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
-  std::unordered_map<std::string, int> chain_indices_;
+  std::unordered_map<std::string, industry::Production> production_chains_;
   std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
       area_states_;
 };
