@@ -168,8 +168,22 @@ void validateAreas(const games::setup::proto::GameWorld& world,
     } else if (areas.find(area.area_id()) != areas.end()) {
       errors->push_back(absl::Substitute("Area ID $0 is not unique",
                                          area.area_id().DebugString()));
-    } else
+    } else {
       areas[area.area_id()] = area;
+    }
+
+    int idx = 0;
+    for (const auto& field : area.fields()) {
+      std::string prefix = absl::Substitute(
+          "Area $0 field $1$2:", area.area_id().number(), idx++,
+          field.has_name() ? absl::Substitute("($0)", field.name()) : "");
+      if (field.has_fixed_capital()) {
+        checkGoodsExist(field.fixed_capital(), prefix, errors);
+      }
+      if (field.has_resources()) {
+        checkGoodsExist(field.resources(), prefix, errors);
+      }
+    }
   }
 }
 

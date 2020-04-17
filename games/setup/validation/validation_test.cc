@@ -13,14 +13,15 @@ namespace setup {
 namespace validation {
 namespace {
 
+const std::string kTestDataLocation = "games/setup/validation/test_data";
+
 google::protobuf::util::Status ReadFile(const std::string filename,
                                         google::protobuf::Message* proto) {
-  // This is a workaround for Bazel issues 4102 and 4292. When they are
-  // fixed, use TEST_SRCDIR/TEST_WORKSPACE instead.
-  const std::string kTestDir = "C:/Users/Rolf/base";
-  const std::string kTestDataLocation = "games/setup/validation/test_data";
+  const std::string kTestDir = std::getenv("TEST_SRCDIR");
+  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
   return util::proto::ParseProtoFile(
-      absl::StrJoin({kTestDir, kTestDataLocation, filename}, "/"), proto);
+      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
+      proto);
 }
 
 }
@@ -59,6 +60,8 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Consumption bad_level package 1 capital: Good handwaves does not exist.",
     // World errors:
     "Area without ID: \"\"",
+    "Area 0 field 0:: Good stable_dark_matter does not exist.",
+    "Area 0 field 0:: Good testonium does not exist.",
     "Area ID number: 2\n is not unique",
     "Bad area ID: number: 0\n",
     "Pop without ID: \"\"",

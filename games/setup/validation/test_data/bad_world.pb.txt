@@ -6,6 +6,20 @@ areas {
   area_id {
     number: 0
   }
+  fields {
+    fixed_capital {
+      quantities {
+        key: "stable_dark_matter"
+	value: 1
+      }
+    }
+    resources {
+      quantities {
+        key: "testonium"
+	value: 1
+      }
+    }
+  }
 }
 
 areas {
