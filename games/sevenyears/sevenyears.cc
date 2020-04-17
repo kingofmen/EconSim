@@ -5,6 +5,7 @@
 #include "games/actions/proto/strategy.pb.h"
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
+#include "games/market/goods_utils.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
@@ -56,6 +57,17 @@ validateWorldState(const std::unordered_map<std::string, int>& chains,
           area_id.number(), numFields, numProd);
       area_state->mutable_production()->DeleteSubrange(numFields,
                                                        numProd - numFields);
+    }
+
+    if (!market::AllGoodsExist(area_state->warehouse())) {
+      for (const auto& q : area_state->warehouse().quantities()) {
+        if (market::Exists(q.first)) {
+          continue;
+        }
+        Log::Errorf("In area %d: Good %s does not exist.", area_id.number(), q.first);
+      }
+      return util::NotFoundError(absl::Substitute(
+          "Not all goods in area $0 warehouse exist.", area_id.number()));
     }
 
     numProd = area_state->production_size();

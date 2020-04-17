@@ -11,6 +11,7 @@ cc_library(
         "//games/ai:planner",
         "//games/interface:base",
         "//games/interface/proto:config_proto",
+        "//games/market:goods_utils",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/setup/validation:validation",

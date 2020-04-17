@@ -14,6 +14,7 @@ proto_library(
     ],
     deps = [
         "//util/proto:object_id_proto_lib",
+        "//games/market/proto:goods_proto_lib",
         "//games/setup/proto:setup_proto_lib",
     ],
 )
