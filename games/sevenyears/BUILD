@@ -13,6 +13,7 @@ cc_library(
         "//games/interface/proto:config_proto",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
+        "//games/setup/validation:validation",
         "//games/sevenyears/proto:sevenyears_proto",
         "//games/geography:geography",
         "//util/logging:logging",

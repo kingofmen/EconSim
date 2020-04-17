@@ -7,6 +7,7 @@
 #include "games/ai/planner.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
+#include "games/setup/validation/validation.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/logging/logging.h"
 #include "util/status/status.h"
@@ -189,7 +190,6 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   if (!status.ok()) {
     return status;
   }
-  constants_ = games::setup::Constants(scenario_proto);
 
   games::setup::proto::GameWorld world_proto;
   status = games::setup::LoadWorld(setup, &world_proto);
@@ -203,10 +203,21 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
         "\"[sevenyears.proto.WorldState.sevenyears_state] {\".)");
   }
 
+  constants_ = games::setup::Constants(scenario_proto);
   status = games::setup::CanonicaliseWorld(&world_proto);
   if (!status.ok()) {
     return status;
   }
+
+  auto errors = games::setup::validation::Validate(scenario_proto, world_proto);
+  if (!errors.empty()) {
+    for (const auto& error : errors) {
+      Log::Error(error);
+    }
+    return util::InvalidArgumentError(
+        absl::Substitute("Validation error: $0", errors[0]));
+  }
+
   game_world_ = games::setup::World::FromProto(world_proto);
   if (!game_world_) {
     return util::InvalidArgumentError(
