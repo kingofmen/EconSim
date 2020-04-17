@@ -43,6 +43,22 @@ void CreateTradeGood(const market::proto::TradeGood& good) {
 
 const std::vector<std::string>& ListGoods() { return goods_names_; }
 
+bool Exists(const std::string& name) {
+  return goods_map_.find(name) != goods_map_.end();
+}
+bool Exists(const market::proto::TradeGood& good) {
+  return Exists(good.name());
+}
+bool AllGoodsExist(const market::proto::Container& con) {
+  for (const auto& quantity : con.quantities()) {
+    if (!Exists(quantity.first)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
 Measure BulkU(const std::string& name) {
   return goods_map_[name].bulk_u();
 }

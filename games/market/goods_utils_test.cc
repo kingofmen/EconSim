@@ -464,4 +464,21 @@ TEST(GoodsUtilsTest, Iterators) {
   EXPECT_FALSE(Contains(target, kTestGood2));
 }
 
+TEST(GoodsUtilsTest, TradeGoods) {
+  proto::TradeGood good;
+  Container source;
+  SetAmount(kTestGood1, 1, &source);
+  CreateTradeGood(good);
+  EXPECT_TRUE(ListGoods().empty());
+  EXPECT_FALSE(AllGoodsExist(source));
+  good.set_name(kTestGood1);
+  CreateTradeGood(good);
+  EXPECT_EQ(ListGoods().size(), 1);
+  EXPECT_TRUE(Exists(good));
+  EXPECT_TRUE(Exists(kTestGood1));
+  EXPECT_TRUE(AllGoodsExist(source));
+  SetAmount(kTestGood2, 1, &source);
+  EXPECT_FALSE(AllGoodsExist(source));
+}
+
 } // namespace market

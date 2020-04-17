@@ -16,6 +16,11 @@ void CreateTradeGood(const market::proto::TradeGood& good);
 void ClearGoods();
 // Returns a list of all known goods.
 const std::vector<std::string>& ListGoods();
+// Returns true if the good is known to exist.
+bool Exists(const std::string& name);
+bool Exists(const market::proto::TradeGood& good);
+// Returns false if any container entry doesn't exist as a trade good.
+bool AllGoodsExist(const market::proto::Container& con);
 
 // Information about trade goods.
 Measure BulkU(const std::string& name);
