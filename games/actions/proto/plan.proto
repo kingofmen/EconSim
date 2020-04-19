@@ -13,6 +13,8 @@ message Step {
   optional AtomicAction action = 1;
   optional uint64 connection_id = 2;
   optional string good = 3;
+  // Replaces 'action'.
+  optional string key = 4;
 }
 
 message Plan {

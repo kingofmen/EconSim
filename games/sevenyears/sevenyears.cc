@@ -140,13 +140,14 @@ void SevenYears::NewTurn() {
         *field->mutable_progress() = chain.MakeProgress(micro::kOneInU);
       }
 
-      // TODO: Treat trade specially here.
       market::Measure institutional_capital = 0;
-      chain.PerformStep(
-          field->fixed_capital(), institutional_capital, 0,
-          area_state.mutable_warehouse(), field->mutable_resources(),
-          area_state.mutable_warehouse(), area_state.mutable_warehouse(),
-          field->mutable_progress());
+      if (!chain.PerformStep(
+              field->fixed_capital(), institutional_capital, 0,
+              area_state.mutable_warehouse(), field->mutable_resources(),
+              area_state.mutable_warehouse(), area_state.mutable_warehouse(),
+              field->mutable_progress())) {
+        continue;
+      }
       if (chain.Complete(field->progress())) {
         field->clear_progress();
       }
@@ -173,16 +174,11 @@ void SevenYears::NewTurn() {
   }
 
   // Execute in single steps.
-  while (true) {
-    int count = 0;
+  for (int i = 0; i < 3; ++i) {
     for (auto& unit : game_world_->units_) {
       if (ai::ExecuteStep(unit->plan(), unit.get())) {
         ai::DeleteStep(unit->mutable_plan());
-        ++count;
       }
-    }
-    if (count == 0) {
-      break;
     }
   }
 
