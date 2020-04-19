@@ -252,12 +252,13 @@ void GameWorld::TimeStep(
       if (unit->plan().steps().empty()) {
         continue;
       }
-      if (ai::ExecuteStep(unit->plan(), unit.get())) {
+      auto status = ai::ExecuteStep(unit->plan(), unit.get());
+      if (status.ok()) {
         ai::DeleteStep(unit->mutable_plan());
         ++count;
       } else {
-        Log::Warnf("Could not execute step in plan: %s",
-                   unit->plan().DebugString());
+        Log::Warnf("Could not execute step in plan: %s due to %s",
+                   unit->plan().DebugString(), status.error_message());
       }
     }
     if (count == 0) {

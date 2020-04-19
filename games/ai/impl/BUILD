@@ -34,6 +34,8 @@ cc_library(
         "//util/headers:int_types",
         "//util/logging:logging",
         "//util/proto:object_id_proto",
+        "//util/status:status",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

@@ -2,8 +2,10 @@
 
 #include <unordered_map>
 
+#include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/impl/executor_impl.h"
+#include "util/status/status.h"
 
 namespace ai {
 
@@ -25,25 +27,28 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-bool ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
+util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
   if (plan.steps_size() == 0) {
-    return false;
+    return util::InvalidArgumentError("No steps in plan");
   }
   const auto& step = plan.steps(0);
   if (step.has_key()) {
     if (execution_key_map.find(step.key()) != execution_key_map.end()) {
       return execution_key_map.at(step.key())(step, unit);
     }
-    return false;
+    return util::NotImplementedError(
+        absl::Substitute("Executor for key $0 not implemented", step.key()));
   }
 
   if (!step.has_action()) {
-    return false;
+    return util::InvalidArgumentError("Plan step has no action");
   }
 
   if (execution_action_map.find(step.action()) == execution_action_map.end()) {
-    return false;
+    return util::NotImplementedError(absl::Substitute(
+        "Executor for action $0 not implemented", step.action()));
   }
+
   return execution_action_map[step.action()](step, unit);
 }
 

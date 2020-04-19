@@ -176,8 +176,11 @@ void SevenYears::NewTurn() {
   // Execute in single steps.
   for (int i = 0; i < 3; ++i) {
     for (auto& unit : game_world_->units_) {
-      if (ai::ExecuteStep(unit->plan(), unit.get())) {
+      auto status = ai::ExecuteStep(unit->plan(), unit.get());
+      if (status.ok()) {
         ai::DeleteStep(unit->mutable_plan());
+      } else {
+        Log::Warnf("Could not execute unit plan: %s", status.error_message());
       }
     }
   }

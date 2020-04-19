@@ -32,9 +32,9 @@ TEST_F(ExecuterTest, TestDeleteStep) {
 }
 
 TEST_F(ExecuterTest, TestExecuteStep) {
-  EXPECT_FALSE(ExecuteStep(plan_, NULL));
+  EXPECT_FALSE(ExecuteStep(plan_, NULL).ok());
   auto* step = plan_.add_steps();
-  EXPECT_FALSE(ExecuteStep(plan_, NULL));
+  EXPECT_FALSE(ExecuteStep(plan_, NULL).ok());
 }
 
 

@@ -57,7 +57,7 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   step->set_action(actions::proto::AA_MOVE);
   step->set_connection_id(connection_12->ID());
 
-  EXPECT_TRUE(MoveUnit(plan_.steps(0), unit_.get()));
+  EXPECT_TRUE(MoveUnit(plan_.steps(0), unit_.get()).ok());
   EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
 }
 
@@ -66,9 +66,9 @@ TEST_F(ExecutorImplTest, TestBuy) {
   step->set_action(actions::proto::AA_BUY);
   step->set_good(kTestGood1);
 
-  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()));
+  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()).ok());
   step->set_action(actions::proto::AA_SELL);
-  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()));
+  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()).ok());
 }
 
 TEST_F(ExecutorImplTest, TestSwitchState) {
@@ -77,7 +77,7 @@ TEST_F(ExecutorImplTest, TestSwitchState) {
   unit_->mutable_strategy()->mutable_shuttle_trade()->set_state(
       actions::proto::ShuttleTrade::STS_BUY_A);
 
-  EXPECT_TRUE(SwitchState(*step, unit_.get()));
+  EXPECT_TRUE(SwitchState(*step, unit_.get()).ok());
   EXPECT_EQ(actions::proto::ShuttleTrade::STS_BUY_Z,
             unit_->strategy().shuttle_trade().state());
 }
