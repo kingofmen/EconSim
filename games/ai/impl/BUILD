@@ -4,6 +4,7 @@ cc_library(
     name = "unit_ai_impl",
     srcs = ["unit_ai_impl.cc"],
     hdrs = ["unit_ai_impl.h"],
+    visibility = ["//visibility:public"],
     deps = [
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",

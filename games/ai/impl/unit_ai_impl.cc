@@ -13,16 +13,31 @@
 #include "util/logging/logging.h"
 #include "util/proto/object_id.h"
 
-typedef std::function<market::Measure(const geography::Connection&)>
-    CostFunction;
-
-typedef std::function<market::Measure(const util::proto::ObjectId&,
-                                      const util::proto::ObjectId&)>
-    Heuristic;
-
 namespace ai {
 namespace impl {
 namespace {
+
+// Adds transit, selling, buying, and flipping steps to plan.
+void GoBuySell(const units::Unit& unit, const util::proto::ObjectId& target_id,
+               const std::string& buy, const std::string& sell,
+               actions::proto::Plan* plan) {
+  if (unit.location().a_area_id() != target_id) {
+    FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
+  }
+
+  auto* step = plan->add_steps();
+  step->set_action(actions::proto::AA_SELL);
+  step->set_good(sell);
+
+  step = plan->add_steps();
+  step->set_action(actions::proto::AA_BUY);
+  step->set_good(buy);
+
+  step = plan->add_steps();
+  step->set_action(actions::proto::AA_SWITCH_STATE);
+}
+
+}  // namespace
 
 // Cost function returning the length of the connection.
 market::Measure ShortestDistance(const geography::Connection& conn) {
@@ -121,28 +136,6 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
     step->set_connection_id(visited[id].conn_id);
     path.pop_back();
   }
-}
-
-// Adds transit, selling, buying, and flipping steps to plan.
-void GoBuySell(const units::Unit& unit, const util::proto::ObjectId& target_id,
-               const std::string& buy, const std::string& sell,
-               actions::proto::Plan* plan) {
-  if (unit.location().a_area_id() != target_id) {
-    FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
-  }
-
-  auto* step = plan->add_steps();
-  step->set_action(actions::proto::AA_SELL);
-  step->set_good(sell);
-
-  step = plan->add_steps();
-  step->set_action(actions::proto::AA_BUY);
-  step->set_good(buy);
-
-  step = plan->add_steps();
-  step->set_action(actions::proto::AA_SWITCH_STATE);
-}
-
 }
 
 util::Status

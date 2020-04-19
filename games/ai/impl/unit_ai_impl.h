@@ -4,11 +4,33 @@
 #include "games/actions/proto/strategy.pb.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/unit_ai.h"
+#include "games/geography/connection.h"
 #include "games/units/unit.h"
 #include "util/status/status.h"
 
 namespace ai {
 namespace impl {
+
+typedef std::function<market::Measure(const geography::Connection&)>
+    CostFunction;
+
+typedef std::function<market::Measure(const util::proto::ObjectId&,
+                                      const util::proto::ObjectId&)>
+    Heuristic;
+
+// Cost function returning the length of the connection.
+market::Measure ShortestDistance(const geography::Connection& conn);
+
+// Default heuristic that doesn't actually heurise.
+market::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
+                              const util::proto::ObjectId& target_id);
+
+// Adds to plan steps for traversing the connections between unit's current
+// location and the provided target area.
+void FindPath(const units::Unit& unit, const CostFunction& cost_function,
+              const Heuristic& heuristic,
+              const util::proto::ObjectId& target_id,
+              actions::proto::Plan* plan);
 
 class ShuttleTrader : public ai::UnitAi {
 public:
