@@ -1,16 +1,20 @@
 #include "games/sevenyears/sevenyears.h"
 
+#include <unordered_set>
+
 #include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/actions/proto/strategy.pb.h"
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
+#include "games/ai/impl/unit_ai_impl.h"
 #include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 #include "util/status/status.h"
@@ -85,6 +89,20 @@ util::Status validateWorldState(
   return util::OkStatus();
 }
 
+// TODO: Can this be done without hardcoding the unit types?
+bool isMerchantShip(const units::Unit& unit) {
+  if (unit.unit_id().kind() == "brig") {
+    return true;
+  }
+  if (unit.unit_id().kind() == "threemaster") {
+    return true;
+  }
+  if (unit.unit_id().kind() == "schooner") {
+    return true;
+  }
+  return false;
+}
+
 }  // namespace
 
 class SevenYearsMerchant : public ai::UnitAi {
@@ -103,6 +121,26 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   if (!strategy.has_seven_years_merchant()) {
     return util::NotFoundError("No SevenYearsMerchant strategy");
   }
+  if (plan->steps_size() > 0) {
+    return util::OkStatus();
+  }
+
+  if (!isMerchantShip(unit)) {
+    return util::InvalidArgumentError(absl::Substitute(
+        "Unit $0 is not a merchant ship.", unit.unit_id().DebugString()));
+  }
+
+  const auto& merchant_strategy = strategy.seven_years_merchant();
+
+  // If not in home base, go home.
+  const auto& location = unit.location();
+  if (location.a_area_id() != merchant_strategy.base_area_id() ||
+      location.has_connection_id()) {
+    ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                       ai::impl::ZeroHeuristic,
+                       merchant_strategy.base_area_id(), plan);
+    return util::OkStatus();
+  }
 
   return util::OkStatus();
 }
@@ -116,6 +154,43 @@ util::Status InitialiseAI() {
   return ai::RegisterPlanner(strategy, merchant_ai);
 }
 
+void SevenYears::moveUnits() {
+  // Units all plan simultaneously.
+  for (auto& unit : game_world_->units_) {
+    actions::proto::Strategy* strategy = unit->mutable_strategy();
+    if (strategy->strategy_case() ==
+        actions::proto::Strategy::STRATEGY_NOT_SET) {
+      // TODO: Strategic AI.
+      continue;
+    }
+    actions::proto::Plan* plan = unit->mutable_plan();
+    if (plan->steps_size() == 0) {
+      auto status = ai::MakePlan(*unit, unit->strategy(), plan);
+      if (!status.ok()) {
+        Log::Warnf("Could not create plan for unit %s: %s",
+                   unit->ID().DebugString(), status.error_message());
+        continue;
+      }
+    }
+  }
+
+  // Execute in single steps.
+  std::unordered_set<util::proto::ObjectId> warned;
+  for (int i = 0; i < 3; ++i) {
+    for (auto& unit : game_world_->units_) {
+      auto status = ai::ExecuteStep(unit->plan(), unit.get());
+      if (status.ok()) {
+        ai::DeleteStep(unit->mutable_plan());
+      } else if (warned.find(unit->unit_id()) == warned.end()) {
+        warned.insert(unit->unit_id());
+        Log::Warnf("Could not execute unit (%s, %d) plan: %s",
+                   unit->unit_id().kind(), unit->unit_id().number(),
+                   status.error_message());
+      }
+    }
+  }
+}
+  
 
 void SevenYears::NewTurn() {
   Log::Info("New turn");
@@ -154,36 +229,7 @@ void SevenYears::NewTurn() {
     }
   }
 
-  // Units all plan simultaneously.
-  for (auto& unit : game_world_->units_) {
-    actions::proto::Strategy* strategy = unit->mutable_strategy();
-    if (strategy->strategy_case() ==
-        actions::proto::Strategy::STRATEGY_NOT_SET) {
-      // TODO: Strategic AI.
-      continue;
-    }
-    actions::proto::Plan* plan = unit->mutable_plan();
-    if (plan->steps_size() == 0) {
-      auto status = ai::MakePlan(*unit, unit->strategy(), plan);
-      if (!status.ok()) {
-        Log::Warnf("Could not create plan for unit %s: %s",
-                   unit->ID().DebugString(), status.error_message());
-        continue;
-      }
-    }
-  }
-
-  // Execute in single steps.
-  for (int i = 0; i < 3; ++i) {
-    for (auto& unit : game_world_->units_) {
-      auto status = ai::ExecuteStep(unit->plan(), unit.get());
-      if (status.ok()) {
-        ai::DeleteStep(unit->mutable_plan());
-      } else {
-        Log::Warnf("Could not execute unit plan: %s", status.error_message());
-      }
-    }
-  }
+  moveUnits();
 
   dirtyGraphics_ = true;
 }

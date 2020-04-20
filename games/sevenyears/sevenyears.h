@@ -20,6 +20,8 @@ public:
   void UpdateGraphicsInfo(interface::Base* gfx);
 
 private:
+  void moveUnits();
+
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
