@@ -14,6 +14,7 @@ std::unordered_map<actions::proto::AtomicAction, StepExecutor>
         {actions::proto::AA_MOVE, ai::impl::MoveUnit},
         {actions::proto::AA_BUY, ai::impl::BuyOrSell},
         {actions::proto::AA_SELL, ai::impl::BuyOrSell},
+        {actions::proto::AA_TURN_AROUND, ai::impl::TurnAround},
         {actions::proto::AA_SWITCH_STATE, ai::impl::SwitchState},
 };
 

@@ -18,6 +18,9 @@ util::Status BuyOrSell(const actions::proto::Step& step, units::Unit* unit);
 // Flips the unit's Strategy into its next state.
 util::Status SwitchState(const actions::proto::Step& step, units::Unit* unit);
 
+// Turns the unit around in its current connection.
+util::Status TurnAround(const actions::proto::Step& step, units::Unit* unit);
+
 } // namespace impl
 } // namespace ai
 

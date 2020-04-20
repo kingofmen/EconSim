@@ -30,13 +30,13 @@ class ExecutorImplTest : public testing::Test {
     conn.set_id(1);
     conn.mutable_a_area_id()->set_number(1);
     conn.mutable_z_area_id()->set_number(2);
-    conn.set_distance_u(1);
+    conn.set_distance_u(1000000);
     conn.set_width_u(1);
     connection_12 = geography::Connection::FromProto(conn);
 
     units::proto::Template temp;
     temp.mutable_template_id()->set_kind("one");
-    temp.mutable_mobility()->set_speed_u(1);
+    temp.mutable_mobility()->set_speed_u(1000000);
     units::Unit::RegisterTemplate(temp);
 
     units::proto::Unit unit;
@@ -80,6 +80,19 @@ TEST_F(ExecutorImplTest, TestSwitchState) {
   EXPECT_TRUE(SwitchState(*step, unit_.get()).ok());
   EXPECT_EQ(actions::proto::ShuttleTrade::STS_BUY_Z,
             unit_->strategy().shuttle_trade().state());
+}
+
+TEST_F(ExecutorImplTest, TestTurnAround) {
+  auto* step = plan_.add_steps();
+  int kStartProgress = 10000;
+  step->set_action(actions::proto::AA_TURN_AROUND);
+  unit_->mutable_location()->set_connection_id(connection_12->connection_id());
+  unit_->mutable_location()->set_progress_u(kStartProgress);
+  auto status = TurnAround(*step, unit_.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_EQ(connection_12->length_u() - kStartProgress,
+            unit_->location().progress_u());
+  EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
 }
 
 } // namespace impl

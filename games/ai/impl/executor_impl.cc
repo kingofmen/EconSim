@@ -109,5 +109,35 @@ util::Status SwitchState(const actions::proto::Step& step, units::Unit* unit) {
       absl::Substitute("SwitchState for strategy case $0 not implemented"));
 }
 
+util::Status TurnAround(const actions::proto::Step& step, units::Unit* unit) {
+  auto* location = unit->mutable_location();
+  if (!location->has_connection_id()) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Unit ($0, $0) tried to turn around but is not in a connection",
+        unit->unit_id().kind(), unit->unit_id().number()));
+  }
+
+  const auto* connection =
+      geography::Connection::ById(location->connection_id());
+  if (connection == nullptr) {
+    return util::NotFoundError(
+        absl::Substitute("Unit ($0, $0) tried to turn around but is in "
+                         "nonexistent connection %d",
+                         unit->unit_id().kind(), unit->unit_id().number(),
+                         location->connection_id()));
+  }
+
+  auto progress_u = connection->length_u();
+  progress_u -= location->progress_u();
+  if (progress_u < 0) {
+    progress_u = 0;
+  }
+  const auto& other_side_id = connection->OtherSide(location->a_area_id());
+  *(location->mutable_a_area_id()) = other_side_id;
+  location->set_progress_u(progress_u);
+  return util::OkStatus();
+}
+
+
 } // namespace impl
 } // namespace ai
