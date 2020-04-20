@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <utility>
 
+#include "absl/strings/substitute.h"
 #include "games/market/goods_utils.h"
 #include "games/geography/connection.h"
 #include "games/units/unit.h"
@@ -22,7 +23,13 @@ void GoBuySell(const units::Unit& unit, const util::proto::ObjectId& target_id,
                const std::string& buy, const std::string& sell,
                actions::proto::Plan* plan) {
   if (unit.location().a_area_id() != target_id) {
-    FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
+    auto status =
+        FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
+    if (!status.ok()) {
+      Log::Warnf("Couldn't complete GoBuySell due to FindPath: %s",
+                 status.error_message());
+      return;
+    }
   }
 
   auto* step = plan->add_steps();
@@ -52,10 +59,11 @@ market::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
 
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
-void FindPath(const units::Unit& unit, const CostFunction& cost_function,
-              const Heuristic& heuristic,
-              const util::proto::ObjectId& target_id,
-              actions::proto::Plan* plan) {
+util::Status FindPath(const units::Unit& unit,
+                      const CostFunction& cost_function,
+                      const Heuristic& heuristic,
+                      const util::proto::ObjectId& target_id,
+                      actions::proto::Plan* plan) {
   std::unordered_set<util::proto::ObjectId> open;
   struct Node {
     util::proto::ObjectId previous_id;
@@ -66,6 +74,25 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
   std::unordered_map<util::proto::ObjectId, Node> visited;
 
   util::proto::ObjectId start_id = unit.location().a_area_id();
+  if (start_id == target_id) {
+    // Unit is either not going anywhere, or wants to turn around
+    // having just set out from A.
+    if (!unit.location().has_connection_id()) {
+      DLOGF(Log::P_DEBUG, "FindPath start equals end %d, nothing to do",
+            start_id.number());
+      return util::OkStatus();
+    }
+
+    DLOGF(Log::P_DEBUG,
+          "FindPath start equals end %d but in connection %d, turning around",
+          start_id.number(), unit.location().connection_id());
+    auto* step = plan->add_steps();
+    step->set_action(actions::proto::AA_TURN_AROUND);
+    step = plan->add_steps();
+    step->set_action(actions::proto::AA_MOVE);
+    step->set_connection_id(unit.location().connection_id());
+    return util::OkStatus();
+  }
   DLOGF(Log::P_DEBUG, "FindPath %d -> %d", start_id.number(), target_id.number());
   util::proto::ObjectId least_cost_id = start_id;
   market::Measure least_cost_u = 0;
@@ -117,7 +144,9 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
   if (visited.find(target_id) == visited.end()) {
     DLOG(Log::P_DEBUG, "  Didn't find a path");
     // Didn't find a path.
-    return;
+    return util::NotFoundError(
+        absl::Substitute("Couldn't find path from $0 to $1", start_id.number(),
+                         target_id.number()));
   }
 
   std::vector<util::proto::ObjectId> path;
@@ -127,15 +156,33 @@ void FindPath(const units::Unit& unit, const CostFunction& cost_function,
     current_id = visited[current_id].previous_id;
   }
 
+  // Unit has begun traversing a connection; it may have to turn around.
+  if (unit.location().has_connection_id()) {
+    if (unit.location().connection_id() != visited[path.back()].conn_id) {
+      DLOGF(Log::P_DEBUG,
+            "Need to turn around on connection %d before "
+            "starting from area %d on connection %d",
+            unit.location().connection_id(), start_id.number(),
+            visited[path.back()].conn_id);
+      auto* step = plan->add_steps();
+      step->set_action(actions::proto::AA_TURN_AROUND);
+      step = plan->add_steps();
+      step->set_action(actions::proto::AA_MOVE);
+      step->set_connection_id(unit.location().connection_id());
+    }
+  }
+
   while (!path.empty()) {
     const util::proto::ObjectId& id = path.back();
-    DLOGF(Log::P_DEBUG, "  Path step: %d (%d)", id.number(),
+    DLOGF(Log::P_DEBUG, "  Path step: area %d by connection %d", id.number(),
           visited[id].conn_id);
     auto* step = plan->add_steps();
     step->set_action(actions::proto::AA_MOVE);
     step->set_connection_id(visited[id].conn_id);
     path.pop_back();
   }
+
+  return util::OkStatus();
 }
 
 util::Status

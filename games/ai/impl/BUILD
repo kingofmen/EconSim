@@ -16,6 +16,7 @@ cc_library(
         "//util/headers:int_types",
         "//util/logging:logging",
         "//util/proto:object_id_proto",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 
@@ -58,6 +59,7 @@ cc_test(
         "//games/units/proto:units_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/logging:logging",
         "@gtest",
         "@gtest//:gtest_main",
     ],

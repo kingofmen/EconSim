@@ -7,13 +7,15 @@ enum AtomicAction {
   AA_SELL = 2;
   AA_BUY = 3;
   AA_SWITCH_STATE = 4;
+  AA_TURN_AROUND = 5;
 }
 
 message Step {
   optional AtomicAction action = 1;
   optional uint64 connection_id = 2;
   optional string good = 3;
-  // Replaces 'action'.
+  // Replaces 'action' to trigger custom, game-specific handlers.
+  // TODO: Make this a oneof.
   optional string key = 4;
 }
 

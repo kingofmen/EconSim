@@ -51,6 +51,8 @@ public:
   Area* OtherSide(const Area* area);
   const Area* OtherSide(const Area* area) const;
 
+  uint64 connection_id() const { return proto_.id();}
+  // Deprecated, used connection_id instead.
   uint64 ID() const { return proto_.id(); }
   uint64 length_u() const { return proto_.distance_u(); }
   uint64 width_u() const { return proto_.width_u(); }

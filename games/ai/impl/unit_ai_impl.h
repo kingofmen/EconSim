@@ -27,10 +27,11 @@ market::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
 
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
-void FindPath(const units::Unit& unit, const CostFunction& cost_function,
-              const Heuristic& heuristic,
-              const util::proto::ObjectId& target_id,
-              actions::proto::Plan* plan);
+util::Status FindPath(const units::Unit& unit,
+                      const CostFunction& cost_function,
+                      const Heuristic& heuristic,
+                      const util::proto::ObjectId& target_id,
+                      actions::proto::Plan* plan);
 
 class ShuttleTrader : public ai::UnitAi {
 public:

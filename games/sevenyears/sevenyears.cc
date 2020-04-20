@@ -136,10 +136,9 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   const auto& location = unit.location();
   if (location.a_area_id() != merchant_strategy.base_area_id() ||
       location.has_connection_id()) {
-    ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                       ai::impl::ZeroHeuristic,
-                       merchant_strategy.base_area_id(), plan);
-    return util::OkStatus();
+    return ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                              ai::impl::ZeroHeuristic,
+                              merchant_strategy.base_area_id(), plan);
   }
 
   return util::OkStatus();
