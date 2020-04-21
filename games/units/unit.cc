@@ -110,7 +110,7 @@ market::proto::Container* Unit::mutable_resources() {
   return proto_.mutable_resources();
 }
 
-Unit::Unit(const proto::Unit& proto) : proto_(proto) {
+Unit::Unit(const proto::Unit& proto) : proto_(proto), used_action_points_u(0) {
   units_[proto_.unit_id()] = this;
 }
 
@@ -146,6 +146,12 @@ market::Measure Unit::Capacity(const std::string& good) const {
   return std::min(remaining_bulk_u, remaining_weight_u);
 }
 
-
+market::Measure Unit::action_points_u() const {
+  uint64 base_u = Template().base_action_points_u();
+  if (used_action_points_u > base_u) {
+    return 0;
+  }
+  return base_u - used_action_points_u;
+}
 
 } // namespace units

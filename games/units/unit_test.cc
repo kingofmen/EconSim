@@ -19,6 +19,7 @@ class UnitTest : public testing::Test {
  protected:
   void SetUp() override {
     template_.mutable_template_id()->set_kind("template");
+    template_.set_base_action_points_u(micro::kOneInU);
     template_.mutable_mobility()->set_speed_u(1);
     template_.mutable_mobility()->set_max_bulk_u(micro::kOneInU);
     template_.mutable_mobility()->set_max_weight_u(micro::kOneInU);
@@ -84,6 +85,17 @@ TEST_F(UnitTest, Capacity) {
   market::SetAmount(bulky.name(), micro::kHalfInU, unit_->mutable_resources());
   EXPECT_EQ(0, unit_->Capacity(bulky.name()));
   EXPECT_EQ(0, unit_->Capacity(heavy.name()));
+}
+
+TEST_F(UnitTest, ActionPoints) {
+  EXPECT_EQ(template_.base_action_points_u(), unit_->action_points_u());
+  unit_->use_action_points(micro::kHalfInU);
+  EXPECT_EQ(template_.base_action_points_u() - micro::kHalfInU,
+            unit_->action_points_u());
+  unit_->reset_action_points();
+  EXPECT_EQ(template_.base_action_points_u(), unit_->action_points_u());
+  unit_->use_action_points(10 * template_.base_action_points_u());
+  EXPECT_EQ(0, unit_->action_points_u());
 }
 
 } // namespace units

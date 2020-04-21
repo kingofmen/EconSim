@@ -41,6 +41,10 @@ public:
   const actions::proto::Strategy& strategy();
   const actions::proto::Plan& plan();
 
+  market::Measure action_points_u() const;
+  void reset_action_points() { used_action_points_u = 0; }
+  void use_action_points(uint64 points_u) { used_action_points_u += points_u; }
+
   // From Mobile interface.
   uint64 speed_u(geography::proto::ConnectionType type) const override;
   const geography::proto::Location& location() const override;
@@ -62,6 +66,7 @@ private:
   static std::unordered_map<util::proto::ObjectId, Unit*> units_;
 
   proto::Unit proto_;
+  market::Measure used_action_points_u;
 };
 
 } // namespace units
