@@ -11,12 +11,15 @@ enum AtomicAction {
 }
 
 message Step {
-  optional AtomicAction action = 1;
+  oneof trigger {
+    // Triggers universal handlers.
+    AtomicAction action = 1;
+    // Replaces 'action' to trigger custom, game-specific handlers.
+    string key = 4;
+  }
   optional uint64 connection_id = 2;
   optional string good = 3;
-  // Replaces 'action' to trigger custom, game-specific handlers.
-  // TODO: Make this a oneof.
-  optional string key = 4;
+  // Next field: 5
 }
 
 message Plan {

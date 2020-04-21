@@ -33,24 +33,26 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
     return util::InvalidArgumentError("No steps in plan");
   }
   const auto& step = plan.steps(0);
-  if (step.has_key()) {
-    if (execution_key_map.find(step.key()) != execution_key_map.end()) {
-      return execution_key_map.at(step.key())(step, unit);
-    }
-    return util::NotImplementedError(
-        absl::Substitute("Executor for key $0 not implemented", step.key()));
+  switch (step.trigger_case()) {
+    case actions::proto::Step::kKey:
+      if (execution_key_map.find(step.key()) != execution_key_map.end()) {
+        return execution_key_map.at(step.key())(step, unit);
+      }
+      return util::NotImplementedError(
+          absl::Substitute("Executor for key $0 not implemented", step.key()));
+    case actions::proto::Step::kAction:
+      if (execution_action_map.find(step.action()) == execution_action_map.end()) {
+        return util::NotImplementedError(absl::Substitute(
+            "Executor for action $0 not implemented", step.action()));
+      }
+      return execution_action_map[step.action()](step, unit);
+    case actions::proto::Step::TRIGGER_NOT_SET:
+    default:
+      return util::InvalidArgumentError("Plan step has neither action or key");
+      break;
   }
 
-  if (!step.has_action()) {
-    return util::InvalidArgumentError("Plan step has no action");
-  }
-
-  if (execution_action_map.find(step.action()) == execution_action_map.end()) {
-    return util::NotImplementedError(absl::Substitute(
-        "Executor for action $0 not implemented", step.action()));
-  }
-
-  return execution_action_map[step.action()](step, unit);
+  return util::NotImplementedError("This error message should be unreachable.");
 }
 
 void DeleteStep(actions::proto::Plan* plan) {
