@@ -43,9 +43,11 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit,
     return util::InvalidArgumentError("Null unit");
   }
   const auto& step = plan.steps(0);
-  if (cost_u(step, unit) > unit->action_points_u()) {
+  auto used_u = cost_u(step, unit);
+  if (used_u > unit->action_points_u()) {
     return util::FailedPreconditionError("Not enough action points");
   }
+  unit->use_action_points(used_u);
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
       if (execution_key_map.find(step.key()) != execution_key_map.end()) {
