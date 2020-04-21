@@ -5,6 +5,8 @@
 #include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/impl/executor_impl.h"
+#include "games/units/unit.h"
+#include "util/arithmetic/microunits.h"
 #include "util/status/status.h"
 
 namespace ai {
@@ -28,11 +30,22 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
+uint64 ZeroCost(const actions::proto::Step&, units::Unit*) {
+  return 0;
+}
+
+util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit,
+                         CostCalculator cost_u) {
   if (plan.steps_size() == 0) {
     return util::InvalidArgumentError("No steps in plan");
   }
+  if (unit == nullptr) {
+    return util::InvalidArgumentError("Null unit");
+  }
   const auto& step = plan.steps(0);
+  if (cost_u(step, unit) > unit->action_points_u()) {
+    return util::FailedPreconditionError("Not enough action points");
+  }
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
       if (execution_key_map.find(step.key()) != execution_key_map.end()) {

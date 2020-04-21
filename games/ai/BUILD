@@ -33,6 +33,7 @@ cc_library(
         "//games/actions/proto:plan_proto",
         "//games/ai/impl:executor_impl",
         "//games/units:units",
+        "//util/arithmetic:microunits",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],
