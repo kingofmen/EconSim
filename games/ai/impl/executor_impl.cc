@@ -4,8 +4,8 @@
 #include "games/actions/proto/strategy.pb.h"
 #include "games/geography/connection.h"
 #include "games/geography/proto/geography.pb.h"
+#include "games/market/goods_utils.h"
 #include "games/market/market.h"
-#include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.h"
 

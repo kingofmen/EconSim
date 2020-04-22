@@ -9,30 +9,31 @@
 
 #include "games/market/proto/goods.pb.h"
 #include "games/market/proto/market.pb.h"
-#include "util/headers/int_types.h"
+#include "util/arithmetic/microunits.h"
 
 namespace market {
 
-typedef int64 Measure;
-
 // Interface for estimating prices.
 class PriceEstimator {
- public:
+public:
   // Returns the price of the named good, turns ahead.
-  virtual Measure GetPriceU(const std::string& name, int turns) const = 0;
+  virtual micro::Measure GetPriceU(const std::string& name,
+                                   int turns) const = 0;
 
   // Returns the price of the given amount of the given good.
-  virtual Measure GetPriceU(const market::proto::Quantity& quantity, int turns) const = 0;
+  virtual micro::Measure GetPriceU(const market::proto::Quantity& quantity,
+                                   int turns) const = 0;
 
   // Returns the price of the goods in the basket.
-  virtual Measure GetPriceU(const market::proto::Container& basket, int turns) const = 0;
+  virtual micro::Measure GetPriceU(const market::proto::Container& basket,
+                                   int turns) const = 0;
 };
 
 // Interface for estimating availability.
 class AvailabilityEstimator {
- public:
+public:
   // Returns the amount of name immediately available.
-  Measure AvailableImmediately(const std::string& name) const {
+  micro::Measure AvailableImmediately(const std::string& name) const {
     return Available(name, 0);
   }
 
@@ -41,7 +42,8 @@ class AvailabilityEstimator {
     return Available(basket, 0);
   }
 
-  virtual Measure Available(const std::string& name, int ahead) const = 0;
+  virtual micro::Measure Available(const std::string& name,
+                                   int ahead) const = 0;
   virtual bool Available(const market::proto::Container& basket,
                          int ahead) const = 0;
 };
@@ -54,7 +56,8 @@ public:
   Market(const proto::MarketProto& proto) : proto_(proto) {}
   ~Market() = default;
 
-  Measure Available(const std::string& name, int ahead = 0) const override;
+  micro::Measure Available(const std::string& name,
+                           int ahead = 0) const override;
   bool Available(const market::proto::Container& basket,
                  int ahead = 0) const override;
 
@@ -76,10 +79,10 @@ public:
   void FindPrices();
 
   // Returns the maximum amount the supplicant can borrow.
-  Measure MaxCredit(const market::proto::Container& borrower) const;
+  micro::Measure MaxCredit(const market::proto::Container& borrower) const;
 
   // Returns the maximum the buyer can spend, including credit.
-  Measure MaxMoney(const market::proto::Container& buyer) const;
+  micro::Measure MaxMoney(const market::proto::Container& buyer) const;
 
   // Register a trade good to be traded in this market.
   void RegisterGood(const std::string& name);
@@ -88,39 +91,42 @@ public:
   bool TradesIn(const std::string& name) const;
 
   // Moves money, either legal tender or short-term credit, from from to to.
-  void TransferMoney(Measure amount, market::proto::Container* from,
+  void TransferMoney(micro::Measure amount, market::proto::Container* from,
                      market::proto::Container* to) const;
 
   // Buys goods from the warehouse if there are enough; otherwise registers a
   // request to buy. Returns the amount bought.
-  Measure TryToBuy(const market::proto::Quantity& bid,
-                   market::proto::Container* recipient);
-  Measure TryToBuy(const std::string& name, const Measure amount,
-                   market::proto::Container* recipient);
+  micro::Measure TryToBuy(const market::proto::Quantity& bid,
+                          market::proto::Container* recipient);
+  micro::Measure TryToBuy(const std::string& name, const micro::Measure amount,
+                          market::proto::Container* recipient);
 
   // Finds a buyer and sells it the goods at the current price, if possible.
   // Otherwise places the offered goods in the warehouse if the market can pay
   // for them, in credit, legal tender, or newly-issued debt. Returns the amount
   // accepted.
-  Measure TryToSell(const market::proto::Quantity& offer,
-                    market::proto::Container* source);
-  Measure TryToSell(const std::string& name, const Measure amount,
-                    market::proto::Container* source);
+  micro::Measure TryToSell(const market::proto::Quantity& offer,
+                           market::proto::Container* source);
+  micro::Measure TryToSell(const std::string& name, const micro::Measure amount,
+                           market::proto::Container* source);
 
   // Returns the price of the named good.
-  Measure GetPriceU(const std::string& name, int turns = 0) const override;
+  micro::Measure GetPriceU(const std::string& name,
+                           int turns = 0) const override;
 
   // Returns the price of the given amount of the given good.
-  Measure GetPriceU(const market::proto::Quantity& quantity, int turns = 0) const override;
+  micro::Measure GetPriceU(const market::proto::Quantity& quantity,
+                           int turns = 0) const override;
 
   // Returns the price of the goods in the basket.
-  Measure GetPriceU(const market::proto::Container& basket, int turns = 0) const override;
+  micro::Measure GetPriceU(const market::proto::Container& basket,
+                           int turns = 0) const override;
 
   // Returns the amount of the named good that was traded.
-  Measure GetVolume(const std::string& name) const;
+  micro::Measure GetVolume(const std::string& name) const;
 
   // Returns the currently stored amount of the named good.
-  Measure GetStoredU(const std::string& name) const;
+  micro::Measure GetStoredU(const std::string& name) const;
 
   // The underlying protobuf.
   const proto::MarketProto& Proto() const { return proto_; }
@@ -128,9 +134,9 @@ public:
 
 private:
   struct Offer {
-    Offer(const Measure a, market::proto::Container* t)
+    Offer(const micro::Measure a, market::proto::Container* t)
         : amount(a), target(t) {}
-    Measure amount;
+    micro::Measure amount;
     market::proto::Container* target;
   };
 

@@ -214,7 +214,7 @@ void SevenYears::NewTurn() {
         *field->mutable_progress() = chain.MakeProgress(micro::kOneInU);
       }
 
-      market::Measure institutional_capital = 0;
+      micro::Measure institutional_capital = 0;
       if (!chain.PerformStep(
               field->fixed_capital(), institutional_capital, 0,
               area_state.mutable_warehouse(), field->mutable_resources(),

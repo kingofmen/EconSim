@@ -1,8 +1,8 @@
 #include "games/population/consumption.h"
 
 #include "absl/strings/substitute.h"
-#include "games/market/proto/goods.pb.h"
 #include "games/market/goods_utils.h"
+#include "games/market/proto/goods.pb.h"
 #include "games/population/proto/consumption.pb.h"
 #include "util/arithmetic/microunits.h"
 #include "util/headers/int_types.h"
@@ -15,7 +15,7 @@ const int kMaxSubstitutables = 3;
 uint64 overflow;
 
 util::Status calcX(int64 a, int64 b, int64 px, int64 py, int64 dsquared_u,
-            int64 offset_u, int64* value) {
+                   int64 offset_u, int64* value) {
   int64 aC = micro::MultiplyU(py, dsquared_u);
   aC = micro::MultiplyU(aC, a);
   aC = micro::DivideU(aC, micro::MultiplyU(b, px), &overflow);
@@ -45,7 +45,7 @@ util::Status internal_optimum_1(const market::proto::Quantity& good,
   result->Clear();
   auto coef = market::GetAmount(coefs, good.kind());
   VLOGF(3, "D^2 %d, offset %d, coef %d", dsquared_u, offset_u, coef);
-  market::Measure amount = dsquared_u - offset_u;
+  micro::Measure amount = dsquared_u - offset_u;
   amount = micro::DivideU(amount, coef);
   market::Add(good.kind(), amount, result);
   return util::OkStatus();
@@ -67,7 +67,8 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
   int64 b = market::GetAmount(coefs, goods[1].kind());
   int64 px = market::GetAmount(prices, goods[0].kind());
   int64 py = market::GetAmount(prices, goods[1].kind());
-  VLOGF(5, "Calculating %s/%s with prices %d, %d", goods[0].kind(), goods[1].kind(), px, py);
+  VLOGF(5, "Calculating %s/%s with prices %d, %d", goods[0].kind(),
+        goods[1].kind(), px, py);
 
   int64 xValue = 0;
   int64 yValue = 0;
@@ -87,10 +88,12 @@ internal_optimum_2(const std::vector<market::proto::Quantity>& goods,
                          goods[1].kind()));
   }
   if (xValue < 0) {
-    return internal_optimum_1(goods[1], coefs, prices, offset_u, dsquared_u, result);
+    return internal_optimum_1(goods[1], coefs, prices, offset_u, dsquared_u,
+                              result);
   }
   if (yValue < 0) {
-    return internal_optimum_1(goods[0], coefs, prices, offset_u, dsquared_u, result);
+    return internal_optimum_1(goods[0], coefs, prices, offset_u, dsquared_u,
+                              result);
   }
 
   market::SetAmount(goods[0].kind(), xValue, result);
@@ -134,9 +137,9 @@ internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
         coefFrac, micro::MultiplyU(coefficients[j], coefficients[k]),
         &overflow);
     if (overflow != 0) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Overflow in coefficient-ratio calculation $0: $1, $2, $3",
-                           i, coefficients[i], coefficients[j], coefficients[k]));
+      return util::InvalidArgumentError(absl::Substitute(
+          "Overflow in coefficient-ratio calculation $0: $1, $2, $3", i,
+          coefficients[i], coefficients[j], coefficients[k]));
     }
     int64 root = micro::NRootU(3, micro::MultiplyU(coefFrac, priceFrac));
     root -= offset_u;
@@ -157,7 +160,7 @@ internal_optimum_3(const std::vector<market::proto::Quantity>& goods,
     }
 
     market::SetAmount(goods[i].kind(), xValue, result);
-  }  
+  }
 
   return util::OkStatus();
 }
@@ -170,17 +173,19 @@ util::Status internal_optimum(const market::proto::Container& goods,
                               market::proto::Container* result) {
   auto expanded = market::Expand(goods);
   switch (expanded.size()) {
-    case 1:
-      return internal_optimum_1(expanded[0], coefs, prices, offset_u, dsquared_u,
-                                result);
-    case 2:
-      return internal_optimum_2(expanded, coefs, prices, offset_u, dsquared_u, result);
-    case 3:
-      return internal_optimum_3(expanded, coefs, prices, offset_u, dsquared_u, result);
-    default:
-      return util::InvalidArgumentError(
-          absl::Substitute("Optimum for $0 goods, can handle at most $1",
-                           goods.quantities().size(), kMaxSubstitutables));
+  case 1:
+    return internal_optimum_1(expanded[0], coefs, prices, offset_u, dsquared_u,
+                              result);
+  case 2:
+    return internal_optimum_2(expanded, coefs, prices, offset_u, dsquared_u,
+                              result);
+  case 3:
+    return internal_optimum_3(expanded, coefs, prices, offset_u, dsquared_u,
+                              result);
+  default:
+    return util::InvalidArgumentError(
+        absl::Substitute("Optimum for $0 goods, can handle at most $1",
+                         goods.quantities().size(), kMaxSubstitutables));
   }
   return util::OkStatus();
 }
@@ -205,7 +210,7 @@ util::Status constrained_optimum(const market::proto::Container& goods,
     if (!market::Contains(maxima, good.first)) {
       continue;
     }
-    market::Measure con = market::GetAmount(maxima, good);
+    micro::Measure con = market::GetAmount(maxima, good);
     if (market::GetAmount(*result, good) - con > constraint.amount()) {
       constraint = market::MakeQuantity(good.first, con);
     }
@@ -216,15 +221,15 @@ util::Status constrained_optimum(const market::proto::Container& goods,
       if (!market::Contains(minima, good.first)) {
         continue;
       }
-      market::Measure con = market::GetAmount(minima, good);
+      micro::Measure con = market::GetAmount(minima, good);
       if (con - market::GetAmount(*result, good) > constraint.amount()) {
         constraint = market::MakeQuantity(good.first, con);
       }
     }
   }
   if (constraint.kind().empty()) {
-    return util::InvalidArgumentError(absl::Substitute(
-        "Constrained optimum could not find a constraint"));
+    return util::InvalidArgumentError(
+        absl::Substitute("Constrained optimum could not find a constraint"));
   }
 
   market::proto::Container free;
@@ -232,7 +237,7 @@ util::Status constrained_optimum(const market::proto::Container& goods,
   free += goods;
   market::Erase(constraint, &free);
 
-  market::Measure reduced_dsquared_u = dsquared_u;
+  micro::Measure reduced_dsquared_u = dsquared_u;
   auto coef = market::GetAmount(coefs, constraint.kind());
   coef = micro::MultiplyU(coef, constraint.amount());
   coef += offset_u;
@@ -241,8 +246,8 @@ util::Status constrained_optimum(const market::proto::Container& goods,
        absl::Substitute("$0 constrained to $1, reduced D^2 to $2",
                         constraint.kind(), constraint.amount(),
                         reduced_dsquared_u));
-  auto status = internal_optimum(free, coefs, prices, offset_u, reduced_dsquared_u,
-                                 &free_result);
+  auto status = internal_optimum(free, coefs, prices, offset_u,
+                                 reduced_dsquared_u, &free_result);
   if (!status.ok()) {
     return status;
   }
@@ -274,7 +279,7 @@ util::Status greedyLocal(const std::vector<market::proto::Quantity>& toConsume,
                          int64 dsquared_u, int64 offset_u,
                          market::proto::Container* result) {
   result->Clear();
-  market::Measure product_u = micro::kOneInU;
+  micro::Measure product_u = micro::kOneInU;
   for (int i = 0; i < toConsume.size(); ++i) {
     const auto& tc = toConsume[i];
     auto av = available.AvailableImmediately(tc.kind());
@@ -288,7 +293,7 @@ util::Status greedyLocal(const std::vector<market::proto::Quantity>& toConsume,
 
     auto remainingOffsets = micro::PowU(offset_u, toConsume.size() - i - 1);
     auto coef = market::GetAmount(coefs, tc.kind());
-    market::Measure current_u = micro::MultiplyU(coef, av) + offset_u;
+    micro::Measure current_u = micro::MultiplyU(coef, av) + offset_u;
     if (micro::MultiplyU(current_u, product_u, remainingOffsets) > dsquared_u) {
       current_u = micro::DivideU(dsquared_u,
                                  micro::MultiplyU(product_u, remainingOffsets));
@@ -306,7 +311,8 @@ util::Status greedyLocal(const std::vector<market::proto::Quantity>& toConsume,
     product_u = micro::MultiplyU(product_u, current_u);
     // Allow for some roundoff error in coefficient or amount.
     static const int64 tolerance = 10;
-    if (micro::MultiplyU(product_u, remainingOffsets) + tolerance >= dsquared_u) {
+    if (micro::MultiplyU(product_u, remainingOffsets) + tolerance >=
+        dsquared_u) {
       return util::OkStatus();
     }
   }
@@ -328,7 +334,8 @@ util::Status coefficients(const proto::Substitutes& subs,
 
   for (const auto& good : subs.consumed().quantities()) {
     int64 crossing_u = good.second;
-    int64 denom = micro::MultiplyU(crossing_u, micro::PowU(offset_u, numGoods - 1));
+    int64 denom =
+        micro::MultiplyU(crossing_u, micro::PowU(offset_u, numGoods - 1));
     int64 coef_u = micro::DivideU(nom, denom, &overflow);
     if (overflow != 0) {
       return util::InvalidArgumentError(absl::Substitute(
@@ -400,8 +407,9 @@ util::Status Consumption(const proto::Substitutes& subs,
                        subs.offset_u(), result);
   }
 
-  auto status = internal_optimum(subs.consumed(), coefs, prices, subs.offset_u(),
-                                 subs.min_amount_square_u(), result);
+  auto status =
+      internal_optimum(subs.consumed(), coefs, prices, subs.offset_u(),
+                       subs.min_amount_square_u(), result);
   if (status.ok()) {
     if (available.AvailableImmediately(*result) && subs.minimum() < *result) {
       return util::OkStatus();
@@ -429,15 +437,13 @@ util::Status Consumption(const proto::Substitutes& subs,
                      subs.offset_u(), result);
 }
 
-
 util::Status Validate(const proto::Substitutes& subs) {
   if (subs.offset_u() <= 0) {
-    return util::InvalidArgumentError(
-        absl::Substitute("$0: Offset must be positive, found $1",
-                         subs.name(), subs.offset_u()));
+    return util::InvalidArgumentError(absl::Substitute(
+        "$0: Offset must be positive, found $1", subs.name(), subs.offset_u()));
   }
 
-  int numCon  = subs.consumed().quantities().size();
+  int numCon = subs.consumed().quantities().size();
   int numCap = subs.movable_capital().quantities().size();
   if (0 == numCon + numCap) {
     return util::InvalidArgumentError(
@@ -511,8 +517,8 @@ util::Status Validate(const proto::Substitutes& subs) {
                            subs.name(), good.first));
     }
   }
-  
+
   return util::OkStatus();
 }
 
-}  // namespace consumption
+} // namespace consumption

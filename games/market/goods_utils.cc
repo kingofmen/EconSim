@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "games/market/proto/goods.pb.h"
+#include "util/arithmetic/microunits.h"
 
 std::unordered_map<std::string, market::proto::TradeGood> goods_map_;
 std::vector<std::string> goods_names_;
@@ -14,9 +15,7 @@ namespace market {
 using market::proto::Quantity;
 using market::proto::Container;
 
-void ClearGoods() {
-  goods_map_.clear();
-}
+void ClearGoods() { goods_map_.clear(); }
 
 void CreateTradeGood(const market::proto::TradeGood& good) {
   // TODO: Handle these errors.
@@ -58,16 +57,15 @@ bool AllGoodsExist(const market::proto::Container& con) {
   return true;
 }
 
-
-Measure BulkU(const std::string& name) {
+micro::Measure BulkU(const std::string& name) {
   return goods_map_[name].bulk_u();
 }
 
-Measure DecayU(const std::string& name) {
+micro::Measure DecayU(const std::string& name) {
   return goods_map_[name].decay_rate_u();
 }
 
-Measure WeightU(const std::string& name) {
+micro::Measure WeightU(const std::string& name) {
   return goods_map_[name].weight_u();
 }
 
@@ -75,7 +73,7 @@ proto::TradeGood::TransportType TransportType(const std::string& name) {
   return goods_map_[name].transport_type();
 }
 
-void Add(const std::string& name, const Measure amount, Container* con) {
+void Add(const std::string& name, const micro::Measure amount, Container* con) {
   Quantity qua;
   qua.set_kind(name);
   qua.set_amount(amount);
@@ -84,7 +82,7 @@ void Add(const std::string& name, const Measure amount, Container* con) {
 
 void Clear(Container* con) { con->clear_quantities(); }
 
-void CleanContainer(Container* con, Measure tolerance) {
+void CleanContainer(Container* con, micro::Measure tolerance) {
   std::vector<std::string> to_erase;
   for (const auto& quantity : con->quantities()) {
     if (quantity.second >= tolerance) {
@@ -126,8 +124,8 @@ void Erase(const std::string& kind, Container* con) {
 void Erase(const Quantity& qua, Container* con) {
   con->mutable_quantities()->erase(qua.kind());
 }
-void Erase(const std::pair<std::string, Measure> amount,
-               market::proto::Container* con) {
+void Erase(const std::pair<std::string, micro::Measure> amount,
+           market::proto::Container* con) {
   Erase(amount.first, con);
 }
 
@@ -139,30 +137,30 @@ std::vector<Quantity> Expand(const market::proto::Container& con) {
   return ret;
 }
 
-Measure GetAmount(const Container& con, const std::string& name) {
+micro::Measure GetAmount(const Container& con, const std::string& name) {
   if (!Contains(con, name)) {
     return 0;
   }
   return con.quantities().at(name);
 }
 
-Measure GetAmount(const Container& con, const Quantity& qua) {
+micro::Measure GetAmount(const Container& con, const Quantity& qua) {
   return GetAmount(con, qua.kind());
 }
 
-Measure GetAmount(const Container& con,
-                  const std::pair<std::string, Measure>& qua) {
+micro::Measure GetAmount(const Container& con,
+                         const std::pair<std::string, micro::Measure>& qua) {
   return GetAmount(con, qua.first);
 }
 
-Quantity MakeQuantity(const std::string& name, const Measure amount) {
+Quantity MakeQuantity(const std::string& name, const micro::Measure amount) {
   Quantity ret;
   ret.set_kind(name);
   ret.set_amount(amount);
   return ret;
 }
 
-void Move(const std::string& name, const Measure amount, Container* from,
+void Move(const std::string& name, const micro::Measure amount, Container* from,
           Container* to) {
   Quantity transfer;
   transfer.set_kind(name);
@@ -175,7 +173,8 @@ void Move(const Quantity& qua, Container* from, Container* to) {
   *to += qua;
 }
 
-void SetAmount(const std::string& name, const Measure amount, Container* con) {
+void SetAmount(const std::string& name, const micro::Measure amount,
+               Container* con) {
   auto& quantities = *con->mutable_quantities();
   quantities[name] = amount;
 }
@@ -184,7 +183,7 @@ void SetAmount(const Quantity& qua, Container* con) {
   SetAmount(qua.kind(), qua.amount(), con);
 }
 
-void SetAmount(const std::pair<std::string, Measure> amount,
+void SetAmount(const std::pair<std::string, micro::Measure> amount,
                market::proto::Container* con) {
   SetAmount(amount.first, amount.second, con);
 }
@@ -192,7 +191,7 @@ void SetAmount(const std::pair<std::string, Measure> amount,
 market::proto::Container
 SubtractFloor(const market::proto::Container& minuend,
               const market::proto::Container& subtrahend,
-              market::Measure floor) {
+              micro::Measure floor) {
   auto diff = minuend;
   for (auto& quantity : subtrahend.quantities()) {
     auto existing = GetAmount(diff, quantity.first);
@@ -200,10 +199,12 @@ SubtractFloor(const market::proto::Container& minuend,
     if (existing <= floor) {
       continue;
     }
-    if (subtract >= 0 && std::numeric_limits<int64>::min() + subtract > existing) {
+    if (subtract >= 0 &&
+        std::numeric_limits<int64>::min() + subtract > existing) {
       SetAmount(quantity.first, floor, &diff);
       continue;
-    } else if (subtract < 0 && std::numeric_limits<int64>::max() + subtract < existing) {
+    } else if (subtract < 0 &&
+               std::numeric_limits<int64>::max() + subtract < existing) {
       SetAmount(quantity.first, std::numeric_limits<int64>::max(), &diff);
       continue;
     }
@@ -214,6 +215,20 @@ SubtractFloor(const market::proto::Container& minuend,
     SetAmount(quantity.first, existing, &diff);
   }
   return diff;
+}
+
+void MultiplyU(proto::Container& lhs, int64 scale_u) {
+  lhs *= scale_u;
+  lhs /= micro::kOneInU;
+}
+
+void MultiplyU(market::proto::Container& lhs, const proto::Container& rhs_u) {
+  lhs *= rhs_u;
+  lhs /= micro::kOneInU;
+}
+
+std::string DisplayString(const proto::Quantity& q, int digits) {
+  return micro::DisplayString(q.amount(), digits);
 }
 
 namespace proto {
@@ -248,32 +263,32 @@ Container& operator<<(Container& con, const std::string& name) {
   return con;
 }
 
-Quantity& operator+=(Quantity& lhs, const Measure rhs) {
+Quantity& operator+=(Quantity& lhs, const micro::Measure rhs) {
   lhs.set_amount(lhs.amount() + rhs);
   return lhs;
 }
 
-Quantity& operator*=(Quantity& lhs, const Measure rhs) {
+Quantity& operator*=(Quantity& lhs, const micro::Measure rhs) {
   lhs.set_amount(lhs.amount() * rhs);
   return lhs;
 }
 
-Quantity& operator/=(Quantity& lhs, const Measure rhs) {
+Quantity& operator/=(Quantity& lhs, const micro::Measure rhs) {
   lhs.set_amount(lhs.amount() / rhs);
   return lhs;
 }
 
-Quantity operator*(Quantity lhs, const Measure rhs) {
+Quantity operator*(Quantity lhs, const micro::Measure rhs) {
   lhs *= rhs;
   return lhs;
 }
 
-Quantity operator/(Quantity lhs, const Measure rhs) {
+Quantity operator/(Quantity lhs, const micro::Measure rhs) {
   lhs /= rhs;
   return lhs;
 }
 
-Quantity& operator-=(Quantity& lhs, const Measure rhs) {
+Quantity& operator-=(Quantity& lhs, const micro::Measure rhs) {
   lhs.set_amount(lhs.amount() - rhs);
   return lhs;
 }
@@ -285,14 +300,14 @@ Container& operator+=(Container& lhs, const Container& rhs) {
   return lhs;
 }
 
-Container& operator*=(Container& lhs, const Measure rhs) {
+Container& operator*=(Container& lhs, const micro::Measure rhs) {
   for (auto& quantity : *lhs.mutable_quantities()) {
     quantity.second *= rhs;
   }
   return lhs;
 }
 
-Container& operator/=(Container& lhs, const Measure rhs) {
+Container& operator/=(Container& lhs, const micro::Measure rhs) {
   for (auto& quantity : *lhs.mutable_quantities()) {
     quantity.second /= rhs;
   }
@@ -334,18 +349,18 @@ Container operator+(Container lhs, const Container& rhs) {
   return lhs;
 }
 
-Container operator*(Container lhs, const Measure rhs) {
+Container operator*(Container lhs, const micro::Measure rhs) {
   lhs *= rhs;
   return lhs;
 }
 
-Container operator/(Container lhs, const Measure rhs) {
+Container operator/(Container lhs, const micro::Measure rhs) {
   lhs /= rhs;
   return lhs;
 }
 
-Measure operator*(const Container& lhs, const Container& rhs) {
-  Measure ret = 0;
+micro::Measure operator*(const Container& lhs, const Container& rhs) {
+  micro::Measure ret = 0;
   for (const auto& quantity : rhs.quantities()) {
     ret += quantity.second * GetAmount(lhs, quantity.first);
   }

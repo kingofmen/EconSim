@@ -5,10 +5,9 @@
 #include <vector>
 
 #include "games/market/proto/goods.pb.h"
-#include "util/headers/int_types.h"
+#include "util/arithmetic/microunits.h"
 
 namespace market {
-typedef int64 Measure;
 
 // Registers a trade good.
 void CreateTradeGood(const market::proto::TradeGood& good);
@@ -23,20 +22,21 @@ bool Exists(const market::proto::TradeGood& good);
 bool AllGoodsExist(const market::proto::Container& con);
 
 // Information about trade goods.
-Measure BulkU(const std::string& name);
-Measure DecayU(const std::string& name);
-Measure WeightU(const std::string& name);
+micro::Measure BulkU(const std::string& name);
+micro::Measure DecayU(const std::string& name);
+micro::Measure WeightU(const std::string& name);
 proto::TradeGood::TransportType TransportType(const std::string& name);
 
 // Adds amount of name to con.
-void Add(const std::string& name, const Measure amount,
+void Add(const std::string& name, const micro::Measure amount,
          market::proto::Container* con);
 
 // Sets all amounts in the container to 0.
 void Clear(market::proto::Container* con);
 
 // Removes goods with less than tolerance amount from con.
-void CleanContainer(market::proto::Container* con, Measure tolerance = 1);
+void CleanContainer(market::proto::Container* con,
+                    micro::Measure tolerance = 1);
 
 // Returns true if con has an entry for the good name, even if the amount is
 // zero.
@@ -59,7 +59,7 @@ void Copy(const market::proto::Container& source, const std::string& mask,
 // to zero but entirely removing it from the map.
 void Erase(const std::string& kind, market::proto::Container* con);
 void Erase(const market::proto::Quantity& kind, market::proto::Container* con);
-void Erase(const std::pair<std::string, Measure> amount,
+void Erase(const std::pair<std::string, micro::Measure> amount,
            market::proto::Container* con);
 
 // Returns a vector of the contained Quantities.
@@ -67,29 +67,30 @@ std::vector<market::proto::Quantity>
 Expand(const market::proto::Container& con);
 
 // Returns the amount of name in con; zero if not set.
-Measure GetAmount(const market::proto::Container& con, const std::string& name);
+micro::Measure GetAmount(const market::proto::Container& con,
+                         const std::string& name);
 // Returns the amount of qua.kind() in con; zero if not set.
-Measure GetAmount(const market::proto::Container& con,
-                  const market::proto::Quantity& qua);
-Measure GetAmount(const market::proto::Container& con,
-                  const std::pair<std::string, Measure>& qua);
+micro::Measure GetAmount(const market::proto::Container& con,
+                         const market::proto::Quantity& qua);
+micro::Measure GetAmount(const market::proto::Container& con,
+                         const std::pair<std::string, micro::Measure>& qua);
 
 // Returns a quantity with the given values.
 market::proto::Quantity MakeQuantity(const std::string& name,
-                                     const Measure amount);
+                                     const micro::Measure amount);
 
 // Moves amount of name from from to to.
-void Move(const std::string& name, const Measure amount,
+void Move(const std::string& name, const micro::Measure amount,
           market::proto::Container* from, market::proto::Container* to);
 void Move(const market::proto::Quantity& qua, market::proto::Container* from,
           market::proto::Container* to);
 
 // Sets the amount of name in con.
-void SetAmount(const std::string& name, const Measure amount,
+void SetAmount(const std::string& name, const micro::Measure amount,
                market::proto::Container* con);
 void SetAmount(const market::proto::Quantity& qua,
                market::proto::Container* con);
-void SetAmount(const std::pair<std::string, Measure> amount,
+void SetAmount(const std::pair<std::string, micro::Measure> amount,
                market::proto::Container* con);
 
 // Subtracts the subtrahend from the minuend, leaving at least floor of each
@@ -98,7 +99,18 @@ void SetAmount(const std::pair<std::string, Measure> amount,
 market::proto::Container
 SubtractFloor(const market::proto::Container& minuend,
               const market::proto::Container& subtrahend,
-              market::Measure floor = 0);
+              micro::Measure floor = 0);
+
+// In-place scaling a container.
+void MultiplyU(market::proto::Container& lhs, int64 scale_u);
+
+// In-place matrix-vector multiplication - not dot product.
+void MultiplyU(market::proto::Container& lhs,
+               const market::proto::Container& rhs_u);
+
+// Returns a human-readable string, that is, in units rather than micro-units.
+// Note that the rounding is truncation.
+std::string DisplayString(const market::proto::Quantity& q, int digits);
 
 namespace proto {
 
@@ -120,18 +132,18 @@ market::proto::Container& operator>>(market::proto::Container& con,
                                      market::proto::Quantity& qua);
 
 market::proto::Quantity& operator+=(market::proto::Quantity& lhs,
-                                    const Measure rhs);
+                                    const micro::Measure rhs);
 market::proto::Quantity& operator-=(market::proto::Quantity& lhs,
-                                    const Measure rhs);
+                                    const micro::Measure rhs);
 market::proto::Quantity& operator*=(market::proto::Quantity& lhs,
-                                    const Measure rhs);
+                                    const micro::Measure rhs);
 market::proto::Quantity& operator/=(market::proto::Quantity& lhs,
-                                    const Measure rhs);
+                                    const micro::Measure rhs);
 
 market::proto::Quantity operator*(market::proto::Quantity lhs,
-                                  const Measure rhs);
+                                  const micro::Measure rhs);
 market::proto::Quantity operator/(market::proto::Quantity lhs,
-                                  const Measure rhs);
+                                  const micro::Measure rhs);
 
 market::proto::Container& operator+=(market::proto::Container& lhs,
                                      const market::proto::Container& rhs);
@@ -143,17 +155,17 @@ market::proto::Container& operator-=(market::proto::Container& lhs,
 market::proto::Container& operator-=(market::proto::Container& lhs,
                                      const market::proto::Quantity& rhs);
 market::proto::Container& operator*=(market::proto::Container& lhs,
-                                     const Measure rhs);
+                                     const micro::Measure rhs);
 market::proto::Container& operator/=(market::proto::Container& lhs,
-                                     const Measure rhs);
+                                     const micro::Measure rhs);
 market::proto::Container operator+(market::proto::Container lhs,
                                    const market::proto::Container& rhs);
 market::proto::Container operator-(market::proto::Container lhs,
                                    const market::proto::Container& rhs);
 market::proto::Container operator*(market::proto::Container lhs,
-                                   const Measure rhs);
+                                   const micro::Measure rhs);
 market::proto::Container operator/(market::proto::Container lhs,
-                                   const Measure rhs);
+                                   const micro::Measure rhs);
 
 // Matrix-vector product; the amount of each good in lhs is multiplied by the
 // corresponding amount in rhs. Note that this is not the same as the
@@ -162,8 +174,8 @@ market::proto::Container& operator*=(market::proto::Container& lhs,
                                      const market::proto::Container& rhs);
 
 // Dot product - for example, multiply a basket of goods by their prices.
-Measure operator*(const market::proto::Container& lhs,
-                  const market::proto::Container& rhs);
+micro::Measure operator*(const market::proto::Container& lhs,
+                         const market::proto::Container& rhs);
 
 // Note that these are counterintuitive; they cannot be used for sorting. The
 // intended meaning of a > b is that b may safely be subtracted from a, that is,

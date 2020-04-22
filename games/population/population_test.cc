@@ -4,6 +4,7 @@
 #include "games/geography/proto/geography.pb.h"
 #include "games/industry/industry.h"
 #include "games/industry/proto/industry.pb.h"
+#include "games/market/goods_utils.h"
 #include "games/market/market.h"
 #include "games/population/proto/population.pb.h"
 #include "gtest/gtest.h"
@@ -48,7 +49,7 @@ protected:
     market::SetAmount(youtube_.kind(), 2 * micro::kOneInU, prices);
   }
 
-  void SellGoods(market::Measure fish = 0, market::Measure youtube = 0) {
+  void SellGoods(micro::Measure fish = 0, micro::Measure youtube = 0) {
     fish_.set_amount(fish);
     youtube_.set_amount(youtube);
     seller_ += fish_;

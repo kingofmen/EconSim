@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 
+#include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.h"
@@ -90,7 +91,7 @@ const actions::proto::Plan& Unit::plan() {
   return proto_.plan();
 }
 
-uint64 Unit::speed_u(geography::proto::ConnectionType type) const {
+micro::uMeasure Unit::speed_u(geography::proto::ConnectionType type) const {
   return Template().mobility().speed_u();
 }
 
@@ -114,16 +115,14 @@ Unit::Unit(const proto::Unit& proto) : proto_(proto), used_action_points_u(0) {
   units_[proto_.unit_id()] = this;
 }
 
-Unit::~Unit() {
-  units_.erase(proto_.unit_id());
-}
+Unit::~Unit() { units_.erase(proto_.unit_id()); }
 
-market::Measure Unit::Capacity(const std::string& good) const {
+micro::Measure Unit::Capacity(const std::string& good) const {
   if (market::TransportType(good) == market::proto::TradeGood::TTT_IMMOBILE) {
     return 0;
   }
-  market::Measure current_bulk_u = 0;
-  market::Measure current_weight_u = 0;
+  micro::Measure current_bulk_u = 0;
+  micro::Measure current_weight_u = 0;
   for (const auto& quantity : resources().quantities()) {
     current_bulk_u +=
         micro::MultiplyU(market::BulkU(quantity.first), quantity.second);
@@ -133,21 +132,22 @@ market::Measure Unit::Capacity(const std::string& good) const {
 
   // TODO: Scaling effects - also elsewhere!
   // TODO: Maybe this had better be cached?
-  market::Measure remaining_bulk_u = Template().mobility().max_bulk_u();
-  market::Measure remaining_weight_u = Template().mobility().max_weight_u();
+  micro::Measure remaining_bulk_u = Template().mobility().max_bulk_u();
+  micro::Measure remaining_weight_u = Template().mobility().max_weight_u();
 
   remaining_bulk_u -= current_bulk_u;
   remaining_weight_u -= current_weight_u;
 
   // Bulk and weight guaranteed nonzero.
   remaining_bulk_u = micro::DivideU(remaining_bulk_u, market::BulkU(good));
-  remaining_weight_u = micro::DivideU(remaining_weight_u, market::WeightU(good));
+  remaining_weight_u =
+      micro::DivideU(remaining_weight_u, market::WeightU(good));
 
   return std::min(remaining_bulk_u, remaining_weight_u);
 }
 
-market::Measure Unit::action_points_u() const {
-  uint64 base_u = Template().base_action_points_u();
+micro::Measure Unit::action_points_u() const {
+  micro::Measure base_u = Template().base_action_points_u();
   if (used_action_points_u > base_u) {
     return 0;
   }

@@ -5,11 +5,12 @@
 #include <limits>
 #include <string>
 
-#include "games/market/goods_utils.h"
-#include "games/market/proto/goods.pb.h"
 #include "util/headers/int_types.h"
 
 namespace micro {
+
+typedef int64 Measure;
+typedef uint64 uMeasure;
 
 // Powers of ten in micro-units.
 constexpr int64 kOneInU      = 1000000;
@@ -49,13 +50,6 @@ int64 PowU(int64 b_u, int n);
 int64 MultiplyU(int64 val1, int64 val2_u);
 int64 MultiplyU(int64 val1, int64 val2_u, int64 val3_u);
 
-// In-place scaling a container.
-void MultiplyU(market::proto::Container& lhs, int64 scale_u);
-
-// In-place matrix-vector multiplication - not dot product.
-void MultiplyU(market::proto::Container& lhs,
-               const market::proto::Container& rhs_u);
-
 // DivideU methods return ratios, maintaining the left-hand scale.
 
 // Integer division. If the result overflows and overflow is non-null, overflow
@@ -71,8 +65,7 @@ int64 DivideU(int64 val1, int64 val2_u, uint64* overflow = nullptr);
 
 // Returns a human-readable string, that is, in units rather than micro-units.
 // Note that the rounding is truncation.
-std::string DisplayString(market::Measure amount, int digits);
-std::string DisplayString(const market::proto::Quantity& q, int digits);
+std::string DisplayString(Measure amount, int digits);
 
 
 }  // namespace micro

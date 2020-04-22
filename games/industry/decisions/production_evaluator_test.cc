@@ -25,7 +25,7 @@ protected:
     context_.fields[&field_] = FieldInfo();
   }
 
-  void SetPrices(market::Measure fish, market::Measure salt, market::Measure gold) {
+  void SetPrices(micro::Measure fish, micro::Measure salt, micro::Measure gold) {
     fish_.set_amount(fish);
     salt_.set_amount(salt);
     gold_.set_amount(gold);

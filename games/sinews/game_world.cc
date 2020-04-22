@@ -7,6 +7,7 @@
 #include "games/geography/geography.h"
 #include "games/industry/decisions/production_evaluator.h"
 #include "games/industry/worker.h"
+#include "games/market/goods_utils.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
@@ -55,7 +56,7 @@ void RunAreaIndustry(
   while (true) {
     geography::proto::Field* best_field = NULL;
     population::PopUnit* best_pop = NULL;
-    market::Measure lowest_scale_loss_u = micro::kMaxU;
+    micro::Measure lowest_scale_loss_u = micro::kMaxU;
 
     for (auto& pop_context : *contexts) {
       population::PopUnit* pop = pop_context.first;
@@ -78,7 +79,7 @@ void RunAreaIndustry(
         const auto& selected = decision.selected();
         const industry::Production* chain =
             context.production_map->at(selected.name());
-        market::Measure max_scale_u = 0;
+        micro::Measure max_scale_u = 0;
         if (field->has_progress()) {
           max_scale_u = field->progress().scaling_u();
         } else {
@@ -291,7 +292,8 @@ void GameWorld::TimeStep(
     PrintMarket(area->market().Proto(), volumes);
     area->mutable_market()->DecayGoods(constants_->decay_rates_);
     for (auto& field : *area->Proto()->mutable_fields()) {
-      micro::MultiplyU(*field.mutable_fixed_capital(), constants_->decay_rates_);
+      market::MultiplyU(*field.mutable_fixed_capital(),
+                        constants_->decay_rates_);
     }
   }
 }

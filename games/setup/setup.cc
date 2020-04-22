@@ -7,6 +7,7 @@
 #include "games/geography/connection.h"
 #include "games/geography/geography.h"
 #include "games/industry/decisions/production_evaluator.h"
+#include "games/market/goods_utils.h"
 #include "games/market/market.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"

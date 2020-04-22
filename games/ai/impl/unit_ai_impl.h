@@ -6,24 +6,25 @@
 #include "games/ai/unit_ai.h"
 #include "games/geography/connection.h"
 #include "games/units/unit.h"
+#include "util/arithmetic/microunits.h"
 #include "util/status/status.h"
 
 namespace ai {
 namespace impl {
 
-typedef std::function<market::Measure(const geography::Connection&)>
+typedef std::function<micro::Measure(const geography::Connection&)>
     CostFunction;
 
-typedef std::function<market::Measure(const util::proto::ObjectId&,
-                                      const util::proto::ObjectId&)>
+typedef std::function<micro::Measure(const util::proto::ObjectId&,
+                                     const util::proto::ObjectId&)>
     Heuristic;
 
 // Cost function returning the length of the connection.
-market::Measure ShortestDistance(const geography::Connection& conn);
+micro::Measure ShortestDistance(const geography::Connection& conn);
 
 // Default heuristic that doesn't actually heurise.
-market::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
-                              const util::proto::ObjectId& target_id);
+micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
+                             const util::proto::ObjectId& target_id);
 
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.

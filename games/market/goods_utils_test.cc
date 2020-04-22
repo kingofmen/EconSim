@@ -3,6 +3,7 @@
 #include <string>
 
 #include "games/market/proto/goods.pb.h"
+#include "util/arithmetic/microunits.h"
 #include "gtest/include/gtest/gtest.h"
 
 namespace market {
@@ -119,32 +120,24 @@ TEST(GoodsUtilsTest, PlusAndMinus) {
 
   Container barrel;
   barrel += container;
-  EXPECT_EQ(GetAmount(container, kTestGood1),
-                   GetAmount(barrel, kTestGood1));
-  EXPECT_EQ(GetAmount(container, kTestGood2),
-                   GetAmount(barrel, kTestGood2));
+  EXPECT_EQ(GetAmount(container, kTestGood1), GetAmount(barrel, kTestGood1));
+  EXPECT_EQ(GetAmount(container, kTestGood2), GetAmount(barrel, kTestGood2));
 
   Container box = barrel + container;
-  EXPECT_EQ(GetAmount(container, kTestGood1) +
-                       GetAmount(barrel, kTestGood1),
-                   GetAmount(box, kTestGood1));
-  EXPECT_EQ(GetAmount(container, kTestGood2) +
-                       GetAmount(barrel, kTestGood2),
-                   GetAmount(box, kTestGood2));
+  EXPECT_EQ(GetAmount(container, kTestGood1) + GetAmount(barrel, kTestGood1),
+            GetAmount(box, kTestGood1));
+  EXPECT_EQ(GetAmount(container, kTestGood2) + GetAmount(barrel, kTestGood2),
+            GetAmount(box, kTestGood2));
 
   box -= barrel;
-  EXPECT_EQ(GetAmount(container, kTestGood1),
-                   GetAmount(box, kTestGood1));
-  EXPECT_EQ(GetAmount(container, kTestGood2),
-                   GetAmount(box, kTestGood2));
+  EXPECT_EQ(GetAmount(container, kTestGood1), GetAmount(box, kTestGood1));
+  EXPECT_EQ(GetAmount(container, kTestGood2), GetAmount(box, kTestGood2));
 
   Container jar = barrel - container;
-  EXPECT_EQ(GetAmount(container, kTestGood1) -
-                       GetAmount(barrel, kTestGood1),
-                   GetAmount(jar, kTestGood1));
-  EXPECT_EQ(GetAmount(container, kTestGood2) -
-                       GetAmount(barrel, kTestGood2),
-                   GetAmount(jar, kTestGood2));
+  EXPECT_EQ(GetAmount(container, kTestGood1) - GetAmount(barrel, kTestGood1),
+            GetAmount(jar, kTestGood1));
+  EXPECT_EQ(GetAmount(container, kTestGood2) - GetAmount(barrel, kTestGood2),
+            GetAmount(jar, kTestGood2));
 }
 
 TEST(GoodsUtilsTest, Multiply) {
@@ -185,12 +178,10 @@ TEST(GoodsUtilsTest, MatrixMultiply) {
   container2 << quantity1;
   quantity2 += 1.5;
   container2 << quantity2;
- 
+
   container1 *= container2;
-  EXPECT_EQ(GetAmount(container1, quantity1),
-                   GetAmount(container2, quantity1));
-  EXPECT_EQ(GetAmount(container1, quantity2),
-                   GetAmount(container2, quantity2));
+  EXPECT_EQ(GetAmount(container1, quantity1), GetAmount(container2, quantity1));
+  EXPECT_EQ(GetAmount(container1, quantity2), GetAmount(container2, quantity2));
 }
 
 TEST(GoodsUtilsTest, CleanContainer) {
@@ -479,6 +470,42 @@ TEST(GoodsUtilsTest, TradeGoods) {
   EXPECT_TRUE(AllGoodsExist(source));
   SetAmount(kTestGood2, 1, &source);
   EXPECT_FALSE(AllGoodsExist(source));
+}
+
+TEST(GoodsUtilsTest, ScaleContainer) {
+  proto::Container lhs;
+  SetAmount(kTestGood1, 1, &lhs);
+  SetAmount(kTestGood2, 10, &lhs);
+  MultiplyU(lhs, micro::kTenInU);
+  EXPECT_EQ(GetAmount(lhs, kTestGood1), 10);
+  EXPECT_EQ(GetAmount(lhs, kTestGood2), 100);
+
+  proto::Container lhs_u;
+  SetAmount(kTestGood1, micro::kOneInU, &lhs_u);
+  SetAmount(kTestGood2, micro::kTenInU, &lhs_u);
+  MultiplyU(lhs_u, micro::kTenInU);
+  EXPECT_EQ(GetAmount(lhs_u, kTestGood1), micro::kTenInU);
+  EXPECT_EQ(GetAmount(lhs_u, kTestGood2), micro::kHundredInU);
+}
+
+TEST(GoodsUtilsTest, MatrixVectorMultiplication) {
+  proto::Container rhs_u;
+  SetAmount(kTestGood1, micro::kOneInU, &rhs_u);
+  SetAmount(kTestGood2, micro::kTenInU, &rhs_u);
+
+  proto::Container lhs;
+  SetAmount(kTestGood1, 1, &lhs);
+  SetAmount(kTestGood2, 10, &lhs);
+  MultiplyU(lhs, rhs_u);
+  EXPECT_EQ(GetAmount(lhs, kTestGood1), 1);
+  EXPECT_EQ(GetAmount(lhs, kTestGood2), 100);
+
+  proto::Container lhs_u;
+  SetAmount(kTestGood1, micro::kOneInU, &lhs_u);
+  SetAmount(kTestGood2, micro::kTenInU, &lhs_u);
+  MultiplyU(lhs_u, rhs_u);
+  EXPECT_EQ(GetAmount(lhs_u, kTestGood1), micro::kOneInU);
+  EXPECT_EQ(GetAmount(lhs_u, kTestGood2), micro::kHundredInU);
 }
 
 } // namespace market

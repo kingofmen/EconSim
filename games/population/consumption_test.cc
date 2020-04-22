@@ -164,7 +164,7 @@ TEST(ConsumptionTest, Validation) {
 }
 
 struct FakeMarket : public market::AvailabilityEstimator {
-  market::Measure Available(const std::string& name, int ahead) const override {
+  micro::Measure Available(const std::string& name, int ahead) const override {
     if (available.find(name) == available.end()) {
       return 0;
     }
@@ -181,11 +181,11 @@ struct FakeMarket : public market::AvailabilityEstimator {
     return true;
   }
 
-  void Set(const std::string name, market::Measure amount) {
+  void Set(const std::string name, micro::Measure amount) {
     available[name] = amount;
   }
 
-  std::unordered_map<std::string, market::Measure> available;
+  std::unordered_map<std::string, micro::Measure> available;
 };
 
 TEST(ConsumptionTest, Consumption) {
@@ -278,7 +278,7 @@ TEST(ConsumptionTest, GreedyLocal) {
   VerbLog(3);
 
   struct GreedyLocalMarket : public market::AvailabilityEstimator {
-    market::Measure Available(const std::string& name, int ahead) const override {
+    micro::Measure Available(const std::string& name, int ahead) const override {
       if (available.find(name) == available.end()) {
         return 0;
       }
@@ -296,14 +296,14 @@ TEST(ConsumptionTest, GreedyLocal) {
       return false;
     }
 
-    void Set(const std::string& name, market::Measure amount) {
+    void Set(const std::string& name, micro::Measure amount) {
       available[name] = amount;
     }
     void SetCustomFunction(std::function<bool(const std::string&)> f) {
       skipfunc = f;
     }
 
-    std::unordered_map<std::string, market::Measure> available;
+    std::unordered_map<std::string, micro::Measure> available;
     std::function<bool(const std::string&)> skipfunc;
   };
   GreedyLocalMarket greedy;

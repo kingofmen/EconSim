@@ -11,7 +11,7 @@ using market::proto::Quantity;
 using market::proto::Container;
 constexpr double kMaxPriceChange = micro::kOneInU / 4;
 
-Measure Market::Available(const std::string& name, int) const {
+micro::Measure Market::Available(const std::string& name, int) const {
   if (!TradesIn(name)) {
     return false;
   }
@@ -23,7 +23,7 @@ bool Market::Available(const Container& basket, int) const {
     if (!TradesIn(need.first)) {
       return false;
     }
-  }  
+  }
   return proto_.warehouse() > basket;
 }
 
@@ -60,26 +60,28 @@ bool Market::CanBuy(const proto::Container& basket,
 }
 
 void Market::DecayGoods(const market::proto::Container& decay_rates_u) {
-  micro::MultiplyU(*proto_.mutable_warehouse(), decay_rates_u);
+  MultiplyU(*proto_.mutable_warehouse(), decay_rates_u);
 }
 
 void Market::FindPrices() {
   for (const auto& good : proto_.prices_u().quantities()) {
     const std::string& name = good.first;
-    Measure matched = GetAmount(proto_.volume(), name);
-    Measure bid = matched;
+    micro::Measure matched = GetAmount(proto_.volume(), name);
+    micro::Measure bid = matched;
     for (const auto& buy : buy_offers_[name]) {
       // Effectual demand, i.e. demand backed up by money or credit.
       bid += std::min(buy.amount,
                       GetAmount(*buy.target, proto_.legal_tender()) +
                           MaxCredit(*buy.target));
     }
-    Measure offer = GetAmount(flow_tracker_, name) + matched;
+    micro::Measure offer = GetAmount(flow_tracker_, name) + matched;
     if (std::min(bid, offer) < 1) {
       continue;
     }
-    Measure ratio_u = micro::DivideU(std::max(bid, offer), std::min(bid, offer));
-    ratio_u = std::min<Measure>(ratio_u, micro::kOneInU + kMaxPriceChange);
+    micro::Measure ratio_u =
+        micro::DivideU(std::max(bid, offer), std::min(bid, offer));
+    ratio_u =
+        std::min<micro::Measure>(ratio_u, micro::kOneInU + kMaxPriceChange);
     if (offer > bid) {
       ratio_u = micro::DivideU(micro::kOneInU, ratio_u);
     }
@@ -92,19 +94,19 @@ void Market::FindPrices() {
   Clear(&flow_tracker_);
 }
 
-Measure Market::MaxCredit(const Container& borrower) const {
+micro::Measure Market::MaxCredit(const Container& borrower) const {
   return proto_.credit_limit() - GetAmount(borrower, debt_token());
 }
 
-Measure Market::MaxMoney(const Container& buyer) const {
+micro::Measure Market::MaxMoney(const Container& buyer) const {
   return GetAmount(buyer, credit_token()) +
          GetAmount(buyer, proto_.legal_tender()) + MaxCredit(buyer);
 }
 
 void CancelDebt(const std::string& credit_token, const std::string& debt_token,
                 Container* debtor) {
-  Measure credit = GetAmount(*debtor, credit_token);
-  Measure debt = GetAmount(*debtor, debt_token);
+  micro::Measure credit = GetAmount(*debtor, credit_token);
+  micro::Measure debt = GetAmount(*debtor, debt_token);
   if (credit >= debt) {
     SetAmount(debt_token, 0, debtor);
     SetAmount(credit_token, credit - debt, debtor);
@@ -118,9 +120,9 @@ bool Market::TradesIn(const std::string& name) const {
   return Contains(proto_.prices_u(), name);
 }
 
-void Market::TransferMoney(Measure amount, Container* from,
+void Market::TransferMoney(micro::Measure amount, Container* from,
                            Container* to) const {
-  Measure credit = GetAmount(*from, credit_token());
+  micro::Measure credit = GetAmount(*from, credit_token());
   if (credit >= amount) {
     Move(credit_token(), amount, from, to);
     CancelDebt(credit_token(), debt_token(), to);
@@ -156,15 +158,17 @@ void Market::TransferMoney(Measure amount, Container* from,
   Add(credit_token(), amount, to);
 }
 
-Measure Market::TryToBuy(const Quantity& bid, Container* recipient) {
+micro::Measure Market::TryToBuy(const Quantity& bid, Container* recipient) {
   return TryToBuy(bid.kind(), bid.amount(), recipient);
 }
 
-Measure Market::TryToBuy(const std::string& name, const Measure amount,
-                         Container* recipient) {
-  Measure amount_bought = std::min(amount, GetAmount(proto_.warehouse(), name));
-  Measure price_u = GetPriceU(name);
-  Measure max_money = MaxMoney(*recipient);
+micro::Measure Market::TryToBuy(const std::string& name,
+                                const micro::Measure amount,
+                                Container* recipient) {
+  micro::Measure amount_bought =
+      std::min(amount, GetAmount(proto_.warehouse(), name));
+  micro::Measure price_u = GetPriceU(name);
+  micro::Measure max_money = MaxMoney(*recipient);
   if (micro::MultiplyU(price_u, amount_bought) > max_money) {
     amount_bought = micro::DivideU(max_money, price_u);
   }
@@ -186,7 +190,7 @@ Measure Market::TryToBuy(const std::string& name, const Measure amount,
     SetAmount(debt_token(), 0, proto_.mutable_warehouse());
   }
 
-  Measure amount_to_request = amount - amount_bought;
+  micro::Measure amount_to_request = amount - amount_bought;
   auto& offers = buy_offers_[name];
   auto buy_offer = std::find_if(
       offers.begin(), offers.end(),
@@ -205,7 +209,7 @@ Measure Market::TryToBuy(const std::string& name, const Measure amount,
   return amount_bought;
 }
 
-Measure Market::TryToSell(const Quantity& offer, Container* source) {
+micro::Measure Market::TryToSell(const Quantity& offer, Container* source) {
   if (offer.kind() == credit_token() || offer.kind() == debt_token()) {
     return 0;
   }
@@ -214,19 +218,19 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
     RegisterGood(offer.kind());
   }
 
-  const Measure amount_to_sell =
+  const micro::Measure amount_to_sell =
       std::min(offer.amount(), GetAmount(*source, offer));
-  Measure amount_sold = 0;
+  micro::Measure amount_sold = 0;
   const std::string name = offer.kind();
   auto& buyers = buy_offers_[name];
-  Measure unit_price_u = GetPriceU(name);
+  micro::Measure unit_price_u = GetPriceU(name);
 
   std::vector<Offer> future_buyers;
   Quantity transfer = MakeQuantity(name, 0);
   for (auto& buyer : buyers) {
     transfer.set_amount(std::min(buyer.amount, amount_to_sell - amount_sold));
     if (transfer.amount() > 0) {
-      Measure max_money = MaxMoney(*buyer.target);
+      micro::Measure max_money = MaxMoney(*buyer.target);
       transfer.set_amount(
           std::min(transfer.amount(), micro::DivideU(max_money, unit_price_u)));
 
@@ -249,13 +253,13 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   }
 
   Quantity warehoused = MakeQuantity(name, amount_to_sell - amount_sold);
-  Measure price_u = micro::MultiplyU(unit_price_u, warehoused.amount());
-  Measure available = GetAmount(proto_.warehouse(), proto_.legal_tender()) +
-                      proto_.credit_limit() -
-                      GetAmount(proto_.market_debt(), warehoused);
+  micro::Measure price_u = micro::MultiplyU(unit_price_u, warehoused.amount());
+  micro::Measure available =
+      GetAmount(proto_.warehouse(), proto_.legal_tender()) +
+      proto_.credit_limit() - GetAmount(proto_.market_debt(), warehoused);
   if (available < price_u) {
     price_u = available;
-    Measure unit_price_u = GetPriceU(offer.kind());
+    micro::Measure unit_price_u = GetPriceU(offer.kind());
     warehoused.set_amount(price_u / unit_price_u);
   }
 
@@ -272,12 +276,13 @@ Measure Market::TryToSell(const Quantity& offer, Container* source) {
   return warehoused.amount() + amount_sold;
 }
 
-Measure Market::TryToSell(const std::string& name, const Measure amount,
-                          Container* source) {
+micro::Measure Market::TryToSell(const std::string& name,
+                                 const micro::Measure amount,
+                                 Container* source) {
   return TryToSell(MakeQuantity(name, amount), source);
 }
 
-Measure Market::GetPriceU(const std::string& name, int turns) const {
+micro::Measure Market::GetPriceU(const std::string& name, int turns) const {
   if (!TradesIn(name)) {
     // Estimate.
     return micro::kOneInU;
@@ -285,14 +290,15 @@ Measure Market::GetPriceU(const std::string& name, int turns) const {
   return GetAmount(proto_.prices_u(), name);
 }
 
-Measure Market::GetPriceU(const Quantity& quantity, int turns) const {
+micro::Measure Market::GetPriceU(const Quantity& quantity, int turns) const {
   return micro::MultiplyU(GetPriceU(quantity.kind(), turns), quantity.amount());
 }
 
-Measure Market::GetPriceU(const market::proto::Container& basket, int turns) const {
-  Measure ret = 0;
+micro::Measure Market::GetPriceU(const market::proto::Container& basket,
+                                 int turns) const {
+  micro::Measure ret = 0;
   for (const auto& good : basket.quantities()) {
-    Measure price = micro::MultiplyU(GetPriceU(good.first), good.second);
+    micro::Measure price = micro::MultiplyU(GetPriceU(good.first), good.second);
     if (price >= 0) {
       ret += price;
     }
@@ -300,11 +306,11 @@ Measure Market::GetPriceU(const market::proto::Container& basket, int turns) con
   return ret;
 }
 
-Measure Market::GetStoredU(const std::string& name) const {
+micro::Measure Market::GetStoredU(const std::string& name) const {
   return GetAmount(proto_.warehouse(), name);
 }
 
-Measure Market::GetVolume(const std::string& name) const {
+micro::Measure Market::GetVolume(const std::string& name) const {
   if (!TradesIn(name)) {
     return 0;
   }

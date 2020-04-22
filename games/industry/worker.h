@@ -40,7 +40,7 @@ void SelectProduction(const decisions::ProductionEvaluator& evaluator,
 // chain. Returns true if all the capital can be installed; otherwise no changes
 // are made.
 bool InstallFixedCapital(const industry::proto::Input& production,
-                         market::Measure scale_u,
+                         micro::Measure scale_u,
                          market::proto::Container* source,
                          market::proto::Container* target,
                          market::Market* market);

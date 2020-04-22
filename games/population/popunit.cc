@@ -1,13 +1,14 @@
 #include "games/population/popunit.h"
 
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <list>
-#include <iostream>
 
 #include "absl/algorithm/container.h"
 #include "games/geography/proto/geography.pb.h"
 #include "games/industry/industry.h"
+#include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
 
@@ -57,11 +58,10 @@ PopUnit::PopUnit(const proto::PopUnit& proto) : proto_(proto) {
   id_to_pop_map_[proto_.pop_id()] = this;
 }
 
-void PopUnit::AutoProduce(
-    const std::vector<proto::AutoProduction>& production,
-    market::Market* market) {
+void PopUnit::AutoProduce(const std::vector<proto::AutoProduction>& production,
+                          market::Market* market) {
   int bestIndex = -1;
-  market::Measure best_price = 0;
+  micro::Measure best_price = 0;
   for (int idx = 0; idx < production.size(); ++idx) {
     const auto& p = production[idx];
     if (!(proto_.tags() > p.required_tags())) {
@@ -88,8 +88,8 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
                          const market::Market& market,
                          const proto::ConsumptionPackage*& cheapest) const {
   const proto::ConsumptionPackage* best_package = nullptr;
-  market::Measure best_available_u = std::numeric_limits<market::Measure>::max();
-  market::Measure cheapest_price_u = std::numeric_limits<market::Measure>::max();
+  micro::Measure best_available_u = std::numeric_limits<micro::Measure>::max();
+  micro::Measure cheapest_price_u = std::numeric_limits<micro::Measure>::max();
   const int size = GetSize();
   auto max_money = market.MaxMoney(proto_.wealth());
   for (const auto& package : level.packages()) {
@@ -111,7 +111,7 @@ PopUnit::CheapestPackage(const proto::ConsumptionLevel& level,
       continue;
     }
     bool can_buy = true;
-    market::Measure package_money = 0;
+    micro::Measure package_money = 0;
     for (const auto& quantity : needed.quantities()) {
       auto need_to_buy =
           quantity.second - market::GetAmount(proto_.wealth(), quantity.first);
@@ -169,8 +169,8 @@ bool PopUnit::Consume(const proto::ConsumptionLevel& level,
 
 void PopUnit::EndTurn(const market::proto::Container& decay_rates_u) {
   *mutable_wealth() << used_capital_;
-  micro::MultiplyU(*mutable_wealth(), decay_rates_u);
-  micro::MultiplyU(*proto_.mutable_tags(), decay_rates_u);
+  market::MultiplyU(*mutable_wealth(), decay_rates_u);
+  market::MultiplyU(*proto_.mutable_tags(), decay_rates_u);
   market::CleanContainer(mutable_wealth());
 }
 
@@ -189,7 +189,7 @@ void PopUnit::StartTurn(const std::vector<proto::ConsumptionLevel>& levels,
                         market::Market* market) {
   packages_ordered_ = 0;
   subsistence_need_.Clear();
-  market::Measure found = 0;
+  micro::Measure found = 0;
   const proto::ConsumptionPackage* cheapest = nullptr;
   for (const auto& level : levels) {
     auto amount = market::GetAmount(level.tags(), keywords::kSubsistenceTag);

@@ -6,11 +6,10 @@
 
 #include "games/geography/mobile.h"
 #include "games/geography/proto/geography.pb.h"
-#include "games/market/goods_utils.h"
 #include "games/market/proto/goods.pb.h"
 #include "games/units/proto/templates.pb.h"
 #include "games/units/proto/units.pb.h"
-#include "util/headers/int_types.h"
+#include "util/arithmetic/microunits.h"
 #include "util/proto/object_id.pb.h"
 
 namespace units {
@@ -41,12 +40,14 @@ public:
   const actions::proto::Strategy& strategy();
   const actions::proto::Plan& plan();
 
-  market::Measure action_points_u() const;
+  micro::Measure action_points_u() const;
   void reset_action_points() { used_action_points_u = 0; }
-  void use_action_points(uint64 points_u) { used_action_points_u += points_u; }
+  void use_action_points(micro::uMeasure points_u) {
+    used_action_points_u += points_u;
+  }
 
   // From Mobile interface.
-  uint64 speed_u(geography::proto::ConnectionType type) const override;
+  micro::uMeasure speed_u(geography::proto::ConnectionType type) const override;
   const geography::proto::Location& location() const override;
   geography::proto::Location* mutable_location() override;
 
@@ -56,7 +57,7 @@ public:
 
   // Returns the amount of good that can still be loaded, whether limited
   // by bulk or weight.
-  market::Measure Capacity(const std::string& good) const;
+  micro::Measure Capacity(const std::string& good) const;
 
   const std::string& template_kind() const { return proto_.unit_id().kind(); }
 
@@ -66,7 +67,7 @@ private:
   static std::unordered_map<util::proto::ObjectId, Unit*> units_;
 
   proto::Unit proto_;
-  market::Measure used_action_points_u;
+  micro::Measure used_action_points_u;
 };
 
 } // namespace units

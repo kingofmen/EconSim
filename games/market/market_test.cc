@@ -33,7 +33,7 @@ class MarketTest : public testing::Test {
     SetAmount(price, market_.Proto()->mutable_prices_u());
   }
 
-  void SetPrice(const std::string name, const Measure amount) {
+  void SetPrice(const std::string name, const micro::Measure amount) {
     SetAmount(name, amount, market_.Proto()->mutable_prices_u());
   }
 

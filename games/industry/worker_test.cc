@@ -7,6 +7,7 @@
 #include "games/industry/industry.h"
 #include "games/industry/proto/decisions.pb.h"
 #include "games/industry/proto/industry.pb.h"
+#include "games/market/goods_utils.h"
 #include "games/market/market.h"
 #include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"

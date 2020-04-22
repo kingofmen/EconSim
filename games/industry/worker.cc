@@ -9,8 +9,8 @@ namespace industry {
 namespace {
 
 // Returns the number of unit_u that can be made from available_u.
-market::Measure AvailableUnits(market::Measure available_u,
-                               market::Measure unit_u) {
+micro::Measure AvailableUnits(micro::Measure available_u,
+                              micro::Measure unit_u) {
   if (unit_u == 0) {
     return micro::kMaxU;
   }
@@ -18,7 +18,7 @@ market::Measure AvailableUnits(market::Measure available_u,
     return 0;
   }
   uint64 overflow = 0;
-  market::Measure units_u = micro::DivideU(available_u, unit_u, &overflow);
+  micro::Measure units_u = micro::DivideU(available_u, unit_u, &overflow);
   if (overflow != 0) {
     return micro::kMaxU;
   }
@@ -27,27 +27,27 @@ market::Measure AvailableUnits(market::Measure available_u,
 
 // Returns the unit cost of input, with prices estimated by market at
 // stepsAhead.
-market::Measure CalculateUnitCostU(const proto::Input& input,
-                                   const market::PriceEstimator& market,
-                                   unsigned int stepsAhead) {
+micro::Measure CalculateUnitCostU(const proto::Input& input,
+                                  const market::PriceEstimator& market,
+                                  unsigned int stepsAhead) {
   // TODO: Opportunity cost of movable capital?
   return market.GetPriceU(input.consumables(), stepsAhead);
 }
 
 // Returns the scale cost of capex, with prices estimated by market at
 // stepsAhead.
-market::Measure CalculateCapCostU(const proto::Input& input,
-                                  const market::PriceEstimator& market,
-                                  market::Measure scale_u,
-                                  unsigned int stepsAhead,
-                                  const market::proto::Container& fixcap) {
+micro::Measure CalculateCapCostU(const proto::Input& input,
+                                 const market::PriceEstimator& market,
+                                 micro::Measure scale_u,
+                                 unsigned int stepsAhead,
+                                 const market::proto::Container& fixcap) {
   market::proto::Container to_install = input.fixed_capital();
-  micro::MultiplyU(to_install, scale_u);
+  market::MultiplyU(to_install, scale_u);
   to_install = market::SubtractFloor(to_install, fixcap, 0);
   market::CleanContainer(&to_install);
-  market::Measure least_install_scale_u = scale_u;
+  micro::Measure least_install_scale_u = scale_u;
   for (const auto& good : to_install.quantities()) {
-    market::Measure install_scale_u =
+    micro::Measure install_scale_u =
         AvailableUnits(market::GetAmount(fixcap, good.first),
                        market::GetAmount(input.fixed_capital(), good.first));
     if (install_scale_u < least_install_scale_u) {
@@ -55,7 +55,7 @@ market::Measure CalculateCapCostU(const proto::Input& input,
     }
   }
   market::proto::Container install_cost = input.install_cost();
-  micro::MultiplyU(install_cost, scale_u - least_install_scale_u);
+  market::MultiplyU(install_cost, scale_u - least_install_scale_u);
 
   to_install += install_cost;
   return market.GetPriceU(to_install, stepsAhead);
@@ -78,17 +78,17 @@ market::Measure CalculateCapCostU(const proto::Input& input,
 // Cases where C, L, or I are zero are treated specially. For resources that
 // are only used in installation, the existing installed cost Ie, that is, the
 // cost in install-resources of the existing capital base, is used.
-market::Measure CalculatePossibleScale(market::Measure available_A_u,
-                                       market::Measure capital_unit_C_u,
-                                       market::Measure consumed_unit_L_u,
-                                       market::Measure install_unit_I_u,
-                                       market::Measure existing_Ce_u,
-                                       market::Measure existing_Ie_u) {
+micro::Measure CalculatePossibleScale(micro::Measure available_A_u,
+                                      micro::Measure capital_unit_C_u,
+                                      micro::Measure consumed_unit_L_u,
+                                      micro::Measure install_unit_I_u,
+                                      micro::Measure existing_Ce_u,
+                                      micro::Measure existing_Ie_u) {
   if (capital_unit_C_u + consumed_unit_L_u + install_unit_I_u == 0) {
     return micro::kMaxU;
   }
   uint64 overflow = 0;
-  market::Measure scale_u = 0;
+  micro::Measure scale_u = 0;
 
   if (consumed_unit_L_u + install_unit_I_u == 0) {
     // This resource is only used for fixed capital.
@@ -116,7 +116,7 @@ market::Measure CalculatePossibleScale(market::Measure available_A_u,
   }
 
   if (consumed_unit_L_u == 0) {
-    market::Measure c_u = micro::MultiplyU(available_A_u, capital_unit_C_u);
+    micro::Measure c_u = micro::MultiplyU(available_A_u, capital_unit_C_u);
     c_u = AvailableUnits(c_u, install_unit_I_u + capital_unit_C_u);
     c_u += existing_Ce_u;
     return AvailableUnits(c_u, capital_unit_C_u);
@@ -126,7 +126,7 @@ market::Measure CalculatePossibleScale(market::Measure available_A_u,
     return 0;
   }
 
-  market::Measure c_u = micro::MultiplyU(available_A_u, capital_unit_C_u);
+  micro::Measure c_u = micro::MultiplyU(available_A_u, capital_unit_C_u);
   c_u -= micro::MultiplyU(existing_Ce_u, consumed_unit_L_u);
   c_u = micro::DivideU(
       c_u, install_unit_I_u + capital_unit_C_u + consumed_unit_L_u, &overflow);
@@ -145,7 +145,7 @@ market::Measure CalculatePossibleScale(market::Measure available_A_u,
   return scale_u;
 }
 
-}  // namespace
+} // namespace
 
 void CalculateProductionScale(const market::proto::Container& wealth,
                               decisions::ProductionContext* context,
@@ -170,7 +170,7 @@ void CalculateProductionScale(const market::proto::Container& wealth,
 
       decisions::proto::StepInfo* step_info = cand->mutable_step_info(ahead);
       const proto::ProductionStep& prod_step = chain->get_step(step);
-      market::Measure step_scale = 0;
+      micro::Measure step_scale = 0;
       for (int var = 0; var < step_info->variant_size(); ++var) {
         const proto::Input& input = prod_step.variants(var);
         decisions::proto::VariantInfo* var_info =
@@ -189,14 +189,14 @@ void CalculateProductionScale(const market::proto::Container& wealth,
 
         // The cost of installed capital is the cost of the smallest installed
         // resource.
-        market::Measure least_capital_scale_u = variant_scale_u;
+        micro::Measure least_capital_scale_u = variant_scale_u;
         for (const auto& good : total.quantities()) {
-          market::Measure unit_u = market::GetAmount(fixcap, good.first);
+          micro::Measure unit_u = market::GetAmount(fixcap, good.first);
           if (unit_u == 0) {
             continue;
           }
           uint64 overflow = 0;
-          market::Measure installed_units_u = micro::DivideU(
+          micro::Measure installed_units_u = micro::DivideU(
               market::GetAmount(existing_Ce_u, good.first), unit_u, &overflow);
           if (overflow != 0) {
             continue;
@@ -207,13 +207,13 @@ void CalculateProductionScale(const market::proto::Container& wealth,
         }
         // Install costs of existing capital.
         market::proto::Container existing_Ie_u = install;
-        micro::MultiplyU(existing_Ie_u, least_capital_scale_u);
+        market::MultiplyU(existing_Ie_u, least_capital_scale_u);
 
         for (const auto& good : total.quantities()) {
-          market::Measure available_u =
+          micro::Measure available_u =
               context->market->Available(good.first, ahead) +
               market::GetAmount(wealth, good.first);
-          market::Measure ratio_u = CalculatePossibleScale(
+          micro::Measure ratio_u = CalculatePossibleScale(
               available_u, market::GetAmount(fixcap, good.first),
               market::GetAmount(consumed, good.first),
               market::GetAmount(install, good.first),
@@ -225,7 +225,7 @@ void CalculateProductionScale(const market::proto::Container& wealth,
           }
         }
         for (const auto& good : input.raw_materials().quantities()) {
-          market::Measure ratio_u = micro::DivideU(
+          micro::Measure ratio_u = micro::DivideU(
               market::GetAmount(field->resources(), good.first), good.second);
           if (ratio_u < variant_scale_u) {
             variant_scale_u = ratio_u;
@@ -250,10 +250,10 @@ void CalculateProductionScale(const market::proto::Container& wealth,
   }
 }
 
-void CalculateProductionCosts(const Production& chain,
-                              const market::PriceEstimator& prices,
-                              const geography::proto::Field& field,
-                              decisions::proto::ProductionInfo* production_info) {
+void CalculateProductionCosts(
+    const Production& chain, const market::PriceEstimator& prices,
+    const geography::proto::Field& field,
+    decisions::proto::ProductionInfo* production_info) {
   proto::Progress progress;
   if (field.has_progress()) {
     progress = field.progress();
@@ -280,21 +280,20 @@ void SelectProduction(const decisions::ProductionEvaluator& evaluator,
   evaluator.SelectCandidate(context, field);
 }
 
-bool InstallFixedCapital(const proto::Input& production,
-                         market::Measure scale_u,
+bool InstallFixedCapital(const proto::Input& production, micro::Measure scale_u,
                          market::proto::Container* source,
                          market::proto::Container* target,
                          market::Market* market) {
   // TODO: Should be possible to install X by paying Y, eg housing by paying
   // timber and labour.
   market::proto::Container required = production.fixed_capital();
-  micro::MultiplyU(required, scale_u);
+  market::MultiplyU(required, scale_u);
   if (*target >= required) {
     return true;
   }
   required = market::SubtractFloor(required, *target, 0);
   market::proto::Container cost = production.install_cost();
-  micro::MultiplyU(cost, scale_u);
+  market::MultiplyU(cost, scale_u);
 
   market::proto::Container total = required + cost;
 
@@ -360,4 +359,4 @@ bool TryProductionStep(
   return true;
 }
 
-}  // namespace industry
+} // namespace industry

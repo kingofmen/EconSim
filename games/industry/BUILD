@@ -20,6 +20,7 @@ cc_library(
     deps = [
         ":industry",
         "//games/industry/decisions:production_evaluator",
+        "//games/market:goods_utils",
         "//games/market:market",
         "//games/market/proto:goods_proto",
         "//util/arithmetic:microunits",

@@ -6,7 +6,6 @@
 #include <utility>
 
 #include "absl/strings/substitute.h"
-#include "games/market/goods_utils.h"
 #include "games/geography/connection.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
@@ -44,16 +43,16 @@ void GoBuySell(const units::Unit& unit, const util::proto::ObjectId& target_id,
   step->set_action(actions::proto::AA_SWITCH_STATE);
 }
 
-}  // namespace
+} // namespace
 
 // Cost function returning the length of the connection.
-market::Measure ShortestDistance(const geography::Connection& conn) {
+micro::Measure ShortestDistance(const geography::Connection& conn) {
   return conn.length_u();
 }
 
 // Default heuristic that doesn't actually heurise.
-market::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
-                              const util::proto::ObjectId& target_id) {
+micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
+                             const util::proto::ObjectId& target_id) {
   return 0;
 }
 
@@ -68,8 +67,8 @@ util::Status FindPath(const units::Unit& unit,
   struct Node {
     util::proto::ObjectId previous_id;
     uint64 conn_id;
-    market::Measure cost_u;
-    market::Measure heuristic_u;
+    micro::Measure cost_u;
+    micro::Measure heuristic_u;
   };
   std::unordered_map<util::proto::ObjectId, Node> visited;
 
@@ -93,9 +92,10 @@ util::Status FindPath(const units::Unit& unit,
     step->set_connection_id(unit.location().connection_id());
     return util::OkStatus();
   }
-  DLOGF(Log::P_DEBUG, "FindPath %d -> %d", start_id.number(), target_id.number());
+  DLOGF(Log::P_DEBUG, "FindPath %d -> %d", start_id.number(),
+        target_id.number());
   util::proto::ObjectId least_cost_id = start_id;
-  market::Measure least_cost_u = 0;
+  micro::Measure least_cost_u = 0;
   open.insert(least_cost_id);
   visited.insert({least_cost_id, {util::objectid::kNullId, 0, least_cost_u}});
   // No closed set as we cannot guarantee the heuristic is consistent, and
@@ -103,14 +103,14 @@ util::Status FindPath(const units::Unit& unit,
   // between two nodes.
 
   // TODO: Include a give-up condition and handler.
-  while(open.size() > 0) {
+  while (open.size() > 0) {
     const std::unordered_set<geography::Connection*>& conns =
         geography::Connection::ByEndpoint(least_cost_id);
     DLOGF(Log::P_DEBUG, "  Considering node %d with %d connections",
           least_cost_id.number(), conns.size());
     for (const auto* conn : conns) {
       util::proto::ObjectId other_side_id = conn->OtherSide(least_cost_id);
-      market::Measure real_cost_u = least_cost_u + cost_function(*conn);
+      micro::Measure real_cost_u = least_cost_u + cost_function(*conn);
       DLOGF(Log::P_DEBUG, "  Other side %d", other_side_id.number());
       const auto& existing = visited.find(other_side_id);
       if (existing == visited.end()) {
@@ -129,7 +129,8 @@ util::Status FindPath(const units::Unit& unit,
     least_cost_u = micro::kMaxU;
     for (auto& cand_id : open) {
       // TODO: Consider the tiebreak here.
-      if (visited[cand_id].cost_u + visited[cand_id].heuristic_u >= least_cost_u) {
+      if (visited[cand_id].cost_u + visited[cand_id].heuristic_u >=
+          least_cost_u) {
         continue;
       }
       least_cost_u = visited[cand_id].cost_u + visited[cand_id].heuristic_u;
@@ -194,14 +195,14 @@ ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
   }
   const actions::proto::ShuttleTrade& info = strategy.shuttle_trade();
   switch (info.state()) {
-    case actions::proto::ShuttleTrade::STS_BUY_A:
-      GoBuySell(unit, info.area_a_id(), info.good_a(), info.good_z(), plan);
-      break;
-    case actions::proto::ShuttleTrade::STS_BUY_Z:
-      GoBuySell(unit, info.area_z_id(), info.good_z(), info.good_a(), plan);
-      break;
-    default:
-      break;
+  case actions::proto::ShuttleTrade::STS_BUY_A:
+    GoBuySell(unit, info.area_a_id(), info.good_a(), info.good_z(), plan);
+    break;
+  case actions::proto::ShuttleTrade::STS_BUY_Z:
+    GoBuySell(unit, info.area_z_id(), info.good_z(), info.good_a(), plan);
+    break;
+  default:
+    break;
   }
   return util::OkStatus();
 }

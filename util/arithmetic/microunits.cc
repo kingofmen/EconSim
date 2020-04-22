@@ -81,17 +81,6 @@ int64 MultiplyU(int64 val1, int64 val2_u, int64 val3_u) {
   return MultiplyU(MultiplyU(val1, val2_u), val3_u);
 }
 
-void MultiplyU(market::proto::Container& lhs, int64 scale_u) {
-  lhs *= scale_u;
-  lhs /= kOneInU;
-}
-
-void MultiplyU(market::proto::Container& lhs,
-               const market::proto::Container& rhs_u) {
-  lhs *= rhs_u;
-  lhs /= kOneInU;
-}
-
 int64 DivideU(int64 val1, int64 val2_u, uint64* overflow) {
   if (val2_u == 0) {
     if (overflow != nullptr) {
@@ -128,7 +117,7 @@ int64 DivideU(int64 val1, int64 val2_u, uint64* overflow) {
   return ret;
 }
 
-std::string DisplayString(market::Measure amount, int digits) {
+std::string DisplayString(Measure amount, int digits) {
   int64 divisor = micro::kOneInU;
   int units = amount / divisor;
   if (digits > 6 || digits < 0) {
@@ -144,11 +133,5 @@ std::string DisplayString(market::Measure amount, int digits) {
 
   return absl::StrFormat("%d.%s", units, absl::StrJoin(nums, ""));
 }
-
-
-std::string DisplayString(const market::proto::Quantity& q, int digits) {
-  return DisplayString(q.amount(), digits);
-}
-
 
 }  // namespace micro
