@@ -16,6 +16,8 @@ std::unordered_map<std::string, units::proto::Template> template_map;
 std::unordered_map<uint64, geography::proto::Connection> connections;
 std::unordered_map<uint64, population::proto::PopUnit> pops;
 std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
+std::unordered_map<std::string, games::setup::validation::Validator>
+    validator_map;
 
 namespace games {
 namespace setup {
@@ -326,6 +328,10 @@ void clear() {
 
 } // namespace
 
+void RegisterValidator(const std::string& key, Validator v) {
+  validator_map[key] = v;
+}
+
 std::vector<std::string> Validate(const games::setup::proto::Scenario& scenario,
                                   const games::setup::proto::GameWorld& world) {
   clear();
@@ -340,6 +346,14 @@ std::vector<std::string> Validate(const games::setup::proto::Scenario& scenario,
   validatePops(world, &errors);
   validateConnections(world, &errors);
   validateUnits(world, &errors);
+
+  for (const auto& it : validator_map) {
+    const auto& key = it.first;
+    auto extra_errors = it.second(world);
+    for (const auto& extra : extra_errors) {
+      errors.push_back(absl::Substitute("$0 : $1", key, extra));
+    }
+  }
 
   return errors;
 }

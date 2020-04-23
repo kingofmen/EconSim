@@ -44,6 +44,10 @@ protected:
 };
 
 TEST_F(ValidationTest, TestAllValidations) {
+  Validator extra = [](const games::setup::proto::GameWorld& p) {
+    return std::vector<std::string>{"extra error"};
+  };
+  RegisterValidator("outside", extra);
   std::unordered_set<std::string> expected = {
     // Scenario errors:
     "Auto production: Good nonesuch does not exist.",
@@ -82,6 +86,7 @@ TEST_F(ValidationTest, TestAllValidations) {
     "Unit {Generic unit, 2} has nonexistent connection 12",
     "Unit {Generic unit, 3} is in connection 3 which does not connect source number: 1\n",
     "Unit {Generic unit, 3} is not unique",
+    "outside : extra error",
   };
   auto errors = Validate(scenario_, world_proto_);
   for (const auto& error : errors) {
