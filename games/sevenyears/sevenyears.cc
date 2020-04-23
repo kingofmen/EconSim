@@ -136,6 +136,9 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
                               merchant_strategy.base_area_id(), plan);
   }
 
+  // If in home base, choose where to go based on mission.
+  
+
   return util::OkStatus();
 }
 
