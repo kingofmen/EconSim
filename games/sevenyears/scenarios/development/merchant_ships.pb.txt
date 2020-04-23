@@ -8,6 +8,7 @@ unit_templates {
     max_bulk_u: 2000000
     max_weight_u: 10000000
   }
+  tags: "merchant"
 }
 unit_templates {
   template_id {
@@ -19,6 +20,7 @@ unit_templates {
     max_bulk_u: 2000000
     max_weight_u: 5000000
   }
+  tags: "merchant"
 }
 unit_templates {
   template_id {
@@ -30,5 +32,6 @@ unit_templates {
     max_bulk_u: 5000000
     max_weight_u: 15000000
   }
+  tags: "merchant"
 }
 

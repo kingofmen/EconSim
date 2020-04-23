@@ -89,16 +89,11 @@ util::Status validateWorldState(
   return util::OkStatus();
 }
 
-// TODO: Can this be done without hardcoding the unit types?
 bool isMerchantShip(const units::Unit& unit) {
-  if (unit.unit_id().kind() == "brig") {
-    return true;
-  }
-  if (unit.unit_id().kind() == "threemaster") {
-    return true;
-  }
-  if (unit.unit_id().kind() == "schooner") {
-    return true;
+  for (const auto& tag : unit.Template().tags()) {
+    if (tag == "merchant") {
+      return true;
+    }
   }
   return false;
 }

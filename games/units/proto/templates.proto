@@ -13,4 +13,5 @@ message Template {
   optional Mobility mobility = 1;
   optional util.proto.ObjectId template_id = 2;
   optional uint64 base_action_points_u = 3;
+  repeated string tags = 4;
 }
