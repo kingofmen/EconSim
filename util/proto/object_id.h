@@ -24,6 +24,9 @@ bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
 // Returns true if obj_id compares equal to a null ObjectId with no fields set.
 bool IsNull(const util::proto::ObjectId& obj_id);
 
+// Returns a string suitable for display to humans.
+std::string DisplayString(const util::proto::ObjectId& obj_id);
+
 extern const util::proto::ObjectId kNullId;
 
 }  // namespace objectid

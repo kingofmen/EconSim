@@ -115,6 +115,17 @@ bool IsNull(const util::proto::ObjectId& obj_id) {
   return Equal(obj_id, kNullId);
 }
 
+std::string DisplayString(const util::proto::ObjectId& obj_id) {
+  if (obj_id.has_number()) {
+    if (!obj_id.has_tag()) {
+      return absl::Substitute("($0, $1)", obj_id.kind(), obj_id.number());
+    }
+    return absl::Substitute("($0, $1 \"$2\")", obj_id.kind(), obj_id.number(),
+                            obj_id.tag());
+  }
+  return absl::Substitute("($0, \"$1\")", obj_id.kind(), obj_id.tag());
+}
+
 }  // namespace objectid
 }  // namespace util
 

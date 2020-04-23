@@ -4,7 +4,7 @@
 
 #include "absl/strings/str_join.h"
 #include "gtest/gtest.h"
-#include "industry/proto/industry.pb.h"
+#include "games/industry/proto/industry.pb.h"
 #include "util/status/status.h"
 
 namespace util {

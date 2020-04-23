@@ -99,6 +99,18 @@ TEST(ObjectId, TestTagsWithKind) {
   EXPECT_EQ(Tag(obj_id), "one");
 }
 
+TEST(ObjectId, TestDisplayString) {
+  util::proto::ObjectId obj_id;
+  obj_id.set_kind("kind");
+  obj_id.set_number(1);
+  EXPECT_EQ("(kind, 1)", DisplayString(obj_id));
+
+  obj_id.set_tag("tag");
+  EXPECT_EQ("(kind, 1 \"tag\")", DisplayString(obj_id));
+
+  obj_id.clear_number();
+  EXPECT_EQ("(kind, \"tag\")", DisplayString(obj_id));
+}
 
 }  // namespace objectid
 }  // namespace util
