@@ -115,7 +115,9 @@ units {
         kind: "area"
 	tag: "London"
       }
+      default_mission: "europe_trade"
     }
+    define: "london_trader"
   }
 }
 
@@ -131,12 +133,7 @@ units {
     }
   }
   strategy {
-    seven_years_merchant {
-      base_area_id {
-        kind: "area"
-	tag: "London"
-      }
-    }
+    lookup: "london_trader"
   }
 }
 
@@ -152,12 +149,7 @@ units {
     }
   }
   strategy {
-    seven_years_merchant {
-      base_area_id {
-        kind: "area"
-	tag: "London"
-      }
-    }
+    lookup: "london_trader"
   }
 }
 
@@ -173,12 +165,7 @@ units {
     }
   }
   strategy {
-    seven_years_merchant {
-      base_area_id {
-        kind: "area"
-	tag: "London"
-      }
-    }
+    lookup: "london_trader"
   }
 }
 
@@ -194,12 +181,7 @@ units {
     }
   }
   strategy {
-    seven_years_merchant {
-      base_area_id {
-        kind: "area"
-	tag: "London"
-      }
-    }
+    lookup: "london_trader"
   }
 }
 

@@ -21,6 +21,10 @@
 
 namespace sevenyears {
 
+constexpr char kEuropeanTrade[] = "europe_trade";
+constexpr char kColonialTrade[] = "colony_trade";
+constexpr char kSupplyArmies[] = "supply_armies";
+
 namespace {
 
 util::Status validateSetup(const games::setup::proto::ScenarioFiles& setup) {
@@ -98,6 +102,11 @@ bool isMerchantShip(const units::Unit& unit) {
   return false;
 }
 
+bool isValidMission(const std::string& mission) {
+  return mission == kEuropeanTrade || mission == kColonialTrade ||
+         mission == kSupplyArmies;
+}
+
 }  // namespace
 
 class SevenYearsMerchant : public ai::UnitAi {
@@ -137,7 +146,18 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   }
 
   // If in home base, choose where to go based on mission.
-  
+  std::string mission = merchant_strategy.mission();
+  if (mission.empty()) {
+    mission = merchant_strategy.default_mission();
+  }
+  if (mission.empty()) {
+    mission = kEuropeanTrade;
+  }
+
+  if (!isValidMission(mission)) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Invalid mission '$0'", mission));
+  }
 
   return util::OkStatus();
 }
@@ -247,6 +267,52 @@ void SevenYears::UpdateGraphicsInfo(interface::Base* gfx) {
   dirtyGraphics_ = false;
 }
 
+std::vector<std::string>
+SevenYearsValidation(const games::setup::proto::GameWorld& world) {
+  std::vector<std::string> errors;
+  for (const auto& unit : world.units()) {
+    if (!unit.has_strategy()) {
+      continue;
+    }
+    const auto& strategy = unit.strategy();
+    if (strategy.key_case() == actions::proto::Strategy::kLookup) {
+      // We need only check the original. If the lookup string is
+      // bad the loading code will tell us later.
+      continue;
+    }
+
+    if (strategy.strategy_case() !=
+        actions::proto::Strategy::kSevenYearsMerchant) {
+      errors.push_back(
+          absl::Substitute("Unit $0 has unsupported strategy case $1",
+                           util::objectid::DisplayString(unit.unit_id()),
+                           strategy.strategy_case()));
+      continue;
+    }
+    const auto& sym = strategy.seven_years_merchant();
+    if (!sym.has_mission() && !sym.has_default_mission()) {
+      errors.push_back(
+          absl::Substitute("Unit $0 has neither mission nor default mission",
+                           util::objectid::DisplayString(unit.unit_id())));
+      continue;
+    }
+    if (sym.has_mission() && !isValidMission(sym.mission())) {
+      errors.push_back(absl::Substitute(
+          "Unit $0 has invalid mission $1",
+          util::objectid::DisplayString(unit.unit_id()), sym.mission()));
+      continue;
+    }
+    if (sym.has_default_mission() && !isValidMission(sym.default_mission())) {
+      errors.push_back(
+          absl::Substitute("Unit $0 has invalid default mission $1",
+                           util::objectid::DisplayString(unit.unit_id()),
+                           sym.default_mission()));
+      continue;
+    }
+  }
+  return errors;
+}
+
 util::Status
 SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   auto status = validateSetup(setup);
@@ -279,6 +345,8 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
     return status;
   }
 
+  games::setup::validation::RegisterValidator("SevenYears",
+                                              SevenYearsValidation);
   auto errors = games::setup::validation::Validate(scenario_proto, world_proto);
   if (!errors.empty()) {
     for (const auto& error : errors) {
