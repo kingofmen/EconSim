@@ -2,6 +2,7 @@
 
 #include <experimental/filesystem>
 
+#include "games/actions/strategy.h"
 #include "games/setup/validation/validation.h"
 #include "games/factions/proto/factions.pb.h"
 #include "games/geography/connection.h"
@@ -289,15 +290,16 @@ util::Status CanonicaliseScenario(proto::Scenario* scenario) {
 }
 
 util::Status CanonicaliseWorld(proto::GameWorld* world) {
+  util::Status status;
   // First canonicalise all self-id objects.
   for (auto& faction : *(world->mutable_factions())) {
-    auto status = util::objectid::Canonicalise(faction.mutable_faction_id());
+    status = util::objectid::Canonicalise(faction.mutable_faction_id());
     if (!status.ok()) {
       return status;
     }
   }
   for (auto& area : *(world->mutable_areas())) {
-    auto status = util::objectid::Canonicalise(area.mutable_area_id());
+    status = util::objectid::Canonicalise(area.mutable_area_id());
     if (!status.ok()) {
       return status;
     }
@@ -305,7 +307,7 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
 
   // Only now do the references.
   for (auto& conn : *(world->mutable_connections())) {
-    auto status = util::objectid::Canonicalise(conn.mutable_a_area_id());
+    status = util::objectid::Canonicalise(conn.mutable_a_area_id());
     if (!status.ok()) {
       return status;
     }
@@ -315,33 +317,60 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
     }
   }
 
+  for (const auto& unit : world->units()) {
+    if (!unit.has_strategy()) {
+      continue;
+    }
+    const auto& strategy = unit.strategy();
+    if (strategy.key_case() != actions::proto::Strategy::kDefine) {
+      continue;
+    }
+    status = actions::RegisterStrategy(strategy);
+    if (!status.ok()) {
+      Log::Errorf("Error registering strategy from unit %s: %s",
+                  util::objectid::DisplayString(unit.unit_id()),
+                  status.error_message());
+      return status;
+    }
+  }
+
   for (auto& unit : *(world->mutable_units())) {
     if (unit.has_location()) {
       auto* loc = unit.mutable_location();
       if (loc->has_a_area_id()) {
-        auto status = util::objectid::Canonicalise(loc->mutable_a_area_id());
+        status = util::objectid::Canonicalise(loc->mutable_a_area_id());
         if (!status.ok()) {
           return status;
         }
       }
       if (loc->has_z_area_id()) {
-        auto status = util::objectid::Canonicalise(loc->mutable_z_area_id());
+        status = util::objectid::Canonicalise(loc->mutable_z_area_id());
         if (!status.ok()) {
           return status;
         }
       }
     }
     if (unit.has_strategy()) {
+      if (unit.strategy().key_case() == actions::proto::Strategy::kLookup) {
+        const auto& name = unit.strategy().lookup();
+        status = actions::LoadStrategy(name, unit.mutable_strategy());
+        if (!status.ok()) {
+          Log::Errorf("Error loading strategy %s from unit %s: %s", name,
+                      util::objectid::DisplayString(unit.unit_id()),
+                      status.error_message());
+          return status;
+        }
+      }
       if (unit.strategy().has_shuttle_trade()) {
         auto* st = unit.mutable_strategy()->mutable_shuttle_trade();
         if (st->has_area_a_id()) {
-          auto status = util::objectid::Canonicalise(st->mutable_area_a_id());
+          status = util::objectid::Canonicalise(st->mutable_area_a_id());
           if (!status.ok()) {
             return status;
           }
         }
         if (st->has_area_z_id()) {
-          auto status = util::objectid::Canonicalise(st->mutable_area_z_id());
+          status = util::objectid::Canonicalise(st->mutable_area_z_id());
           if (!status.ok()) {
             return status;
           }
@@ -349,7 +378,7 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
       } else if (unit.strategy().has_seven_years_merchant()) {
         auto* st = unit.mutable_strategy()->mutable_seven_years_merchant();
         if (st->has_base_area_id()) {
-          auto status = util::objectid::Canonicalise(st->mutable_base_area_id());
+          status = util::objectid::Canonicalise(st->mutable_base_area_id());
           if (!status.ok()) {
             return status;
           }

@@ -22,12 +22,20 @@ message ShuttleTrade {
 // Strategies for SevenYears naval-management minigame.
 message SevenYearsMerchant {
   optional util.proto.ObjectId base_area_id = 1;
+  optional string mission = 2;
+  optional string default_mission = 3;
 }
 
 message Strategy {
   oneof strategy {
     ShuttleTrade shuttle_trade = 1;
     SevenYearsMerchant seven_years_merchant = 2;
+  }
+  oneof key {
+    // If 'define' is set, units may copy this strategy by setting
+    // 'lookup' to that string.
+    string define = 3;
+    string lookup = 4;
   }
 }
 

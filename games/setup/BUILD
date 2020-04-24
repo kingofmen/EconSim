@@ -5,6 +5,7 @@ cc_library(
     srcs = ["setup.cc"],
     hdrs = ["setup.h"],
     deps = [
+        "//games/actions:strategy",
         "//games/factions/proto:factions_proto",
         "//games/factions:factions",
         "//games/setup/proto:setup_proto",
