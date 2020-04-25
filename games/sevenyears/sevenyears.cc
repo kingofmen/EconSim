@@ -116,7 +116,31 @@ public:
                               actions::proto::Plan* plan) const override;
 
 private:
+  util::Status EuropeanTrade(const units::Unit& unit,
+                             actions::proto::Plan* plan) const;
+  util::Status ColonialTrade(const units::Unit& unit,
+                             actions::proto::Plan* plan) const;
+  util::Status SupplyArmies(const units::Unit& unit,
+                             actions::proto::Plan* plan) const;
 };
+
+util::Status
+SevenYearsMerchant::EuropeanTrade(const units::Unit& unit,
+                                  actions::proto::Plan* plan) const {
+  return util::OkStatus();
+}
+
+util::Status
+SevenYearsMerchant::ColonialTrade(const units::Unit& unit,
+                                  actions::proto::Plan* plan) const {
+  return util::NotImplementedError("Colonial trade AI is not implemented.");
+}
+
+util::Status
+SevenYearsMerchant::SupplyArmies(const units::Unit& unit,
+                                  actions::proto::Plan* plan) const {
+  return util::NotImplementedError("Army supply AI is not implemented.");
+}
 
 util::Status
 SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
@@ -159,7 +183,14 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
         absl::Substitute("Invalid mission '$0'", mission));
   }
 
-  return util::OkStatus();
+  if (mission == kEuropeanTrade) {
+    return EuropeanTrade(unit, plan);
+  } else if (mission == kColonialTrade) {
+    return ColonialTrade(unit, plan);
+  } else if (mission == kSupplyArmies) {
+    return SupplyArmies(unit, plan);
+  }
+  return util::NotImplementedError("This error should be unreachable.");
 }
 
 util::Status InitialiseAI() {
