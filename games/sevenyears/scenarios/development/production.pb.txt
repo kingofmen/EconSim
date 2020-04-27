@@ -78,8 +78,8 @@ production_chains {
       }
       raw_materials {
         quantities {
-          key: "colonial_extraction_infrastructure"
-          value: 1
+          key: "import_capacity"
+          value: 1000000
         }
       }
     }

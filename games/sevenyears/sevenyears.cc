@@ -24,6 +24,7 @@ namespace sevenyears {
 constexpr char kEuropeanTrade[] = "europe_trade";
 constexpr char kColonialTrade[] = "colony_trade";
 constexpr char kSupplyArmies[] = "supply_armies";
+constexpr char kImportCapacity[] = "import_capacity";
 
 namespace {
 
@@ -111,6 +112,7 @@ bool isValidMission(const std::string& mission) {
 
 class SevenYearsMerchant : public ai::UnitAi {
 public:
+  SevenYearsMerchant(SevenYears* seven) : game_(seven) {}
   util::Status AddStepsToPlan(const units::Unit& unit,
                               const actions::proto::Strategy& strategy,
                               actions::proto::Plan* plan) const override;
@@ -122,11 +124,63 @@ private:
                              actions::proto::Plan* plan) const;
   util::Status SupplyArmies(const units::Unit& unit,
                              actions::proto::Plan* plan) const;
+
+  const SevenYears* game_;
 };
+
+bool canDoEuropeanTrade(const units::Unit& unit,
+                        const geography::Area& area,
+                        const sevenyears::proto::AreaState& state) {
+  for (int i = 0; i < area.num_fields(); ++i) {
+    const geography::proto::Field* field = area.field(i);
+    if (field == nullptr) {
+      continue;
+    }
+    if (market::GetAmount(field->resources(), kImportCapacity) >=
+        micro::kOneInU) {
+      return true;
+    }
+  }
+  return false;
+}
+
+util::Status planTrade(const units::Unit& unit, const geography::Area& area,
+                       const sevenyears::proto::AreaState& state,
+                       actions::proto::Plan* plan) {
+  auto* step = plan->add_steps();
+  step->set_key(kEuropeanTrade);
+  return util::OkStatus();
+}
 
 util::Status
 SevenYearsMerchant::EuropeanTrade(const units::Unit& unit,
                                   actions::proto::Plan* plan) const {
+  const auto& world = game_->World();
+  for (const auto& area : world.areas_) {
+    const auto& area_id = area->area_id();
+    if (area_id == unit.location().a_area_id()) {
+      continue;
+    }
+    const auto& state = game_->AreaState(area_id);
+    if (!canDoEuropeanTrade(unit, *area, state)) {
+      continue;
+    }
+
+    // TODO: Distribute among available trade ports.
+    // Better: If you can't do this one, try again elsewhere. Return fail
+    // only if everything fails.
+    // TODO: Better heuristic, and distance calculator that accounts for risk;
+    // but that awaits warship implementation.
+    auto status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                                     ai::impl::ZeroHeuristic, area_id, plan);
+    if (!status.ok()) {
+      return status;
+    }
+    status = planTrade(unit, *area, state, plan);
+    if (!status.ok()) {
+      return status;
+    }
+  }
   return util::OkStatus();
 }
 
@@ -161,6 +215,7 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   const auto& merchant_strategy = strategy.seven_years_merchant();
 
   // If not in home base, go home.
+  // TODO: Put in method, and add "load and unload" step.
   const auto& location = unit.location();
   if (location.a_area_id() != merchant_strategy.base_area_id() ||
       location.has_connection_id()) {
@@ -193,12 +248,18 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   return util::NotImplementedError("This error should be unreachable.");
 }
 
-util::Status InitialiseAI() {
+util::Status europeanTrade(const actions::proto::Step& step, units::Unit* unit) {
+  // TODO: Implement this.
+  return util::OkStatus();
+}
+
+util::Status SevenYears::InitialiseAI() {
+  ai::RegisterExecutor(kEuropeanTrade, europeanTrade);
   actions::proto::Strategy strategy;
   strategy.mutable_seven_years_merchant()->mutable_base_area_id()->set_number(
       1);
   // This leaks, but no matter, it's max a hundred bytes.
-  SevenYearsMerchant* merchant_ai = new SevenYearsMerchant();;
+  SevenYearsMerchant* merchant_ai = new SevenYearsMerchant(this);
   return ai::RegisterPlanner(strategy, merchant_ai);
 }
 
@@ -413,8 +474,31 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   for (const auto& ai : world_state->area_states()) {
     area_states_[ai.area_id()] = ai;
   }
+  for (const auto& area : game_world_->areas_) {
+    const auto& area_id = area->area_id();
+    if (area_states_.find(area_id) != area_states_.end()) {
+      continue;
+    }
+    Log::Warnf("Could not find state for area %d",
+               util::objectid::DisplayString(area_id));
+    sevenyears::proto::AreaState state;
+    *state.mutable_area_id() = area_id;
+    *state.mutable_owner_id() = util::objectid::kNullId;
+    area_states_[area_id] = state;
+  }
 
   return util::OkStatus();
+}
+
+const sevenyears::proto::AreaState&
+SevenYears::AreaState(const util::proto::ObjectId& area_id) const {
+  if (area_states_.find(area_id) == area_states_.end()) {
+    Log::Errorf("Could not find state for area %s",
+                util::objectid::DisplayString(area_id));
+    static sevenyears::proto::AreaState dummy_area_state_;
+    return dummy_area_state_;
+  }
+  return area_states_.at(area_id);
 }
 
 }  // namespace sevenyears

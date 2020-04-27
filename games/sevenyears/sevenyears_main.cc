@@ -134,11 +134,12 @@ int main(int /*argc*/, char** /*argv*/) {
   }
   Log::Infof("Created world");
 
-  auto status = sevenyears::InitialiseAI();
+  auto status = sevenYears.InitialiseAI();
   if (!status.ok()) {
     Log::Errorf("Error initialising AI: %s", status.error_message());
     return 3;
   }
+  Log::Infof("Initialised AI");
   
   games::interface::proto::Config config;
   config.set_screen_size(games::interface::proto::Config::SS_1440_900);

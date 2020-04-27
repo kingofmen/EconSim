@@ -33,6 +33,15 @@ areas {
     number: 3
     tag: "Bergen"
   }
+  fields {
+    name: "Bergen"
+    resources {
+      quantities {
+        key: "import_capacity"
+        value: 1000000
+      }
+    }
+  }
 }
 areas {
   area_id {
@@ -189,7 +198,7 @@ units {
   area_states {
     area_id {
       kind: "area"
-      number: 1
+      tag: "London"
     }
     owner_id {
       kind: "faction"

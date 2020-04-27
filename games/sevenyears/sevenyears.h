@@ -18,6 +18,11 @@ public:
   util::Status LoadScenario(const games::setup::proto::ScenarioFiles& setup);
   void NewTurn();
   void UpdateGraphicsInfo(interface::Base* gfx);
+  util::Status InitialiseAI();
+
+  const games::setup::World& World() const { return *game_world_; }
+  const sevenyears::proto::AreaState&
+  AreaState(const util::proto::ObjectId& area_id) const;
 
 private:
   void moveUnits();
@@ -29,8 +34,6 @@ private:
   std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
       area_states_;
 };
-
-util::Status InitialiseAI();
 
 }  // namespace sevenyears
 
