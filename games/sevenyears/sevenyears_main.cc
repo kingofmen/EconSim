@@ -125,8 +125,15 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   sevenyears::SevenYears sevenYears;
+  auto status = sevenYears.InitialiseAI();
+  if (!status.ok()) {
+    Log::Errorf("Error initialising AI: %s", status.error_message());
+    return 3;
+  }
+  Log::Infof("Initialised AI");
+
   if (scenarios.size() == 1) {
-    auto status = sevenYears.LoadScenario(scenarios[0]);
+    status = sevenYears.LoadScenario(scenarios[0]);
     if (!status.ok()) {
       Log::Errorf("Error loading scenario: %s", status.error_message());
       return 3;
@@ -134,13 +141,6 @@ int main(int /*argc*/, char** /*argv*/) {
   }
   Log::Infof("Created world");
 
-  auto status = sevenYears.InitialiseAI();
-  if (!status.ok()) {
-    Log::Errorf("Error initialising AI: %s", status.error_message());
-    return 3;
-  }
-  Log::Infof("Initialised AI");
-  
   games::interface::proto::Config config;
   config.set_screen_size(games::interface::proto::Config::SS_1440_900);
   EventHandler handler(&sevenYears);

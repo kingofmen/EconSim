@@ -1,0 +1,23 @@
+#ifndef GAMES_SEVENYEARS_INTERFACES_H
+#define GAMES_SEVENYEARS_INTERFACES_H
+
+#include "games/setup/setup.h"
+#include "games/sevenyears/proto/sevenyears.pb.h"
+#include "util/proto/object_id.pb.h"
+
+namespace sevenyears {
+
+// Abstract interface for moving game-state information around.
+class SevenYearsState : public games::setup::WorldStateInterface {
+public:
+  virtual const games::setup::World& World() const override = 0;
+  virtual const games::setup::Constants& Constants() const override = 0;
+  virtual const sevenyears::proto::AreaState&
+  AreaState(const util::proto::ObjectId& area_id) const = 0;
+};
+
+}  // namespace sevenyears
+
+
+
+#endif
