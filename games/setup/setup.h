@@ -54,6 +54,13 @@ struct World {
   void restoreTags();
 };
 
+// Interface for passing world-state around.
+class WorldStateInterface {
+ public:
+  virtual const World& World() const = 0;
+  virtual const Constants& Constants() const = 0;
+};
+
 util::Status LoadScenario(const proto::ScenarioFiles& config,
                           proto::Scenario* scenario);
 
