@@ -33,6 +33,16 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "sevenyears_ai_test",
+    srcs = ["ai_tests.cc"],
+    deps = [
+        ":sevenyears_ai_lib",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "sevenyears_lib",
     srcs = ["sevenyears.cc"],
