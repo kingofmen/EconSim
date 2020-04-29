@@ -38,6 +38,11 @@ cc_test(
     srcs = ["ai_tests.cc"],
     deps = [
         ":sevenyears_ai_lib",
+        ":sevenyears_interfaces",
+        "//games/actions/proto:strategy_proto",
+        "//games/setup:setup",
+        "//games/sevenyears/proto:sevenyears_proto",
+        "//util/proto:object_id_proto",
         "@gtest//:gtest",
         "@gtest//:gtest_main",
     ],

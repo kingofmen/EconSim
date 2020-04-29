@@ -150,12 +150,10 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
     mission = kEuropeanTrade;
   }
 
-  /*
   if (!isValidMission(mission)) {
     return util::InvalidArgumentError(
         absl::Substitute("Invalid mission '$0'", mission));
   }
-  */
 
   if (mission == kEuropeanTrade) {
     return EuropeanTrade(unit, plan);
