@@ -18,6 +18,7 @@ constexpr int64 kTenInU      = 10 * kOneInU;
 constexpr int64 kHundredInU  = 100 * kOneInU;
 constexpr int64 kThousandInU = 1000 * kOneInU;
 constexpr int64 kMaxU        = std::numeric_limits<int64>::max();
+constexpr uMeasure kuMaxU    = std::numeric_limits<uint64>::max();
 
 // Some fractions.
 constexpr int64 kOneTenthInU     = kOneInU * 1 / 10;

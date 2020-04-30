@@ -41,7 +41,10 @@ bool canDoEuropeanTrade(const units::Unit& unit,
 }
 
 util::Status europeanTrade(const actions::proto::Step& step, units::Unit* unit) {
-  // TODO: Implement this.
+  const auto& area_id = unit->location().a_area_id();
+  Log::Debugf("Unit %s doing trade in %s",
+              util::objectid::DisplayString(unit->unit_id()),
+              util::objectid::DisplayString(area_id));
   return util::OkStatus();
 }
 
@@ -64,6 +67,7 @@ util::Status planTrade(const units::Unit& unit, const geography::Area& area,
                        actions::proto::Plan* plan) {
   auto* step = plan->add_steps();
   step->set_key(kEuropeanTrade);
+  
   return util::OkStatus();
 }
 
