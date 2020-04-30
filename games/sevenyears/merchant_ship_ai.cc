@@ -16,8 +16,9 @@
 #include "util/status/status.h"
 
 // TODO: Make 'inline' when we support C++17.
-constexpr char kEuropeanTrade[] = "europe_trade";
-constexpr char kColonialTrade[] = "colony_trade";
+// TODO: Should these rather be defined in the Strategy proto?
+constexpr char kEuropeanTrade[] = "european_trade";
+constexpr char kColonialTrade[] = "colonial_trade";
 constexpr char kSupplyArmies[] = "supply_armies";
 constexpr char kImportCapacity[] = "import_capacity";
 
@@ -40,14 +41,6 @@ bool canDoEuropeanTrade(const units::Unit& unit,
   return false;
 }
 
-util::Status europeanTrade(const actions::proto::Step& step, units::Unit* unit) {
-  const auto& area_id = unit->location().a_area_id();
-  Log::Debugf("Unit %s doing trade in %s",
-              util::objectid::DisplayString(unit->unit_id()),
-              util::objectid::DisplayString(area_id));
-  return util::OkStatus();
-}
-
 bool isMerchantShip(const units::Unit& unit) {
   for (const auto& tag : unit.Template().tags()) {
     if (tag == "merchant") {
@@ -67,15 +60,70 @@ util::Status planTrade(const units::Unit& unit, const geography::Area& area,
                        actions::proto::Plan* plan) {
   auto* step = plan->add_steps();
   step->set_key(kEuropeanTrade);
-  
   return util::OkStatus();
 }
 
 }  // namespace
 
 util::Status
-SevenYearsMerchant::EuropeanTrade(const units::Unit& unit,
-                                  actions::proto::Plan* plan) const {
+SevenYearsMerchant::doEuropeanTrade(const actions::proto::Step& step,
+                                    units::Unit* unit) const {
+  const auto& unit_id = unit->unit_id();
+  const auto& area_id = unit->location().a_area_id();
+  Log::Debugf("Unit %s doing trade in %s",
+              util::objectid::DisplayString(unit_id),
+              util::objectid::DisplayString(area_id));
+  geography::Area* area = geography::Area::GetById(area_id);
+  int bestIndex = -1;
+  micro::uMeasure bestAmount = 0;
+  for (int i = 0; i < area->num_fields(); ++i) {
+    const auto* field = area->field(i);
+    if (field->has_progress()) {
+      continue;
+    }
+    micro::Measure amount =
+        market::GetAmount(field->resources(), kImportCapacity);
+    if (amount < bestAmount) {
+      continue;
+    }
+    bestAmount = amount;
+    bestIndex = i;
+  }
+
+  if (bestIndex < 0) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find field for $0 to do European trade in $1",
+        util::objectid::DisplayString(unit_id),
+        util::objectid::DisplayString(area_id)));
+  }
+
+  geography::proto::Field* field = area->mutable_field(bestIndex);
+  const auto& trade = game_->ProductionChain(kEuropeanTrade);
+  *field->mutable_progress() = trade.MakeProgress(trade.MaxScaleU());
+  // TODO: Calculate this.
+  micro::Measure relation_bonus_u = 0;
+  // TODO: Don't assume the variant index.
+  int var_index = 0;
+  bool success =
+      trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
+                        unit->mutable_resources(), field->mutable_resources(),
+                        unit->mutable_resources(), unit->mutable_resources(),
+                        field->mutable_progress());
+  // TODO: Only do clearing on completion, and if not complete, send error to
+  // signal that the ship must stay.
+  field->clear_progress();
+  if (!success) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Process $0 in field $1 of $2 failed", trade.get_name(), bestIndex,
+        util::objectid::DisplayString(area_id)));
+  }
+  return util::OkStatus();
+}
+
+
+util::Status
+SevenYearsMerchant::planEuropeanTrade(const units::Unit& unit,
+                                      actions::proto::Plan* plan) const {
   const auto& world = game_->World();
   for (const auto& area : world.areas_) {
     const auto& area_id = area->area_id();
@@ -106,14 +154,14 @@ SevenYearsMerchant::EuropeanTrade(const units::Unit& unit,
 }
 
 util::Status
-SevenYearsMerchant::ColonialTrade(const units::Unit& unit,
-                                  actions::proto::Plan* plan) const {
+SevenYearsMerchant::planColonialTrade(const units::Unit& unit,
+                                      actions::proto::Plan* plan) const {
   return util::NotImplementedError("Colonial trade AI is not implemented.");
 }
 
 util::Status
-SevenYearsMerchant::SupplyArmies(const units::Unit& unit,
-                                  actions::proto::Plan* plan) const {
+SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
+                                     actions::proto::Plan* plan) const {
   return util::NotImplementedError("Army supply AI is not implemented.");
 }
 
@@ -160,17 +208,21 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   }
 
   if (mission == kEuropeanTrade) {
-    return EuropeanTrade(unit, plan);
+    return planEuropeanTrade(unit, plan);
   } else if (mission == kColonialTrade) {
-    return ColonialTrade(unit, plan);
+    return planColonialTrade(unit, plan);
   } else if (mission == kSupplyArmies) {
-    return SupplyArmies(unit, plan);
+    return planSupplyArmies(unit, plan);
   }
   return util::NotImplementedError("This error should be unreachable.");
 }
 
 util::Status SevenYearsMerchant::Initialise() {
-  ai::RegisterExecutor(kEuropeanTrade, europeanTrade);
+  ai::RegisterExecutor(
+      kEuropeanTrade,
+      [this](const actions::proto::Step& step, units::Unit* unit) {
+        return this->doEuropeanTrade(step, unit);
+      });
   actions::proto::Strategy strategy;
   strategy.mutable_seven_years_merchant()->mutable_base_area_id()->set_number(
       1);

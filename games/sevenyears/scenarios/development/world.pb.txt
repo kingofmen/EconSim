@@ -124,7 +124,7 @@ units {
         kind: "area"
 	tag: "London"
       }
-      default_mission: "europe_trade"
+      default_mission: "european_trade"
     }
     define: "london_trader"
   }
@@ -143,6 +143,12 @@ units {
   }
   strategy {
     lookup: "london_trader"
+  }
+  resources {
+    quantities {
+      key: "trade_goods"
+      value: 1000000
+    }
   }
 }
 

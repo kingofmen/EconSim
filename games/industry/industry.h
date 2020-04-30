@@ -41,6 +41,7 @@ public:
   // and movable capital from inputs, and resources from raw_materials; puts
   // movable capital into used_capital. If the process completes, fills outputs
   // with the products.
+  // TODO: Make this a util::Status.
   bool PerformStep(const market::proto::Container& fixed_capital,
                    const micro::Measure institutional_capital,
                    const int variant_index, market::proto::Container* inputs,

@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "games/actions/proto/strategy.pb.h"
+#include "games/industry/industry.h"
 #include "games/setup/setup.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -26,6 +27,11 @@ public:
   const proto::AreaState&
   AreaState(const util::proto::ObjectId& area_id) const {
     return state_map_.at(area_id);
+  }
+  const industry::Production&
+  ProductionChain(const std::string& name) const override {
+    static industry::Production dummy;
+    return dummy;
   }
 
 private:
@@ -54,14 +60,14 @@ TEST_F(SevenYearsMerchantTest, TestValidMission) {
   status = merchant_ai_->ValidMission(sym);
   EXPECT_THAT(status.error_message(),
               testing::HasSubstr("invalid mission"));
-  sym.set_mission("europe_trade");
+  sym.set_mission("european_trade");
   status = merchant_ai_->ValidMission(sym);
   EXPECT_TRUE(status.ok()) << status.error_message();
   sym.set_default_mission("bad_mission");
   status = merchant_ai_->ValidMission(sym);
   EXPECT_THAT(status.error_message(),
               testing::HasSubstr("invalid default mission"));
-  sym.set_default_mission("europe_trade");
+  sym.set_default_mission("european_trade");
   status = merchant_ai_->ValidMission(sym);
   EXPECT_TRUE(status.ok()) << status.error_message();
 }

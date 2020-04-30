@@ -139,7 +139,6 @@ void SevenYears::moveUnits() {
 void SevenYears::NewTurn() {
   Log::Info("New turn");
 
-  const std::string defaultChain = constants_.production_chains_[0].name();
   for (const auto& area : game_world_->areas_) {
     const auto& area_id = area->area_id();
     if (area_states_.find(area_id) == area_states_.end()) {
@@ -149,10 +148,10 @@ void SevenYears::NewTurn() {
     auto& area_state = area_states_.at(area_id);
     for (int i = 0; i < area->num_fields(); ++i) {
       geography::proto::Field* field = area->mutable_field(i);
-      std::string chain_name = defaultChain;
-      if (area_state.production_size() > i) {
-        chain_name = area_state.production(i);
+      if (area_state.production_size() <= i) {
+        continue;
       }
+      const std::string& chain_name = area_state.production(i);
       const auto& chain = production_chains_[chain_name];
 
       if (!field->has_progress() || chain.Complete(field->progress())) {
@@ -324,5 +323,16 @@ SevenYears::AreaState(const util::proto::ObjectId& area_id) const {
   }
   return area_states_.at(area_id);
 }
+
+const industry::Production&
+SevenYears::ProductionChain(const std::string& name) const {
+  if (production_chains_.find(name) == production_chains_.end()) {
+    Log::Errorf("Could not find production chain %s", name);
+    static industry::Production dummy;
+    return dummy;
+  }
+  return production_chains_.at(name);
+}
+
 
 }  // namespace sevenyears

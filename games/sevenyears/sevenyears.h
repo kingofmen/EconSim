@@ -31,7 +31,9 @@ public:
     return constants_;
   }
   const sevenyears::proto::AreaState&
-  AreaState(const util::proto::ObjectId& area_id) const;
+  AreaState(const util::proto::ObjectId& area_id) const override;
+  const industry::Production&
+  ProductionChain(const std::string& name) const override;
 
 private:
   void moveUnits();
