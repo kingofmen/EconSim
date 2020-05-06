@@ -12,8 +12,14 @@ cc_library(
 
 cc_library(
     name = "sevenyears_ai_lib",
-    srcs = ["merchant_ship_ai.cc"],
-    hdrs = ["merchant_ship_ai.h"],
+    srcs = [
+        "merchant_ship_ai.cc",
+        "action_cost_calculator.cc",
+    ],
+    hdrs = [
+        "merchant_ship_ai.h",
+        "action_cost_calculator.h",
+    ],
     deps = [
         ":sevenyears_interfaces",
         "//games/actions/proto:plan_proto",

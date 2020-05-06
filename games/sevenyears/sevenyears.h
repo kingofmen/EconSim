@@ -6,6 +6,7 @@
 
 #include "games/interface/base.h"
 #include "games/setup/proto/setup.pb.h"
+#include "games/sevenyears/action_cost_calculator.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/merchant_ship_ai.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -47,6 +48,7 @@ private:
   std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
       area_states_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
+  std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
 };
 
 }  // namespace sevenyears
