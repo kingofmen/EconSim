@@ -9,6 +9,7 @@ unit_templates {
     max_weight_u: 10000000
   }
   tags: "merchant"
+  base_action_points_u: 1000000
 }
 unit_templates {
   template_id {
@@ -21,6 +22,7 @@ unit_templates {
     max_weight_u: 5000000
   }
   tags: "merchant"
+  base_action_points_u: 1000000
 }
 unit_templates {
   template_id {
@@ -33,5 +35,6 @@ unit_templates {
     max_weight_u: 15000000
   }
   tags: "merchant"
+  base_action_points_u: 1000000
 }
 

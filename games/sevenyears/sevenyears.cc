@@ -119,20 +119,22 @@ void SevenYears::moveUnits() {
     }
   }
 
-  // Execute in single steps.
-  std::unordered_set<util::proto::ObjectId> warned;
-  for (int i = 0; i < 3; ++i) {
+  for (auto& unit : game_world_->units_) {
+    unit->reset_action_points();
+  }
+
+  while (true) {
+    int count = 0;
     for (auto& unit : game_world_->units_) {
       auto status =
           ai::ExecuteStep(unit->plan(), unit.get(), *cost_calculator_);
       if (status.ok()) {
         ai::DeleteStep(unit->mutable_plan());
-      } else if (warned.find(unit->unit_id()) == warned.end()) {
-        warned.insert(unit->unit_id());
-        Log::Warnf("Could not execute unit (%s, %d) plan: %s",
-                   unit->unit_id().kind(), unit->unit_id().number(),
-                   status.error_message());
+        count++;
       }
+    }
+    if (count == 0) {
+      break;
     }
   }
 }
