@@ -29,4 +29,18 @@ Status NotImplementedError(const std::string& msg) {
   return Status(Code::UNIMPLEMENTED, msg);
 }
 
+Status ResourceExhaustedError(const std::string& msg) {
+  return Status(Code::RESOURCE_EXHAUSTED, msg);
+}
+
+bool Equal(const Status& one, const Status& two) {
+  if (one.code() != two.code()) {
+    return false;
+  }
+  if (one.error_message() != two.error_message()) {
+    return false;
+  }
+  return true;
+}
+
 } // namespace util

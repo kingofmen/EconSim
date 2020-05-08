@@ -17,6 +17,10 @@ Status InvalidArgumentError(const std::string& msg);
 Status FailedPreconditionError(const std::string& msg);
 Status NotFoundError(const std::string& msg);
 Status NotImplementedError(const std::string& msg);
+Status ResourceExhaustedError(const std::string& msg);
+
+// Statuses are equal if they have the same code and message.
+bool Equal(const Status& one, const Status& two);
 
 } // namespace util
 
