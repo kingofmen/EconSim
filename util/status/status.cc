@@ -33,6 +33,11 @@ Status ResourceExhaustedError(const std::string& msg) {
   return Status(Code::RESOURCE_EXHAUSTED, msg);
 }
 
+const Status& NotComplete() {
+  static Status not_complete(Code::RESOURCE_EXHAUSTED, "not completed");
+  return not_complete;
+}
+
 bool Equal(const Status& one, const Status& two) {
   if (one.code() != two.code()) {
     return false;
@@ -41,6 +46,10 @@ bool Equal(const Status& one, const Status& two) {
     return false;
   }
   return true;
+}
+
+bool IsNotComplete(const Status& cand) {
+  return Equal(cand, NotComplete());
 }
 
 } // namespace util

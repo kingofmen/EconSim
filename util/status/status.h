@@ -22,6 +22,13 @@ Status ResourceExhaustedError(const std::string& msg);
 // Statuses are equal if they have the same code and message.
 bool Equal(const Status& one, const Status& two);
 
+// Special status indicating the function encountered no errors,
+// but has not completed - something remains to be done.
+const Status& NotComplete();
+
+// Returns true if the candidate status is NotComplete.
+bool IsNotComplete(const Status& cand);
+
 } // namespace util
 
 #endif // UTIL_STATUS_H
