@@ -10,6 +10,7 @@
 #include "util/status/status.h"
 
 namespace ai {
+namespace {
 
 std::unordered_map<actions::proto::AtomicAction, StepExecutor>
     execution_action_map = {
@@ -19,8 +20,67 @@ std::unordered_map<actions::proto::AtomicAction, StepExecutor>
         {actions::proto::AA_TURN_AROUND, ai::impl::TurnAround},
         {actions::proto::AA_SWITCH_STATE, ai::impl::SwitchState},
 };
+std::unordered_map<actions::proto::AtomicAction, CostCalculator>
+    action_cost_map = {};
 
 std::unordered_map<std::string, StepExecutor> execution_key_map = {};
+std::unordered_map<std::string, CostCalculator> key_cost_map = {};
+
+CostCalculator default_cost = nullptr;
+
+util::Status executeKey(const std::string& key,
+                        const actions::proto::Step& step, units::Unit* unit) {
+  if (execution_key_map.find(key) != execution_key_map.end()) {
+    return execution_key_map.at(key)(step, unit);
+  }
+  return util::NotImplementedError(
+      absl::Substitute("Executor for key $0 not implemented", key));
+}
+
+util::Status executeAction(actions::proto::AtomicAction action,
+                           const actions::proto::Step& step,
+                           units::Unit* unit) {
+  if (execution_action_map.find(action) == execution_action_map.end()) {
+    return util::NotImplementedError(
+        absl::Substitute("Executor for action $0 not implemented", action));
+  }
+  return execution_action_map[step.action()](step, unit);  
+}
+
+uint64 getCost(const actions::proto::Step& step, units::Unit* unit) {
+  if (default_cost != nullptr) {
+    return default_cost(step, unit);
+  }
+  uint64 cost_u = 0;
+  switch (step.trigger_case()) {
+    case actions::proto::Step::kKey:
+      if (key_cost_map.find(step.key()) != key_cost_map.end()) {
+        return key_cost_map.at(step.key())(step, unit);
+      }
+    case actions::proto::Step::kAction:
+      if (action_cost_map.find(step.action()) != action_cost_map.end()) {
+        return action_cost_map.at(step.action())(step, unit);
+      }
+    default:
+      break;
+  }
+  return 0;
+}
+
+}  // namespace
+
+
+void RegisterCost(const std::string& key, CostCalculator cost) {
+  key_cost_map[key] = cost;
+}
+
+void RegisterCost(actions::proto::AtomicAction action, CostCalculator cost) {
+  action_cost_map[action] = cost;
+}
+
+void RegisterDefaultCost(CostCalculator cost) {
+  default_cost = cost;
+}
 
 void RegisterExecutor(const std::string& key, StepExecutor exe) {
   execution_key_map[key] = exe;
@@ -34,8 +94,11 @@ uint64 ZeroCost(const actions::proto::Step&, units::Unit*) {
   return 0;
 }
 
-util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit,
-                         CostCalculator cost_u) {
+uint64 OneCost(const actions::proto::Step&, units::Unit*) {
+  return micro::kOneInU;
+}
+
+util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
   if (plan.steps_size() == 0) {
     return util::InvalidArgumentError("No steps in plan");
   }
@@ -43,24 +106,16 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit,
     return util::InvalidArgumentError("Null unit");
   }
   const auto& step = plan.steps(0);
-  auto used_u = cost_u(step, unit);
-  if (used_u > unit->action_points_u()) {
+  auto cost_u = getCost(step, unit);
+  if (cost_u > unit->action_points_u()) {
     return util::FailedPreconditionError("Not enough action points");
   }
-  unit->use_action_points(used_u);
+  unit->use_action_points(cost_u);
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
-      if (execution_key_map.find(step.key()) != execution_key_map.end()) {
-        return execution_key_map.at(step.key())(step, unit);
-      }
-      return util::NotImplementedError(
-          absl::Substitute("Executor for key $0 not implemented", step.key()));
+      return executeKey(step.key(), step, unit);
     case actions::proto::Step::kAction:
-      if (execution_action_map.find(step.action()) == execution_action_map.end()) {
-        return util::NotImplementedError(absl::Substitute(
-            "Executor for action $0 not implemented", step.action()));
-      }
-      return execution_action_map[step.action()](step, unit);
+      return executeAction(step.action(), step, unit);
     case actions::proto::Step::TRIGGER_NOT_SET:
     default:
       return util::InvalidArgumentError("Plan step has neither action or key");

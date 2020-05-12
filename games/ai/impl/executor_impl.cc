@@ -46,10 +46,31 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
     location->set_connection_id(step.connection_id());
   }
 
-  static geography::DefaultTraverser traverser;
-  traverser.Traverse(*unit, location);
+  auto* connection = geography::Connection::ById(step.connection_id());
+  if (connection == nullptr) {
+    return util::NotFoundError(
+        absl::Substitute("Could not find connection $0", step.connection_id()));
+  }
 
-  return util::OkStatus();
+  uint64 progress_u = location->progress_u();
+  uint64 distance_u = unit->speed_u(connection->type());
+  uint64 length_u = connection->length_u() - progress_u;
+  if (distance_u > length_u) {
+    distance_u = length_u;
+  }
+
+  // TODO: Add a detections vector, and handle them.
+  connection->Listen(*unit, distance_u, nullptr);
+  if (distance_u >= length_u) {
+    location->clear_progress_u();
+    *location->mutable_a_area_id() =
+        connection->OtherSide(location->a_area_id());
+    location->clear_connection_id();
+    return util::OkStatus();
+  } else {
+    location->set_progress_u(progress_u + distance_u);
+    return util::NotComplete();
+  }
 }
 
 util::Status BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {

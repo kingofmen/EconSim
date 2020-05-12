@@ -57,7 +57,8 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   step->set_action(actions::proto::AA_MOVE);
   step->set_connection_id(connection_12->ID());
 
-  EXPECT_TRUE(MoveUnit(plan_.steps(0), unit_.get()).ok());
+  auto status = MoveUnit(plan_.steps(0), unit_.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
 }
 

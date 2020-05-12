@@ -89,16 +89,17 @@ TEST_F(ExecuterTest, TestExecuteStep) {
   uint64 current_cost = 10;
   CostCalculator cost = [&current_cost](const actions::proto::Step&,
                                         units::Unit*) { return current_cost; };
+  RegisterCost(step->key(), cost);
 
   touched = false;
-  status = ExecuteStep(plan_, unit.get(), cost);
+  status = ExecuteStep(plan_, unit.get());
   EXPECT_FALSE(touched);
   EXPECT_THAT(status.error_message(), testing::HasSubstr("action points"))
       << status.error_message();
   EXPECT_EQ(1, unit->action_points_u());
 
   current_cost = 1;
-  status = ExecuteStep(plan_, unit.get(), cost);
+  status = ExecuteStep(plan_, unit.get());
   EXPECT_TRUE(touched);
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(0, unit->action_points_u());

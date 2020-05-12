@@ -96,6 +96,7 @@ util::Status validateWorldState(
 util::Status SevenYears::InitialiseAI() {
   merchant_ai_.reset(new SevenYearsMerchant(this));
   cost_calculator_.reset(new ActionCostCalculator(this));
+  ai::RegisterDefaultCost(*cost_calculator_);
   return merchant_ai_->Initialise();
 }
 
@@ -127,7 +128,7 @@ void SevenYears::moveUnits() {
     int count = 0;
     for (auto& unit : game_world_->units_) {
       auto status =
-          ai::ExecuteStep(unit->plan(), unit.get(), *cost_calculator_);
+          ai::ExecuteStep(unit->plan(), unit.get());
       if (status.ok()) {
         ai::DeleteStep(unit->mutable_plan());
         count++;
