@@ -87,21 +87,6 @@ private:
   std::unordered_map<util::proto::ObjectId, Listener> listeners_;
 };
 
-// Interface for moving Mobiles.
-class Traverser {
-public:
-  // Updates location; returns true if final destination is reached.
-  virtual bool Traverse(const Mobile& mobile,
-                        geography::proto::Location* location) const = 0;
-};
-
-// Default implementation.
-class DefaultTraverser : public Traverser {
-public:
-  bool Traverse(const Mobile& mobile,
-                geography::proto::Location* location) const override;
-};
-
 } // namespace geography
 
 #endif

@@ -136,41 +136,4 @@ void Connection::Listen(const Mobile& mobile, uint64 distance_u,
   }
 }
 
-bool DefaultTraverser::Traverse(const Mobile& mobile,
-                                proto::Location* location) const {
-  if (!location->has_connection_id()) {
-    return false;
-  }
-  Connection* conn = Connection::ById(location->connection_id());
-  if (conn == NULL) {
-    // TODO: Handle this error case.
-    return false;
-  }
-
-  uint64 progress_u = location->progress_u();
-  uint64 distance_u = mobile.speed_u(conn->type());
-  uint64 length_u = conn->length_u() - progress_u;
-  if (distance_u > length_u) {
-    distance_u = length_u;
-  }
-
-  std::vector<Connection::Detection> detections;
-  conn->Listen(mobile, distance_u, &detections);
-  // TODO: Actually handle detections.
-
-  if (distance_u >= length_u) {
-    location->clear_progress_u();
-    *location->mutable_a_area_id() = conn->OtherSide(location->a_area_id());
-    location->clear_connection_id();
-    if (ids_equal(location->a_area_id(), location->z_area_id())) {
-      location->clear_z_area_id();
-      return true;
-    }
-  } else {
-    location->set_progress_u(progress_u + distance_u);
-  }
-
-  return false;
-}
-
 } // namespace geography
