@@ -282,7 +282,7 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
         continue;
       }
       const util::proto::ObjectId& a_id = location.a_area_id();
-      const util::proto::ObjectId& z_id = location.z_area_id();
+      const util::proto::ObjectId& z_id = connection->OtherSide(a_id);
       double a_weight = location.progress_u();
       a_weight /= connection->length_u();
       // TODO: Handle connections between different maps.
