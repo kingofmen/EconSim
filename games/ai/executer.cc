@@ -47,10 +47,10 @@ util::Status executeAction(actions::proto::AtomicAction action,
   return execution_action_map[step.action()](step, unit);  
 }
 
+// Returns the cost of the action for the unit, first looking for a specially
+// registered CostCalculator for the action, then the default cost calculator,
+// finally falling back to returning zero.
 uint64 getCost(const actions::proto::Step& step, units::Unit* unit) {
-  if (default_cost != nullptr) {
-    return default_cost(step, unit);
-  }
   uint64 cost_u = 0;
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
@@ -63,6 +63,9 @@ uint64 getCost(const actions::proto::Step& step, units::Unit* unit) {
       }
     default:
       break;
+  }
+  if (default_cost != nullptr) {
+    return default_cost(step, unit);
   }
   return 0;
 }
