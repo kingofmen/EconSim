@@ -95,6 +95,7 @@ util::Status validateWorldState(
 
 util::Status SevenYears::InitialiseAI() {
   merchant_ai_.reset(new SevenYearsMerchant(this));
+  ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
   cost_calculator_.reset(new ActionCostCalculator(this));
   ai::RegisterDefaultCost(*cost_calculator_);
   return merchant_ai_->Initialise();

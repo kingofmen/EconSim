@@ -17,9 +17,11 @@ typedef std::function<uint64(const actions::proto::Step&, units::Unit*)>
     CostCalculator;
 
 // Default CostCalculator that always returns 0.
-uint64 ZeroCost(const actions::proto::Step&, units::Unit*);
+uint64 ZeroCost(const actions::proto::Step& step, units::Unit* unit);
 // Default CostCalculator that always returns 1.
-uint64 OneCost(const actions::proto::Step&, units::Unit*);
+uint64 OneCost(const actions::proto::Step& step, units::Unit* unit);
+// Variable cost for movement.
+uint64 DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit);
 
 void RegisterExecutor(const std::string& key, StepExecutor exe);
 void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe);

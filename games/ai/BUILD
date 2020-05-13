@@ -32,8 +32,10 @@ cc_library(
     deps = [
         "//games/actions/proto:plan_proto",
         "//games/ai/impl:executor_impl",
+        "//games/geography:connection",
         "//games/units:units",
         "//util/arithmetic:microunits",
+        "//util/logging:logging",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],

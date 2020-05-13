@@ -37,6 +37,7 @@ class ExecutorImplTest : public testing::Test {
     units::proto::Template temp;
     temp.mutable_template_id()->set_kind("one");
     temp.mutable_mobility()->set_speed_u(1000000);
+    temp.set_base_action_points_u(1000000);
     units::Unit::RegisterTemplate(temp);
 
     units::proto::Unit unit;

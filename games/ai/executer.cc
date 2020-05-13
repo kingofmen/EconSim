@@ -5,8 +5,10 @@
 #include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/impl/executor_impl.h"
+#include "games/geography/connection.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
+#include "util/logging/logging.h"
 #include "util/status/status.h"
 
 namespace ai {
@@ -99,6 +101,39 @@ uint64 ZeroCost(const actions::proto::Step&, units::Unit*) {
 
 uint64 OneCost(const actions::proto::Step&, units::Unit*) {
   return micro::kOneInU;
+}
+
+uint64 DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit) {
+  if (step.trigger_case() != actions::proto::Step::kAction) {
+    return micro::kuMaxU;
+  }
+  if (!step.has_connection_id()) {
+    return micro::kuMaxU;
+  }
+  const geography::proto::Location& location = unit->location();
+  const geography::Connection* connection = nullptr;
+  if (location.has_connection_id()) {
+    connection = geography::Connection::ById(location.connection_id());
+  } else {
+    connection = geography::Connection::ById(step.connection_id());
+  }
+  if (!connection) {
+    DLOGF(Log::P_DEBUG, "  DefaultMoveCost could not find connection ID %d",
+          location.has_connection_id() ? location.connection_id()
+                                       : step.connection_id());
+    return micro::kuMaxU;
+  }
+
+  uint64 progress_u = location.progress_u();
+  uint64 distance_u = connection->length_u() - progress_u;
+  uint64 speed_u = unit->speed_u(connection->type());
+
+  if (distance_u >= speed_u) {
+    // We won't finish this in one step.
+    return std::min(micro::kOneInU, unit->action_points_u());
+  }
+
+  return micro::DivideU(distance_u, speed_u);
 }
 
 util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {

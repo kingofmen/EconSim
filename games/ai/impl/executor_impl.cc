@@ -54,6 +54,12 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
 
   uint64 progress_u = location->progress_u();
   uint64 distance_u = unit->speed_u(connection->type());
+
+  // If we have a fractional action left, go a fractional distance.
+  // TODO: Maybe don't hardcode this?
+  if (unit->action_points_u() < micro::kOneInU) {
+    distance_u = micro::MultiplyU(distance_u, unit->action_points_u());
+  }
   uint64 length_u = connection->length_u() - progress_u;
   if (distance_u > length_u) {
     distance_u = length_u;
