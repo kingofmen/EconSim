@@ -11,6 +11,7 @@ cc_library(
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
         "//util/status:status",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

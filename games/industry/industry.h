@@ -51,20 +51,21 @@ public:
                            market::proto::Container* used_capital,
                            proto::Progress* progress) const;
 
-  // Returns true if fixed_capital, inputs, and raw_materials respectively
+  // Returns OK if fixed_capital, inputs, and raw_materials respectively
   // contain enough goods to satisfy the capital, consumables, and resource
   // requirements of the current step in progress, using variant_index. Fills
   // the three needed_foo Containers (which may not be null) with the required
   // goods.
-  bool StepPossible(const market::proto::Container& fixed_capital,
-                    const market::proto::Container& inputs,
-                    const market::proto::Container& raw_materials,
-                    const proto::Progress& progress,
-                    const micro::Measure institutional_capital_u,
-                    const int variant_index,
-                    market::proto::Container* needed_capital,
-                    market::proto::Container* needed_inputs,
-                    market::proto::Container* needed_raw_material) const;
+  util::Status
+  StepPossible(const market::proto::Container& fixed_capital,
+               const market::proto::Container& inputs,
+               const market::proto::Container& raw_materials,
+               const proto::Progress& progress,
+               const micro::Measure institutional_capital_u,
+               const int variant_index,
+               market::proto::Container* needed_capital,
+               market::proto::Container* needed_inputs,
+               market::proto::Container* needed_raw_material) const;
 
   // Returns the consumables needed for the next step in the process assuming
   // variant is used, with the scale given by progress.

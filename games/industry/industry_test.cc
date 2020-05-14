@@ -6,9 +6,9 @@
 #include "games/market/goods_utils.h"
 #include "games/market/proto/goods.pb.h"
 #include "gmock/gmock.h"
-#include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"
 #include "util/status/status.h"
+#include "gtest/gtest.h"
 
 namespace industry {
 namespace {
@@ -74,7 +74,8 @@ TEST_F(IndustryTest, EmptyIsComplete) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("already complete"));
   EXPECT_TRUE(production_->Complete(progress_));
 }
 
@@ -87,7 +88,8 @@ TEST_F(IndustryTest, OneStep) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
@@ -122,7 +124,8 @@ TEST_F(IndustryTest, TwoSteps) {
 
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
@@ -210,7 +213,8 @@ TEST_F(IndustryTest, FixedCapital) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("fixed capital"));
   EXPECT_FALSE(production_->Complete(progress_));
 
   dogs += 1000;
@@ -256,7 +260,8 @@ TEST_F(IndustryTest, ScalingEffects) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
 
@@ -279,7 +284,8 @@ TEST_F(IndustryTest, ScalingEffects) {
   progress_.set_step(0);
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
 
   wool_ += 500;
@@ -328,7 +334,8 @@ TEST_F(IndustryTest, RawMaterials) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not perform"));
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("raw materials"));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
 
   clay += 1000;
@@ -340,4 +347,4 @@ TEST_F(IndustryTest, RawMaterials) {
   EXPECT_EQ(market::GetAmount(raw_materials_, clay), 0);
 }
 
-} // namespace industry
+}  // namespace industry

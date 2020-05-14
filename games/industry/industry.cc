@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+#include "absl/strings/substitute.h"
 #include "games/market/goods_utils.h"
 #include "util/arithmetic/microunits.h"
 
@@ -70,17 +71,20 @@ micro::Measure Production::MaxScaleU() const {
   return ret;
 }
 
-bool Production::StepPossible(
+util::Status Production::StepPossible(
     const Container& fixed_capital, const Container& inputs,
     const Container& raw_materials, const proto::Progress& progress,
     const micro::Measure institutional_capital_u, const int variant_index,
     Container* needed_capital, Container* needed_inputs,
     Container* needed_raw_material) const {
   if (proto_.name() != progress.name()) {
-    return false;
+    return util::InvalidArgumentError(
+        absl::Substitute("Production $0 cannot advance process $1",
+                         proto_.name(), progress.name()));
   }
   if (Complete(progress)) {
-    return false;
+    return util::AlreadyExistsError(
+        absl::Substitute("Process $0 is already complete", progress.name()));
   }
 
   const int step = progress.step();
@@ -90,7 +94,8 @@ bool Production::StepPossible(
   market::MultiplyU(required_fixcap, scaling_u);
 
   if (!(fixed_capital > required_fixcap)) {
-    return false;
+    return util::ResourceExhaustedError(
+        absl::Substitute("Insufficient fixed capital for $0", progress.name()));
   }
 
   const micro::Measure experience_u =
@@ -100,7 +105,8 @@ bool Production::StepPossible(
                    micro::MultiplyU(scaling_u, experience_u));
 
   if (!(raw_materials > *needed_raw_material)) {
-    return false;
+    return util::ResourceExhaustedError(
+        absl::Substitute("Insufficient raw materials for $0", progress.name()));
   }
 
   *needed_inputs = step_inputs.consumables();
@@ -109,7 +115,12 @@ bool Production::StepPossible(
   market::MultiplyU(*needed_capital, scaling_u);
   auto required = *needed_inputs + *needed_capital;
 
-  return inputs > required;
+  if (inputs > required) {
+    return util::OkStatus();
+  }
+
+  return util::ResourceExhaustedError(
+      absl::Substitute("Insufficient input materials for $0", progress.name()));
 }
 
 util::Status Production::PerformStep(
@@ -120,10 +131,12 @@ util::Status Production::PerformStep(
   Container needed_capital;
   Container needed_inputs;
   Container needed_raw_material;
-  if (!StepPossible(fixed_capital, *inputs, *raw_materials, *progress,
-                    institutional_capital_u, variant_index, &needed_capital,
-                    &needed_inputs, &needed_raw_material)) {
-    return util::FailedPreconditionError("Could not perform step");
+  auto status =
+      StepPossible(fixed_capital, *inputs, *raw_materials, *progress,
+                   institutional_capital_u, variant_index, &needed_capital,
+                   &needed_inputs, &needed_raw_material);
+  if (!status.ok()) {
+    return status;
   }
 
   // TODO: Weather and other adverse effects.
