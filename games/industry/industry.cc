@@ -112,19 +112,18 @@ bool Production::StepPossible(
   return inputs > required;
 }
 
-bool Production::PerformStep(const Container& fixed_capital,
-                             const micro::Measure institutional_capital_u,
-                             const int variant_index, Container* inputs,
-                             Container* raw_materials, Container* output,
-                             Container* used_capital,
-                             proto::Progress* progress) const {
+util::Status Production::PerformStep(
+    const Container& fixed_capital,
+    const micro::Measure institutional_capital_u, const int variant_index,
+    Container* inputs, Container* raw_materials, Container* output,
+    Container* used_capital, proto::Progress* progress) const {
   Container needed_capital;
   Container needed_inputs;
   Container needed_raw_material;
   if (!StepPossible(fixed_capital, *inputs, *raw_materials, *progress,
                     institutional_capital_u, variant_index, &needed_capital,
                     &needed_inputs, &needed_raw_material)) {
-    return false;
+    return util::FailedPreconditionError("Could not perform step");
   }
 
   // TODO: Weather and other adverse effects.
@@ -138,7 +137,7 @@ bool Production::PerformStep(const Container& fixed_capital,
   if (Complete(*progress)) {
     *output += ExpectedOutput(*progress);
   }
-  return true;
+  return util::OkStatus();
 }
 
 market::proto::Container

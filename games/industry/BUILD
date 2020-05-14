@@ -10,6 +10,7 @@ cc_library(
         "//games/market/proto:goods_proto",
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
+        "//util/status:status",
     ],
 )
 
@@ -26,6 +27,7 @@ cc_library(
         "//util/arithmetic:microunits",
         "//util/headers:int_types",
         "//util/logging:logging",
+        "//util/status:status",
     ],
 )
 

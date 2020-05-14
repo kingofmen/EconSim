@@ -21,6 +21,7 @@ constexpr char kEuropeanTrade[] = "european_trade";
 constexpr char kColonialTrade[] = "colonial_trade";
 constexpr char kSupplyArmies[] = "supply_armies";
 constexpr char kImportCapacity[] = "import_capacity";
+constexpr char kSupplies[] = "supplies";
 
 namespace sevenyears {
 namespace {
@@ -78,6 +79,8 @@ SevenYearsMerchant::doEuropeanTrade(const actions::proto::Step& step,
   micro::uMeasure bestAmount = 0;
   for (int i = 0; i < area->num_fields(); ++i) {
     const auto* field = area->field(i);
+    Log::Debugf("Field %d has %d import capacity", i,
+                market::GetAmount(field->resources(), kImportCapacity));
     if (field->has_progress()) {
       continue;
     }
@@ -104,7 +107,7 @@ SevenYearsMerchant::doEuropeanTrade(const actions::proto::Step& step,
   micro::Measure relation_bonus_u = 0;
   // TODO: Don't assume the variant index.
   int var_index = 0;
-  bool success =
+  auto status =
       trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
                         unit->mutable_resources(), field->mutable_resources(),
                         unit->mutable_resources(), unit->mutable_resources(),
@@ -112,11 +115,14 @@ SevenYearsMerchant::doEuropeanTrade(const actions::proto::Step& step,
   // TODO: Only do clearing on completion, and if not complete, send error to
   // signal that the ship must stay.
   field->clear_progress();
-  if (!success) {
+  if (!status.ok()) {
     return util::FailedPreconditionError(absl::Substitute(
-        "Process $0 in field $1 of $2 failed", trade.get_name(), bestIndex,
-        util::objectid::DisplayString(area_id)));
+        "Process $0 in field $1 of $2 failed: $3", trade.get_name(), bestIndex,
+        util::objectid::DisplayString(area_id),
+        status.error_message().as_string()));
   }
+  Log::Debugf("%s now has %d supplies", util::objectid::DisplayString(unit_id),
+              market::GetAmount(unit->resources(), kSupplies));
   return util::OkStatus();
 }
 

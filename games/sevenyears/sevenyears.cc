@@ -133,6 +133,10 @@ void SevenYears::moveUnits() {
       if (status.ok()) {
         ai::DeleteStep(unit->mutable_plan());
         count++;
+      } else {
+        Log::Debugf("%s could not execute: %s",
+                    util::objectid::DisplayString(unit->unit_id()),
+                    status.error_message());
       }
     }
     if (count == 0) {
@@ -146,6 +150,7 @@ void SevenYears::NewTurn() {
   Log::Info("New turn");
 
   for (const auto& area : game_world_->areas_) {
+    area->Update();
     const auto& area_id = area->area_id();
     if (area_states_.find(area_id) == area_states_.end()) {
       Log::Debugf("Could not find state for area %d", area_id.number());
@@ -165,11 +170,12 @@ void SevenYears::NewTurn() {
       }
 
       micro::Measure institutional_capital = 0;
-      if (!chain.PerformStep(
-              field->fixed_capital(), institutional_capital, 0,
-              area_state.mutable_warehouse(), field->mutable_resources(),
-              area_state.mutable_warehouse(), area_state.mutable_warehouse(),
-              field->mutable_progress())) {
+      auto status = chain.PerformStep(
+          field->fixed_capital(), institutional_capital, 0,
+          area_state.mutable_warehouse(), field->mutable_resources(),
+          area_state.mutable_warehouse(), area_state.mutable_warehouse(),
+          field->mutable_progress());
+      if (!status.ok()) {
         continue;
       }
       if (chain.Complete(field->progress())) {

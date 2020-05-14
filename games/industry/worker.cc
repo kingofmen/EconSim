@@ -325,7 +325,7 @@ bool InstallFixedCapital(const proto::Input& production, micro::Measure scale_u,
 
 // TODO: Don't pass the field here, pass the fixcap and resources. Clear
 // separately.
-bool TryProductionStep(
+util::Status TryProductionStep(
     const Production& production, const decisions::proto::StepInfo& step_info,
     geography::proto::Field* field, proto::Progress* progress,
     market::proto::Container* source, market::proto::Container* target,
@@ -333,7 +333,8 @@ bool TryProductionStep(
 
   auto variant_index = step_info.best_variant();
   if (variant_index >= step_info.variant_size()) {
-    return false;
+    return util::InvalidArgumentError(absl::Substitute(
+        "$0 step has no variant $1", production.get_name(), variant_index));
   }
   const auto& variant_info = step_info.variant(variant_index);
   if (progress->scaling_u() > variant_info.possible_scale_u()) {
@@ -343,20 +344,22 @@ bool TryProductionStep(
   auto required = production.RequiredConsumables(*progress, variant_index);
   required -= *source;
   if (!market->BuyBasket(required, source)) {
-    return false;
+    return util::NotFoundError(absl::Substitute(
+        "Could not buy required goods for $0", production.get_name()));
   }
 
-  if (!production.PerformStep(field->fixed_capital(), 0, variant_index, source,
-                              field->mutable_resources(), target, used_capital,
-                              progress)) {
-    return false;
+  auto status = production.PerformStep(field->fixed_capital(), 0, variant_index,
+                                       source, field->mutable_resources(),
+                                       target, used_capital, progress);
+  if (!status.ok()) {
+    return status;
   }
 
   if (production.Complete(*progress)) {
     field->clear_progress();
   }
 
-  return true;
+  return util::OkStatus();
 }
 
 } // namespace industry

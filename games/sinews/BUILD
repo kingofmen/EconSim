@@ -24,6 +24,7 @@ cc_library(
         "//games/units:units",
         "//util/arithmetic:microunits",
         "//util/logging:logging",
+        "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],
 )

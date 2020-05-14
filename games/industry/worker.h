@@ -7,6 +7,7 @@
 #include "games/industry/industry.h"
 #include "games/market/market.h"
 #include "games/market/proto/goods.pb.h"
+#include "util/status/status.h"
 
 namespace industry {
 
@@ -45,16 +46,15 @@ bool InstallFixedCapital(const industry::proto::Input& production,
                          market::proto::Container* target,
                          market::Market* market);
 
-// Attempts to run the next step of production. Returns true if the process
+// Attempts to run the next step of production. Returns OK if the process
 // advances. Any output goods are put into target. No pointers may be null.
-bool TryProductionStep(const industry::Production& production,
-                       const industry::decisions::proto::StepInfo& step_info,
-                       geography::proto::Field* field,
-                       industry::proto::Progress* progress,
-                       market::proto::Container* source,
-                       market::proto::Container* target,
-                       market::proto::Container* used_capital,
-                       market::Market* market);
+util::Status TryProductionStep(
+    const industry::Production& production,
+    const industry::decisions::proto::StepInfo& step_info,
+    geography::proto::Field* field, industry::proto::Progress* progress,
+    market::proto::Container* source, market::proto::Container* target,
+    market::proto::Container* used_capital, market::Market* market);
+
 }  // namespace industry
 
 #endif

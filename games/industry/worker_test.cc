@@ -9,6 +9,7 @@
 #include "games/industry/proto/industry.pb.h"
 #include "games/market/goods_utils.h"
 #include "games/market/market.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "util/arithmetic/microunits.h"
 
@@ -357,9 +358,10 @@ TEST_F(WorkerTest, TryLabourToGrain) {
   *field_.mutable_progress() = prod.MakeProgress(micro::kOneInU);
 
   // First try without labour, expect no result.
-  EXPECT_FALSE(TryProductionStep(prod, step_info, &field_,
+  auto status = TryProductionStep(prod, step_info, &field_,
                                  field_.mutable_progress(), &source, &target,
-                                 &used_capital, &market_));
+                                  &used_capital, &market_);
+  EXPECT_THAT(status.error_message(), testing::HasSubstr("buy required goods"));
   EXPECT_EQ(0, market::GetAmount(source, grain_));
   EXPECT_EQ(0, market::GetAmount(source, labour_));
   EXPECT_EQ(0, market::GetAmount(target, labour_));
@@ -368,9 +370,10 @@ TEST_F(WorkerTest, TryLabourToGrain) {
   // Now with labour.
   labour_ += micro::kOneInU;
   source << labour_;
-  EXPECT_TRUE(TryProductionStep(prod, step_info, &field_,
-                                field_.mutable_progress(), &source, &target,
-                                &used_capital, &market_));
+  status =
+      TryProductionStep(prod, step_info, &field_, field_.mutable_progress(),
+                        &source, &target, &used_capital, &market_);
+  EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(0, market::GetAmount(source, grain_));
   EXPECT_EQ(0, market::GetAmount(source, labour_));
   EXPECT_EQ(0, market::GetAmount(target, labour_));

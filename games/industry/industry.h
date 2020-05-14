@@ -6,6 +6,7 @@
 #include "games/market/market.h"
 #include "games/market/proto/goods.pb.h"
 #include "util/arithmetic/microunits.h"
+#include "util/status/status.h"
 
 namespace industry {
 
@@ -41,14 +42,14 @@ public:
   // and movable capital from inputs, and resources from raw_materials; puts
   // movable capital into used_capital. If the process completes, fills outputs
   // with the products.
-  // TODO: Make this a util::Status.
-  bool PerformStep(const market::proto::Container& fixed_capital,
-                   const micro::Measure institutional_capital,
-                   const int variant_index, market::proto::Container* inputs,
-                   market::proto::Container* raw_materials,
-                   market::proto::Container* outputs,
-                   market::proto::Container* used_capital,
-                   proto::Progress* progress) const;
+  util::Status PerformStep(const market::proto::Container& fixed_capital,
+                           const micro::Measure institutional_capital,
+                           const int variant_index,
+                           market::proto::Container* inputs,
+                           market::proto::Container* raw_materials,
+                           market::proto::Container* outputs,
+                           market::proto::Container* used_capital,
+                           proto::Progress* progress) const;
 
   // Returns true if fixed_capital, inputs, and raw_materials respectively
   // contain enough goods to satisfy the capital, consumables, and resource

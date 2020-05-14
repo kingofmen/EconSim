@@ -11,6 +11,7 @@
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
+#include "util/status/status.h"
 
 using geography::proto::Field;
 using industry::decisions::ProductionContext;
@@ -136,10 +137,11 @@ void RunAreaIndustry(
       continue;
     }
 
-    if (industry::TryProductionStep(
+    auto status = industry::TryProductionStep(
             *chain, selected.step_info(0), best_field,
             best_field->mutable_progress(), best_pop->mutable_wealth(),
-            best_pop->mutable_wealth(), &used_capital, context.market)) {
+            best_pop->mutable_wealth(), &used_capital, context.market);
+    if (status.ok()) {
       progressed.emplace(best_field);
       if (!best_field->has_progress()) {
         best_pop->SellSurplus(context.market);

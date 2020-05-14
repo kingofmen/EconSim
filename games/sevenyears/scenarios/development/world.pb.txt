@@ -42,6 +42,26 @@ areas {
       }
     }
   }
+  limits {
+    maximum {
+      quantities {
+        key: "import_capacity"
+	value: 10000000
+      }
+    }
+    recovery {
+      quantities {
+        key: "import_capacity"
+	value: 1000000
+      }
+    }
+    fallow_recovery {
+      quantities {
+        key: "import_capacity"
+	value: 2500000
+      }
+    }
+  }
 }
 areas {
   area_id {
