@@ -23,6 +23,7 @@ public:
   ValidMission(const actions::proto::SevenYearsMerchant& sym) const;
 
 private:
+  // Planning helper methods.
   util::Status planEuropeanTrade(const units::Unit& unit,
                              actions::proto::Plan* plan) const;
   util::Status planColonialTrade(const units::Unit& unit,
@@ -30,9 +31,12 @@ private:
   util::Status planSupplyArmies(const units::Unit& unit,
                             actions::proto::Plan* plan) const;
 
+  // Executors.
   util::Status doEuropeanTrade(const actions::proto::Step& step,
                                units::Unit* unit) const;
-
+  util::Status loadShip(const actions::proto::Step& step,
+                               units::Unit* unit) const;
+  
   const sevenyears::SevenYearsState* game_;
 };
 

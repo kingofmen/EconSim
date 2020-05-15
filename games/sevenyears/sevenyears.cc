@@ -5,6 +5,7 @@
 #include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/actions/proto/strategy.pb.h"
+#include "games/actions/strategy.h"
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
 #include "games/industry/industry.h"
@@ -128,14 +129,24 @@ void SevenYears::moveUnits() {
   while (true) {
     int count = 0;
     for (auto& unit : game_world_->units_) {
+      if (unit->action_points_u() < 1) {
+        continue;
+      }
+      if (unit->plan().steps_size() == 0) {
+        continue;
+      }
       auto status =
           ai::ExecuteStep(unit->plan(), unit.get());
       if (status.ok()) {
+        Log::Debugf("%s completed %s",
+                    util::objectid::DisplayString(unit->unit_id()),
+                    actions::StepName(unit->plan().steps(0)));
         ai::DeleteStep(unit->mutable_plan());
         count++;
       } else {
-        Log::Debugf("%s could not execute: %s",
+        Log::Debugf("%s could not execute %s: %s",
                     util::objectid::DisplayString(unit->unit_id()),
+                    actions::StepName(unit->plan().steps(0)),
                     status.error_message());
       }
     }

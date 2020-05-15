@@ -21,6 +21,8 @@ constexpr char kEuropeanTrade[] = "european_trade";
 constexpr char kColonialTrade[] = "colonial_trade";
 constexpr char kSupplyArmies[] = "supply_armies";
 constexpr char kImportCapacity[] = "import_capacity";
+constexpr char kLoadShip[] = "load_cargo";
+constexpr char kTradeGoods[] = "trade_goods";
 constexpr char kSupplies[] = "supplies";
 
 namespace sevenyears {
@@ -65,6 +67,42 @@ util::Status planTrade(const units::Unit& unit, const geography::Area& area,
 }
 
 }  // namespace
+
+util::Status SevenYearsMerchant::loadShip(const actions::proto::Step& step,
+                                          units::Unit* unit) const {
+  const auto& unit_id = unit->unit_id();
+  if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Unit $0 tried to load $1 while in transit: $2, $3",
+        util::objectid::DisplayString(unit_id), step.good(),
+        unit->location().progress_u(), unit->location().connection_id()));
+  }
+  const auto& area_id = unit->location().a_area_id();
+  geography::Area* area = geography::Area::GetById(area_id);
+  if (area == nullptr) {
+    return util::NotFoundError(
+        absl::Substitute("$0 does not exist for $1 to load $2 in",
+                         util::objectid::DisplayString(area_id),
+                         util::objectid::DisplayString(unit_id), step.good()));
+  }
+
+  auto capacity_u = unit->Capacity(step.good());
+  for (int i = 0; i < area->num_fields(); ++i) {
+    auto* field = area->mutable_field(i);
+    auto available_u = market::GetAmount(field->resources(), step.good());
+    if (available_u > capacity_u) {
+      available_u = capacity_u;
+    }
+    market::Move(step.good(), available_u, field->mutable_resources(),
+                 unit->mutable_resources());
+    capacity_u -= available_u;
+    if (capacity_u == 0) {
+      return util::OkStatus();
+    }
+  }
+  
+  return util::NotComplete();
+}
 
 util::Status
 SevenYearsMerchant::doEuropeanTrade(const actions::proto::Step& step,
@@ -131,9 +169,13 @@ util::Status
 SevenYearsMerchant::planEuropeanTrade(const units::Unit& unit,
                                       actions::proto::Plan* plan) const {
   const auto& world = game_->World();
+  const auto& home_base_id = unit.location().a_area_id();
+  auto* step = plan->add_steps();
+  step->set_key(kLoadShip);
+  step->set_good(kTradeGoods);
   for (const auto& area : world.areas_) {
     const auto& area_id = area->area_id();
-    if (area_id == unit.location().a_area_id()) {
+    if (area_id == home_base_id) {
       continue;
     }
     const auto& state = game_->AreaState(area_id);
@@ -228,6 +270,10 @@ util::Status SevenYearsMerchant::Initialise() {
       kEuropeanTrade,
       [this](const actions::proto::Step& step, units::Unit* unit) {
         return this->doEuropeanTrade(step, unit);
+      });
+  ai::RegisterExecutor(
+      kLoadShip, [this](const actions::proto::Step& step, units::Unit* unit) {
+        return this->loadShip(step, unit);
       });
   actions::proto::Strategy strategy;
   strategy.mutable_seven_years_merchant()->mutable_base_area_id()->set_number(
