@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["strategy.h"],
     deps = [
         "//games/actions/proto:strategy_proto",
+        "//games/actions/proto:plan_proto",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
     ],

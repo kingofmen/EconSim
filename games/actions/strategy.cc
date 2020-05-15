@@ -42,6 +42,19 @@ util::Status LoadStrategy(const std::string& name,
   return util::OkStatus();
 }
 
+const std::string& StepName(const actions::proto::Step& step) {
+  static const std::string kUnknown("unknown step");
+  switch (step.trigger_case()) {
+    case actions::proto::Step::kKey:
+      return step.key();
+    case actions::proto::Step::kAction:
+      return actions::proto::AtomicAction_Name(step.action());
+    case actions::proto::Step::TRIGGER_NOT_SET:
+    default:
+      return kUnknown;
+  }
+  return kUnknown;
+}
 
 
 }  // namespace actions
