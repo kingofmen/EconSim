@@ -30,6 +30,10 @@ private:
                              actions::proto::Plan* plan) const;
   util::Status planSupplyArmies(const units::Unit& unit,
                             actions::proto::Plan* plan) const;
+  util::Status
+  planReturnToBase(const units::Unit& unit,
+                   const actions::proto::SevenYearsMerchant& strategy,
+                   actions::proto::Plan* plan) const;
 
   const sevenyears::SevenYearsState* game_;
 };

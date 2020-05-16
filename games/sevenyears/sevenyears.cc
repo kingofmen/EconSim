@@ -108,6 +108,11 @@ util::Status SevenYears::InitialiseAI() {
       [this](const actions::proto::Step& step, units::Unit* unit) {
         return this->loadShip(step, unit);
       });
+  ai::RegisterExecutor(
+      constants::OffloadCargo(),
+      [this](const actions::proto::Step& step, units::Unit* unit) {
+        return this->offloadCargo(step, unit);
+      });
 
   merchant_ai_.reset(new SevenYearsMerchant(this));
   ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
@@ -208,6 +213,31 @@ util::Status SevenYears::doEuropeanTrade(const actions::proto::Step& step,
   }
   Log::Debugf("%s now has %d supplies", util::objectid::DisplayString(unit_id),
               market::GetAmount(unit->resources(), constants::Supplies()));
+  return util::OkStatus();
+}
+
+util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
+                                      units::Unit* unit) {
+  const auto& unit_id = unit->unit_id();
+  if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Unit $0 tried to unload cargo while in transit: 1, $2",
+        util::objectid::DisplayString(unit_id), unit->location().progress_u(),
+        unit->location().connection_id()));
+  }
+  const auto& area_id = unit->location().a_area_id();
+  auto* area_state = mutable_area_state(area_id);
+  if (area_state == nullptr) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find state for area $0 so $1 could not offload",
+        util::objectid::DisplayString(area_id),
+        util::objectid::DisplayString(unit_id)));
+  }
+
+  auto* warehouse = area_state->mutable_warehouse();
+  auto* cargo_hold = unit->mutable_resources();
+  *warehouse << *cargo_hold;
+
   return util::OkStatus();
 }
 

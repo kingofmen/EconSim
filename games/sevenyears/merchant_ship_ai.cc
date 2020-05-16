@@ -107,6 +107,20 @@ SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
   return util::NotImplementedError("Army supply AI is not implemented.");
 }
 
+util::Status SevenYearsMerchant::planReturnToBase(
+    const units::Unit& unit, const actions::proto::SevenYearsMerchant& strategy,
+    actions::proto::Plan* plan) const {
+  auto status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                                   ai::impl::ZeroHeuristic,
+                                   strategy.base_area_id(), plan);
+  if (!status.ok()) {
+    return status;
+  }
+  auto* step = plan->add_steps();
+  step->set_key(constants::OffloadCargo());
+  return util::OkStatus();
+}
+
 util::Status
 SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
                                    const actions::proto::Strategy& strategy,
@@ -126,13 +140,10 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   const auto& merchant_strategy = strategy.seven_years_merchant();
 
   // If not in home base, go home.
-  // TODO: Put in method, and add "load and unload" step.
   const auto& location = unit.location();
   if (location.a_area_id() != merchant_strategy.base_area_id() ||
       location.has_connection_id()) {
-    return ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                              ai::impl::ZeroHeuristic,
-                              merchant_strategy.base_area_id(), plan);
+    return planReturnToBase(unit, merchant_strategy, plan);
   }
 
   // If in home base, choose where to go based on mission.

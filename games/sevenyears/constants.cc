@@ -24,6 +24,10 @@ const std::string& LoadShip() {
   static const std::string kLoadShip("load_cargo");
   return kLoadShip;
 }
+const std::string& OffloadCargo() {
+  static const std::string kOffloadCargo("offload_cargo");
+  return kOffloadCargo;
+}
 const std::string& TradeGoods() {
   static const std::string kTradeGoods("trade_goods");
   return kTradeGoods;

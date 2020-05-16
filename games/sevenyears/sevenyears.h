@@ -47,6 +47,8 @@ private:
   util::Status doEuropeanTrade(const actions::proto::Step& step,
                                units::Unit* unit);
   util::Status loadShip(const actions::proto::Step& step, units::Unit* unit);
+  util::Status offloadCargo(const actions::proto::Step& step,
+                            units::Unit* unit);
 
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;

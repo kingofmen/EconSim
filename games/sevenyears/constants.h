@@ -10,6 +10,7 @@ const std::string& ColonialTrade();
 const std::string& SupplyArmies();
 const std::string& ImportCapacity();
 const std::string& LoadShip();
+const std::string& OffloadCargo();
 const std::string& TradeGoods();
 const std::string& Supplies();
 
