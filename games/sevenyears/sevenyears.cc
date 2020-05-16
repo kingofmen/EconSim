@@ -26,6 +26,8 @@ namespace sevenyears {
 
 namespace {
 
+constexpr int kMaxIncompleteWait = 5;
+
 util::Status validateSetup(const games::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_name()) {
     return util::InvalidArgumentError(
@@ -252,8 +254,17 @@ void SevenYears::moveUnits() {
         count++;
         unit->mutable_plan()->clear_incomplete();
       } else if (util::IsNotComplete(status)) {
-        auto inc = unit->plan().incomplete();
-        unit->mutable_plan()->set_incomplete(inc + 1);
+        auto inc = unit->plan().incomplete() + 1;
+        if (inc > kMaxIncompleteWait) {
+          Log::Debugf("%s giving up on plan due to %d incomplete attempts at "
+                      "%s, returning to mission pool.",
+                      util::objectid::DisplayString(unit->unit_id()), inc,
+                      actions::StepName(unit->plan().steps(0)));
+          unit->mutable_plan()->clear_steps();
+          unit->mutable_plan()->clear_incomplete();
+        } else {
+          unit->mutable_plan()->set_incomplete(inc);
+        }
       } else {
         Log::Debugf("%s could not execute %s: %s",
                     util::objectid::DisplayString(unit->unit_id()),
