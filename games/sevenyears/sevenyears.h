@@ -40,13 +40,13 @@ private:
   void moveUnits();
   std::vector<std::string>
   validation(const games::setup::proto::GameWorld& world);
+  sevenyears::proto::AreaState*
+  mutable_area_state(const util::proto::ObjectId& area_id);
 
   // Executors.
   util::Status doEuropeanTrade(const actions::proto::Step& step,
-                               units::Unit* unit) const;
-  util::Status loadShip(const actions::proto::Step& step,
-                               units::Unit* unit) const;
-
+                               units::Unit* unit);
+  util::Status loadShip(const actions::proto::Step& step, units::Unit* unit);
 
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;

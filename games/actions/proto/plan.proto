@@ -24,4 +24,7 @@ message Step {
 
 message Plan {
   repeated Step steps = 1;
+  // Count of attempts at the current Step that have ended
+  // in NotComplete status.
+  optional int32 incomplete = 2;
 }

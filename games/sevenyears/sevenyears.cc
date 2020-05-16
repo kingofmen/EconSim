@@ -115,7 +115,7 @@ util::Status SevenYears::InitialiseAI() {
 }
 
 util::Status SevenYears::loadShip(const actions::proto::Step& step,
-                                  units::Unit* unit) const {
+                                  units::Unit* unit) {
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
     return util::FailedPreconditionError(absl::Substitute(
@@ -124,40 +124,40 @@ util::Status SevenYears::loadShip(const actions::proto::Step& step,
         unit->location().progress_u(), unit->location().connection_id()));
   }
   const auto& area_id = unit->location().a_area_id();
-  geography::Area* area = geography::Area::GetById(area_id);
-  if (area == nullptr) {
+  auto* area_state = mutable_area_state(area_id);
+  if (area_state == nullptr) {
     return util::NotFoundError(
-        absl::Substitute("$0 does not exist for $1 to load $2 in",
+        absl::Substitute("Could not find state for area $0 so $1 could load $2",
                          util::objectid::DisplayString(area_id),
                          util::objectid::DisplayString(unit_id), step.good()));
   }
 
   auto capacity_u = unit->Capacity(step.good());
-  for (int i = 0; i < area->num_fields(); ++i) {
-    auto* field = area->mutable_field(i);
-    auto available_u = market::GetAmount(field->resources(), step.good());
-    if (available_u > capacity_u) {
-      available_u = capacity_u;
-    }
-    market::Move(step.good(), available_u, field->mutable_resources(),
-                 unit->mutable_resources());
-    capacity_u -= available_u;
-    if (capacity_u == 0) {
-      return util::OkStatus();
-    }
+  auto available_u = market::GetAmount(area_state->warehouse(), step.good());
+  if (available_u > capacity_u) {
+    available_u = capacity_u;
   }
-  
+  market::Move(step.good(), available_u, area_state->mutable_warehouse(),
+               unit->mutable_resources());
+  capacity_u -= available_u;
+  if (capacity_u <= 0) {
+    return util::OkStatus();
+  }
   return util::NotComplete();
 }
 
 util::Status SevenYears::doEuropeanTrade(const actions::proto::Step& step,
-                                         units::Unit* unit) const {
+                                         units::Unit* unit) {
   const auto& unit_id = unit->unit_id();
   const auto& area_id = unit->location().a_area_id();
   Log::Debugf("Unit %s doing trade in %s",
               util::objectid::DisplayString(unit_id),
               util::objectid::DisplayString(area_id));
   geography::Area* area = geography::Area::GetById(area_id);
+  if (area == nullptr) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find area $0", util::objectid::DisplayString(area_id)));
+  }
   int bestIndex = -1;
   micro::uMeasure bestAmount = 0;
   for (int i = 0; i < area->num_fields(); ++i) {
@@ -250,6 +250,10 @@ void SevenYears::moveUnits() {
                     actions::StepName(unit->plan().steps(0)));
         ai::DeleteStep(unit->mutable_plan());
         count++;
+        unit->mutable_plan()->clear_incomplete();
+      } else if (util::IsNotComplete(status)) {
+        auto inc = unit->plan().incomplete();
+        unit->mutable_plan()->set_incomplete(inc + 1);
       } else {
         Log::Debugf("%s could not execute %s: %s",
                     util::objectid::DisplayString(unit->unit_id()),
@@ -455,6 +459,17 @@ SevenYears::AreaState(const util::proto::ObjectId& area_id) const {
     return dummy_area_state_;
   }
   return area_states_.at(area_id);
+}
+
+sevenyears::proto::AreaState*
+SevenYears::mutable_area_state(const util::proto::ObjectId& area_id) {
+  if (area_states_.find(area_id) == area_states_.end()) {
+    Log::Errorf("Could not find state for area %s",
+                util::objectid::DisplayString(area_id));
+    static sevenyears::proto::AreaState dummy_area_state_;
+    return &dummy_area_state_;
+  }
+  return &area_states_.at(area_id);
 }
 
 const industry::Production&
