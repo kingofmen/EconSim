@@ -187,6 +187,9 @@ void SevenYears::NewTurn() {
           area_state.mutable_warehouse(), area_state.mutable_warehouse(),
           field->mutable_progress());
       if (!status.ok()) {
+        Log::Debugf("Could not complete production %s in %s: %s",
+                    chain.get_name(), util::objectid::DisplayString(area_id),
+                    status.error_message());
         continue;
       }
       if (chain.Complete(field->progress())) {

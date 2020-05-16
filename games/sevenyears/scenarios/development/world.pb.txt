@@ -230,6 +230,6 @@ units {
       kind: "faction"
       number: 1
     }
-    production: "home_production_supplies"
+    production: "home_production_trade"
   }
 }
