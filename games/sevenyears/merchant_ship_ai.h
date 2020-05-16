@@ -31,12 +31,6 @@ private:
   util::Status planSupplyArmies(const units::Unit& unit,
                             actions::proto::Plan* plan) const;
 
-  // Executors.
-  util::Status doEuropeanTrade(const actions::proto::Step& step,
-                               units::Unit* unit) const;
-  util::Status loadShip(const actions::proto::Step& step,
-                               units::Unit* unit) const;
-  
   const sevenyears::SevenYearsState* game_;
 };
 

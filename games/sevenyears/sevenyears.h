@@ -41,6 +41,13 @@ private:
   std::vector<std::string>
   validation(const games::setup::proto::GameWorld& world);
 
+  // Executors.
+  util::Status doEuropeanTrade(const actions::proto::Step& step,
+                               units::Unit* unit) const;
+  util::Status loadShip(const actions::proto::Step& step,
+                               units::Unit* unit) const;
+
+
   bool dirtyGraphics_;
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;

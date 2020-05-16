@@ -11,6 +11,12 @@ cc_library(
 )
 
 cc_library(
+    name = "sevenyears_constants",
+    hdrs = ["constants.h"],
+    srcs = ["constants.cc"],
+)
+
+cc_library(
     name = "sevenyears_ai_lib",
     srcs = [
         "merchant_ship_ai.cc",
@@ -22,6 +28,7 @@ cc_library(
     ],
     deps = [
         ":sevenyears_interfaces",
+        ":sevenyears_constants",
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",
         "//games/ai:executer",
@@ -60,6 +67,7 @@ cc_library(
     hdrs = ["sevenyears.h"],
     deps = [
         ":sevenyears_ai_lib",
+        ":sevenyears_constants",
         ":sevenyears_interfaces",
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",

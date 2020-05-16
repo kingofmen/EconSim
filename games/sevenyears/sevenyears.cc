@@ -13,6 +13,7 @@
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
+#include "games/sevenyears/constants.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/merchant_ship_ai.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -95,11 +96,117 @@ util::Status validateWorldState(
 
 
 util::Status SevenYears::InitialiseAI() {
+  ai::RegisterExecutor(
+      constants::EuropeanTrade(),
+      [this](const actions::proto::Step& step, units::Unit* unit) {
+        return this->doEuropeanTrade(step, unit);
+      });
+  ai::RegisterExecutor(
+      constants::LoadShip(),
+      [this](const actions::proto::Step& step, units::Unit* unit) {
+        return this->loadShip(step, unit);
+      });
+
   merchant_ai_.reset(new SevenYearsMerchant(this));
   ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
   cost_calculator_.reset(new ActionCostCalculator(this));
   ai::RegisterDefaultCost(*cost_calculator_);
   return merchant_ai_->Initialise();
+}
+
+util::Status SevenYears::loadShip(const actions::proto::Step& step,
+                                  units::Unit* unit) const {
+  const auto& unit_id = unit->unit_id();
+  if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Unit $0 tried to load $1 while in transit: $2, $3",
+        util::objectid::DisplayString(unit_id), step.good(),
+        unit->location().progress_u(), unit->location().connection_id()));
+  }
+  const auto& area_id = unit->location().a_area_id();
+  geography::Area* area = geography::Area::GetById(area_id);
+  if (area == nullptr) {
+    return util::NotFoundError(
+        absl::Substitute("$0 does not exist for $1 to load $2 in",
+                         util::objectid::DisplayString(area_id),
+                         util::objectid::DisplayString(unit_id), step.good()));
+  }
+
+  auto capacity_u = unit->Capacity(step.good());
+  for (int i = 0; i < area->num_fields(); ++i) {
+    auto* field = area->mutable_field(i);
+    auto available_u = market::GetAmount(field->resources(), step.good());
+    if (available_u > capacity_u) {
+      available_u = capacity_u;
+    }
+    market::Move(step.good(), available_u, field->mutable_resources(),
+                 unit->mutable_resources());
+    capacity_u -= available_u;
+    if (capacity_u == 0) {
+      return util::OkStatus();
+    }
+  }
+  
+  return util::NotComplete();
+}
+
+util::Status SevenYears::doEuropeanTrade(const actions::proto::Step& step,
+                                         units::Unit* unit) const {
+  const auto& unit_id = unit->unit_id();
+  const auto& area_id = unit->location().a_area_id();
+  Log::Debugf("Unit %s doing trade in %s",
+              util::objectid::DisplayString(unit_id),
+              util::objectid::DisplayString(area_id));
+  geography::Area* area = geography::Area::GetById(area_id);
+  int bestIndex = -1;
+  micro::uMeasure bestAmount = 0;
+  for (int i = 0; i < area->num_fields(); ++i) {
+    const auto* field = area->field(i);
+    Log::Debugf("Field %d has %d import capacity", i,
+                market::GetAmount(field->resources(), constants::ImportCapacity()));
+    if (field->has_progress()) {
+      continue;
+    }
+    micro::Measure amount =
+        market::GetAmount(field->resources(), constants::ImportCapacity());
+    if (amount < bestAmount) {
+      continue;
+    }
+    bestAmount = amount;
+    bestIndex = i;
+  }
+
+  if (bestIndex < 0) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find field for $0 to do European trade in $1",
+        util::objectid::DisplayString(unit_id),
+        util::objectid::DisplayString(area_id)));
+  }
+
+  geography::proto::Field* field = area->mutable_field(bestIndex);
+  const auto& trade = ProductionChain(constants::EuropeanTrade());
+  *field->mutable_progress() = trade.MakeProgress(trade.MaxScaleU());
+  // TODO: Calculate this.
+  micro::Measure relation_bonus_u = 0;
+  // TODO: Don't assume the variant index.
+  int var_index = 0;
+  auto status =
+      trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
+                        unit->mutable_resources(), field->mutable_resources(),
+                        unit->mutable_resources(), unit->mutable_resources(),
+                        field->mutable_progress());
+  // TODO: Only do clearing on completion, and if not complete, send error to
+  // signal that the ship must stay.
+  field->clear_progress();
+  if (!status.ok()) {
+    return util::FailedPreconditionError(absl::Substitute(
+        "Process $0 in field $1 of $2 failed: $3", trade.get_name(), bestIndex,
+        util::objectid::DisplayString(area_id),
+        status.error_message().as_string()));
+  }
+  Log::Debugf("%s now has %d supplies", util::objectid::DisplayString(unit_id),
+              market::GetAmount(unit->resources(), constants::Supplies()));
+  return util::OkStatus();
 }
 
 void SevenYears::moveUnits() {
