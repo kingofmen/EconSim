@@ -1,5 +1,7 @@
 #include "games/sevenyears/merchant_ship_ai.h"
 
+#include <algorithm>
+
 #include "absl/strings/substitute.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/actions/proto/strategy.pb.h"
@@ -57,6 +59,20 @@ util::Status planTrade(const units::Unit& unit, const geography::Area& area,
   return util::OkStatus();
 }
 
+std::vector<geography::Area*> filterForTrade(const games::setup::World& world) {
+  std::vector<geography::Area*> areas;
+  for (const auto& area : world.areas_) {
+    // TODO: Insert a filter here.
+    areas.push_back(area.get());
+  }
+
+  // TODO: Should probably specify the random here.
+  // TODO: But in any case it shouldn't be random, it should be sorted by
+  // goodness and by how many ships have been sent recently; this is a stopgap.
+  std::random_shuffle(areas.begin(), areas.end());
+  return areas;
+}
+
 }  // namespace
 
 util::Status
@@ -67,7 +83,9 @@ SevenYearsMerchant::planEuropeanTrade(const units::Unit& unit,
   auto* step = plan->add_steps();
   step->set_key(constants::LoadShip());
   step->set_good(constants::TradeGoods());
-  for (const auto& area : world.areas_) {
+  auto areas = filterForTrade(world);
+  util::Status status;
+  for (const auto* area : areas) {
     const auto& area_id = area->area_id();
     if (area_id == home_base_id) {
       continue;
@@ -77,22 +95,23 @@ SevenYearsMerchant::planEuropeanTrade(const units::Unit& unit,
       continue;
     }
 
-    // TODO: Distribute among available trade ports.
-    // Better: If you can't do this one, try again elsewhere. Return fail
-    // only if everything fails.
     // TODO: Better heuristic, and distance calculator that accounts for risk;
     // but that awaits warship implementation.
-    auto status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                                     ai::impl::ZeroHeuristic, area_id, plan);
+    status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                                ai::impl::ZeroHeuristic, area_id, plan);
     if (!status.ok()) {
-      return status;
+      continue;
     }
     status = planTrade(unit, *area, state, plan);
     if (!status.ok()) {
-      return status;
+      continue;
     }
+    return util::OkStatus();
   }
-  return util::OkStatus();
+  return util::NotFoundError(absl::Substitute(
+      "Could not find suitable trade port for $0; most recent problem: $1",
+      util::objectid::DisplayString(unit.unit_id()),
+      status.error_message().as_string()));
 }
 
 util::Status
