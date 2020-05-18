@@ -46,19 +46,29 @@ cc_library(
     ],
 )
 
+filegroup(
+    name = "testdata",
+    srcs = glob(["test_data/*/*.pb.txt"]),
+)
+
 cc_test(
     name = "sevenyears_ai_test",
     srcs = ["ai_tests.cc"],
     deps = [
         ":sevenyears_ai_lib",
+        ":sevenyears_constants",
         ":sevenyears_interfaces",
         "//games/actions/proto:strategy_proto",
+        "//games/market:goods_utils",
         "//games/setup:setup",
         "//games/sevenyears/proto:sevenyears_proto",
+        "//util/logging:logging",
         "//util/proto:object_id_proto",
+        "@com_google_absl//absl/strings:strings",
         "@gtest//:gtest",
         "@gtest//:gtest_main",
     ],
+    data = [":testdata"],
 )
 
 cc_library(
