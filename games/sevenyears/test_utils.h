@@ -20,6 +20,7 @@ public:
   TestState() {}
 
   util::Status Initialise(const games::setup::proto::ScenarioFiles& config);
+  util::Status Initialise(const std::string& location);
 
   const games::setup::World& World() const override;
   const games::setup::Constants& Constants() const override;

@@ -26,21 +26,13 @@ protected:
   ~SevenYearsMerchantTest() { Log::UnRegister(Log::coutLogger); }
 
   void SetUp() override {
+    market::ClearGoods();
     ai_proto_ = strategy_.mutable_seven_years_merchant();
+    world_state_.reset(new TestState());
   }
 
   util::Status LoadTestData(const std::string& location) {
-    market::ClearGoods();
-    const std::string kTestDir = std::getenv("TEST_SRCDIR");
-    const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
-    const std::string kBase =
-        absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
-
-    games::setup::proto::ScenarioFiles config;
-    config.add_unit_templates(absl::StrJoin({kBase, kTemplates}, "/"));
-    config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
-    world_state_.reset(new TestState());
-    auto status = world_state_->Initialise(config);
+    auto status = world_state_->Initialise(location);
     if (!status.ok()) {
       return status;
     }

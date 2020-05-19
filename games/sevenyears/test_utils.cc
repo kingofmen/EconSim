@@ -1,5 +1,6 @@
 #include "games/sevenyears/test_utils.h"
 
+#include "absl/strings/substitute.h"
 #include "games/industry/industry.h"
 #include "games/setup/setup.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -28,6 +29,20 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
   }
   return util::OkStatus();
 }
+
+util::Status
+TestState::Initialise(const std::string& location) {
+  const std::string kTestDir = std::getenv("TEST_SRCDIR");
+  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
+  const std::string kBase =
+      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
+
+  games::setup::proto::ScenarioFiles config;
+  config.add_unit_templates(absl::StrJoin({kBase, kTemplates}, "/"));
+  config.set_world_file(absl::StrJoin({kBase, kWorld}, "/"));
+  return Initialise(config);
+}
+
 
 const games::setup::World& TestState::World() const {
   return *world_;

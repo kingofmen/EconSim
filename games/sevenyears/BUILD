@@ -62,6 +62,7 @@ cc_library(
         "//games/sevenyears/proto:sevenyears_proto",
         "//util/logging:logging",
         "//util/proto:object_id_proto",
+        "@com_google_absl//absl/strings:strings",
     ],
     testonly = 1,
 )
