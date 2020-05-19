@@ -51,6 +51,21 @@ filegroup(
     srcs = glob(["test_data/*/*.pb.txt"]),
 )
 
+cc_library(
+    name = "test_utils",
+    srcs = ["test_utils.cc"],
+    hdrs = ["test_utils.h"],
+    deps = [
+        ":sevenyears_interfaces",
+        "//games/industry:industry",
+        "//games/setup:setup",
+        "//games/sevenyears/proto:sevenyears_proto",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
+    ],
+    testonly = 1,
+)
+
 cc_test(
     name = "sevenyears_ai_test",
     srcs = ["ai_tests.cc"],
@@ -58,6 +73,7 @@ cc_test(
         ":sevenyears_ai_lib",
         ":sevenyears_constants",
         ":sevenyears_interfaces",
+        ":test_utils",
         "//games/actions/proto:strategy_proto",
         "//games/market:goods_utils",
         "//games/setup:setup",

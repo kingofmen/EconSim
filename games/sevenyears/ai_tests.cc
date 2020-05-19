@@ -11,6 +11,7 @@
 #include "games/sevenyears/constants.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "games/sevenyears/test_utils.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "util/logging/logging.h"
@@ -18,62 +19,6 @@
 #include "util/status/status.h"
 
 namespace sevenyears {
-
-const std::string kTestDataLocation = "games/sevenyears/test_data";
-const std::string kTemplates = "templates.pb.txt";
-const std::string kWorld = "world.pb.txt";
-
-class TestState : public SevenYearsState {
-public:
-  TestState() {}
-
-  util::Status Initialise(const games::setup::proto::ScenarioFiles& config) {
-    auto status = games::setup::LoadScenario(config, &scenario_proto_);
-    if (!status.ok()) {
-      return status;
-    }
-    status = games::setup::LoadWorld(config, &world_proto_);
-    if (!status.ok()) {
-      return status;
-    }
-    constants_ = games::setup::Constants(scenario_proto_);
-    world_ = games::setup::World::FromProto(world_proto_);
-    sevenyears::proto::WorldState* world_state = world_proto_.MutableExtension(
-        sevenyears::proto::WorldState::sevenyears_state);
-    for (const auto& as : world_state->area_states()) {
-      state_map_[as.area_id()] = as;
-    }
-    return util::OkStatus();
-  }
-  const games::setup::World& World() const override {
-    return *world_;
-  }
-  const games::setup::Constants& Constants() const override {
-    return constants_;
-  }
-  const proto::AreaState&
-  AreaState(const util::proto::ObjectId& area_id) const {
-    if (state_map_.find(area_id) == state_map_.end()) {
-      Log::Errorf("No state for area %s",
-                  util::objectid::DisplayString(area_id));
-      static proto::AreaState dummy;
-      return dummy;
-    }
-    return state_map_.at(area_id);
-  }
-  const industry::Production&
-  ProductionChain(const std::string& name) const override {
-    static industry::Production dummy;
-    return dummy;
-  }
-
-private:
-  std::unordered_map<util::proto::ObjectId, proto::AreaState> state_map_;
-  std::unique_ptr<games::setup::World> world_;
-  games::setup::Constants constants_;
-  games::setup::proto::GameWorld world_proto_;
-  games::setup::proto::Scenario scenario_proto_;
-};
 
 class SevenYearsMerchantTest : public testing::Test {
 protected:
