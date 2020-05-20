@@ -1,0 +1,40 @@
+trade_goods {
+  name: "supplies"
+  decay_rate_u: 0
+  transport_type: TTT_STANDARD
+  # Average of water (1 cubic meter, 1 ton) and lead (1 cubic meter,
+  # 11.3 tons)
+  bulk_u: 1000000
+  weight_u: 6000000
+}
+trade_goods {
+  name: "trade_goods"
+  decay_rate_u: 0
+  transport_type: TTT_STANDARD
+  # Basically water with a bit of silver mixed in.
+  bulk_u: 1000000
+  weight_u: 2000000
+}
+
+# Dummy goods used to decide what kind of production a field can do.
+trade_goods {
+  name: "war_production_capital"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "export_production_capital"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "colonial_extraction_infrastructure"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+trade_goods {
+  name: "import_capacity"
+  decay_rate_u: 0
+  transport_type: TTT_IMMOBILE
+}
+

@@ -88,6 +88,30 @@ cc_test(
     data = [":testdata"],
 )
 
+cc_test(
+    name = "sevenyears_test",
+    srcs = ["sevenyears_test.cc"],
+    deps = [
+        ":sevenyears_ai_lib",
+        ":sevenyears_lib",
+        ":sevenyears_constants",
+        ":sevenyears_interfaces",
+        ":test_utils",
+        "//games/actions/proto:strategy_proto",
+        "//games/market:goods_utils",
+        "//games/setup:setup",
+        "//games/sevenyears/proto:sevenyears_proto",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
+        "@com_google_absl//absl/strings:strings",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+        # TODO: Get rid of this viral dependency through interface/Base.
+        "@sdl2//:SDL2",
+    ],
+    data = [":testdata"],
+)
+
 cc_library(
     name = "sevenyears_lib",
     srcs = ["sevenyears.cc"],
@@ -114,6 +138,7 @@ cc_library(
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@com_google_protobuf//:protobuf",
+        # TODO: Get rid of this viral dependency through interface/Base.
         "@sdl2//:SDL2",
     ],
 )

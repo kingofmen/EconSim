@@ -1,0 +1,13 @@
+unit_templates {
+  template_id {
+    kind: "brig"
+  }
+  mobility {
+    speed_u: 1200000
+    max_bulk_u: 2000000
+    max_weight_u: 10000000
+  }
+  tags: "merchant"
+  # Infinite action points for testing executors.
+  base_action_points_u: 100000000
+}

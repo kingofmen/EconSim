@@ -11,9 +11,8 @@
 
 namespace sevenyears {
 
-const std::string kTestDataLocation = "games/sevenyears/test_data";
-const std::string kTemplates = "templates.pb.txt";
-const std::string kWorld = "world.pb.txt";
+void PopulateScenarioFiles(const std::string& location,
+                           games::setup::proto::ScenarioFiles* config);
 
 class TestState : public SevenYearsState {
 public:
