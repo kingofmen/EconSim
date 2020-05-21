@@ -13,6 +13,7 @@
 #include "util/status/status.h"
 
 #include "SDL.h"
+#include "SDL_opengl.h"
 
 namespace sevenyears {
 namespace graphics {
@@ -78,6 +79,23 @@ void widthAndHeight(const games::interface::proto::Config::ScreenSize& ss,
 
 }  // namespace
 
+util::Status SDLSpriteDrawer::Init(int width, int height) {
+  window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
+                                 SDL_WINDOWPOS_UNDEFINED, width, height,
+                                 SDL_WINDOW_SHOWN));
+  if (!window_) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not create window: $0", SDL_GetError()));
+  }
+  renderer_.reset(
+      SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED));
+  if (!renderer_) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not create renderer: $0", SDL_GetError()));
+  }
+  return util::OkStatus();
+}
+
 util::Status
 SDLInterface::Initialise(const games::interface::proto::Config& config) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -88,44 +106,27 @@ SDLInterface::Initialise(const games::interface::proto::Config& config) {
   int width = 640;
   int height = 480;
   widthAndHeight(config.screen_size(), width, height, &map_rectangle_);
-  window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
-                                 SDL_WINDOWPOS_UNDEFINED, width, height,
-                                 SDL_WINDOW_SHOWN));
-  if (!window_) {
-    return util::FailedPreconditionError(
-        absl::Substitute("Could not create window: $0", SDL_GetError()));
-  }
-
-  renderer_.reset(
-      SDL_CreateRenderer(window_.get(), -1, SDL_RENDERER_ACCELERATED));
-  if (!renderer_) {
-    return util::FailedPreconditionError(
-        absl::Substitute("Could not create renderer: $0", SDL_GetError()));
-  }
-
-  clearScreen();
-  SDL_UpdateWindowSurface(window_.get());
+  sprites_ = new SDLSpriteDrawer();
+  sprites_->Init(width, height);
+  sprites_->ClearScreen();
+  sprites_->Update();
   return util::OkStatus();
 }
 
-void SDLInterface::Cleanup() {
-  for (auto& map : maps_) {
-    SDL_DestroyTexture(map.second.background_);
-  }
+void SDLSpriteDrawer::Cleanup() {
   for (auto& ut : unit_types_) {
     SDL_DestroyTexture(ut.second);
   }
   window_.reset(nullptr); // Also calls deleter.
   renderer_.reset(nullptr);
-  SDL_Quit();
 }
 
-void SDLInterface::clearScreen() {
+void SDLSpriteDrawer::ClearScreen() {
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer_.get());
 }
 
-void SDLInterface::drawArea(const Area& area) {
+void SDLSpriteDrawer::DrawArea(const Area& area) {
   SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), &fillRect);
@@ -151,18 +152,9 @@ void SDLInterface::drawArea(const Area& area) {
   }
 }
 
-void SDLInterface::drawMap() {
-  clearScreen();
-  if (current_map_.empty()) {
-    return;
-  }
-  const Map& currMap = maps_.at(current_map_);
-  SDL_RenderCopy(renderer_.get(), currMap.background_, NULL, &map_rectangle_);
-  for (const Area& area : currMap.areas_) {
-    drawArea(area);
-  }
-
-  for (const auto& unit : currMap.unit_locations_) {
+void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
+  SDL_RenderCopy(renderer_.get(), map.background_, NULL, rect);
+  for (const auto& unit : map.unit_locations_) {
     if (unit_types_.find(unit.first) == unit_types_.end()) {
       continue;
     }
@@ -171,6 +163,58 @@ void SDLInterface::drawMap() {
       SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
     }
   }
+}
+
+util::Status SDLSpriteDrawer::UnitGraphics(
+    const std::experimental::filesystem::path& base_path,
+    const proto::Scenario& scenario) {
+  for (const auto& ut : scenario.unit_types()) {
+    if (unit_types_.find(ut.template_kind()) != unit_types_.end()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Duplicate unit graphics for $0: $1",
+                           ut.display_name(), ut.DebugString()));
+    }
+    auto current_path = base_path / ut.filename();
+    SDL_Texture* tex = NULL;
+    auto status = bitmap::MakeTexture(current_path, renderer_.get(), tex);
+    if (!status.ok()) {
+      return status;
+    }
+    unit_types_[ut.template_kind()] = tex;
+  }
+  return util::OkStatus();
+}
+
+util::Status
+SDLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
+                             Map* map) {
+  return bitmap::MakeTexture(path, renderer_.get(), map->background_);
+}
+
+void SDLSpriteDrawer::Update() {
+  SDL_UpdateWindowSurface(window_.get());
+  SDL_RenderPresent(renderer_.get());
+}
+
+void SDLInterface::Cleanup() {
+  for (auto& map : maps_) {
+    SDL_DestroyTexture(map.second.background_);
+  }
+  sprites_->Cleanup();
+  SDL_Quit();
+}
+
+void SDLInterface::drawMap() {
+  sprites_->ClearScreen();
+  if (current_map_.empty()) {
+    return;
+  }
+  const Map& currMap = maps_.at(current_map_);
+  sprites_->DrawMap(currMap, &map_rectangle_);
+  for (const Area& area : currMap.areas_) {
+    sprites_->DrawArea(area);
+  }
+  sprites_->Update();
 }
 
 util::Status SDLInterface::validate(const proto::Scenario& scenario) {
@@ -318,8 +362,7 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
   }
 }
 
-SDLInterface::Area&
-SDLInterface::getAreaById(const util::proto::ObjectId& area_id) {
+Area& SDLInterface::getAreaById(const util::proto::ObjectId& area_id) {
   const auto& area_idx = area_map_[area_id];
   return maps_.at(area_idx.first).areas_[area_idx.second];
 }
@@ -339,8 +382,6 @@ void SDLInterface::EventLoop() {
 
   // TODO: Put this in a separate thread, like a big boy.
   drawMap();
-  SDL_UpdateWindowSurface(window_.get());
-  SDL_RenderPresent(renderer_.get());
 }
 
 // TODO: Ok get this in a library, with the other obvious operators, and unit
@@ -401,10 +442,8 @@ proto::LatLong operator-(const proto::LatLong& lhs, const proto::LatLong& rhs) {
   return ret;
 }
 
-SDLInterface::Area::Area(const proto::Area& proto,
-                         const proto::LatLong& topleft,
-                         int seconds_per_pixel_high,
-                         int seconds_per_pixel_wide) {
+Area::Area(const proto::Area& proto, const proto::LatLong& topleft,
+           int seconds_per_pixel_high, int seconds_per_pixel_wide) {
   int seconds = seconds_north(topleft) - seconds_north(proto.position());
   ypos_ = seconds / seconds_per_pixel_high;
   seconds = seconds_east(proto.position()) - seconds_east(topleft);
@@ -412,8 +451,7 @@ SDLInterface::Area::Area(const proto::Area& proto,
   area_id_ = proto.area_id();
 }
 
-SDLInterface::Map::Map(const proto::Map& proto)
-    : background_(NULL), name_(proto.name()) {}
+Map::Map(const proto::Map& proto) : background_(NULL), name_(proto.name()) {}
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   auto status = validate(scenario);
@@ -436,8 +474,7 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
 
     Map curr(map);
     auto current_path = base_path / map.filename();
-    status =
-        bitmap::MakeTexture(current_path, renderer_.get(), curr.background_);
+    status = sprites_->MapGraphics(current_path, &curr);
     if (!status.ok()) {
       return status;
     }
@@ -456,19 +493,9 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
     current_map_ = map.name();
   }
 
-  for (const auto& ut : scenario.unit_types()) {
-    if (unit_types_.find(ut.template_kind()) != unit_types_.end()) {
-      return util::InvalidArgumentError(
-          absl::Substitute("Duplicate unit graphics for $0: $1",
-                           ut.display_name(), ut.DebugString()));
-    }
-    auto current_path = base_path / ut.filename();
-    SDL_Texture* tex = NULL;
-    status = bitmap::MakeTexture(current_path, renderer_.get(), tex);
-    if (!status.ok()) {
-      return status;
-    }
-    unit_types_[ut.template_kind()] = tex;
+  status = sprites_->UnitGraphics(base_path, scenario);
+  if (!status.ok()) {
+    return status;
   }
 
   return util::OkStatus();
