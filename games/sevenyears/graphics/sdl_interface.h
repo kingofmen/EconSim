@@ -32,8 +32,6 @@ struct Area {
 
 struct Map {
   Map(const sevenyears::graphics::proto::Map& proto);
-  // TODO: This doesn't belong in the struct but in the SpriteDrawers.
-  SDL_Texture* background_;
   std::vector<Area> areas_;
   // Map from template kind to graphic locations.
   std::unordered_map<std::string, std::vector<SDL_Rect>> unit_locations_;
@@ -80,6 +78,7 @@ private:
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;
+  std::unordered_map<std::string, SDL_Texture*> map_backgrounds_;
 };
 
 class SDLInterface : public SevenYearsInterface {

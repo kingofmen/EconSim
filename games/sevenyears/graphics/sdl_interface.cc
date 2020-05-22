@@ -114,6 +114,9 @@ SDLInterface::Initialise(const games::interface::proto::Config& config) {
 }
 
 void SDLSpriteDrawer::Cleanup() {
+  for (auto& mb : map_backgrounds_) {
+    SDL_DestroyTexture(mb.second);
+  }
   for (auto& ut : unit_types_) {
     SDL_DestroyTexture(ut.second);
   }
@@ -153,7 +156,7 @@ void SDLSpriteDrawer::DrawArea(const Area& area) {
 }
 
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
-  SDL_RenderCopy(renderer_.get(), map.background_, NULL, rect);
+  SDL_RenderCopy(renderer_.get(), map_backgrounds_[map.name_], NULL, rect);
   for (const auto& unit : map.unit_locations_) {
     if (unit_types_.find(unit.first) == unit_types_.end()) {
       continue;
@@ -188,7 +191,13 @@ util::Status SDLSpriteDrawer::UnitGraphics(
 util::Status
 SDLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
                              Map* map) {
-  return bitmap::MakeTexture(path, renderer_.get(), map->background_);
+  SDL_Texture* bkg = NULL;
+  auto status = bitmap::MakeTexture(path, renderer_.get(), bkg);
+  if (!status.ok()) {
+    return status;
+  }
+  map_backgrounds_[map->name_] = bkg;
+  return util::OkStatus();
 }
 
 void SDLSpriteDrawer::Update() {
@@ -197,9 +206,6 @@ void SDLSpriteDrawer::Update() {
 }
 
 void SDLInterface::Cleanup() {
-  for (auto& map : maps_) {
-    SDL_DestroyTexture(map.second.background_);
-  }
   sprites_->Cleanup();
   SDL_Quit();
 }
@@ -451,7 +457,7 @@ Area::Area(const proto::Area& proto, const proto::LatLong& topleft,
   area_id_ = proto.area_id();
 }
 
-Map::Map(const proto::Map& proto) : background_(NULL), name_(proto.name()) {}
+Map::Map(const proto::Map& proto) : name_(proto.name()) {}
 
 util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   auto status = validate(scenario);
