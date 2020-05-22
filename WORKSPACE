@@ -33,6 +33,18 @@ new_local_repository(
     build_file = "gmock.BUILD",
 )
 
+new_local_repository(
+    name = "freetype",
+    path = "C:\\Users\\Rolf\\base\\third_party\\freetype\\",
+    build_file = "C:\\Users\\Rolf\\base\\third_party\\freetype\\BUILD",
+)
+
+new_local_repository(
+    name = "sdl_ttf",
+    path = "C:\\Users\\Rolf\\base\\third_party\\SDL_TTF\\",
+    build_file = "C:\\Users\\Rolf\\base\\third_party\\SDL_TTF\\BUILD",
+)
+
 local_repository(
     name = "com_google_absl",
     path = "C:\\Users\\Rolf\\base\\third_party\\abseil-cpp",
