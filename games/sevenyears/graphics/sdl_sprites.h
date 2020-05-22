@@ -34,6 +34,14 @@ struct Map {
   std::string name_;
 };
 
+struct SDLWindowCleaner {
+  void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
+};
+
+struct SDLRendererCleaner {
+  void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
+};
+
 class SpriteDrawer {
  public:
   virtual void Cleanup() = 0;
@@ -64,15 +72,32 @@ public:
   void Update() override;
 
 private:
-  struct SDLWindowCleaner {
-    void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
-  };
-  struct SDLRendererCleaner {
-    void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
-  };
-
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
+  std::unordered_map<std::string, SDL_Texture*> unit_types_;
+  std::unordered_map<std::string, SDL_Texture*> map_backgrounds_;
+};
+
+// This implementation is not complete, due to my decision to use
+// SDL_TTF instead; it is left here in a partial state in case I
+// decide to go with OpenGL in the future.
+class OpenGLSpriteDrawer : public SpriteDrawer {
+public:
+  void Cleanup() override;
+  void ClearScreen() override;
+  void DrawArea(const Area& area) override;
+  void DrawMap(const Map& map, SDL_Rect* rect) override;
+  util::Status Init(int width, int height) override;
+  util::Status
+  UnitGraphics(const std::experimental::filesystem::path& base_path,
+               const proto::Scenario& scenario) override;
+  util::Status MapGraphics(const std::experimental::filesystem::path& path,
+                           Map* map) override;
+  void Update() override;
+
+private:
+  SDL_GLContext gl_context_;
+  std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;
   std::unordered_map<std::string, SDL_Texture*> map_backgrounds_;
 };

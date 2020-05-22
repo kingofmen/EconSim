@@ -122,6 +122,144 @@ void SDLSpriteDrawer::Update() {
   SDL_RenderPresent(renderer_.get());
 }
 
+util::Status OpenGLSpriteDrawer::Init(int width, int height) {
+  // Use OpenGL 2.1 for the time being.
+  // TODO: Eh, I should probably figure out that rendering pipeline and whatnot.
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+
+  window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
+                                 SDL_WINDOWPOS_UNDEFINED, width, height,
+                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN));
+  gl_context_ = SDL_GL_CreateContext(window_.get());
+  if (!gl_context_) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not create GL context: $0", SDL_GetError()));
+  }
+
+  if (SDL_GL_SetSwapInterval(1) < 0) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not set swap interval: $0", SDL_GetError()));
+  }
+  glEnable(GL_TEXTURE_2D);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho( 0.0, width, height, 0.0, 1.0, -1.0 );
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Error initialising OpenGL projection: $0", error));
+  }
+
+  // Initialise Modelview Matrix.
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  error = glGetError();
+  glClearColor( 1.f, 1.f, 1.f, 1.f );
+  if (error != GL_NO_ERROR) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Error initialising OpenGL modelview: $0", error));
+  }
+  return util::OkStatus();
+}
+
+void OpenGLSpriteDrawer::Cleanup() {
+  for (auto& mb : map_backgrounds_) {
+    SDL_DestroyTexture(mb.second);
+  }
+  for (auto& ut : unit_types_) {
+    SDL_DestroyTexture(ut.second);
+  }
+  window_.reset(nullptr); // Also calls deleter.
+}
+
+void OpenGLSpriteDrawer::ClearScreen() {
+  glClear( GL_COLOR_BUFFER_BIT );
+}
+
+void OpenGLSpriteDrawer::DrawArea(const Area& area) {
+  /*
+  SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
+  SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
+  SDL_RenderFillRect(renderer_.get(), &fillRect);
+  int numTypes = area.unit_numbers_.size();
+  static const int kIncrement = 24;
+  static const int kWidth = 16;
+  int start = area.xpos_ - kIncrement * (numTypes / 2) - kWidth / 2;
+  start += (kIncrement / 2) * (1 - numTypes % 2);
+  int idx = 0;
+  SDL_Rect loc;
+  loc.w = kWidth;
+  loc.h = kWidth;
+  for (const auto& units : area.unit_numbers_) {
+    SDL_Texture* tex = unit_types_[units.first];
+    int number = units.second;
+    loc.x = start + kIncrement * idx++;
+    loc.y = area.ypos_ - (kIncrement/2 + kWidth);
+    for (int i = 0; i < number; ++i) {
+      SDL_RenderCopy(renderer_.get(), tex, NULL, &loc);
+      loc.x += 3;
+      loc.y -= 3;
+    }
+  }
+  */
+}
+
+void OpenGLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
+  /*
+  SDL_RenderCopy(renderer_.get(), map_backgrounds_[map.name_], NULL, rect);
+  for (const auto& unit : map.unit_locations_) {
+    if (unit_types_.find(unit.first) == unit_types_.end()) {
+      continue;
+    }
+    auto* icon = unit_types_[unit.first];
+    for (const auto& loc : unit.second) {
+      SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
+    }
+  }
+  */
+}
+
+util::Status OpenGLSpriteDrawer::UnitGraphics(
+    const std::experimental::filesystem::path& base_path,
+    const proto::Scenario& scenario) {
+  /*
+  for (const auto& ut : scenario.unit_types()) {
+    if (unit_types_.find(ut.template_kind()) != unit_types_.end()) {
+      return util::InvalidArgumentError(
+          absl::Substitute("Duplicate unit graphics for $0: $1",
+                           ut.display_name(), ut.DebugString()));
+    }
+    auto current_path = base_path / ut.filename();
+    SDL_Texture* tex = NULL;
+    auto status = bitmap::MakeTexture(current_path, renderer_.get(), tex);
+    if (!status.ok()) {
+      return status;
+    }
+    unit_types_[ut.template_kind()] = tex;
+  }
+  */
+  return util::OkStatus();
+}
+
+util::Status
+OpenGLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
+                             Map* map) {
+  /*
+  SDL_Texture* bkg = NULL;
+  auto status = bitmap::MakeTexture(path, renderer_.get(), bkg);
+  if (!status.ok()) {
+    return status;
+  }
+  map_backgrounds_[map->name_] = bkg;
+  */
+  return util::OkStatus();
+}
+
+void OpenGLSpriteDrawer::Update() {
+  SDL_GL_SwapWindow(window_.get());
+}
+
 }  // namespace graphics
 }  // namespace sevenyears
 
