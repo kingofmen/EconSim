@@ -25,8 +25,14 @@ cc_library(
 
 cc_library(
     name = "sdl_interface",
-    srcs = ["sdl_interface.cc"],
-    hdrs = ["sdl_interface.h"],
+    srcs = [
+        "sdl_interface.cc",
+        "sdl_sprites.cc",
+    ],
+    hdrs = [
+        "sdl_interface.h",
+        "sdl_sprites.h",
+    ],
     deps = [
         ":sevenyears_interface",
         ":bitmap",
