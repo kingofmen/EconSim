@@ -43,4 +43,5 @@ message Scenario {
   optional string root_gfx_path = 1;
   repeated Map maps = 2;
   repeated UnitType unit_types = 3;
+  repeated string fonts = 4;
 }

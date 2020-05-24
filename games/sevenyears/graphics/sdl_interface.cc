@@ -13,6 +13,7 @@
 #include "util/status/status.h"
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 
 namespace sevenyears {
 namespace graphics {
@@ -80,6 +81,7 @@ void widthAndHeight(const games::interface::proto::Config::ScreenSize& ss,
 
 void SDLInterface::Cleanup() {
   sprites_->Cleanup();
+  TTF_Quit();
   SDL_Quit();
 }
 
@@ -88,6 +90,11 @@ SDLInterface::Initialise(const games::interface::proto::Config& config) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     return util::FailedPreconditionError(
         absl::Substitute("Could not initialise SDL: $0", SDL_GetError()));
+  }
+  auto ttf = TTF_Init();
+  if (ttf < 0) {
+    return util::FailedPreconditionError(
+        absl::Substitute("Could not initialise TTF: $0", ttf));
   }
 
   int width = 640;
@@ -197,6 +204,10 @@ util::Status SDLInterface::validate(const proto::Scenario& scenario) {
                              curr_id.DebugString(), map.name()));
       }
     }
+  }
+
+  if (scenario.fonts().empty()) {
+    return util::InvalidArgumentError("Scenario has no fonts.");
   }
 
   return util::OkStatus();
@@ -360,6 +371,11 @@ util::Status SDLInterface::ScenarioGraphics(const proto::Scenario& scenario) {
   if (!std::experimental::filesystem::exists(base_path)) {
     return util::NotFoundError(absl::Substitute(
         "Could not find base graphics path $0", base_path.string()));
+  }
+
+  status = sprites_->LoadFonts(base_path, scenario);
+  if (!status.ok()) {
+    return status;
   }
 
   for (const proto::Map& map : scenario.maps()) {

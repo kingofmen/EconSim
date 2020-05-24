@@ -104,3 +104,4 @@ unit_types {
   filename: "FullRiggerIcon.bmp"
   template_kind: "threemaster"
 }
+fonts: "fonts/canada1500-rg.ttf"

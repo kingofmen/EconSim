@@ -48,5 +48,6 @@ cc_library(
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",
         "@sdl2//:SDL2",
+        "@sdl_ttf//:SDL_ttf",
     ],
 )

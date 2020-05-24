@@ -11,6 +11,7 @@
 #include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
 #include "SDL.h"
+#include "SDL_ttf.h"
 
 namespace sevenyears {
 namespace graphics {
@@ -50,11 +51,21 @@ class SpriteDrawer {
   virtual void DrawMap(const Map& map, SDL_Rect* rect) = 0;
   virtual util::Status Init(int width, int height) = 0;
   virtual util::Status
+  LoadFonts(const std::experimental::filesystem::path& base_path,
+            const proto::Scenario& scenario);
+  virtual util::Status
   UnitGraphics(const std::experimental::filesystem::path& base_path,
                const proto::Scenario& scenario) = 0;
   virtual util::Status
   MapGraphics(const std::experimental::filesystem::path& path, Map* map) = 0;
   virtual void Update() = 0;
+};
+
+// Wrapper for SDL texture.
+struct Text {
+  SDL_Texture* letters;
+  int width;
+  int height;
 };
 
 class SDLSpriteDrawer : public SpriteDrawer {
@@ -64,6 +75,8 @@ public:
   void DrawArea(const Area& area) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
   util::Status Init(int width, int height) override;
+  util::Status LoadFonts(const std::experimental::filesystem::path& base_path,
+                         const proto::Scenario& scenario) override;
   util::Status
   UnitGraphics(const std::experimental::filesystem::path& base_path,
                const proto::Scenario& scenario) override;
@@ -76,6 +89,8 @@ private:
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;
   std::unordered_map<std::string, SDL_Texture*> map_backgrounds_;
+  std::vector<TTF_Font*> fonts_;
+  std::unordered_map<std::string, Text> display_texts_;
 };
 
 // This implementation is not complete, due to my decision to use

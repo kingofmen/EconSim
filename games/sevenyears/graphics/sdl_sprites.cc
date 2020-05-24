@@ -8,10 +8,18 @@
 #include "util/status/status.h"
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "SDL_opengl.h"
 
 namespace sevenyears {
 namespace graphics {
+
+util::Status
+SpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
+                        const proto::Scenario& scenario) {
+  return util::NotImplementedError(
+      "LoadFonts not implemented in this sprite class.");
+}
 
 util::Status SDLSpriteDrawer::Init(int width, int height) {
   window_.reset(SDL_CreateWindow("Seven Years", SDL_WINDOWPOS_UNDEFINED,
@@ -31,6 +39,9 @@ util::Status SDLSpriteDrawer::Init(int width, int height) {
 }
 
 void SDLSpriteDrawer::Cleanup() {
+  for (TTF_Font* font : fonts_) {
+    TTF_CloseFont(font);
+  }
   for (auto& mb : map_backgrounds_) {
     SDL_DestroyTexture(mb.second);
   }
@@ -83,6 +94,29 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
       SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
     }
   }
+  auto& name = display_texts_[map.name_];
+  static SDL_Rect target = {5, 5, name.width, name.height};
+  SDL_RenderCopy(renderer_.get(), name.letters, NULL, &target);
+}
+
+util::Status
+SDLSpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
+                           const proto::Scenario& scenario) {
+  for (const auto& fontfile : scenario.fonts()) {
+    auto fullpath = base_path / fontfile;
+    if (!std::experimental::filesystem::exists(fullpath)) {
+      return util::NotFoundError(
+          absl::Substitute("Could not find font path $0", fullpath.string()));
+    }
+
+    TTF_Font* font = TTF_OpenFont(fullpath.string().c_str(), 14);
+    if (font == NULL) {
+      return util::InvalidArgumentError(absl::Substitute(
+          "Could not open font $0: $1", fontfile, TTF_GetError()));
+    }
+    fonts_.push_back(font);
+  }
+  return util::OkStatus();
 }
 
 util::Status SDLSpriteDrawer::UnitGraphics(
@@ -114,6 +148,22 @@ SDLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
     return status;
   }
   map_backgrounds_[map->name_] = bkg;
+
+  static SDL_Color nameColor = {0, 0, 0};
+  SDL_Surface* nameSurface =
+      TTF_RenderText_Solid(fonts_[0], map->name_.c_str(), nameColor);
+  if (nameSurface == NULL) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not create surface for $0", map->name_));
+  }
+  SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer_.get(), nameSurface);
+  if (nameTexture == NULL) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not create texture for $0", map->name_));
+  }
+  display_texts_[map->name_] = {nameTexture, nameSurface->w, nameSurface->h};
+  SDL_FreeSurface(nameSurface);
+
   return util::OkStatus();
 }
 
