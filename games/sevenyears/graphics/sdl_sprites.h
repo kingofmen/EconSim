@@ -50,7 +50,6 @@ class SpriteDrawer {
   virtual void ClearScreen() = 0;
   virtual const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                                      int y);
-  virtual void DrawArea(const Area& area) = 0;
   virtual void DrawMap(const Map& map, SDL_Rect* rect) = 0;
   virtual util::Status Init(int width, int height) = 0;
   virtual util::Status
@@ -77,7 +76,6 @@ public:
   void ClearScreen() override;
   const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                              int y) override;
-  void DrawArea(const Area& area) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
   util::Status Init(int width, int height) override;
   util::Status LoadFonts(const std::experimental::filesystem::path& base_path,
@@ -92,6 +90,7 @@ public:
 private:
   util::Status createText(const std::string& str);
   void displayText(const std::string& str);
+  void drawArea(const Area& area);
 
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
@@ -108,7 +107,6 @@ class OpenGLSpriteDrawer : public SpriteDrawer {
 public:
   void Cleanup() override;
   void ClearScreen() override;
-  void DrawArea(const Area& area) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
   util::Status Init(int width, int height) override;
   util::Status
@@ -119,6 +117,8 @@ public:
   void Update() override;
 
 private:
+  void drawArea(const Area& area);
+
   SDL_GLContext gl_context_;
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;

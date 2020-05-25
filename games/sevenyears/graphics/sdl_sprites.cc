@@ -101,7 +101,7 @@ const util::proto::ObjectId& SDLSpriteDrawer::ClickedObject(const Map& map,
   return util::objectid::kNullId;
 }
 
-void SDLSpriteDrawer::DrawArea(const Area& area) {
+void SDLSpriteDrawer::drawArea(const Area& area) {
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), &area.draw_location_);
   int numTypes = area.unit_numbers_.size();
@@ -165,6 +165,9 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
     }
     auto* icon = unit_types_[unit.first.kind()];
     SDL_RenderCopy(renderer_.get(), icon, NULL, &unit.second);
+  }
+  for (const Area& area : map.areas_) {
+    drawArea(area);
   }
   displayText(map.name_);
 }
@@ -292,7 +295,7 @@ void OpenGLSpriteDrawer::ClearScreen() {
   glClear( GL_COLOR_BUFFER_BIT );
 }
 
-void OpenGLSpriteDrawer::DrawArea(const Area& area) {
+void OpenGLSpriteDrawer::drawArea(const Area& area) {
   /*
   SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);

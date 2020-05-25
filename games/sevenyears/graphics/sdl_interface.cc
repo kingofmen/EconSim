@@ -114,9 +114,6 @@ void SDLInterface::drawMap() {
   }
   const Map& currMap = maps_.at(current_map_);
   sprites_->DrawMap(currMap, &map_rectangle_);
-  for (const Area& area : currMap.areas_) {
-    sprites_->DrawArea(area);
-  }
   sprites_->Update();
 }
 
