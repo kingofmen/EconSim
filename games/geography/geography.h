@@ -60,6 +60,8 @@ private:
   market::Market market_;
 };
 
+Area* ById(const util::proto::ObjectId& area_id);
+
 } // namespace geography
 
 #endif

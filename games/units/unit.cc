@@ -154,4 +154,9 @@ micro::Measure Unit::action_points_u() const {
   return base_u - used_action_points_u;
 }
 
+Unit* ById(const util::proto::ObjectId unit_id) {
+  return Unit::ById(unit_id);
+}
+
+
 } // namespace units

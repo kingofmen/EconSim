@@ -70,6 +70,8 @@ private:
   micro::Measure used_action_points_u;
 };
 
+Unit* ById(const util::proto::ObjectId unit_id);
+
 } // namespace units
 
 #endif

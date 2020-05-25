@@ -155,4 +155,8 @@ const std::vector<const proto::Field*> Area::fields() const {
   return ret;
 }
 
+Area* ById(const util::proto::ObjectId& area_id) {
+  return Area::GetById(area_id);
+}
+
 } // namespace geography
