@@ -89,7 +89,8 @@ public:
 
   bool quit() const { return quit_; }
 
-  void HandleKeyRelease(const SDL_Keysym& keysym);
+  void HandleKeyRelease(const SDL_Keysym& keysym) override;
+  void HandleMouseEvent(const interface::MouseClick& mc) override;
 
 private:
   bool quit_;
@@ -107,6 +108,12 @@ void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
       break;
     default:
       break;
+  }
+}
+
+void EventHandler::HandleMouseEvent(const interface::MouseClick& mc) {
+  if (mc.released_) {
+    Log::Infof("Mouse clicked: (%d, %d) %d", mc.xcoord_, mc.ycoord_, mc.clicks_);
   }
 }
 

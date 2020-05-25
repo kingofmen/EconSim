@@ -8,6 +8,23 @@
 
 namespace interface {
 
+// Wrapper struct for mouse presses.
+struct MouseClick {
+  enum Button {
+    MB_LEFT,
+    MB_MIDDLE,
+    MB_RIGHT,
+    MB_X1,
+    MB_X2
+  };
+  Button button_;
+  int xcoord_;
+  int ycoord_;
+  int clicks_;
+  // If false, button was pressed.
+  bool released_;
+};
+
 // Receiver is an abstract class for receiving user actions.
 class Receiver {
  public:
@@ -18,8 +35,13 @@ class Receiver {
   // Quit signal.
   virtual void QuitToDesktop() = 0;
 
+  // Mouse methods.
+  virtual void HandleMouseEvent(const MouseClick& mc) = 0;
+
   // SDL methods.
   // Key release.
+  // TODO: I should probably have my own key-event struct like the one
+  // above for mouse events, but oof, that's a lot of boilerplate.
   virtual void HandleKeyRelease(const SDL_Keysym& keysym) = 0;
 };
 
