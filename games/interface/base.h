@@ -2,9 +2,9 @@
 #define GAMES_INTERFACE_INTERFACE_H
 
 #include "games/interface/proto/config.pb.h"
-#include "games/units/proto/units.pb.h"
 #include "SDL_keyboard.h"
 #include "util/status/status.h"
+#include "util/proto/object_id.pb.h"
 
 namespace interface {
 
@@ -43,6 +43,8 @@ class Receiver {
   // TODO: I should probably have my own key-event struct like the one
   // above for mouse events, but oof, that's a lot of boilerplate.
   virtual void HandleKeyRelease(const SDL_Keysym& keysym) = 0;
+
+  virtual void SelectObject(const util::proto::ObjectId& object_id) = 0;
 };
 
 // Base is an abstract class exposing a minimal set of interactions.

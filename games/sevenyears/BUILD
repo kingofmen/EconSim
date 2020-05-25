@@ -156,6 +156,7 @@ cc_binary(
         "//games/sevenyears/proto:sevenyears_proto",
         "//games/interface/proto:config_proto",
         "//util/proto:file",
+        "//util/proto:object_id_proto",
         "//util/logging:logging",
         "//util/status:status",
         "@com_google_absl//absl/strings:strings",

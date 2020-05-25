@@ -9,6 +9,7 @@
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/interface/proto/config.pb.h"
 #include "util/proto/object_id.pb.h"
+#include "util/proto/object_id.h"
 #include "util/status/status.h"
 #include "SDL.h"
 #include "SDL_ttf.h"
@@ -25,13 +26,13 @@ struct Area {
   int ypos_;
   util::proto::ObjectId area_id_;
   std::unordered_map<std::string, int> unit_numbers_;
+  SDL_Rect draw_location_;
 };
 
 struct Map {
   Map(const sevenyears::graphics::proto::Map& proto);
   std::vector<Area> areas_;
-  // Map from template kind to graphic locations.
-  std::unordered_map<std::string, std::vector<SDL_Rect>> unit_locations_;
+  std::unordered_map<util::proto::ObjectId, SDL_Rect> unit_locations_;
   std::string name_;
 };
 
@@ -47,6 +48,8 @@ class SpriteDrawer {
  public:
   virtual void Cleanup() = 0;
   virtual void ClearScreen() = 0;
+  virtual const util::proto::ObjectId& ClickedObject(const Map& map, int x,
+                                                     int y);
   virtual void DrawArea(const Area& area) = 0;
   virtual void DrawMap(const Map& map, SDL_Rect* rect) = 0;
   virtual util::Status Init(int width, int height) = 0;
@@ -72,6 +75,8 @@ class SDLSpriteDrawer : public SpriteDrawer {
 public:
   void Cleanup() override;
   void ClearScreen() override;
+  const util::proto::ObjectId& ClickedObject(const Map& map, int x,
+                                             int y) override;
   void DrawArea(const Area& area) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
   util::Status Init(int width, int height) override;

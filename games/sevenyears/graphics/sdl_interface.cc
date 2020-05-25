@@ -220,8 +220,8 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
       area.unit_numbers_.clear();
     }
   }
-  for (const auto& id : ids) {
-    units::Unit* unit = units::Unit::ById(id);
+  for (const auto& unit_id : ids) {
+    units::Unit* unit = units::Unit::ById(unit_id);
     if (unit == NULL) {
       continue;
     }
@@ -257,8 +257,8 @@ void SDLInterface::DisplayUnits(const std::vector<util::proto::ObjectId>& ids) {
           ypos += area.ypos_ * (1 - a_weight);
         }
       }
-      currMap.unit_locations_[unit->template_kind()].push_back(
-          {(int)floor(xpos + 0.5), (int)floor(ypos + 0.5), 16, 16});
+      currMap.unit_locations_[unit_id] = {(int)floor(xpos + 0.5),
+                                          (int)floor(ypos + 0.5), 16, 16};
     } else {
       if (area_map_.find(location.a_area_id()) == area_map_.end()) {
         continue;
@@ -314,7 +314,29 @@ void SDLInterface::EventLoop() {
         break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:
-        receiver_->HandleMouseEvent(makeMouseClick(e.button));
+        if (current_map_.empty()) {
+          break;
+        }
+        if (maps_.find(current_map_) == maps_.end()) {
+          break;
+        }
+        auto& map = maps_.at(current_map_);
+        const auto& clicked_id =
+            sprites_->ClickedObject(map, e.button.x, e.button.y);
+        if (util::objectid::IsNull(clicked_id)) {
+          receiver_->HandleMouseEvent(makeMouseClick(e.button));
+        } else if (e.type == SDL_MOUSEBUTTONUP) {
+          receiver_->SelectObject(clicked_id);
+          auto* unit = units::ById(clicked_id);
+          if (unit != nullptr) {
+            selected_unit_ = unit;
+          } else {
+            auto* area = geography::ById(clicked_id);
+            if (area != nullptr) {
+              selected_area_ = area;
+            }
+          }
+        }
         break;
     }
   }
@@ -388,6 +410,7 @@ Area::Area(const proto::Area& proto, const proto::LatLong& topleft,
   seconds = seconds_east(proto.position()) - seconds_east(topleft);
   xpos_ = seconds / seconds_per_pixel_wide;
   area_id_ = proto.area_id();
+  draw_location_ = {xpos_ - 5, ypos_ - 5, 10, 10};
 }
 
 Map::Map(const proto::Map& proto) : name_(proto.name()) {}

@@ -13,14 +13,38 @@
 
 namespace sevenyears {
 namespace graphics {
+namespace {
 
 constexpr char kUnknownString[] = "UNKNOWN_STRING_WANTED";
+
+bool isWithin(const SDL_Rect& rect, int x, int y) {
+  if (x < rect.x) {
+    return false;
+  }
+  if (x > rect.x + rect.w) {
+    return false;
+  }
+  if (y < rect.y) {
+    return false;
+  }
+  if (y > rect.y + rect.h) {
+    return false;
+  }
+  return true;
+}
+
+} // namespace
 
 util::Status
 SpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
                         const proto::Scenario& scenario) {
   return util::NotImplementedError(
       "LoadFonts not implemented in this sprite class.");
+}
+
+const util::proto::ObjectId& SpriteDrawer::ClickedObject(const Map& map, int x,
+                                                         int y) {
+  return util::objectid::kNullId;
 }
 
 util::Status SDLSpriteDrawer::Init(int width, int height) {
@@ -60,10 +84,26 @@ void SDLSpriteDrawer::ClearScreen() {
   SDL_RenderClear(renderer_.get());
 }
 
+const util::proto::ObjectId& SDLSpriteDrawer::ClickedObject(const Map& map,
+                                                            int x, int y) {
+  for (const auto& unit : map.unit_locations_) {
+    if (isWithin(unit.second, x, y)) {
+      return unit.first;
+    }
+  }
+
+  for (const auto& area : map.areas_) {
+    if (isWithin(area.draw_location_, x, y)) {
+      return area.area_id_;
+    }
+  }
+
+  return util::objectid::kNullId;
+}
+
 void SDLSpriteDrawer::DrawArea(const Area& area) {
-  SDL_Rect fillRect = {area.xpos_ - 5, area.ypos_ - 5, 10, 10};
   SDL_SetRenderDrawColor(renderer_.get(), 0xFF, 0x00, 0x00, 0xFF);
-  SDL_RenderFillRect(renderer_.get(), &fillRect);
+  SDL_RenderFillRect(renderer_.get(), &area.draw_location_);
   int numTypes = area.unit_numbers_.size();
   static const int kIncrement = 24;
   static const int kWidth = 16;
@@ -120,13 +160,11 @@ void SDLSpriteDrawer::displayText(const std::string& str) {
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   SDL_RenderCopy(renderer_.get(), map_backgrounds_[map.name_], NULL, rect);
   for (const auto& unit : map.unit_locations_) {
-    if (unit_types_.find(unit.first) == unit_types_.end()) {
+    if (unit_types_.find(unit.first.kind()) == unit_types_.end()) {
       continue;
     }
-    auto* icon = unit_types_[unit.first];
-    for (const auto& loc : unit.second) {
-      SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
-    }
+    auto* icon = unit_types_[unit.first.kind()];
+    SDL_RenderCopy(renderer_.get(), icon, NULL, &unit.second);
   }
   displayText(map.name_);
 }

@@ -12,6 +12,7 @@
 #include "games/sevenyears/sevenyears.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
+#include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
 
 #include "SDL.h"
@@ -91,6 +92,7 @@ public:
 
   void HandleKeyRelease(const SDL_Keysym& keysym) override;
   void HandleMouseEvent(const interface::MouseClick& mc) override;
+  void SelectObject(const util::proto::ObjectId& object_id) override;
 
 private:
   bool quit_;
@@ -111,10 +113,13 @@ void EventHandler::HandleKeyRelease(const SDL_Keysym& keysym) {
   }
 }
 
-void EventHandler::HandleMouseEvent(const interface::MouseClick& mc) {
-  if (mc.released_) {
-    Log::Infof("Mouse clicked: (%d, %d) %d", mc.xcoord_, mc.ycoord_, mc.clicks_);
+void EventHandler::HandleMouseEvent(const interface::MouseClick& mc) {}
+
+void EventHandler::SelectObject(const util::proto::ObjectId& object_id) {
+  if (util::objectid::IsNull(object_id)) {
+    return;
   }
+  Log::Infof("Selected object %s", util::objectid::DisplayString(object_id));
 }
 
 int main(int /*argc*/, char** /*argv*/) {

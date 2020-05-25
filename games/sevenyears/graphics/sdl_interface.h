@@ -5,10 +5,12 @@
 #include <string>
 #include <unordered_map>
 
+#include "games/geography/geography.h"
+#include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
 #include "games/sevenyears/graphics/sdl_sprites.h"
 #include "games/sevenyears/graphics/sevenyears_interface.h"
-#include "games/interface/proto/config.pb.h"
+#include "games/units/unit.h"
 #include "util/headers/int_types.h"
 #include "util/proto/object_id.pb.h"
 #include "util/proto/object_id.h"
@@ -40,6 +42,8 @@ private:
       area_map_;
   std::string current_map_;
   SDL_Rect map_rectangle_;
+  units::Unit* selected_unit_;
+  geography::Area* selected_area_;
 };
 
 }  // namespace graphics
