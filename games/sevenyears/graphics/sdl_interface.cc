@@ -274,6 +274,34 @@ Area& SDLInterface::getAreaById(const util::proto::ObjectId& area_id) {
   return maps_.at(area_idx.first).areas_[area_idx.second];
 }
 
+interface::MouseClick makeMouseClick(const SDL_MouseButtonEvent& event) {
+  interface::MouseClick click;
+  switch (event.button) {
+    case SDL_BUTTON_LEFT:
+    default:
+      click.button_ = interface::MouseClick::MB_LEFT;
+      break;
+    case SDL_BUTTON_RIGHT:
+      click.button_ = interface::MouseClick::MB_RIGHT;
+      break;
+    case SDL_BUTTON_MIDDLE:
+      click.button_ = interface::MouseClick::MB_MIDDLE;
+      break;
+    case SDL_BUTTON_X1:
+      click.button_ = interface::MouseClick::MB_X1;
+      break;
+    case SDL_BUTTON_X2:
+      click.button_ = interface::MouseClick::MB_X2;
+      break;
+  }
+
+  click.xcoord_ = event.x;
+  click.ycoord_ = event.y;
+  click.released_ = event.type == SDL_MOUSEBUTTONUP;
+  click.clicks_ = event.clicks;
+  return click;
+}
+
 void SDLInterface::EventLoop() {
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0) {
@@ -283,6 +311,10 @@ void SDLInterface::EventLoop() {
         break;
       case SDL_KEYUP:
         receiver_->HandleKeyRelease(e.key.keysym);
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONUP:
+        receiver_->HandleMouseEvent(makeMouseClick(e.button));
         break;
     }
   }
