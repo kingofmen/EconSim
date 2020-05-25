@@ -85,6 +85,9 @@ public:
   void Update() override;
 
 private:
+  util::Status createText(const std::string& str);
+  void displayText(const std::string& str);
+
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
   std::unique_ptr<SDL_Renderer, SDLRendererCleaner> renderer_;
   std::unordered_map<std::string, SDL_Texture*> unit_types_;

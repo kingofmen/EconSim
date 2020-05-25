@@ -14,6 +14,8 @@
 namespace sevenyears {
 namespace graphics {
 
+constexpr char kUnknownString[] = "UNKNOWN_STRING_WANTED";
+
 util::Status
 SpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
                         const proto::Scenario& scenario) {
@@ -35,6 +37,7 @@ util::Status SDLSpriteDrawer::Init(int width, int height) {
     return util::FailedPreconditionError(
         absl::Substitute("Could not create renderer: $0", SDL_GetError()));
   }
+
   return util::OkStatus();
 }
 
@@ -83,6 +86,37 @@ void SDLSpriteDrawer::DrawArea(const Area& area) {
   }
 }
 
+util::Status SDLSpriteDrawer::createText(const std::string& str) {
+  static SDL_Color nameColor = {0, 0, 0};
+  SDL_Surface* nameSurface =
+      TTF_RenderText_Solid(fonts_[0], str.c_str(), nameColor);
+  if (nameSurface == NULL) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not create surface for $0", str));
+  }
+  SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer_.get(), nameSurface);
+  if (nameTexture == NULL) {
+    return util::InvalidArgumentError(
+        absl::Substitute("Could not create texture for $0", str));
+  }
+  display_texts_[str] = {nameTexture, nameSurface->w, nameSurface->h};
+  SDL_FreeSurface(nameSurface);
+  return util::OkStatus();
+}
+
+void SDLSpriteDrawer::displayText(const std::string& str) {
+  if (display_texts_.find(str) == display_texts_.end()) {
+    if (display_texts_.find(kUnknownString) == display_texts_.end()) {
+      // Something went very wrong here.
+      return;
+    }
+    displayText(kUnknownString);
+  }
+  auto& text = display_texts_.at(str);
+  SDL_Rect target = {5, 5, text.width, text.height};
+  SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);  
+}
+
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   SDL_RenderCopy(renderer_.get(), map_backgrounds_[map.name_], NULL, rect);
   for (const auto& unit : map.unit_locations_) {
@@ -94,9 +128,7 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
       SDL_RenderCopy(renderer_.get(), icon, NULL, &loc);
     }
   }
-  auto& name = display_texts_[map.name_];
-  static SDL_Rect target = {5, 5, name.width, name.height};
-  SDL_RenderCopy(renderer_.get(), name.letters, NULL, &target);
+  displayText(map.name_);
 }
 
 util::Status
@@ -116,6 +148,11 @@ SDLSpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
     }
     fonts_.push_back(font);
   }
+  auto status = createText(kUnknownString);
+  if (!status.ok()) {
+    return status;
+  }
+
   return util::OkStatus();
 }
 
@@ -149,21 +186,11 @@ SDLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
   }
   map_backgrounds_[map->name_] = bkg;
 
-  static SDL_Color nameColor = {0, 0, 0};
-  SDL_Surface* nameSurface =
-      TTF_RenderText_Solid(fonts_[0], map->name_.c_str(), nameColor);
-  if (nameSurface == NULL) {
-    return util::InvalidArgumentError(
-        absl::Substitute("Could not create surface for $0", map->name_));
+  status = createText(map->name_);
+  if (!status.ok()) {
+    return status;
   }
-  SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer_.get(), nameSurface);
-  if (nameTexture == NULL) {
-    return util::InvalidArgumentError(
-        absl::Substitute("Could not create texture for $0", map->name_));
-  }
-  display_texts_[map->name_] = {nameTexture, nameSurface->w, nameSurface->h};
-  SDL_FreeSurface(nameSurface);
-
+  
   return util::OkStatus();
 }
 
