@@ -14,6 +14,45 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 
+struct TextKey {
+  std::string str_;
+  SDL_Color color_;
+};
+
+namespace std {
+template <> class hash<TextKey> {
+public:
+  size_t operator()(const TextKey& key) const {
+    static hash<int> hasher;
+    static hash<std::string> str_hasher;
+    int total = (key.color_.r << 24) + (key.color_.g << 16) +
+                (key.color_.b << 8) + key.color_.a;
+    return 31*str_hasher(key.str_) + hasher(total);
+  }
+};
+
+template <> struct equal_to<TextKey> {
+  bool operator()(const TextKey& lhs,
+                  const TextKey& rhs) const {
+    if (lhs.color_.r != rhs.color_.r) {
+      return false;
+    }
+    if (lhs.color_.g != rhs.color_.g) {
+      return false;
+    }
+    if (lhs.color_.b != rhs.color_.b) {
+      return false;
+    }
+    if (lhs.color_.a != rhs.color_.a) {
+      return false;
+    }
+    return lhs.str_ == rhs.str_;
+  }
+};
+
+} // namespace std
+
+
 namespace sevenyears {
 namespace graphics {
 
@@ -92,9 +131,9 @@ public:
   void Update() override;
 
 private:
-  util::Status createText(const std::string& str);
-  Text& getOrCreate(const std::string& str);
-  void displayString(const std::string& str, int x, int y);
+  util::Status createText(const std::string& str, const SDL_Color& c);
+  Text& getOrCreate(const std::string& str, const SDL_Color& c);
+  void displayString(const std::string& str, const SDL_Color& c, int x, int y);
   void displayText(Text& text, int x, int y);
   void drawArea(const Area& area);
 
@@ -103,7 +142,7 @@ private:
   std::unordered_map<std::string, SDL_Texture*> unit_types_;
   std::unordered_map<std::string, SDL_Texture*> map_backgrounds_;
   std::vector<TTF_Font*> fonts_;
-  std::unordered_map<std::string, Text> display_texts_;
+  std::unordered_map<TextKey, Text> display_texts_;
 };
 
 // This implementation is not complete, due to my decision to use

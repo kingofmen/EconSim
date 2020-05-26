@@ -20,6 +20,9 @@ namespace {
 
 constexpr char kUnknownString[] = "UNKNOWN_STRING_WANTED";
 
+const SDL_Color kWhite = {255, 255, 255, 0};
+const SDL_Color kGold = {198, 165, 48, 0};
+
 bool isWithin(const SDL_Rect& rect, int x, int y) {
   if (x < rect.x) {
     return false;
@@ -134,13 +137,13 @@ void SDLSpriteDrawer::drawArea(const Area& area) {
   }
 }
 
-util::Status SDLSpriteDrawer::createText(const std::string& str) {
-  if (display_texts_.find(str) != display_texts_.end()) {
+util::Status SDLSpriteDrawer::createText(const std::string& str, const SDL_Color& c) {
+  TextKey key = {str, c};
+  if (display_texts_.find(key) != display_texts_.end()) {
     return util::OkStatus();
   }
-  static SDL_Color nameColor = {0, 255, 0};
   SDL_Surface* nameSurface =
-      TTF_RenderText_Solid(fonts_[0], str.c_str(), nameColor);
+      TTF_RenderText_Solid(fonts_[0], str.c_str(), c);
   if (nameSurface == NULL) {
     return util::InvalidArgumentError(
         absl::Substitute("Could not create surface for $0", str));
@@ -151,7 +154,7 @@ util::Status SDLSpriteDrawer::createText(const std::string& str) {
     return util::InvalidArgumentError(
         absl::Substitute("Could not create texture for $0", str));
   }
-  display_texts_[str] = {nameTexture, nameSurface->w, nameSurface->h};
+  display_texts_[key] = {nameTexture, nameSurface->w, nameSurface->h};
   SDL_FreeSurface(nameSurface);
   return util::OkStatus();
 }
@@ -161,15 +164,17 @@ void SDLSpriteDrawer::displayText(Text& text, int x, int y) {
   SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);
 }
 
-void SDLSpriteDrawer::displayString(const std::string& str, int x, int y) {
-  if (display_texts_.find(str) == display_texts_.end()) {
-    if (display_texts_.find(kUnknownString) == display_texts_.end()) {
+void SDLSpriteDrawer::displayString(const std::string& str, const SDL_Color& c,
+                                    int x, int y) {
+  TextKey key = {str, c};
+  if (display_texts_.find(key) == display_texts_.end()) {
+    if (display_texts_.find({kUnknownString, c}) == display_texts_.end()) {
       // Something went very wrong here.
       return;
     }
-    displayText(display_texts_.at(kUnknownString), x, y);
+    displayText(display_texts_.at({kUnknownString, c}), x, y);
   }
-  displayText(display_texts_.at(str), x, y);
+  displayText(display_texts_.at(key), x, y);
 }
 
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
@@ -184,19 +189,20 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   for (const Area& area : map.areas_) {
     drawArea(area);
   }
-  displayString(map.name_, 5, 5);
+  displayString(map.name_, kWhite, 5, 5);
 }
 
-Text& SDLSpriteDrawer::getOrCreate(const std::string& str) {
-  if (display_texts_.find(str) != display_texts_.end()) {
-    return display_texts_.at(str);
+Text& SDLSpriteDrawer::getOrCreate(const std::string& str, const SDL_Color& c) {
+  TextKey key = {str, c};
+  if (display_texts_.find(key) != display_texts_.end()) {
+    return display_texts_.at(key);
   }
-  auto status = createText(str);
+  auto status = createText(str, c);
   if (status.ok()) {
-    return display_texts_.at(str);
+    return display_texts_.at(key);
   }
-  display_texts_[str] = display_texts_[kUnknownString];
-  return display_texts_.at(str);
+  display_texts_[key] = display_texts_[{kUnknownString, c}];
+  return display_texts_.at(key);
 }
 
 void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
@@ -204,7 +210,7 @@ void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
   SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), unit_rect);
   SDL_RenderFillRect(renderer_.get(), area_rect);
-  auto& nameText = getOrCreate(util::objectid::DisplayString(object_id));
+  auto& nameText = getOrCreate(util::objectid::DisplayString(object_id), kGold);
   units::Unit* unit = units::ById(object_id);
   if (unit != nullptr) {
     displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
@@ -232,7 +238,7 @@ SDLSpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
     }
     fonts_.push_back(font);
   }
-  auto status = createText(kUnknownString);
+  auto status = createText(kUnknownString, kWhite);
   if (!status.ok()) {
     return status;
   }
@@ -270,7 +276,7 @@ SDLSpriteDrawer::MapGraphics(const std::experimental::filesystem::path& path,
   }
   map_backgrounds_[map->name_] = bkg;
 
-  status = createText(map->name_);
+  status = createText(map->name_, kWhite);
   if (!status.ok()) {
     return status;
   }
