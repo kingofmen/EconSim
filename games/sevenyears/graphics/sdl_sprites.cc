@@ -161,15 +161,15 @@ void SDLSpriteDrawer::displayText(Text& text, int x, int y) {
   SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);
 }
 
-void SDLSpriteDrawer::displayString(const std::string& str) {
+void SDLSpriteDrawer::displayString(const std::string& str, int x, int y) {
   if (display_texts_.find(str) == display_texts_.end()) {
     if (display_texts_.find(kUnknownString) == display_texts_.end()) {
       // Something went very wrong here.
       return;
     }
-    displayText(display_texts_.at(kUnknownString), 5, 5);
+    displayText(display_texts_.at(kUnknownString), x, y);
   }
-  displayText(display_texts_.at(str), 5, 5);
+  displayText(display_texts_.at(str), x, y);
 }
 
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
@@ -184,7 +184,7 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   for (const Area& area : map.areas_) {
     drawArea(area);
   }
-  displayString(map.name_);
+  displayString(map.name_, 5, 5);
 }
 
 Text& SDLSpriteDrawer::getOrCreate(const std::string& str) {

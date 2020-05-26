@@ -94,7 +94,7 @@ public:
 private:
   util::Status createText(const std::string& str);
   Text& getOrCreate(const std::string& str);
-  void displayString(const std::string& str);
+  void displayString(const std::string& str, int x, int y);
   void displayText(Text& text, int x, int y);
   void drawArea(const Area& area);
 
