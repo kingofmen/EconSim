@@ -39,7 +39,8 @@ int seconds_east(const proto::LatLong& coord) {
 }
 
 void widthAndHeight(const games::interface::proto::Config::ScreenSize& ss,
-                    int& width, int& height, SDL_Rect* map_rectangle) {
+                    int& width, int& height, SDL_Rect* map_rectangle,
+                    SDL_Rect* unit_rectangle, SDL_Rect* area_rectangle) {
   switch (ss) {
     case games::interface::proto::Config::SS_1280_800:
       width = 1280;
@@ -72,8 +73,18 @@ void widthAndHeight(const games::interface::proto::Config::ScreenSize& ss,
   }
 
   map_rectangle->h = height;
+
   // TODO: Actually derive some values for this.
   map_rectangle->w = 792;
+  unit_rectangle->x = map_rectangle->w;
+  unit_rectangle->y = 0;
+  unit_rectangle->w = width - map_rectangle->w;
+  unit_rectangle->h = height / 2;
+
+  area_rectangle->x = map_rectangle->w;
+  area_rectangle->y = unit_rectangle->h;
+  area_rectangle->w = width - map_rectangle->w;
+  area_rectangle->h = height - unit_rectangle->h;
 }
 
 
@@ -99,7 +110,8 @@ SDLInterface::Initialise(const games::interface::proto::Config& config) {
 
   int width = 640;
   int height = 480;
-  widthAndHeight(config.screen_size(), width, height, &map_rectangle_);
+  widthAndHeight(config.screen_size(), width, height, &map_rectangle_,
+                 &unit_status_rectangle_, &area_status_rectangle_);
   sprites_ = new SDLSpriteDrawer();
   sprites_->Init(width, height);
   sprites_->ClearScreen();
@@ -114,6 +126,8 @@ void SDLInterface::drawMap() {
   }
   const Map& currMap = maps_.at(current_map_);
   sprites_->DrawMap(currMap, &map_rectangle_);
+  sprites_->DrawSelected(selected_, &unit_status_rectangle_,
+                         &area_status_rectangle_);
   sprites_->Update();
 }
 
@@ -320,19 +334,13 @@ void SDLInterface::EventLoop() {
         auto& map = maps_.at(current_map_);
         const auto& clicked_id =
             sprites_->ClickedObject(map, e.button.x, e.button.y);
+        if (e.button.button == SDL_BUTTON_LEFT && e.type == SDL_MOUSEBUTTONUP) {
+          selected_ = clicked_id;
+        }
         if (util::objectid::IsNull(clicked_id)) {
           receiver_->HandleMouseEvent(makeMouseClick(e.button));
         } else if (e.type == SDL_MOUSEBUTTONUP) {
           receiver_->SelectObject(clicked_id);
-          auto* unit = units::ById(clicked_id);
-          if (unit != nullptr) {
-            selected_unit_ = unit;
-          } else {
-            auto* area = geography::ById(clicked_id);
-            if (area != nullptr) {
-              selected_area_ = area;
-            }
-          }
         }
         break;
     }

@@ -1,8 +1,11 @@
 #include "games/sevenyears/graphics/sdl_sprites.h"
 
 #include "absl/strings/substitute.h"
+#include "games/geography/geography.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
+#include "games/units/unit.h"
+#include "util/logging/logging.h"
 #include "util/proto/object_id.pb.h"
 #include "util/proto/object_id.h"
 #include "util/status/status.h"
@@ -40,6 +43,11 @@ SpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
                         const proto::Scenario& scenario) {
   return util::NotImplementedError(
       "LoadFonts not implemented in this sprite class.");
+}
+
+void SpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
+                                SDL_Rect* unit_rect, SDL_Rect* area_rect) {
+  // Do nothing.
 }
 
 const util::proto::ObjectId& SpriteDrawer::ClickedObject(const Map& map, int x,
@@ -127,14 +135,18 @@ void SDLSpriteDrawer::drawArea(const Area& area) {
 }
 
 util::Status SDLSpriteDrawer::createText(const std::string& str) {
-  static SDL_Color nameColor = {0, 0, 0};
+  if (display_texts_.find(str) != display_texts_.end()) {
+    return util::OkStatus();
+  }
+  static SDL_Color nameColor = {0, 255, 0};
   SDL_Surface* nameSurface =
       TTF_RenderText_Solid(fonts_[0], str.c_str(), nameColor);
   if (nameSurface == NULL) {
     return util::InvalidArgumentError(
         absl::Substitute("Could not create surface for $0", str));
   }
-  SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer_.get(), nameSurface);
+  SDL_Texture* nameTexture =
+      SDL_CreateTextureFromSurface(renderer_.get(), nameSurface);
   if (nameTexture == NULL) {
     return util::InvalidArgumentError(
         absl::Substitute("Could not create texture for $0", str));
@@ -144,17 +156,20 @@ util::Status SDLSpriteDrawer::createText(const std::string& str) {
   return util::OkStatus();
 }
 
-void SDLSpriteDrawer::displayText(const std::string& str) {
+void SDLSpriteDrawer::displayText(Text& text, int x, int y) {
+  SDL_Rect target = {x, y, text.width, text.height};
+  SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);
+}
+
+void SDLSpriteDrawer::displayString(const std::string& str) {
   if (display_texts_.find(str) == display_texts_.end()) {
     if (display_texts_.find(kUnknownString) == display_texts_.end()) {
       // Something went very wrong here.
       return;
     }
-    displayText(kUnknownString);
+    displayText(display_texts_.at(kUnknownString), 5, 5);
   }
-  auto& text = display_texts_.at(str);
-  SDL_Rect target = {5, 5, text.width, text.height};
-  SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);  
+  displayText(display_texts_.at(str), 5, 5);
 }
 
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
@@ -169,7 +184,35 @@ void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   for (const Area& area : map.areas_) {
     drawArea(area);
   }
-  displayText(map.name_);
+  displayString(map.name_);
+}
+
+Text& SDLSpriteDrawer::getOrCreate(const std::string& str) {
+  if (display_texts_.find(str) != display_texts_.end()) {
+    return display_texts_.at(str);
+  }
+  auto status = createText(str);
+  if (status.ok()) {
+    return display_texts_.at(str);
+  }
+  display_texts_[str] = display_texts_[kUnknownString];
+  return display_texts_.at(str);
+}
+
+void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
+                                   SDL_Rect* unit_rect, SDL_Rect* area_rect) {
+  SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
+  SDL_RenderFillRect(renderer_.get(), unit_rect);
+  SDL_RenderFillRect(renderer_.get(), area_rect);
+  auto& nameText = getOrCreate(util::objectid::DisplayString(object_id));
+  units::Unit* unit = units::ById(object_id);
+  if (unit != nullptr) {
+    displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
+  }
+  geography::Area* area = geography::ById(object_id);
+  if (area != nullptr) {
+    displayText(nameText, area_rect->x + 5, area_rect->y + 5);
+  }
 }
 
 util::Status

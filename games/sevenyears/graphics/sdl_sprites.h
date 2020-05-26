@@ -51,6 +51,8 @@ class SpriteDrawer {
   virtual const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                                      int y);
   virtual void DrawMap(const Map& map, SDL_Rect* rect) = 0;
+  virtual void DrawSelected(const util::proto::ObjectId& object_id,
+                            SDL_Rect* unit_rect, SDL_Rect* area_rect);
   virtual util::Status Init(int width, int height) = 0;
   virtual util::Status
   LoadFonts(const std::experimental::filesystem::path& base_path,
@@ -77,6 +79,8 @@ public:
   const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                              int y) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
+  void DrawSelected(const util::proto::ObjectId& object_id, SDL_Rect* unit_rect,
+                    SDL_Rect* area_rect) override;
   util::Status Init(int width, int height) override;
   util::Status LoadFonts(const std::experimental::filesystem::path& base_path,
                          const proto::Scenario& scenario) override;
@@ -89,7 +93,9 @@ public:
 
 private:
   util::Status createText(const std::string& str);
-  void displayText(const std::string& str);
+  Text& getOrCreate(const std::string& str);
+  void displayString(const std::string& str);
+  void displayText(Text& text, int x, int y);
   void drawArea(const Area& area);
 
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;

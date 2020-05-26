@@ -42,8 +42,9 @@ private:
       area_map_;
   std::string current_map_;
   SDL_Rect map_rectangle_;
-  units::Unit* selected_unit_;
-  geography::Area* selected_area_;
+  SDL_Rect unit_status_rectangle_;
+  SDL_Rect area_status_rectangle_;
+  util::proto::ObjectId selected_;
 };
 
 }  // namespace graphics
