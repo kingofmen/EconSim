@@ -3,6 +3,7 @@
 #include "absl/strings/substitute.h"
 #include "games/geography/geography.h"
 #include "games/interface/proto/config.pb.h"
+#include "games/market/proto/goods.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
 #include "games/units/unit.h"
 #include "util/logging/logging.h"
@@ -179,6 +180,23 @@ SDL_Point SDLSpriteDrawer::displayString(const std::string& str,
   return displayText(display_texts_.at(key), x, y);
 }
 
+SDL_Point
+SDLSpriteDrawer::displayResources(const market::proto::Container& resources,
+                                  const SDL_Color& c, int x, int y) {
+  SDL_Point current = {x, y};
+  for (const auto& q : resources.quantities()) {
+    if (q.second < 1) {
+      continue;
+    }
+    auto nameText = getOrCreate(q.first, c);
+    auto next = displayText(nameText, current.x, current.y);
+    auto amountText = getOrCreate(micro::DisplayString(q.second, 2), c);
+    next = displayText(amountText, next.x + 3, current.y);
+    current.y = next.y + 3;
+  }
+  return current;
+}
+
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {
   SDL_RenderCopy(renderer_.get(), map_backgrounds_[map.name_], NULL, rect);
   for (const auto& unit : map.unit_locations_) {
@@ -215,7 +233,8 @@ void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
   auto& nameText = getOrCreate(util::objectid::DisplayString(object_id), kGold);
   units::Unit* unit = units::ById(object_id);
   if (unit != nullptr) {
-    displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
+    auto next = displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
+    displayResources(unit->resources(), kGold, unit_rect->x + 5, next.y + 3);
   }
   geography::Area* area = geography::ById(object_id);
   if (area != nullptr) {

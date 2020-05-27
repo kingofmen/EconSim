@@ -41,6 +41,7 @@ cc_library(
         "//games/geography:geography",
         "//games/interface:base",
         "//games/interface/proto:config_proto",
+        "//games/market/proto:goods_proto",
         "//games/units:units",
         "//util/headers:int_types",
         "//util/logging:logging",
