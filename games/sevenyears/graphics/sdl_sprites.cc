@@ -159,22 +159,24 @@ util::Status SDLSpriteDrawer::createText(const std::string& str, const SDL_Color
   return util::OkStatus();
 }
 
-void SDLSpriteDrawer::displayText(Text& text, int x, int y) {
+SDL_Point SDLSpriteDrawer::displayText(Text& text, int x, int y) {
   SDL_Rect target = {x, y, text.width, text.height};
   SDL_RenderCopy(renderer_.get(), text.letters, NULL, &target);
+  return {x + text.width, y + text.height};
 }
 
-void SDLSpriteDrawer::displayString(const std::string& str, const SDL_Color& c,
-                                    int x, int y) {
+SDL_Point SDLSpriteDrawer::displayString(const std::string& str,
+                                                   const SDL_Color& c, int x,
+                                                   int y) {
   TextKey key = {str, c};
   if (display_texts_.find(key) == display_texts_.end()) {
     if (display_texts_.find({kUnknownString, c}) == display_texts_.end()) {
       // Something went very wrong here.
-      return;
+      return {0, 0};
     }
-    displayText(display_texts_.at({kUnknownString, c}), x, y);
+    return displayText(display_texts_.at({kUnknownString, c}), x, y);
   }
-  displayText(display_texts_.at(key), x, y);
+  return displayText(display_texts_.at(key), x, y);
 }
 
 void SDLSpriteDrawer::DrawMap(const Map& map, SDL_Rect* rect) {

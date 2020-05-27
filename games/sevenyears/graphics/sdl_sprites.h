@@ -133,8 +133,9 @@ public:
 private:
   util::Status createText(const std::string& str, const SDL_Color& c);
   Text& getOrCreate(const std::string& str, const SDL_Color& c);
-  void displayString(const std::string& str, const SDL_Color& c, int x, int y);
-  void displayText(Text& text, int x, int y);
+  SDL_Point displayString(const std::string& str, const SDL_Color& c, int x,
+                          int y);
+  SDL_Point displayText(Text& text, int x, int y);
   void drawArea(const Area& area);
 
   std::unique_ptr<SDL_Window, SDLWindowCleaner> window_;
