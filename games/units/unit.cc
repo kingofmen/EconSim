@@ -83,11 +83,11 @@ actions::proto::Plan* Unit::mutable_plan() {
   return proto_.mutable_plan();
 }
 
-const actions::proto::Strategy& Unit:: strategy() {
+const actions::proto::Strategy& Unit:: strategy() const {
   return proto_.strategy();
 }
 
-const actions::proto::Plan& Unit::plan() {
+const actions::proto::Plan& Unit::plan() const {
   return proto_.plan();
 }
 
@@ -157,6 +157,7 @@ micro::Measure Unit::action_points_u() const {
 Unit* ById(const util::proto::ObjectId unit_id) {
   return Unit::ById(unit_id);
 }
+
 
 
 } // namespace units

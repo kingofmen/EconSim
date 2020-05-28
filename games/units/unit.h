@@ -37,8 +37,8 @@ public:
   // Planning interface.
   actions::proto::Strategy* mutable_strategy();
   actions::proto::Plan* mutable_plan();
-  const actions::proto::Strategy& strategy();
-  const actions::proto::Plan& plan();
+  const actions::proto::Strategy& strategy() const;
+  const actions::proto::Plan& plan() const;
 
   micro::Measure action_points_u() const;
   void reset_action_points() { used_action_points_u = 0; }
