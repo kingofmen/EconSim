@@ -36,6 +36,7 @@ cc_library(
     deps = [
         ":sevenyears_interface",
         ":bitmap",
+        "//games/actions/proto:plan_proto",
         "//games/sevenyears/graphics/proto:graphics_proto",
         "//games/geography:connection",
         "//games/geography:geography",

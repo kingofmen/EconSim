@@ -6,9 +6,11 @@
 #include <string>
 #include <unordered_map>
 
+#include "games/actions/proto/plan.pb.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/market/proto/goods.pb.h"
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
+#include "games/units/unit.h"
 #include "util/proto/object_id.pb.h"
 #include "util/proto/object_id.h"
 #include "util/status/status.h"
@@ -134,6 +136,8 @@ public:
 private:
   util::Status createText(const std::string& str, const SDL_Color& c);
   Text& getOrCreate(const std::string& str, const SDL_Color& c);
+  SDL_Point displayPlan(const units::Unit& unit, const SDL_Color& c, int x,
+                        int y);
   SDL_Point displayResources(const market::proto::Container& resources,
                              const SDL_Color& c, int x, int y);
   SDL_Point displayString(const std::string& str, const SDL_Color& c, int x,

@@ -2,6 +2,7 @@
 
 #include "absl/strings/substitute.h"
 #include "games/geography/geography.h"
+#include "games/geography/connection.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/market/proto/goods.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
@@ -167,17 +168,9 @@ SDL_Point SDLSpriteDrawer::displayText(Text& text, int x, int y) {
 }
 
 SDL_Point SDLSpriteDrawer::displayString(const std::string& str,
-                                                   const SDL_Color& c, int x,
-                                                   int y) {
-  TextKey key = {str, c};
-  if (display_texts_.find(key) == display_texts_.end()) {
-    if (display_texts_.find({kUnknownString, c}) == display_texts_.end()) {
-      // Something went very wrong here.
-      return {0, 0};
-    }
-    return displayText(display_texts_.at({kUnknownString, c}), x, y);
-  }
-  return displayText(display_texts_.at(key), x, y);
+                                         const SDL_Color& c, int x, int y) {
+  auto& text = getOrCreate(str, c);
+  return displayText(text, x, y);
 }
 
 SDL_Point
@@ -192,6 +185,61 @@ SDLSpriteDrawer::displayResources(const market::proto::Container& resources,
     auto next = displayText(nameText, current.x, current.y);
     auto amountText = getOrCreate(micro::DisplayString(q.second, 2), c);
     next = displayText(amountText, next.x + 3, current.y);
+    current.y = next.y + 3;
+  }
+  return current;
+}
+
+std::vector<std::string> stepToStrings(const actions::proto::Step& step,
+                                       util::proto::ObjectId* area_id) {
+  std::vector<std::string> ret;
+  switch (step.trigger_case()) {
+  case actions::proto::Step::kKey:
+    return {"Do ", step.key(), " in ", util::objectid::DisplayString(*area_id)};
+  case actions::proto::Step::kAction: {
+    switch (step.action()) {
+    case actions::proto::AA_MOVE: {
+      ret.push_back("Move ");
+      ret.push_back(util::objectid::DisplayString(*area_id));
+      ret.push_back(" -> ");
+      std::string nextLocation = "unknown";
+      if (step.has_connection_id()) {
+        auto* conn = geography::Connection::ById(step.connection_id());
+        if (conn != nullptr) {
+          *area_id = conn->OtherSide(*area_id);
+          nextLocation = util::objectid::DisplayString(*area_id);
+        }
+      }
+      ret.push_back(nextLocation);
+      return ret;
+    }
+    default:
+      break;
+    }
+    break;
+  }
+  default:
+    break;
+  }
+  return ret;
+}
+
+SDL_Point SDLSpriteDrawer::displayPlan(const units::Unit& unit,
+                                       const SDL_Color& c, int x, int y) {
+  const actions::proto::Plan& plan = unit.plan();
+  if (plan.steps().empty()) {
+    return displayString("No current plan", c, x, y);
+  }
+  const auto& location = unit.location();
+  auto area_id = location.a_area_id();
+  SDL_Point current = {x, y};
+  for (const auto& step : plan.steps()) {
+    SDL_Point next = current;
+    auto texts = stepToStrings(step, &area_id);
+    for (const auto& text : texts) {
+      auto& texture = getOrCreate(text, c);
+      next = displayText(texture, next.x, current.y);
+    }
     current.y = next.y + 3;
   }
   return current;
@@ -231,10 +279,12 @@ void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
   SDL_RenderFillRect(renderer_.get(), unit_rect);
   SDL_RenderFillRect(renderer_.get(), area_rect);
   auto& nameText = getOrCreate(util::objectid::DisplayString(object_id), kGold);
-  units::Unit* unit = units::ById(object_id);
+  const units::Unit* unit = units::ById(object_id);
   if (unit != nullptr) {
     auto next = displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
-    displayResources(unit->resources(), kGold, unit_rect->x + 5, next.y + 3);
+    next = displayResources(unit->resources(), kGold, unit_rect->x + 5,
+                            next.y + 3);
+    next = displayPlan(*unit, kGold, unit_rect->x + 5, next.y + 3);
   }
   geography::Area* area = geography::ById(object_id);
   if (area != nullptr) {
