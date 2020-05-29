@@ -189,27 +189,42 @@ SDLSpriteDrawer::displayResources(const market::proto::Container& resources,
   }
   return current;
 }
+std::string area_string(const util::proto::ObjectId& area_id) {
+  return util::objectid::DisplayString(area_id);
+}
 
 std::vector<std::string> stepToStrings(const actions::proto::Step& step,
+                                       const geography::proto::Location& loc,
                                        util::proto::ObjectId* area_id) {
+  geography::Connection* conn = nullptr;
+  if (step.has_connection_id()) {
+    conn = geography::Connection::ById(step.connection_id());
+  }
+  std::string nextLocation = "unknown";
   std::vector<std::string> ret;
   switch (step.trigger_case()) {
   case actions::proto::Step::kKey:
-    return {"Do ", step.key(), " in ", util::objectid::DisplayString(*area_id)};
+    return {"Do ", step.key(), " in ", area_string(*area_id)};
   case actions::proto::Step::kAction: {
     switch (step.action()) {
     case actions::proto::AA_MOVE: {
       ret.push_back("Move ");
-      ret.push_back(util::objectid::DisplayString(*area_id));
+      ret.push_back(area_string(*area_id));
       ret.push_back(" -> ");
-      std::string nextLocation = "unknown";
-      if (step.has_connection_id()) {
-        auto* conn = geography::Connection::ById(step.connection_id());
-        if (conn != nullptr) {
-          *area_id = conn->OtherSide(*area_id);
-          nextLocation = util::objectid::DisplayString(*area_id);
-        }
+      if (conn != nullptr) {
+        *area_id = conn->OtherSide(*area_id);
+        nextLocation = area_string(*area_id);
       }
+      ret.push_back(nextLocation);
+      return ret;
+    }
+    case actions::proto::AA_TURN_AROUND: {
+      conn = geography::Connection::ById(loc.connection_id());
+      if (conn != nullptr) {
+        *area_id = conn->OtherSide(*area_id);
+        nextLocation = area_string(*area_id);
+      }
+      ret.push_back("Turn around, head for ");
       ret.push_back(nextLocation);
       return ret;
     }
@@ -235,7 +250,10 @@ SDL_Point SDLSpriteDrawer::displayPlan(const units::Unit& unit,
   SDL_Point current = {x, y};
   for (const auto& step : plan.steps()) {
     SDL_Point next = current;
-    auto texts = stepToStrings(step, &area_id);
+    auto texts = stepToStrings(step, location, &area_id);
+    if (texts.empty()) {
+      continue;
+    }
     for (const auto& text : texts) {
       auto& texture = getOrCreate(text, c);
       next = displayText(texture, next.x, current.y);
