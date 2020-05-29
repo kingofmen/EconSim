@@ -221,14 +221,18 @@ std::vector<std::string> stepToStrings(const actions::proto::Step& step,
     case actions::proto::AA_TURN_AROUND: {
       conn = geography::Connection::ById(loc.connection_id());
       if (conn != nullptr) {
-        *area_id = conn->OtherSide(*area_id);
+        // Note reverse order here since the unit will head for
+        // where it came from.
         nextLocation = area_string(*area_id);
+        *area_id = conn->OtherSide(*area_id);
       }
       ret.push_back("Turn around, head for ");
       ret.push_back(nextLocation);
       return ret;
     }
     default:
+      // Cover action enums not used in SevenYears.
+      ret.push_back(actions::proto::AtomicAction_Name(step.action()));
       break;
     }
     break;
