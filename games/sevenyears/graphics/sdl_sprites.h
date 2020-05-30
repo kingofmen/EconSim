@@ -136,6 +136,8 @@ public:
 private:
   util::Status createText(const std::string& str, const SDL_Color& c);
   Text& getOrCreate(const std::string& str, const SDL_Color& c);
+  SDL_Point displayLine(const std::vector<std::string>& texts,
+                        const SDL_Color& c, int x, int y);
   SDL_Point displayPlan(const units::Unit& unit, const SDL_Color& c, int x,
                         int y);
   SDL_Point displayResources(const market::proto::Container& resources,

@@ -41,6 +41,22 @@ bool isWithin(const SDL_Rect& rect, int x, int y) {
   return true;
 }
 
+std::string area_string(const util::proto::ObjectId& area_id) {
+  return util::objectid::DisplayString(area_id);
+}
+
+std::string unit_string(const util::proto::ObjectId& unit_id) {
+  return util::objectid::DisplayString(unit_id);
+}
+
+std::string key_string(const std::string& key) {
+  return key;
+}
+
+std::string goods_string(const std::string& goods) {
+  return goods;
+}
+
 } // namespace
 
 util::Status
@@ -181,16 +197,13 @@ SDLSpriteDrawer::displayResources(const market::proto::Container& resources,
     if (q.second < 1) {
       continue;
     }
-    auto nameText = getOrCreate(q.first, c);
+    auto nameText = getOrCreate(goods_string(q.first), c);
     auto next = displayText(nameText, current.x, current.y);
     auto amountText = getOrCreate(micro::DisplayString(q.second, 2), c);
     next = displayText(amountText, next.x + 3, current.y);
     current.y = next.y + 3;
   }
   return current;
-}
-std::string area_string(const util::proto::ObjectId& area_id) {
-  return util::objectid::DisplayString(area_id);
 }
 
 std::vector<std::string> stepToStrings(const actions::proto::Step& step,
@@ -204,7 +217,7 @@ std::vector<std::string> stepToStrings(const actions::proto::Step& step,
   std::vector<std::string> ret;
   switch (step.trigger_case()) {
   case actions::proto::Step::kKey:
-    return {"Do ", step.key(), " in ", area_string(*area_id)};
+    return {"Do ", key_string(step.key()), " in ", area_string(*area_id)};
   case actions::proto::Step::kAction: {
     switch (step.action()) {
     case actions::proto::AA_MOVE: {
@@ -243,6 +256,19 @@ std::vector<std::string> stepToStrings(const actions::proto::Step& step,
   return ret;
 }
 
+SDL_Point SDLSpriteDrawer::displayLine(const std::vector<std::string>& texts,
+                                       const SDL_Color& c, int x, int y) {
+  SDL_Point next = {x, y};
+  if (texts.empty()) {
+    return next;
+  }
+  for (const auto& text : texts) {
+    auto& texture = getOrCreate(text, c);
+    next = displayText(texture, next.x, y);
+  }
+  return next;
+}
+
 SDL_Point SDLSpriteDrawer::displayPlan(const units::Unit& unit,
                                        const SDL_Color& c, int x, int y) {
   const actions::proto::Plan& plan = unit.plan();
@@ -253,15 +279,8 @@ SDL_Point SDLSpriteDrawer::displayPlan(const units::Unit& unit,
   auto area_id = location.a_area_id();
   SDL_Point current = {x, y};
   for (const auto& step : plan.steps()) {
-    SDL_Point next = current;
     auto texts = stepToStrings(step, location, &area_id);
-    if (texts.empty()) {
-      continue;
-    }
-    for (const auto& text : texts) {
-      auto& texture = getOrCreate(text, c);
-      next = displayText(texture, next.x, current.y);
-    }
+    auto next = displayLine(texts, c, current.x, current.y);
     current.y = next.y + 3;
   }
   return current;
@@ -300,9 +319,9 @@ void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
   SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), unit_rect);
   SDL_RenderFillRect(renderer_.get(), area_rect);
-  auto& nameText = getOrCreate(util::objectid::DisplayString(object_id), kGold);
   const units::Unit* unit = units::ById(object_id);
   if (unit != nullptr) {
+    auto& nameText = getOrCreate(unit_string(object_id), kGold);
     auto next = displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
     next = displayResources(unit->resources(), kGold, unit_rect->x + 5,
                             next.y + 3);
@@ -310,6 +329,7 @@ void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
   }
   geography::Area* area = geography::ById(object_id);
   if (area != nullptr) {
+    auto& nameText = getOrCreate(area_string(object_id), kGold);
     displayText(nameText, area_rect->x + 5, area_rect->y + 5);
   }
 }
