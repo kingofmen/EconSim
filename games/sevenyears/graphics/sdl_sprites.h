@@ -93,8 +93,10 @@ class SpriteDrawer {
   virtual const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                                      int y);
   virtual void DrawMap(const Map& map, SDL_Rect* rect) = 0;
-  virtual void DrawSelected(const util::proto::ObjectId& object_id,
-                            SDL_Rect* unit_rect, SDL_Rect* area_rect);
+  virtual void DrawSelectedUnit(const util::proto::ObjectId& unit_id,
+                                SDL_Rect* unit_rect);
+  virtual void DrawSelectedArea(const util::proto::ObjectId& area_id,
+                                SDL_Rect* area_rect);
   virtual util::Status Init(int width, int height) = 0;
   virtual util::Status
   LoadFonts(const std::experimental::filesystem::path& base_path,
@@ -121,8 +123,10 @@ public:
   const util::proto::ObjectId& ClickedObject(const Map& map, int x,
                                              int y) override;
   void DrawMap(const Map& map, SDL_Rect* rect) override;
-  void DrawSelected(const util::proto::ObjectId& object_id, SDL_Rect* unit_rect,
-                    SDL_Rect* area_rect) override;
+  void DrawSelectedUnit(const util::proto::ObjectId& unit_id,
+                        SDL_Rect* unit_rect) override;
+  void DrawSelectedArea(const util::proto::ObjectId& area_id,
+                        SDL_Rect* area_rect) override;
   util::Status Init(int width, int height) override;
   util::Status LoadFonts(const std::experimental::filesystem::path& base_path,
                          const proto::Scenario& scenario) override;

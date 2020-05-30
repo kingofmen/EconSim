@@ -66,8 +66,13 @@ SpriteDrawer::LoadFonts(const std::experimental::filesystem::path& base_path,
       "LoadFonts not implemented in this sprite class.");
 }
 
-void SpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
-                                SDL_Rect* unit_rect, SDL_Rect* area_rect) {
+void SpriteDrawer::DrawSelectedUnit(const util::proto::ObjectId& unit_id,
+                                    SDL_Rect* unit_rect) {
+  // Do nothing.
+}
+
+void SpriteDrawer::DrawSelectedArea(const util::proto::ObjectId& area_id,
+                                    SDL_Rect* area_rect) {
   // Do nothing.
 }
 
@@ -314,24 +319,33 @@ Text& SDLSpriteDrawer::getOrCreate(const std::string& str, const SDL_Color& c) {
   return display_texts_.at(key);
 }
 
-void SDLSpriteDrawer::DrawSelected(const util::proto::ObjectId& object_id,
-                                   SDL_Rect* unit_rect, SDL_Rect* area_rect) {
+void SDLSpriteDrawer::DrawSelectedUnit(const util::proto::ObjectId& unit_id,
+                                       SDL_Rect* unit_rect) {
   SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), unit_rect);
+  const units::Unit* unit = units::ById(unit_id);
+  if (unit == nullptr) {
+    return;
+  }
+
+  auto& nameText = getOrCreate(unit_string(unit_id), kGold);
+  auto next = displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
+  next = displayResources(unit->resources(), kGold, unit_rect->x + 5,
+                          next.y + 3);
+  next = displayPlan(*unit, kGold, unit_rect->x + 5, next.y + 3);
+}
+
+void SDLSpriteDrawer::DrawSelectedArea(const util::proto::ObjectId& area_id,
+                                       SDL_Rect* area_rect) {
+  SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), area_rect);
-  const units::Unit* unit = units::ById(object_id);
-  if (unit != nullptr) {
-    auto& nameText = getOrCreate(unit_string(object_id), kGold);
-    auto next = displayText(nameText, unit_rect->x + 5, unit_rect->y + 5);
-    next = displayResources(unit->resources(), kGold, unit_rect->x + 5,
-                            next.y + 3);
-    next = displayPlan(*unit, kGold, unit_rect->x + 5, next.y + 3);
+  geography::Area* area = geography::ById(area_id);
+  if (area == nullptr) {
+    return;
   }
-  geography::Area* area = geography::ById(object_id);
-  if (area != nullptr) {
-    auto& nameText = getOrCreate(area_string(object_id), kGold);
-    displayText(nameText, area_rect->x + 5, area_rect->y + 5);
-  }
+  auto& nameText = getOrCreate(area_string(area_id), kGold);
+  auto next = displayText(nameText, area_rect->x + 5, area_rect->y + 5);
+  //next = displayResources();
 }
 
 util::Status

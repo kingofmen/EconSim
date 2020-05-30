@@ -355,6 +355,7 @@ void SevenYears::NewTurn() {
   dirtyGraphics_ = true;
 }
 
+// TODO: Move this into the main binary, the graphics don't belong in here.
 void SevenYears::UpdateGraphicsInfo(interface::Base* gfx) {
   if (!dirtyGraphics_) {
     return;
@@ -496,8 +497,9 @@ SevenYears::AreaState(const util::proto::ObjectId& area_id) const {
   if (area_states_.find(area_id) == area_states_.end()) {
     Log::Errorf("Could not find state for area %s",
                 util::objectid::DisplayString(area_id));
-    static sevenyears::proto::AreaState dummy_area_state_;
-    return dummy_area_state_;
+    static sevenyears::proto::AreaState dummy_area_state;
+    *dummy_area_state.mutable_area_id() = util::objectid::kNullId;
+    return dummy_area_state;
   }
   return area_states_.at(area_id);
 }
@@ -523,5 +525,9 @@ SevenYears::ProductionChain(const std::string& name) const {
   return production_chains_.at(name);
 }
 
+void SevenYears::Fetch(const util::proto::ObjectId& object_id,
+                       google::protobuf::Message* proto) {
+  // Do nothing.
+}
 
 }  // namespace sevenyears

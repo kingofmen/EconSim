@@ -44,7 +44,8 @@ private:
   SDL_Rect map_rectangle_;
   SDL_Rect unit_status_rectangle_;
   SDL_Rect area_status_rectangle_;
-  util::proto::ObjectId selected_;
+  util::proto::ObjectId selected_unit_id_;
+  util::proto::ObjectId selected_area_id_;
 };
 
 }  // namespace graphics

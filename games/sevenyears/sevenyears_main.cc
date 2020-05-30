@@ -17,6 +17,11 @@
 
 #include "SDL.h"
 
+namespace {
+sevenyears::graphics::SevenYearsInterface* graphics;
+sevenyears::SevenYears* sevenYears;
+}
+
 std::vector<std::experimental::filesystem::path> getScenarioPaths() {
   auto current_path = std::experimental::filesystem::current_path();
   current_path /= "scenarios";
@@ -119,7 +124,6 @@ void EventHandler::SelectObject(const util::proto::ObjectId& object_id) {
   if (util::objectid::IsNull(object_id)) {
     return;
   }
-  Log::Infof("Selected object %s", util::objectid::DisplayString(object_id));
 }
 
 int main(int /*argc*/, char** /*argv*/) {
@@ -136,8 +140,8 @@ int main(int /*argc*/, char** /*argv*/) {
     return 2;
   }
 
-  sevenyears::SevenYears sevenYears;
-  auto status = sevenYears.InitialiseAI();
+  sevenYears = new sevenyears::SevenYears();
+  auto status = sevenYears->InitialiseAI();
   if (!status.ok()) {
     Log::Errorf("Error initialising AI: %s", status.error_message());
     return 3;
@@ -145,7 +149,7 @@ int main(int /*argc*/, char** /*argv*/) {
   Log::Infof("Initialised AI");
 
   if (scenarios.size() == 1) {
-    status = sevenYears.LoadScenario(scenarios[0]);
+    status = sevenYears->LoadScenario(scenarios[0]);
     if (!status.ok()) {
       Log::Errorf("Error loading scenario: %s", status.error_message());
       return 3;
@@ -155,10 +159,11 @@ int main(int /*argc*/, char** /*argv*/) {
 
   games::interface::proto::Config config;
   config.set_screen_size(games::interface::proto::Config::SS_1440_900);
-  EventHandler handler(&sevenYears);
+  EventHandler handler(sevenYears);
 
-  sevenyears::graphics::SevenYearsInterface* graphics = createInterface();
+  graphics = createInterface();
   graphics->SetReceiver(&handler);
+  graphics->SetStateFetcher(sevenYears);
 
   status = graphics->Initialise(config);
   if (!status.ok()) {
@@ -176,10 +181,12 @@ int main(int /*argc*/, char** /*argv*/) {
 
   while (!handler.quit()) {
     graphics->EventLoop();
-    sevenYears.UpdateGraphicsInfo(graphics);
+    sevenYears->UpdateGraphicsInfo(graphics);
   }
 
   graphics->Cleanup();
+  delete graphics;
+  delete sevenYears;
 
   return 0;
 }

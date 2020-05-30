@@ -16,7 +16,7 @@
 namespace sevenyears {
 
 // Class for running actual game mechanics.
-class SevenYears : public SevenYearsState {
+class SevenYears : public SevenYearsState, public interface::StateFetcher {
 public:
   SevenYears() : dirtyGraphics_(true) {}
   ~SevenYears() {}
@@ -35,6 +35,9 @@ public:
   AreaState(const util::proto::ObjectId& area_id) const override;
   const industry::Production&
   ProductionChain(const std::string& name) const override;
+  // Load the state of object_id into proto, if it exists.
+  void Fetch(const util::proto::ObjectId& object_id,
+             google::protobuf::Message* proto);
 
 private:
   void moveUnits();

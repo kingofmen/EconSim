@@ -7,6 +7,7 @@
 #include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
 #include "games/geography/connection.h"
+#include "games/geography/geography.h"
 #include "games/units/unit.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.pb.h"
@@ -126,8 +127,8 @@ void SDLInterface::drawMap() {
   }
   const Map& currMap = maps_.at(current_map_);
   sprites_->DrawMap(currMap, &map_rectangle_);
-  sprites_->DrawSelected(selected_, &unit_status_rectangle_,
-                         &area_status_rectangle_);
+  sprites_->DrawSelectedUnit(selected_unit_id_, &unit_status_rectangle_);
+  sprites_->DrawSelectedArea(selected_area_id_, &area_status_rectangle_);
   sprites_->Update();
 }
 
@@ -334,13 +335,17 @@ void SDLInterface::EventLoop() {
         auto& map = maps_.at(current_map_);
         const auto& clicked_id =
             sprites_->ClickedObject(map, e.button.x, e.button.y);
-        if (e.button.button == SDL_BUTTON_LEFT && e.type == SDL_MOUSEBUTTONUP) {
-          selected_ = clicked_id;
-        }
         if (util::objectid::IsNull(clicked_id)) {
           receiver_->HandleMouseEvent(makeMouseClick(e.button));
         } else if (e.type == SDL_MOUSEBUTTONUP) {
-          receiver_->SelectObject(clicked_id);
+          if (e.button.button == SDL_BUTTON_LEFT) {
+            receiver_->SelectObject(clicked_id);
+            if (units::ById(clicked_id) != nullptr) {
+              selected_unit_id_ = clicked_id;
+            } else if (geography::Area::GetById(clicked_id) != nullptr) {
+              selected_area_id_ = clicked_id;
+            }
+          }
         }
         break;
     }
