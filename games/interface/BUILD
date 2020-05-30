@@ -8,6 +8,7 @@ cc_library(
         "//games/interface/proto:config_proto",
         "//util/proto:object_id_proto",
         "//util/status:status",
+        "@com_google_protobuf//:protobuf",
         "@sdl2//:SDL2",
     ],
 )

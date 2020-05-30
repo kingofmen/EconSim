@@ -3,6 +3,7 @@
 
 #include "games/interface/proto/config.pb.h"
 #include "SDL_keyboard.h"
+#include "src/google/protobuf/message.h"
 #include "util/status/status.h"
 #include "util/proto/object_id.pb.h"
 
@@ -47,6 +48,17 @@ class Receiver {
   virtual void SelectObject(const util::proto::ObjectId& object_id) = 0;
 };
 
+// StateFetcher is an abstract class for getting game-state information in
+// protobuf format.
+class StateFetcher {
+public:
+  StateFetcher() = default;
+  ~StateFetcher() = default;
+
+  virtual void Fetch(const util::proto::ObjectId& object_id,
+                     google::protobuf::Message* proto) = 0;
+};
+
 // Base is an abstract class exposing a minimal set of interactions.
 // Implementations may store state.
 class Base {
@@ -57,12 +69,16 @@ public:
   virtual util::Status
   Initialise(const games::interface::proto::Config& config) = 0;
   virtual void Cleanup() = 0;
-  virtual void EventLoop() = 0;
-  void SetReceiver(Receiver* c) { receiver_ = c; }
   virtual void DisplayUnits(const std::vector<util::proto::ObjectId>& ids) = 0;
+  virtual void EventLoop() = 0;
+  void GetState(const util::proto::ObjectId& object_id,
+                google::protobuf::Message* proto);
+  void SetReceiver(Receiver* c) { receiver_ = c; }
+  void SetStateFetcher(StateFetcher* f) { fetcher_ = f; }
 
 protected:
   Receiver* receiver_;
+  StateFetcher* fetcher_;
 };
 
 }  // namespace interface
