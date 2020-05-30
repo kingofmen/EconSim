@@ -3,7 +3,6 @@
 
 #include "games/industry/industry.h"
 #include "games/setup/setup.h"
-#include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/proto/object_id.pb.h"
 
