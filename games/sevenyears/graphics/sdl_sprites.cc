@@ -72,6 +72,7 @@ void SpriteDrawer::DrawSelectedUnit(const util::proto::ObjectId& unit_id,
 }
 
 void SpriteDrawer::DrawSelectedArea(const util::proto::ObjectId& area_id,
+                                    const sevenyears::proto::AreaState& state,
                                     SDL_Rect* area_rect) {
   // Do nothing.
 }
@@ -335,8 +336,9 @@ void SDLSpriteDrawer::DrawSelectedUnit(const util::proto::ObjectId& unit_id,
   next = displayPlan(*unit, kGold, unit_rect->x + 5, next.y + 3);
 }
 
-void SDLSpriteDrawer::DrawSelectedArea(const util::proto::ObjectId& area_id,
-                                       SDL_Rect* area_rect) {
+void SDLSpriteDrawer::DrawSelectedArea(
+    const util::proto::ObjectId& area_id,
+    const sevenyears::proto::AreaState& state, SDL_Rect* area_rect) {
   SDL_SetRenderDrawColor(renderer_.get(), 0x00, 0x00, 0x00, 0xFF);
   SDL_RenderFillRect(renderer_.get(), area_rect);
   geography::Area* area = geography::ById(area_id);
@@ -345,7 +347,7 @@ void SDLSpriteDrawer::DrawSelectedArea(const util::proto::ObjectId& area_id,
   }
   auto& nameText = getOrCreate(area_string(area_id), kGold);
   auto next = displayText(nameText, area_rect->x + 5, area_rect->y + 5);
-  //next = displayResources();
+  next = displayResources(state.warehouse(), kGold, area_rect->x + 5, next.y);
 }
 
 util::Status

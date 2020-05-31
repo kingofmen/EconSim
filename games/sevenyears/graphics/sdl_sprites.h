@@ -10,6 +10,7 @@
 #include "games/interface/proto/config.pb.h"
 #include "games/market/proto/goods.pb.h"
 #include "games/sevenyears/graphics/proto/graphics.pb.h"
+#include "games/sevenyears/proto/sevenyears.pb.h"
 #include "games/units/unit.h"
 #include "util/proto/object_id.pb.h"
 #include "util/proto/object_id.h"
@@ -96,6 +97,7 @@ class SpriteDrawer {
   virtual void DrawSelectedUnit(const util::proto::ObjectId& unit_id,
                                 SDL_Rect* unit_rect);
   virtual void DrawSelectedArea(const util::proto::ObjectId& area_id,
+                                const sevenyears::proto::AreaState& state,
                                 SDL_Rect* area_rect);
   virtual util::Status Init(int width, int height) = 0;
   virtual util::Status
@@ -126,6 +128,7 @@ public:
   void DrawSelectedUnit(const util::proto::ObjectId& unit_id,
                         SDL_Rect* unit_rect) override;
   void DrawSelectedArea(const util::proto::ObjectId& area_id,
+                        const sevenyears::proto::AreaState& state,
                         SDL_Rect* area_rect) override;
   util::Status Init(int width, int height) override;
   util::Status LoadFonts(const std::experimental::filesystem::path& base_path,

@@ -6,6 +6,7 @@
 #include "absl/strings/substitute.h"
 #include "games/interface/proto/config.pb.h"
 #include "games/sevenyears/graphics/bitmap.h"
+#include "games/sevenyears/proto/sevenyears.pb.h"
 #include "games/geography/connection.h"
 #include "games/geography/geography.h"
 #include "games/units/unit.h"
@@ -128,7 +129,11 @@ void SDLInterface::drawMap() {
   const Map& currMap = maps_.at(current_map_);
   sprites_->DrawMap(currMap, &map_rectangle_);
   sprites_->DrawSelectedUnit(selected_unit_id_, &unit_status_rectangle_);
-  sprites_->DrawSelectedArea(selected_area_id_, &area_status_rectangle_);
+
+  sevenyears::proto::AreaState state;
+  GetState(selected_area_id_, &state);
+  sprites_->DrawSelectedArea(selected_area_id_, state,
+                             &area_status_rectangle_);
   sprites_->Update();
 }
 

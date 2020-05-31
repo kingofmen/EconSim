@@ -38,6 +38,7 @@ cc_library(
         ":bitmap",
         "//games/actions/proto:plan_proto",
         "//games/sevenyears/graphics/proto:graphics_proto",
+        "//games/sevenyears/proto:sevenyears_proto",
         "//games/geography:connection",
         "//games/geography:geography",
         "//games/interface:base",

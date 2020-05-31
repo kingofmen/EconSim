@@ -527,7 +527,9 @@ SevenYears::ProductionChain(const std::string& name) const {
 
 void SevenYears::Fetch(const util::proto::ObjectId& object_id,
                        google::protobuf::Message* proto) {
-  // Do nothing.
+  if (area_states_.find(object_id) != area_states_.end()) {
+    proto->CopyFrom(area_states_.at(object_id));
+  }
 }
 
 }  // namespace sevenyears
