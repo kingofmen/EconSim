@@ -4,7 +4,9 @@
 #include "games/geography/geography.h"
 #include "games/geography/connection.h"
 #include "games/interface/proto/config.pb.h"
+#include "games/market/goods_utils.h"
 #include "games/market/proto/goods.pb.h"
+#include "games/sevenyears/constants.h"
 #include "games/sevenyears/graphics/bitmap.h"
 #include "games/units/unit.h"
 #include "util/logging/logging.h"
@@ -348,6 +350,16 @@ void SDLSpriteDrawer::DrawSelectedArea(
   auto& nameText = getOrCreate(area_string(area_id), kGold);
   auto next = displayText(nameText, area_rect->x + 5, area_rect->y + 5);
   next = displayResources(state.warehouse(), kGold, area_rect->x + 5, next.y);
+  uint64 importCap = 0;
+  for (int i = 0; i < area->num_fields(); ++i) {
+    importCap += market::GetAmount(area->field(i)->resources(),
+                                   constants::ImportCapacity());
+  }
+  if (importCap > 0) {
+    std::vector<std::string> importLine = {"Import capacity ",
+                                           micro::DisplayString(importCap, 2)};
+    next = displayLine(importLine, kGold, next.x, next.y);
+  }
 }
 
 util::Status
