@@ -202,8 +202,9 @@ util::Status SevenYears::doEuropeanTrade(const actions::proto::Step& step,
                         unit->mutable_resources(), field->mutable_resources(),
                         unit->mutable_resources(), unit->mutable_resources(),
                         field->mutable_progress());
-  // TODO: Only do clearing on completion, and if not complete, send error to
-  // signal that the ship must stay.
+  if (util::IsNotComplete(status)) {
+    return status;
+  }
   field->clear_progress();
   if (!status.ok()) {
     return util::FailedPreconditionError(absl::Substitute(
