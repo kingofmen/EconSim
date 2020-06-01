@@ -149,8 +149,9 @@ util::Status Production::PerformStep(
   progress->set_step(1 + progress->step());
   if (Complete(*progress)) {
     *output += ExpectedOutput(*progress);
+    return util::OkStatus();
   }
-  return util::OkStatus();
+  return util::NotComplete();
 }
 
 market::proto::Container

@@ -141,7 +141,7 @@ void RunAreaIndustry(
             *chain, selected.step_info(0), best_field,
             best_field->mutable_progress(), best_pop->mutable_wealth(),
             best_pop->mutable_wealth(), &used_capital, context.market);
-    if (status.ok()) {
+    if (status.ok() || util::IsNotComplete(status)) {
       progressed.emplace(best_field);
       if (!best_field->has_progress()) {
         best_pop->SellSurplus(context.market);

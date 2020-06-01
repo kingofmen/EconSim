@@ -117,7 +117,7 @@ TEST_F(IndustryTest, TwoSteps) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(util::IsNotComplete(status)) << status.error_message();
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
