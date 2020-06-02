@@ -5,11 +5,18 @@ import "util/proto/object_id.proto";
 import "games/market/proto/goods.proto";
 import "games/setup/proto/setup.proto";
 
+message LocalFactionInfo {
+  optional util.proto.ObjectId faction_id = 1;
+  optional market.proto.Container warehouse = 2;
+}
+
 message AreaState {
   optional util.proto.ObjectId area_id = 1;
   optional util.proto.ObjectId owner_id = 2;
   repeated string production = 3;
-  optional market.proto.Container warehouse = 4;  
+  // Deprecated, use the faction warehouses instead.
+  optional market.proto.Container warehouse = 4 [deprecated = true];
+  repeated LocalFactionInfo factions = 5;
 }
 
 message WorldState {
