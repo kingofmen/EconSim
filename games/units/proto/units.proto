@@ -14,4 +14,5 @@ message Unit {
   optional market.proto.Container resources = 3;
   optional actions.proto.Plan plan = 4;
   optional actions.proto.Strategy strategy = 5;
+  optional util.proto.ObjectId faction_id = 6;
 }

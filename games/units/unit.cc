@@ -154,6 +154,12 @@ micro::Measure Unit::action_points_u() const {
   return base_u - used_action_points_u;
 }
 
+const util::proto::ObjectId& Unit::unit_id() const { return proto_.unit_id(); }
+const util::proto::ObjectId& Unit::faction_id() const {
+  return proto_.faction_id();
+}
+
+
 Unit* ById(const util::proto::ObjectId unit_id) {
   return Unit::ById(unit_id);
 }
