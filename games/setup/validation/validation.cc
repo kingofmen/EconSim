@@ -358,6 +358,51 @@ std::vector<std::string> Validate(const games::setup::proto::Scenario& scenario,
   return errors;
 }
 
+namespace optional {
+
+std::vector<std::string>
+UnitFactions(const games::setup::proto::GameWorld& world) {
+  std::vector<std::string> errors;
+  if (world.factions_size() < 1) {
+    errors.push_back("Zero factions");
+  }
+
+  std::unordered_set<util::proto::ObjectId> factions;
+  for (const auto& faction : world.factions()) {
+    if (!faction.has_faction_id()) {
+      errors.push_back(absl::Substitute("Faction without faction_id: $0",
+                                        faction.DebugString()));
+      continue;
+    }
+    if (factions.find(faction.faction_id()) != factions.end()) {
+      errors.push_back(absl::Substitute(
+          "Duplicate faction ID $0",
+          util::objectid::DisplayString(faction.faction_id())));
+      continue;
+    }
+    factions.insert(faction.faction_id());
+  }
+
+  for (const auto& unit : world.units()) {
+    if (!unit.has_faction_id()) {
+      errors.push_back(
+          absl::Substitute("Unit $0 has no faction ID",
+                           util::objectid::DisplayString(unit.unit_id())));
+      continue;
+    }
+    if (factions.find(unit.faction_id()) == factions.end()) {
+      errors.push_back(
+          absl::Substitute("Unit $0 belongs to unknown faction $1",
+                           util::objectid::DisplayString(unit.unit_id()),
+                           util::objectid::DisplayString(unit.faction_id())));
+    }
+  }
+
+  return errors;
+}
+
+
+} // namespace optional
 } // namespace validation
 } // namespace setup
 } // namespace games

@@ -1,0 +1,52 @@
+factions {
+  # No faction ID.
+}
+
+factions {
+  # Correct.
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
+factions {
+  # Duplicate ID.
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
+units {
+  # No faction.
+  unit_id {
+    kind: "unit"
+    number: 1
+  }
+}
+
+units {
+  # Nonexistent faction.
+  unit_id {
+    kind: "unit"
+    number: 2
+  }
+  faction_id {
+    kind: "faction"
+    number: 101
+  }
+}
+
+units {
+  # Correct.
+  unit_id {
+    kind: "unit"
+    number: 3
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+

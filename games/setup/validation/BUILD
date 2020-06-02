@@ -29,8 +29,5 @@ cc_test(
         "//games/market:goods_utils",
         "//util/proto:file",
     ],
-    data = [
-        ":test_data/bad_world.pb.txt",
-        ":test_data/bad_scenario.pb.txt",
-    ],
+    data = glob(["test_data/*pb.txt"]),
 )

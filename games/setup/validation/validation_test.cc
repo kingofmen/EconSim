@@ -28,22 +28,16 @@ google::protobuf::util::Status ReadFile(const std::string filename,
 
 class ValidationTest : public testing::Test {
 protected:
-  void SetUp() override {
-    auto status = ReadFile("bad_scenario.pb.txt", &scenario_);
-    if (!status.ok()) {
-      std::cout << status.error_message() << "\n";
-    }
-    status = ReadFile("bad_world.pb.txt", &world_proto_);
-    if (!status.ok()) {
-      std::cout << status.error_message() << "\n";
-    }
-  }
-
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_;
 };
 
 TEST_F(ValidationTest, TestAllValidations) {
+  auto status = ReadFile("bad_scenario.pb.txt", &scenario_);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  status = ReadFile("bad_world.pb.txt", &world_proto_);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+
   Validator extra = [](const games::setup::proto::GameWorld& p) {
     return std::vector<std::string>{"extra error"};
   };
@@ -99,6 +93,30 @@ TEST_F(ValidationTest, TestAllValidations) {
   for (const auto& err : expected) {
     std::cout << "Expected error did not appear: " << err << "\n";
   }
+}
+
+TEST_F(ValidationTest, TestUnitFactions) {
+  world_proto_.Clear();
+  auto status = ReadFile("unit_factions.pb.txt", &world_proto_);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+
+  auto errors = optional::UnitFactions(world_proto_);
+  std::unordered_set<std::string> expected = {
+    "Faction without faction_id: ",
+    "Duplicate faction ID (faction, 1)",
+    "Unit (unit, 1) has no faction ID",
+    "Unit (unit, 2) belongs to unknown faction (faction, 101)",
+  };
+  for (const auto& error : errors) {
+    EXPECT_TRUE(expected.find(error) != expected.end())
+        << "Unexpected error: \"" << error << "\"";
+    expected.erase(error);
+  }
+
+  EXPECT_EQ(0, expected.size());
+  for (const auto& err : expected) {
+    std::cout << "Expected error did not appear: \"" << err << "\"\n";
+  }  
 }
 
 }  // namespace validation
