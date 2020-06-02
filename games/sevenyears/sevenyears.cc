@@ -440,6 +440,8 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   }
 
   games::setup::validation::RegisterValidator(
+      "UnitFactions", games::setup::validation::optional::UnitFactions);
+  games::setup::validation::RegisterValidator(
       "SevenYears", [this](const games::setup::proto::GameWorld& gw) {
         return this->validation(gw);
       });

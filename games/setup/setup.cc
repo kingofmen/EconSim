@@ -189,6 +189,9 @@ util::Status World::ToProto(proto::GameWorld* proto) {
     market::CleanContainer(unit->mutable_resources());
     auto& unit_proto = *proto->add_units();
     unit_proto = unit->Proto();
+    if (unit_proto.has_faction_id()) {
+      tagIfPossible(unit_proto.mutable_faction_id());
+    }
   }
 
   for (const auto& faction : factions_) {
@@ -348,6 +351,12 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
         if (!status.ok()) {
           return status;
         }
+      }
+    }
+    if (unit.has_faction_id()) {
+      status = util::objectid::Canonicalise(unit.mutable_faction_id());
+      if (!status.ok()) {
+        return status;
       }
     }
     if (unit.has_strategy()) {

@@ -84,7 +84,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
 
   games::setup::proto::GameWorld gameworld;
   auto* faction = gameworld.add_factions();
-  faction->mutable_faction_id()->set_type(1);
+  faction->mutable_faction_id()->set_kind("faction");
   faction->mutable_faction_id()->set_number(1);
   faction->mutable_faction_id()->set_tag("faction_one");
 
@@ -116,6 +116,9 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   loc->mutable_z_area_id()->set_kind("area");
   loc->mutable_z_area_id()->set_tag("area_one_oh_one");
   loc->set_connection_id(1);
+  auto* faction_id = unit->mutable_faction_id();
+  faction_id->set_kind("faction");
+  faction_id->set_tag("faction_one");
 
   // Test canonicalisation.
   auto status = games::setup::CanonicaliseWorld(&gameworld);
@@ -128,12 +131,15 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   EXPECT_TRUE(conn->z_area_id().tag().empty()) << conn->DebugString();
   EXPECT_TRUE(loc->a_area_id().tag().empty()) << conn->DebugString();
   EXPECT_TRUE(loc->z_area_id().tag().empty()) << conn->DebugString();
+  EXPECT_TRUE(unit->faction_id().tag().empty()) << unit->DebugString();
 
   // Canonical ObjectIds can be compared for equality.
   EXPECT_TRUE(conn->a_area_id() == area51->area_id()) << conn->DebugString();
   EXPECT_TRUE(conn->z_area_id() == area101->area_id()) << conn->DebugString();
   EXPECT_TRUE(loc->a_area_id() == area51->area_id()) << unit->DebugString();
   EXPECT_TRUE(loc->z_area_id() == area101->area_id()) << unit->DebugString();
+  EXPECT_TRUE(unit->faction_id() == faction->faction_id())
+      << unit->DebugString();
 
   // Test lookups.
   auto world = games::setup::World::FromProto(gameworld);
@@ -174,6 +180,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   EXPECT_FALSE(unit_z.has_number()) << unit_z.DebugString();
   EXPECT_EQ(unit_a.tag(), "area_fifty_one");
   EXPECT_EQ(unit_z.tag(), "area_one_oh_one");
+  EXPECT_EQ(gameworld.units(0).faction_id().tag(), "faction_one");
 }
 
 TEST(SetupTest, TestLoadExtras) {

@@ -148,6 +148,10 @@ units {
     }
     define: "london_trader"
   }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
 }
 
 units {
@@ -170,6 +174,10 @@ units {
       value: 1000000
     }
   }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
 }
 
 units {
@@ -185,6 +193,10 @@ units {
   }
   strategy {
     lookup: "london_trader"
+  }
+  faction_id {
+    kind: "faction"
+    tag: "england"
   }
 }
 
@@ -202,6 +214,10 @@ units {
   strategy {
     lookup: "london_trader"
   }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
 }
 
 units {
@@ -218,6 +234,10 @@ units {
   strategy {
     lookup: "london_trader"
   }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
 }
 
 [sevenyears.proto.WorldState.sevenyears_state] {
@@ -228,7 +248,7 @@ units {
     }
     owner_id {
       kind: "faction"
-      number: 1
+      tag: "england"    
     }
     production: "home_production_trade"
   }

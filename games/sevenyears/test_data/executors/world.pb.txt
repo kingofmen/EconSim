@@ -1,5 +1,12 @@
 # World file for Executors test.
 
+factions {
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
 areas {
   area_id {
     kind: "area"
@@ -55,6 +62,10 @@ units {
       good: "trade_goods"
     }
   }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
 }
 units {
   unit_id {
@@ -77,6 +88,10 @@ units {
     steps {
       key: "offload_cargo"
     }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
   }
 }
 
@@ -101,6 +116,10 @@ units {
     steps {
       key: "european_trade"
     }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
   }
 }
 
