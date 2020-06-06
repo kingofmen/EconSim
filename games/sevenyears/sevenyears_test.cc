@@ -58,12 +58,6 @@ TEST_F(SevenYearsTest, TestExecutors) {
         EXPECT_EQ(0,
                   market::GetAmount(unit->resources(), constants::Supplies()));
         break;
-      case 3:
-        EXPECT_EQ(
-            0, market::GetAmount(unit->resources(), constants::TradeGoods()));
-        EXPECT_EQ(2 * micro::kOneInU,
-                  market::GetAmount(unit->resources(), constants::Supplies()));
-        break;
       default:
         break;
     }

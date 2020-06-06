@@ -28,6 +28,24 @@ namespace {
 
 constexpr int kMaxIncompleteWait = 5;
 
+// Returns the faction-aligned warehouse in an area, creating it if it does not
+// exist.
+market::proto::Container* findWarehouse(const util::proto::ObjectId& faction_id,
+                                        proto::AreaState* state) {
+  for (int i = 0; i < state->factions_size(); ++i) {
+    auto* lfi = state->mutable_factions(i);
+    if (lfi->faction_id() == faction_id) {
+      return lfi->mutable_warehouse();
+    }
+  }
+  Log::Debugf("Creating new warehouse for %s in %s",
+              util::objectid::DisplayString(faction_id),
+              util::objectid::DisplayString(state->area_id()));
+  auto* lfi = state->add_factions();
+  *lfi->mutable_faction_id() = faction_id;
+  return lfi->mutable_warehouse();
+}
+
 util::Status validateSetup(const games::setup::proto::ScenarioFiles& setup) {
   if (!setup.has_name()) {
     return util::InvalidArgumentError(
@@ -53,6 +71,17 @@ util::Status validateWorldState(
     if (!status.ok()) {
       return status;
     }
+    status = util::objectid::Canonicalise(area_state->mutable_owner_id());
+    if (!status.ok()) {
+      return status;
+    }
+    for (int i = 0; i < area_state->factions_size(); ++i) {
+      auto* lfi = area_state->mutable_factions(i);
+      status = util::objectid::Canonicalise(lfi->mutable_faction_id());
+      if (!status.ok()) {
+        return status;
+      }
+    }
     const auto& area_id = area_state->area_id();
     auto* area = geography::Area::GetById(area_id);
     if (area == nullptr) {
@@ -70,15 +99,21 @@ util::Status validateWorldState(
                                                        numProd - numFields);
     }
 
-    if (!market::AllGoodsExist(area_state->warehouse())) {
-      for (const auto& q : area_state->warehouse().quantities()) {
-        if (market::Exists(q.first)) {
-          continue;
-        }
-        Log::Errorf("In area %d: Good %s does not exist.", area_id.number(), q.first);
+    for (const auto& lfi : area_state->factions()) {
+      if (!lfi.has_warehouse()) {
+        continue;
       }
-      return util::NotFoundError(absl::Substitute(
-          "Not all goods in area $0 warehouse exist.", area_id.number()));
+      if (!market::AllGoodsExist(lfi.warehouse())) {
+        for (const auto& q : lfi.warehouse().quantities()) {
+          if (market::Exists(q.first)) {
+            continue;
+          }
+          Log::Errorf("In area %d: Good %s does not exist.", area_id.number(),
+                      q.first);
+        }
+        return util::NotFoundError(absl::Substitute(
+            "Not all goods in area $0 warehouses exist.", area_id.number()));
+      }
     }
 
     numProd = area_state->production_size();
@@ -98,11 +133,6 @@ util::Status validateWorldState(
 
 
 util::Status SevenYears::InitialiseAI() {
-  ai::RegisterExecutor(
-      constants::EuropeanTrade(),
-      [this](const actions::proto::Step& step, units::Unit* unit) {
-        return this->doEuropeanTrade(step, unit);
-      });
   ai::RegisterExecutor(
       constants::LoadShip(),
       [this](const actions::proto::Step& step, units::Unit* unit) {
@@ -140,81 +170,24 @@ util::Status SevenYears::loadShip(const actions::proto::Step& step,
   }
 
   auto capacity_u = unit->Capacity(step.good());
-  auto available_u = market::GetAmount(area_state->warehouse(), step.good());
+  auto* warehouse = findWarehouse(unit->faction_id(), area_state);
+  auto available_u = market::GetAmount(*warehouse, step.good());
+  if (available_u < 1) {
+    Log::Debugf("Could not find any %s for %s of faction %s in %s", step.good(),
+                util::objectid::DisplayString(unit->unit_id()),
+                util::objectid::DisplayString(unit->faction_id()),
+                util::objectid::DisplayString(area_state->area_id()));
+    return util::NotComplete();
+  }
   if (available_u > capacity_u) {
     available_u = capacity_u;
   }
-  market::Move(step.good(), available_u, area_state->mutable_warehouse(),
-               unit->mutable_resources());
+  market::Move(step.good(), available_u, warehouse, unit->mutable_resources());
   capacity_u -= available_u;
   if (capacity_u <= 0) {
     return util::OkStatus();
   }
   return util::NotComplete();
-}
-
-util::Status SevenYears::doEuropeanTrade(const actions::proto::Step& step,
-                                         units::Unit* unit) {
-  const auto& unit_id = unit->unit_id();
-  const auto& area_id = unit->location().a_area_id();
-  Log::Debugf("Unit %s doing trade in %s",
-              util::objectid::DisplayString(unit_id),
-              util::objectid::DisplayString(area_id));
-  geography::Area* area = geography::Area::GetById(area_id);
-  if (area == nullptr) {
-    return util::NotFoundError(absl::Substitute(
-        "Could not find area $0", util::objectid::DisplayString(area_id)));
-  }
-  int bestIndex = -1;
-  micro::uMeasure bestAmount = 0;
-  for (int i = 0; i < area->num_fields(); ++i) {
-    const auto* field = area->field(i);
-    Log::Debugf("Field %d has %d import capacity", i,
-                market::GetAmount(field->resources(), constants::ImportCapacity()));
-    if (field->has_progress()) {
-      continue;
-    }
-    micro::Measure amount =
-        market::GetAmount(field->resources(), constants::ImportCapacity());
-    if (amount < bestAmount) {
-      continue;
-    }
-    bestAmount = amount;
-    bestIndex = i;
-  }
-
-  if (bestIndex < 0) {
-    return util::NotFoundError(absl::Substitute(
-        "Could not find field for $0 to do European trade in $1",
-        util::objectid::DisplayString(unit_id),
-        util::objectid::DisplayString(area_id)));
-  }
-
-  geography::proto::Field* field = area->mutable_field(bestIndex);
-  const auto& trade = ProductionChain(constants::EuropeanTrade());
-  *field->mutable_progress() = trade.MakeProgress(trade.MaxScaleU());
-  // TODO: Calculate this.
-  micro::Measure relation_bonus_u = 0;
-  // TODO: Don't assume the variant index.
-  int var_index = 0;
-  auto status =
-      trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
-                        unit->mutable_resources(), field->mutable_resources(),
-                        unit->mutable_resources(), unit->mutable_resources(),
-                        field->mutable_progress());
-  if (util::IsNotComplete(status)) {
-    return status;
-  }
-  field->clear_progress();
-  if (!status.ok()) {
-    return util::FailedPreconditionError(absl::Substitute(
-        "Process $0 in field $1 of $2 failed: $3", trade.get_name(), bestIndex,
-        util::objectid::DisplayString(area_id),
-        status.error_message().as_string()));
-  }
-  Log::Debugf("%s now has %d supplies", util::objectid::DisplayString(unit_id),
-              market::GetAmount(unit->resources(), constants::Supplies()));
-  return util::OkStatus();
 }
 
 util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
@@ -235,7 +208,7 @@ util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
         util::objectid::DisplayString(unit_id)));
   }
 
-  auto* warehouse = area_state->mutable_warehouse();
+  auto* warehouse = findWarehouse(unit->faction_id(), area_state);
   auto* cargo_hold = unit->mutable_resources();
   *warehouse << *cargo_hold;
 
@@ -321,33 +294,19 @@ void SevenYears::NewTurn() {
       continue;
     }
     auto& area_state = area_states_.at(area_id);
+    bool doTrade = false;
     for (int i = 0; i < area->num_fields(); ++i) {
-      geography::proto::Field* field = area->mutable_field(i);
-      if (area_state.production_size() <= i) {
-        continue;
+      const geography::proto::Field* field = area->field(i);
+      if (market::GetAmount(field->resources(), constants::ImportCapacity()) > 0) {
+        doTrade = true;
+        break;
       }
-      const std::string& chain_name = area_state.production(i);
-      const auto& chain = production_chains_[chain_name];
+    }
 
-      if (!field->has_progress() || chain.Complete(field->progress())) {
-        *field->mutable_progress() = chain.MakeProgress(micro::kOneInU);
-      }
-
-      micro::Measure institutional_capital = 0;
-      auto status = chain.PerformStep(
-          field->fixed_capital(), institutional_capital, 0,
-          area_state.mutable_warehouse(), field->mutable_resources(),
-          area_state.mutable_warehouse(), area_state.mutable_warehouse(),
-          field->mutable_progress());
-      if (!status.ok()) {
-        Log::Debugf("Could not complete production %s in %s: %s",
-                    chain.get_name(), util::objectid::DisplayString(area_id),
-                    status.error_message());
-        continue;
-      }
-      if (chain.Complete(field->progress())) {
-        field->clear_progress();
-      }
+    if (doTrade) {
+      runEuropeanTrade(&area_state, area.get());
+    } else {
+      runAreaProduction(&area_state, area.get());
     }
   }
 
@@ -371,6 +330,101 @@ void SevenYears::UpdateGraphicsInfo(interface::Base* gfx) {
   }
   gfx->DisplayUnits(unit_ids);
   dirtyGraphics_ = false;
+}
+
+void SevenYears::runEuropeanTrade(proto::AreaState* area_state,
+                                  geography::Area* area) {
+  if (area_state == nullptr) {
+    Log::Error("Attempted European trade with null area state");
+    return;
+  }
+  if (area == nullptr) {
+    Log::Error("Attempted European trade with null area");
+    return;
+  }
+  const auto& trade = ProductionChain(constants::EuropeanTrade());
+
+  while (true) {
+    int bestIndex = -1;
+    micro::uMeasure bestAmount = 0;
+    for (int i = 0; i < area->num_fields(); ++i) {
+      const auto* field = area->field(i);
+      if (field->has_progress()) {
+        continue;
+      }
+      micro::Measure amount =
+          market::GetAmount(field->resources(), constants::ImportCapacity());
+      if (amount < bestAmount) {
+        continue;
+      }
+      bestAmount = amount;
+      bestIndex = i;
+    }
+
+    if (bestIndex < 0) {
+      break;
+    }
+
+    bestAmount = 0;
+    market::proto::Container* warehouse = nullptr;
+    for (int i = 0; i < area_state->factions_size(); ++i) {
+      auto* lfi = area_state->mutable_factions(i);
+      auto* cand = lfi->mutable_warehouse();
+      auto amount = market::GetAmount(*cand, constants::TradeGoods());
+      if (amount > bestAmount) {
+        warehouse = cand;
+      }
+    }
+
+    if (warehouse == nullptr) {
+      break;
+    }
+
+    auto* field = area->mutable_field(bestIndex);
+    // TODO: Don't assume the single-step-ness of the process.
+    auto progress = trade.MakeProgress(trade.MaxScaleU());
+    // TODO: Calculate this.
+    micro::Measure relation_bonus_u = 0;
+    // TODO: Don't assume the variant index.
+    int var_index = 0;
+    // TODO: Do something about failure.
+    trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
+                      warehouse, field->mutable_resources(), warehouse,
+                      warehouse, &progress);
+  }
+}
+
+void SevenYears::runAreaProduction(proto::AreaState* area_state,
+                                   geography::Area* area) {
+  auto* warehouse = findWarehouse(area_state->owner_id(), area_state);
+  for (int i = 0; i < area->num_fields(); ++i) {
+    geography::proto::Field* field = area->mutable_field(i);
+    if (area_state->production_size() <= i) {
+      break;
+    }
+    const std::string& chain_name = area_state->production(i);
+    const auto& chain = production_chains_[chain_name];
+
+    if (!field->has_progress() || chain.Complete(field->progress())) {
+      *field->mutable_progress() = chain.MakeProgress(micro::kOneInU);
+    }
+
+    micro::Measure institutional_capital = 0;
+    auto status =
+        chain.PerformStep(field->fixed_capital(), institutional_capital, 0,
+                          warehouse, field->mutable_resources(), warehouse,
+                          warehouse, field->mutable_progress());
+    if (!status.ok()) {
+      Log::Debugf("Could not complete production %s in %s: %s",
+                  chain.get_name(),
+                  util::objectid::DisplayString(area->area_id()),
+                  status.error_message());
+      continue;
+    }
+    if (chain.Complete(field->progress())) {
+      field->clear_progress();
+    }
+  }
 }
 
 std::vector<std::string>

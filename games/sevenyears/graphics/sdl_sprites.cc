@@ -59,6 +59,10 @@ std::string goods_string(const std::string& goods) {
   return goods;
 }
 
+std::string faction_string(const util::proto::ObjectId& faction_id) {
+  return util::objectid::DisplayString(faction_id);
+}
+
 } // namespace
 
 util::Status
@@ -205,9 +209,9 @@ SDLSpriteDrawer::displayResources(const market::proto::Container& resources,
     if (q.second < 1) {
       continue;
     }
-    auto nameText = getOrCreate(goods_string(q.first), c);
+    auto& nameText = getOrCreate(goods_string(q.first), c);
     auto next = displayText(nameText, current.x, current.y);
-    auto amountText = getOrCreate(micro::DisplayString(q.second, 2), c);
+    auto& amountText = getOrCreate(micro::DisplayString(q.second, 2), c);
     next = displayText(amountText, next.x + 3, current.y);
     current.y = next.y + 3;
   }
@@ -347,9 +351,11 @@ void SDLSpriteDrawer::DrawSelectedArea(
   if (area == nullptr) {
     return;
   }
+  int baseX = area_rect->x + 5;
   auto& nameText = getOrCreate(area_string(area_id), kGold);
-  auto next = displayText(nameText, area_rect->x + 5, area_rect->y + 5);
-  next = displayResources(state.warehouse(), kGold, area_rect->x + 5, next.y);
+  auto next = displayText(nameText, baseX, area_rect->y + 5);
+  auto& ownerText = getOrCreate(faction_string(state.owner_id()), kGold);
+  next = displayText(ownerText, baseX, next.y + 3);
   uint64 importCap = 0;
   for (int i = 0; i < area->num_fields(); ++i) {
     importCap += market::GetAmount(area->field(i)->resources(),
@@ -358,8 +364,39 @@ void SDLSpriteDrawer::DrawSelectedArea(
   if (importCap > 0) {
     std::vector<std::string> importLine = {"Import capacity ",
                                            micro::DisplayString(importCap, 2)};
-    next = displayLine(importLine, kGold, next.x, next.y);
+    next = displayLine(importLine, kGold, baseX, next.y);
   }
+
+  bool showFactions = false;
+  for (const auto& lfi : state.factions()) {
+    int goods = 0;
+    for (const auto& q : lfi.warehouse().quantities()) {
+      goods += q.second;
+    }
+    if (goods == 0) {
+      continue;
+    }
+    if (lfi.faction_id() == state.owner_id()) {
+      continue;
+    }
+    showFactions = true;
+    break;
+  }
+  for (const auto& lfi : state.factions()) {
+    int goods = 0;
+    for (const auto& q : lfi.warehouse().quantities()) {
+      goods += q.second;
+    }
+    if (goods == 0) {
+      continue;
+    }
+    if (showFactions) {
+      auto& factionText = getOrCreate(faction_string(lfi.faction_id()), kGold);
+      next = displayText(factionText, baseX, next.y + 3);
+    }
+    next = displayResources(lfi.warehouse(), kGold,
+                            baseX + (showFactions ? 5 : 0), next.y + 3);
+  }  
 }
 
 util::Status

@@ -248,8 +248,28 @@ units {
     }
     owner_id {
       kind: "faction"
-      tag: "england"    
+      tag: "england"
     }
     production: "home_production_trade"
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      tag: "Brest"
+    }
+    owner_id {
+      kind: "faction"
+      tag: "france"
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      tag: "Bergen"
+    }
+    owner_id {
+      kind: "faction"
+      tag: "denmark_norway"
+    }
   }
 }

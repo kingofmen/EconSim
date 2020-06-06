@@ -41,6 +41,8 @@ public:
 
 private:
   void moveUnits();
+  void runAreaProduction(proto::AreaState* area_state, geography::Area* area);
+  void runEuropeanTrade(proto::AreaState* area_state, geography::Area* area);
   std::vector<std::string>
   validation(const games::setup::proto::GameWorld& world);
   sevenyears::proto::AreaState*

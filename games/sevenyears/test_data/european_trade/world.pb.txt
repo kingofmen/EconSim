@@ -71,10 +71,16 @@ units {
       number: 1
     }
     production: "home_production_trade"
-    warehouse {
-      quantities {
-        key: "trade_goods"
-        value: 2000000
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
       }
     }
   }

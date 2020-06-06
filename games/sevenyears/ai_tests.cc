@@ -74,10 +74,13 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
   status = merchant_ai_->AddStepsToPlan(*unit, unit->strategy(),
                                         unit->mutable_plan());
   EXPECT_TRUE(status.ok()) << status.error_message();
-  EXPECT_EQ(3, unit->plan().steps_size()) << unit->plan().DebugString();
+  EXPECT_EQ(4, unit->plan().steps_size()) << unit->plan().DebugString();
   EXPECT_EQ(constants::LoadShip(), unit->plan().steps(0).key());
+  EXPECT_EQ(constants::TradeGoods(), unit->plan().steps(0).good());
   EXPECT_EQ(actions::proto::AA_MOVE, unit->plan().steps(1).action());
-  EXPECT_EQ(constants::EuropeanTrade(), unit->plan().steps(2).key());
+  EXPECT_EQ(constants::OffloadCargo(), unit->plan().steps(2).key());
+  EXPECT_EQ(constants::LoadShip(), unit->plan().steps(3).key());
+  EXPECT_EQ(constants::Supplies(), unit->plan().steps(3).good());
 
   unit->mutable_plan()->clear_steps();
   unit->mutable_location()->mutable_a_area_id()->set_number(2);

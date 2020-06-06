@@ -55,7 +55,10 @@ util::Status planTrade(const units::Unit& unit, const geography::Area& area,
                        const sevenyears::proto::AreaState& state,
                        actions::proto::Plan* plan) {
   auto* step = plan->add_steps();
-  step->set_key(constants::EuropeanTrade());
+  step->set_key(constants::OffloadCargo());
+  step = plan->add_steps();
+  step->set_key(constants::LoadShip());
+  step->set_good(constants::Supplies());
   return util::OkStatus();
 }
 

@@ -95,34 +95,6 @@ units {
   }
 }
 
-units {
-  unit_id {
-    kind: "brig"
-    number: 3
-  }
-  location {
-    a_area_id {
-      kind: "area"
-      number: 2
-    }
-  }
-  resources {
-    quantities {
-      key: "trade_goods"
-      value: 1000000
-    }
-  }
-  plan {
-    steps {
-      key: "european_trade"
-    }
-  }
-  faction_id {
-    kind: "faction"
-    number: 1
-  }
-}
-
 [sevenyears.proto.WorldState.sevenyears_state] {
   area_states {
     area_id {
@@ -134,10 +106,16 @@ units {
       number: 1
     }
     production: "home_production_trade"
-    warehouse {
-      quantities {
-        key: "trade_goods"
-        value: 2000000
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
       }
     }
   }

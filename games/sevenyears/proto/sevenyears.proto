@@ -14,9 +14,7 @@ message AreaState {
   optional util.proto.ObjectId area_id = 1;
   optional util.proto.ObjectId owner_id = 2;
   repeated string production = 3;
-  // Deprecated, use the faction warehouses instead.
-  optional market.proto.Container warehouse = 4 [deprecated = true];
-  repeated LocalFactionInfo factions = 5;
+  repeated LocalFactionInfo factions = 4;
 }
 
 message WorldState {
