@@ -38,7 +38,7 @@ class ShuttleTrader : public ai::UnitAi {
 public:
   util::Status AddStepsToPlan(const units::Unit& unit,
                               const actions::proto::Strategy& strategy,
-                              actions::proto::Plan* plan) const override;
+                              actions::proto::Plan* plan) override;
 
 private:
 };

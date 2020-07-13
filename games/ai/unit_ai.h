@@ -12,7 +12,7 @@ class UnitAi {
 public:
   virtual util::Status AddStepsToPlan(const units::Unit& unit,
                                       const actions::proto::Strategy& strategy,
-                                      actions::proto::Plan*) const = 0;
+                                      actions::proto::Plan*) = 0;
 };
 
 } // namespace ai

@@ -189,7 +189,7 @@ util::Status FindPath(const units::Unit& unit,
 util::Status
 ShuttleTrader::AddStepsToPlan(const units::Unit& unit,
                               const actions::proto::Strategy& strategy,
-                              actions::proto::Plan* plan) const {
+                              actions::proto::Plan* plan) {
   if (!strategy.has_shuttle_trade()) {
     return util::NotFoundError("No ShuttleTrader strategy");
   }
