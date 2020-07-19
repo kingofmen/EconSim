@@ -1,6 +1,8 @@
 #ifndef GAMES_AI_IMPL_UNIT_AI_IMPL_H
 #define GAMES_AI_IMPL_UNIT_AI_IMPL_H
 
+#include <vector>
+
 #include "games/actions/proto/strategy.pb.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/unit_ai.h"
@@ -25,6 +27,14 @@ micro::Measure ShortestDistance(const geography::Connection& conn);
 // Default heuristic that doesn't actually heurise.
 micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
                              const util::proto::ObjectId& target_id);
+
+// Fills path with the lowest-cost steps (using connection IDs) from source to
+// destination.
+util::Status FindPath(const geography::proto::Location& source,
+                      const CostFunction& cost_function,
+                      const Heuristic& heuristic,
+                      const util::proto::ObjectId& target_id,
+                      std::vector<uint64>* path);
 
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
