@@ -56,6 +56,19 @@ micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
   return 0;
 }
 
+micro::Measure CalculateDistance(const std::vector<uint64>& path,
+                                 const CostFunction& cost_function) {
+  micro::Measure distance = 0;
+  for (const auto& id : path) {
+    const auto* conn = geography::Connection::ById(id);
+    if (conn == nullptr) {
+      continue;
+    }
+    distance += cost_function(*conn);
+  }
+  return distance;
+}
+
 util::Status FindPath(const geography::proto::Location& source,
                       const CostFunction& cost_function,
                       const Heuristic& heuristic,
@@ -143,6 +156,50 @@ util::Status FindPath(const geography::proto::Location& source,
   return util::OkStatus();
 }
 
+void PlanPath(const geography::proto::Location& source,
+              const std::vector<uint64>& path, actions::proto::Plan* plan) {
+  if (path.empty()) {
+    // Unit is either not going anywhere, or wants to turn around
+    // having just set out from A.
+    if (!source.has_connection_id()) {
+      return;
+    }
+
+    DLOGF(Log::P_DEBUG,
+          "PlanPath start equals end %d but in connection %d, turning around",
+          start_id.number(), source.connection_id());
+    auto* step = plan->add_steps();
+    step->set_action(actions::proto::AA_TURN_AROUND);
+    step = plan->add_steps();
+    step->set_action(actions::proto::AA_MOVE);
+    step->set_connection_id(source.connection_id());
+    return;
+  }
+
+  if (source.has_connection_id()) {
+    // Unit has begun traversing a connection; it may have to turn around.
+    if (source.connection_id() != path.back()) {
+      DLOGF(Log::P_DEBUG,
+            "Need to turn around on connection %d before "
+            "starting from area %d on connection %d",
+            source.connection_id(), start_id.number(), path.back());
+      auto* step = plan->add_steps();
+      step->set_action(actions::proto::AA_TURN_AROUND);
+      step = plan->add_steps();
+      step->set_action(actions::proto::AA_MOVE);
+      step->set_connection_id(source.connection_id());
+    }
+  }
+
+  for (int i = path.size() - 1; i >= 0; --i) {
+    auto conn_id = path[i];
+    DLOGF(Log::P_DEBUG, "  Path step: connection %d", conn_id);
+    auto* step = plan->add_steps();
+    step->set_action(actions::proto::AA_MOVE);
+    step->set_connection_id(conn_id);
+  }
+}
+
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
 util::Status FindPath(const units::Unit& unit,
@@ -157,48 +214,7 @@ util::Status FindPath(const units::Unit& unit,
     return status;
   }
 
-  if (path.empty()) {
-    // Unit is either not going anywhere, or wants to turn around
-    // having just set out from A.
-    if (!source.has_connection_id()) {
-      return util::OkStatus();
-    }
-
-    DLOGF(Log::P_DEBUG,
-          "FindPath start equals end %d but in connection %d, turning around",
-          start_id.number(), source.connection_id());
-    auto* step = plan->add_steps();
-    step->set_action(actions::proto::AA_TURN_AROUND);
-    step = plan->add_steps();
-    step->set_action(actions::proto::AA_MOVE);
-    step->set_connection_id(source.connection_id());
-    return util::OkStatus();
-  }
-
-  if (source.has_connection_id()) {
-    // Unit has begun traversing a connection; it may have to turn around.
-    if (source.connection_id() != path.back()) {
-      DLOGF(Log::P_DEBUG,
-            "Need to turn around on connection %d before "
-            "starting from area %d on connection %d",
-            source.connection_id(), start_id.number(),
-            path.back());
-      auto* step = plan->add_steps();
-      step->set_action(actions::proto::AA_TURN_AROUND);
-      step = plan->add_steps();
-      step->set_action(actions::proto::AA_MOVE);
-      step->set_connection_id(source.connection_id());
-    }
-  }
-
-  while (!path.empty()) {
-    auto conn_id = path.back();
-    DLOGF(Log::P_DEBUG, "  Path step: connection %d", conn_id);
-    auto* step = plan->add_steps();
-    step->set_action(actions::proto::AA_MOVE);
-    step->set_connection_id(conn_id);
-    path.pop_back();
-  }
+  PlanPath(unit.location(), path, plan);
 
   return util::OkStatus();
 }

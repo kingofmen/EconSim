@@ -28,6 +28,11 @@ micro::Measure ShortestDistance(const geography::Connection& conn);
 micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
                              const util::proto::ObjectId& target_id);
 
+// Returns the total distance of all the identified connections as
+// calculated by the given cost function.
+micro::Measure CalculateDistance(const std::vector<uint64>& path,
+                                 const CostFunction& cost_function);
+
 // Fills path with the lowest-cost steps (using connection IDs) from source to
 // destination.
 util::Status FindPath(const geography::proto::Location& source,
@@ -35,6 +40,10 @@ util::Status FindPath(const geography::proto::Location& source,
                       const Heuristic& heuristic,
                       const util::proto::ObjectId& target_id,
                       std::vector<uint64>* path);
+
+// Adds the steps in path to plan.
+void PlanPath(const geography::proto::Location& source,
+              const std::vector<uint64>& path, actions::proto::Plan* plan);
 
 // Adds to plan steps for traversing the connections between unit's current
 // location and the provided target area.
