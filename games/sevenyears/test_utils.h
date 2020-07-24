@@ -27,6 +27,7 @@ public:
   AreaState(const util::proto::ObjectId& area_id) const override;
   const industry::Production&
   ProductionChain(const std::string& name) const override;
+  uint64 timestamp() const override { return timestamp_; }
 
 private:
   std::unordered_map<util::proto::ObjectId, proto::AreaState> state_map_;
@@ -34,6 +35,7 @@ private:
   games::setup::Constants constants_;
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_proto_;
+  uint64 timestamp_;
 };
 
 }  // namespace sevenyears

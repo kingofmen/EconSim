@@ -17,7 +17,7 @@ public:
   AreaState(const util::proto::ObjectId& area_id) const = 0;
   virtual const industry::Production&
   ProductionChain(const std::string& name) const = 0;
-
+  virtual uint64 timestamp() const = 0;
 };
 
 }  // namespace sevenyears

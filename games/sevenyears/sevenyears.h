@@ -38,6 +38,7 @@ public:
   // Load the state of object_id into proto, if it exists.
   void Fetch(const util::proto::ObjectId& object_id,
              google::protobuf::Message* proto);
+  uint64 timestamp() const override { return timestamp_; }
 
 private:
   void moveUnits();
@@ -63,6 +64,7 @@ private:
       area_states_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
+  uint64 timestamp_;
 };
 
 }  // namespace sevenyears
