@@ -15,6 +15,9 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit);
 // there isn't one, or the order otherwise fails.
 util::Status BuyOrSell(const actions::proto::Step& step, units::Unit* unit);
 
+// Returns the number of turns the unit will take to traverse the path.
+int NumTurns(const units::Unit& unit, const std::vector<uint64> path);
+
 // Flips the unit's Strategy into its next state.
 util::Status SwitchState(const actions::proto::Step& step, units::Unit* unit);
 

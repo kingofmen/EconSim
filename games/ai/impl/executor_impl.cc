@@ -12,6 +12,43 @@
 namespace ai {
 namespace impl {
 
+micro::Measure GetProgress(const micro::Measure cost_u, const units::Unit& unit,
+                           const geography::Connection& conn) {
+  uint64 distance_u = unit.speed_u(conn.type());
+  // If we have a fractional action left, go a fractional distance.
+  if (unit.action_points_u() < cost_u) {
+    distance_u = micro::MultiplyU(distance_u, unit.action_points_u());
+    distance_u = micro::DivideU(distance_u, cost_u);
+  }
+  return distance_u;
+}
+
+int NumTurns(const units::Unit& unit, const std::vector<uint64> path) {
+  int turns = 0;
+  for (const auto pid : path) {
+    const geography::Connection* conn = geography::Connection::ById(pid);
+    if (conn == nullptr) {
+      // Traversing nonexistent connections presumably takes zero time.
+      DLOGF(Log::P_DEBUG, "Attempted to traverse nonexistent connection %d",
+            pid);
+      continue;
+    }
+    micro::Measure progress_u = 0;
+    while (progress_u < conn->length_u()) {
+      turns++;
+      // TODO: This assumes the move action costs all the unit's action points.
+      auto distance_u = GetProgress(0, unit, *conn);
+      if (distance_u < 1) {
+        // Exit out of this special case.
+        break;
+      }
+      progress_u += distance_u;
+    }
+  }
+  return turns;
+}
+
+// TODO: Allow this to cost fractional actions if we have speed left over.
 util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   if (!step.has_connection_id()) {
     return util::InvalidArgumentError("Cannot move without connection ID");
@@ -53,17 +90,9 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   }
 
   uint64 progress_u = location->progress_u();
-  uint64 distance_u = unit->speed_u(connection->type());
-
-  // If we have a fractional action left, go a fractional distance.
-  // TODO: Maybe don't hardcode this?
-  if (unit->action_points_u() < micro::kOneInU) {
-    distance_u = micro::MultiplyU(distance_u, unit->action_points_u());
-  }
   uint64 length_u = connection->length_u() - progress_u;
-  if (distance_u > length_u) {
-    distance_u = length_u;
-  }
+  // TODO: Don't assume here that the cost is exactly one.
+  uint64 distance_u = GetProgress(micro::kOneInU, *unit, *connection);
 
   // TODO: Add a detections vector, and handle them.
   connection->Listen(*unit, distance_u, nullptr);
