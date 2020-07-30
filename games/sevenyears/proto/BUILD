@@ -7,6 +7,13 @@ cc_proto_library(
     ],
 )
 
+cc_proto_library(
+    name = "ai_state_proto",
+    deps = [
+        ":ai_state_proto_lib",
+    ],
+)
+
 proto_library(
     name = "sevenyears_proto_lib",
     srcs = [
@@ -16,5 +23,14 @@ proto_library(
         "//util/proto:object_id_proto_lib",
         "//games/market/proto:goods_proto_lib",
         "//games/setup/proto:setup_proto_lib",
+    ],
+)
+
+proto_library(
+    name = "ai_state_proto_lib",
+    srcs = [
+        "ai_state.proto",
+    ],
+    deps = [
     ],
 )

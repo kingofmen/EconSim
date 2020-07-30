@@ -5,9 +5,15 @@ import "util/proto/object_id.proto";
 import "games/market/proto/goods.proto";
 import "games/setup/proto/setup.proto";
 
+message ExpectedArrival {
+  optional uint64 timestamp = 1;
+  optional market.proto.Container cargo = 2;
+}
+
 message LocalFactionInfo {
   optional util.proto.ObjectId faction_id = 1;
   optional market.proto.Container warehouse = 2;
+  repeated ExpectedArrival arrivals = 3;
 }
 
 message AreaState {
@@ -23,5 +29,6 @@ message WorldState {
   }
 
   repeated AreaState area_states = 1;
+  optional uint64 timestamp = 2;
 }
 

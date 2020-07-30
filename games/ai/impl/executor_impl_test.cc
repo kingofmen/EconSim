@@ -97,11 +97,5 @@ TEST_F(ExecutorImplTest, TestTurnAround) {
   EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
 }
 
-TEST_F(ExecutorImplTest, TestNumTurns) {
-  std::vector<uint64> path;
-  path.push_back(connection_12->connection_id());
-  EXPECT_EQ(1, NumTurns(*unit_, path));
-}
-
 } // namespace impl
 } // namespace ai

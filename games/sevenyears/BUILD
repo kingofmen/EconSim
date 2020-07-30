@@ -36,6 +36,7 @@ cc_library(
         "//games/ai/impl:unit_ai_impl",
         "//games/industry:industry",
         "//games/market:goods_utils",
+        "//games/sevenyears/proto:ai_state_proto",
         "//games/sevenyears/proto:sevenyears_proto",
         "//games/geography:geography",
         "//util/logging:logging",
