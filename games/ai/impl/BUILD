@@ -78,6 +78,7 @@ cc_test(
     srcs = ["utils_test.cc"],
     deps = [
         ":utils",
+        ":test_base",
         "//games/geography:connection",
         "//games/geography:geography",
         "//games/geography/proto:geography_proto",
