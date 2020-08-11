@@ -55,6 +55,24 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "test_base",
+    srcs = ["ai_testing.cc"],
+    hdrs = ["ai_testing.h"],
+    testonly = 1,
+    deps = [
+        "//games/actions/proto:plan_proto",
+        "//games/actions/proto:strategy_proto",
+        "//games/geography:connection",
+        "//games/geography:geography",
+        "//games/units:units",
+        "//util/arithmetic:microunits",
+        "//util/headers:int_types",
+        "//util/logging:logging",
+        "@gtest",
+    ],
+)
+
 cc_test(
     name = "utils_test",
     srcs = ["utils_test.cc"],
@@ -79,6 +97,7 @@ cc_test(
     srcs = ["unit_ai_impl_test.cc"],
     deps = [
         ":unit_ai_impl",
+        ":test_base",
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",
         "//games/ai:planner",
@@ -102,6 +121,7 @@ cc_test(
     srcs = ["executor_impl_test.cc"],
     deps = [
         ":executor_impl",
+        ":test_base",
         "//games/actions/proto:plan_proto",
         "//games/geography:connection",
         "//games/geography:geography",

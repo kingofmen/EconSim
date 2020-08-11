@@ -1,6 +1,7 @@
 #include "games/ai/impl/executor_impl.h"
 
 #include "games/actions/proto/plan.pb.h"
+#include "games/ai/impl/ai_testing.h"
 #include "games/geography/connection.h"
 #include "games/geography/geography.h"
 #include "games/geography/proto/geography.pb.h"
@@ -17,41 +18,7 @@ constexpr char kTestGood1[] = "test_good_1";
 
 } // namespace
 
-class ExecutorImplTest : public testing::Test {
- protected:
-  void SetUp() override {
-    geography::proto::Area area;
-    area.mutable_area_id()->set_number(1);
-    area1_ = geography::Area::FromProto(area);
-    area.mutable_area_id()->set_number(2);
-    area2_ = geography::Area::FromProto(area);
-
-    geography::proto::Connection conn;
-    conn.set_id(1);
-    conn.mutable_a_area_id()->set_number(1);
-    conn.mutable_z_area_id()->set_number(2);
-    conn.set_distance_u(1000000);
-    conn.set_width_u(1);
-    connection_12 = geography::Connection::FromProto(conn);
-
-    units::proto::Template temp;
-    temp.mutable_template_id()->set_kind("one");
-    temp.mutable_mobility()->set_speed_u(1000000);
-    temp.set_base_action_points_u(1000000);
-    units::Unit::RegisterTemplate(temp);
-
-    units::proto::Unit unit;
-    unit.mutable_unit_id()->set_kind("one");
-    *unit.mutable_location()->mutable_a_area_id() = area1_->area_id();
-    unit_ = units::Unit::FromProto(unit);
-  }
-  
-  actions::proto::Plan plan_;
-  std::unique_ptr<geography::Area> area1_;
-  std::unique_ptr<geography::Area> area2_;
-  std::unique_ptr<geography::Connection> connection_12;
-  std::unique_ptr<units::Unit> unit_;
-};
+class ExecutorImplTest : public AiTestBase {};
 
 TEST_F(ExecutorImplTest, TestMoveUnit) {
   auto* step = plan_.add_steps();
@@ -60,7 +27,7 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
 
   auto status = MoveUnit(plan_.steps(0), unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
-  EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());
+  EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
 }
 
 TEST_F(ExecutorImplTest, TestBuy) {
