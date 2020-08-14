@@ -102,6 +102,8 @@ TEST_F(UnitTest, Unregister) {
   auto status = Unit::UnregisterTemplate(template_.template_id());
   EXPECT_OK(status) << status.error_message();
   EXPECT_TRUE(Unit::RegisterTemplate(template_));
+  Unit::ClearTemplates();
+  EXPECT_TRUE(Unit::RegisterTemplate(template_));
 }
 
 } // namespace units

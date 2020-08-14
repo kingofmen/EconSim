@@ -37,6 +37,11 @@ std::unique_ptr<Unit> Unit::FromProto(const proto::Unit& proto) {
   return ret;
 }
 
+void Unit::ClearTemplates() {
+  template_map_.clear();
+}
+
+
 bool Unit::RegisterTemplate(const proto::Template& proto) {
   if (!proto.has_template_id()) {
     return false;

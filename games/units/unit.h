@@ -22,6 +22,7 @@ public:
   ~Unit();
 
   static std::unique_ptr<Unit> FromProto(const proto::Unit& proto);
+  static void ClearTemplates();
   static bool RegisterTemplate(const proto::Template& proto);
   static util::Status UnregisterTemplate(const util::proto::ObjectId& id);
   // TODO: Make this a StatusOr<Template&> when Abseil releases StatusOr.
