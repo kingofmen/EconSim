@@ -321,6 +321,7 @@ void clear() {
   goods.clear();
   areas.clear();
   templates.clear();
+  template_map.clear();
   connections.clear();
   pops.clear();
   unit_map.clear();
