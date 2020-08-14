@@ -49,6 +49,14 @@ bool Unit::RegisterTemplate(const proto::Template& proto) {
   return true;
 }
 
+util::Status Unit::UnregisterTemplate(const util::proto::ObjectId& id) {
+  if (template_map_.find(id) == template_map_.end()) {
+    return util::NotFoundError("Template for unregistering not found.");
+  }
+  template_map_.erase(id);
+  return util::OkStatus();
+}
+
 const proto::Template* Unit::TemplateById(const util::proto::ObjectId& id) {
   if (template_map_.find(id) == template_map_.end()) {
     return NULL;

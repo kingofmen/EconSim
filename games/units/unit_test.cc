@@ -98,5 +98,11 @@ TEST_F(UnitTest, ActionPoints) {
   EXPECT_EQ(0, unit_->action_points_u());
 }
 
+TEST_F(UnitTest, Unregister) {
+  auto status = Unit::UnregisterTemplate(template_.template_id());
+  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(Unit::RegisterTemplate(template_));
+}
+
 } // namespace units
 

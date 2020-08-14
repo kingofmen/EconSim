@@ -12,6 +12,7 @@ cc_library(
         "//games/units/proto:units_proto",
         "//util/arithmetic:microunits",
         "//util/logging:logging",
+        "//util/status:status",
         "//util/proto:object_id",
         "@com_google_protobuf//:protobuf",
     ],

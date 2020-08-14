@@ -10,6 +10,7 @@
 #include "games/units/proto/templates.pb.h"
 #include "games/units/proto/units.pb.h"
 #include "util/arithmetic/microunits.h"
+#include "util/status/status.h"
 #include "util/proto/object_id.pb.h"
 
 namespace units {
@@ -22,6 +23,7 @@ public:
 
   static std::unique_ptr<Unit> FromProto(const proto::Unit& proto);
   static bool RegisterTemplate(const proto::Template& proto);
+  static util::Status UnregisterTemplate(const util::proto::ObjectId& id);
   // TODO: Make this a StatusOr<Template&> when Abseil releases StatusOr.
   static const proto::Template* TemplateById(const util::proto::ObjectId& id);
   static const proto::Template* TemplateByKind(const std::string& kind);
