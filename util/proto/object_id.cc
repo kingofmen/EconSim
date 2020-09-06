@@ -103,7 +103,11 @@ std::string Tag(const util::proto::ObjectId& obj_id) {
     kind = absl::Substitute("$0", obj_id.type());
   }
   auto numkey = std::make_pair(kind, obj_id.number());
-  return numToTagMap[numkey];
+  if (numToTagMap.find(numkey) != numToTagMap.end()) {
+    return numToTagMap[numkey];
+  }
+
+  return absl::Substitute("$0_$1", kind, obj_id.number());
 }
 
 bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {

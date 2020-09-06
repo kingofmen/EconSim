@@ -52,6 +52,9 @@ TEST(ObjectId, TestTags) {
   obj_id.clear_tag();
   obj_id.set_number(1);
   EXPECT_EQ(Tag(obj_id), "one");
+
+  obj_id.set_number(2);
+  EXPECT_EQ(Tag(obj_id), "1_2");
 }
 
 TEST(ObjectId, TestTagsWithKind) {
