@@ -41,6 +41,10 @@ public:
   uint64 timestamp() const override { return timestamp_; }
 
 private:
+  // Creates ExpectedArrival objects in ports the unit plans to arrive at.
+  void createExpectedArrivals(const units::Unit& unit,
+                              const actions::proto::Plan& plan);
+  // Moves units, updating their plans if needed.
   void moveUnits();
   void runAreaProduction(proto::AreaState* area_state, geography::Area* area);
   void runEuropeanTrade(proto::AreaState* area_state, geography::Area* area);

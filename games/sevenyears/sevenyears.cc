@@ -215,6 +215,9 @@ util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
   return util::OkStatus();
 }
 
+void SevenYears::createExpectedArrivals(const units::Unit& unit,
+                                        const actions::proto::Plan& plan) {}
+
 void SevenYears::moveUnits() {
   // Units all plan simultaneously.
   for (auto& unit : game_world_->units_) {
@@ -232,6 +235,7 @@ void SevenYears::moveUnits() {
                    unit->ID().DebugString(), status.error_message());
         continue;
       }
+      createExpectedArrivals(*unit, *plan);
     }
   }
 
