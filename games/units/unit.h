@@ -61,14 +61,24 @@ public:
 
   // Returns the amount of good that can still be loaded, whether limited
   // by bulk or weight.
+  micro::Measure RemainingCapacity(const std::string& good) const;
+  // Deprecated, use RemainingCapacity instead. Alias for RemainingCapacity.
   micro::Measure Capacity(const std::string& good) const;
 
+  // Returns the maximum amount of good that can be loaded, ignoring current
+  // cargo.
+  micro::Measure TotalCapacity(const std::string& good) const;
+  
   const std::string& template_kind() const { return proto_.unit_id().kind(); }
 
 private:
   Unit(const proto::Unit& proto);
 
   static std::unordered_map<util::proto::ObjectId, Unit*> units_;
+
+  micro::Measure capacity(const std::string& good,
+                          micro::Measure current_bulk_u = 0,
+                          micro::Measure current_weight_u = 0) const;
 
   proto::Unit proto_;
   micro::Measure used_action_points_u;

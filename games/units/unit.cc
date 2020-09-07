@@ -130,21 +130,10 @@ Unit::Unit(const proto::Unit& proto) : proto_(proto), used_action_points_u(0) {
 
 Unit::~Unit() { units_.erase(proto_.unit_id()); }
 
-micro::Measure Unit::Capacity(const std::string& good) const {
+micro::Measure Unit::capacity(const std::string& good, micro::Measure current_bulk_u, micro::Measure current_weight_u) const {
   if (market::TransportType(good) == market::proto::TradeGood::TTT_IMMOBILE) {
     return 0;
   }
-  micro::Measure current_bulk_u = 0;
-  micro::Measure current_weight_u = 0;
-  for (const auto& quantity : resources().quantities()) {
-    current_bulk_u +=
-        micro::MultiplyU(market::BulkU(quantity.first), quantity.second);
-    current_weight_u +=
-        micro::MultiplyU(market::WeightU(quantity.first), quantity.second);
-  }
-
-  // TODO: Scaling effects - also elsewhere!
-  // TODO: Maybe this had better be cached?
   micro::Measure remaining_bulk_u = Template().mobility().max_bulk_u();
   micro::Measure remaining_weight_u = Template().mobility().max_weight_u();
 
@@ -157,7 +146,33 @@ micro::Measure Unit::Capacity(const std::string& good) const {
       micro::DivideU(remaining_weight_u, market::WeightU(good));
 
   return std::min(remaining_bulk_u, remaining_weight_u);
+
 }
+
+micro::Measure Unit::RemainingCapacity(const std::string& good) const {
+  if (market::TransportType(good) == market::proto::TradeGood::TTT_IMMOBILE) {
+    return 0;
+  }
+  micro::Measure current_bulk_u = 0;
+  micro::Measure current_weight_u = 0;
+  for (const auto& quantity : resources().quantities()) {
+    current_bulk_u +=
+        micro::MultiplyU(market::BulkU(quantity.first), quantity.second);
+    current_weight_u +=
+        micro::MultiplyU(market::WeightU(quantity.first), quantity.second);
+  }
+
+  return capacity(good, current_bulk_u, current_weight_u);
+}
+
+micro::Measure Unit::Capacity(const std::string& good) const {
+  return RemainingCapacity(good);
+}
+
+micro::Measure Unit::TotalCapacity(const std::string& good) const {
+  return capacity(good, 0, 0);
+}
+
 
 micro::Measure Unit::action_points_u() const {
   micro::Measure base_u = Template().base_action_points_u();

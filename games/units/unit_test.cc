@@ -75,16 +75,21 @@ TEST_F(UnitTest, Capacity) {
   heavy.set_transport_type(market::proto::TradeGood::TTT_STANDARD);
   market::CreateTradeGood(heavy);
 
-  EXPECT_EQ(micro::kHalfInU, unit_->Capacity(bulky.name()));
-  EXPECT_EQ(micro::kHalfInU, unit_->Capacity(heavy.name()));
+  EXPECT_EQ(micro::kHalfInU, unit_->RemainingCapacity(bulky.name()));
+  EXPECT_EQ(micro::kHalfInU, unit_->RemainingCapacity(heavy.name()));
 
-  market::SetAmount(bulky.name(), 2 * micro::kOneTenthInU, unit_->mutable_resources());
-  EXPECT_EQ(3 * micro::kOneTenthInU, unit_->Capacity(bulky.name()));
-  EXPECT_EQ(micro::kOneFourthInU + 2 * micro::kOneTenthInU, unit_->Capacity(heavy.name()));
+  market::SetAmount(bulky.name(), 2 * micro::kOneTenthInU,
+                    unit_->mutable_resources());
+  EXPECT_EQ(3 * micro::kOneTenthInU, unit_->RemainingCapacity(bulky.name()));
+  EXPECT_EQ(micro::kOneFourthInU + 2 * micro::kOneTenthInU,
+            unit_->RemainingCapacity(heavy.name()));
 
   market::SetAmount(bulky.name(), micro::kHalfInU, unit_->mutable_resources());
-  EXPECT_EQ(0, unit_->Capacity(bulky.name()));
-  EXPECT_EQ(0, unit_->Capacity(heavy.name()));
+  EXPECT_EQ(0, unit_->RemainingCapacity(bulky.name()));
+  EXPECT_EQ(0, unit_->RemainingCapacity(heavy.name()));
+
+  EXPECT_EQ(micro::kHalfInU, unit_->TotalCapacity(bulky.name()));
+  EXPECT_EQ(micro::kHalfInU, unit_->TotalCapacity(heavy.name()));
 }
 
 TEST_F(UnitTest, ActionPoints) {
