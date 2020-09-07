@@ -23,6 +23,7 @@ protected:
   ~SevenYearsTest() { Log::UnRegister(Log::coutLogger); }
 
   void SetUp() override {
+    units::Unit::ClearTemplates();
     market::ClearGoods();
   }
 
@@ -63,6 +64,5 @@ TEST_F(SevenYearsTest, TestExecutors) {
     }
   }
 }
-
 
 }  // namespace sevenyears

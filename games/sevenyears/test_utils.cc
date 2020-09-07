@@ -7,6 +7,7 @@
 #include "games/setup/setup.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/logging/logging.h"
+#include "util/proto/file.h"
 #include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
 
@@ -17,14 +18,51 @@ const std::string kTemplates = "templates.pb.txt";
 const std::string kWorld = "world.pb.txt";
 const std::string kGoods = "trade_goods.pb.txt";
 const std::string kChains = "chains.pb.txt";
+const std::string kGoldens = "goldens";
 //const std::string kConsumption = "consumption.pb.txt";
+
+namespace {
+
+const std::string baseDir(const std::string& location) {
+  const std::string kTestDir = std::getenv("TEST_SRCDIR");
+  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
+  return absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
+}
+
+util::Status
+loadGoldenPlans(const std::string& dir,
+                std::unordered_map<std::string, actions::proto::Plan*>* plans) {
+  if (plans == nullptr) {
+    return util::OkStatus();
+  }
+
+  if (!std::experimental::filesystem::exists(dir)) {
+    return util::NotFoundError(absl::Substitute("Could not find $0", dir));
+  }
+
+  auto& planRef = *plans;
+  for (auto& entry : std::experimental::filesystem::directory_iterator(dir)) {
+    auto* plan = new actions::proto::Plan();
+    auto path = entry.path();
+    auto status = util::proto::ParseProtoFile(path.string(), plan);
+    if (!status.ok()) {
+      return status;
+    }
+    planRef[path.filename().string()] = plan;
+  }
+  
+  return util::OkStatus();
+}
+
+} // namespace
+
+void Golden::Plans() {
+  plans_.reset(new std::unordered_map<std::string, actions::proto::Plan*>());
+}
 
 void PopulateScenarioFiles(const std::string& location,
                            games::setup::proto::ScenarioFiles* config) {
-  const std::string kTestDir = std::getenv("TEST_SRCDIR");
-  const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
-  const std::string kBase =
-      absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, location}, "/");
+  const std::string kBase = baseDir(location);
 
   auto filename = absl::StrJoin({kBase, kTemplates}, "/");
   if (std::experimental::filesystem::exists(filename)) {
@@ -43,6 +81,15 @@ void PopulateScenarioFiles(const std::string& location,
   config->set_description(absl::Substitute("Unit test '$0'", location));
 }
 
+util::Status LoadGoldens(const std::string& location, Golden* golds) {
+  const std::string kBase = absl::StrJoin({baseDir(location), kGoldens}, "/");
+  auto status = loadGoldenPlans(kBase, golds->plans_.get());
+  if (!status.ok()) {
+    return status;
+  }
+  return util::OkStatus();
+}
+
 util::Status
 TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
   auto status = games::setup::LoadScenario(config, &scenario_proto_);
@@ -54,6 +101,10 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
     return status;
   }
   constants_ = games::setup::Constants(scenario_proto_);
+  status = games::setup::CanonicaliseWorld(&world_proto_);
+  if (!status.ok()) {
+    return status;
+  }
   world_ = games::setup::World::FromProto(world_proto_);
   sevenyears::proto::WorldState* world_state = world_proto_.MutableExtension(
       sevenyears::proto::WorldState::sevenyears_state);
@@ -93,5 +144,10 @@ TestState::ProductionChain(const std::string& name) const {
   static industry::Production dummy;
   return dummy;
 }
+
+const std::string FileTag(const util::proto::ObjectId& obj_id) {
+  return util::objectid::Tag(obj_id) + ".pb.txt";
+}
+
 
 }  // namespace sevenyears

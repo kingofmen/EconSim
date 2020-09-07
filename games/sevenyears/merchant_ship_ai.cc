@@ -8,6 +8,7 @@
 #include "games/ai/executer.h"
 #include "games/ai/planner.h"
 #include "games/ai/impl/unit_ai_impl.h"
+#include "games/ai/impl/ai_utils.h"
 #include "games/geography/geography.h"
 #include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
@@ -72,7 +73,7 @@ void planTrade(const units::Unit& unit, const std::string& goods,
 // Remove cached information about the unit.
 void clearUnitInfo(const units::Unit& unit, proto::Faction* faction) {}
 
-// Returns the number of trade goods expected to be in the faction's warehouse
+// Returns the number of goods expected to be in the faction's warehouse
 // in the area at the given timestamp.
 // TODO: Account for unit cargo capacity.
 micro::Measure netGoods(const util::proto::ObjectId& faction_id,
@@ -92,6 +93,7 @@ micro::Measure netGoods(const util::proto::ObjectId& faction_id,
     return 0;
   }
 
+  // TODO: Also account for production.
   auto amount = market::GetAmount(lfi->warehouse(), goods);
   for (const auto& arr : lfi->arrivals()) {
     if (arr.timestamp() > timestamp) {
@@ -105,6 +107,7 @@ micro::Measure netGoods(const util::proto::ObjectId& faction_id,
 
 // Returns the value of a hypothetical trade.
 // TODO: Weighted sum?
+// TODO: Use time, not distance!
 micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
                            micro::Measure distance) {
   micro::Measure value = goods + supplies;
@@ -113,6 +116,101 @@ micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
 
 }  // namespace
 
+// Fills in the PlannedPath from the unit's current location to the provided
+// area, if possible. Otherwise returns a non-OK status.
+util::Status SevenYearsMerchant::createCandidatePath(
+    const units::Unit& unit, const geography::Area& area,
+    const util::proto::ObjectId& faction_id, PlannedPath* candidate) {
+  const auto& state = game_->AreaState(area.area_id());
+  if (!canDoEuropeanTrade(area, state, faction_id)) {
+    return util::FailedPreconditionError(
+        absl::Substitute("$0 cannot do European trade for $1",
+                         util::objectid::DisplayString(area.area_id()),
+                         util::objectid::DisplayString(faction_id)));
+  }
+
+  candidate->supply_source_id = area.area_id();
+  std::vector<uint64> traverse;
+  auto status =
+      ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
+                         ai::impl::ZeroHeuristic, area.area_id(), &traverse);
+  if (!status.ok()) {
+    return status;
+  }
+  candidate->first_distance =
+      ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
+  int timeTaken = ai::utils::NumTurns(unit, traverse);
+  candidate->supplies = netGoods(faction_id, constants::Supplies(), state,
+                                 game_->timestamp() + timeTaken);
+  return util::OkStatus();
+}
+
+void SevenYearsMerchant::checkForHomePort(
+    const units::Unit& unit, const util::proto::ObjectId& area_id,
+    const util::proto::ObjectId& faction_id, PlannedPath* candidate) {
+  const auto& state = game_->AreaState(area_id);
+  if (faction_id != state.owner_id()) {
+    return;
+  }
+  std::vector<uint64> traverse;
+  geography::proto::Location home_location;
+  *home_location.mutable_a_area_id() = area_id;
+  auto status = ai::impl::FindPath(home_location, ai::impl::ShortestDistance,
+                                   ai::impl::ZeroHeuristic,
+                                   candidate->supply_source_id, &traverse);
+  if (!status.ok()) {
+    // No safe path, but that's ok, just don't use this port.
+    return;
+  }
+
+  // We can reach it; now consider whether this is a useful home port.
+  micro::Measure dist =
+      ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
+  if (dist < candidate->home_distance) {
+    candidate->home_distance = dist;
+    candidate->dropoff_id = area_id;
+    candidate->goodness = tradePoints(
+        candidate->trade_goods, candidate->supplies,
+        candidate->first_distance + candidate->outbound_distance +
+            candidate->home_distance);
+  }
+
+  // Presumably the distance is the same both ways. So check if it is a
+  // useful trade-supply port using the same distance.
+  // TODO: If I ever implement prevailing winds this assumption may
+  // change.
+  std::vector<uint64> pathhome;
+  status =
+      ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
+                         ai::impl::ZeroHeuristic, area_id, &pathhome);
+  if (!status.ok()) {
+    // Problem with this specific port, not worth returning.
+    DLOGF(Log::P_DEBUG, "Could not find path from %s to %s",
+          unit.location().DebugString(), area_id.DebugString());
+    return;
+  }
+  micro::Measure pickup_dist =
+      ai::impl::CalculateDistance(pathhome, ai::impl::ShortestDistance);
+  int timeTaken = ai::utils::NumTurns(unit, pathhome);
+  micro::Measure availableTrade =
+      netGoods(faction_id, constants::TradeGoods(), state,
+               game_->timestamp() + timeTaken);
+  // Supplies must account for the additional time taken to detour home.
+  timeTaken += ai::utils::NumTurns(unit, traverse);
+  micro::Measure availableSupplies = netGoods(
+      faction_id, constants::Supplies(), state, game_->timestamp() + timeTaken);
+  micro::Measure hypothetical =
+      tradePoints(availableTrade, availableSupplies,
+                  pickup_dist + dist + candidate->home_distance);
+  if (hypothetical > candidate->goodness) {
+    candidate->goodness = hypothetical;
+    candidate->trade_goods = availableTrade;
+    candidate->supplies = availableSupplies;
+    candidate->first_distance = pickup_dist;
+    candidate->outbound_distance = dist;
+    candidate->trade_source_id = area_id;
+  }
+}
 
 // The trade algorithm is: Sort the list of trading cities by priority,
 // which is a combination of available supplies and import capacity (both
@@ -120,7 +218,7 @@ micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
 // the highest-priority city, optionally picking up trade goods on the way if
 // necessary.
 // TODO: Use a better heuristic in all find-path calculations.
-// TODO: Actually account for risk and closeness.
+// TODO: Actually account for risk.
 util::Status SevenYearsMerchant::planEuropeanTrade(
     const units::Unit& unit, const actions::proto::SevenYearsMerchant& strategy,
     actions::proto::Plan* plan) {
@@ -131,126 +229,20 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   const auto& home_base_id = strategy.base_area_id();
   const auto& world = game_->World();
 
-  // Metric of goodness: Trade goods delivered plus supplies brought home (both
-  // weighted) divided by time taken.
-  struct PlannedPath {
-    // Expected supplies carried home.
-    micro::Measure supplies;
-    // Expected trade goods carried to a supply source.
-    micro::Measure trade_goods;
-    // Distance from current location to trade or supply source.
-    micro::Measure first_distance;
-    // Distance from trade source to supply source.
-    micro::Measure outbound_distance;
-    // Distance from supply source to final destination.
-    micro::Measure home_distance;
-    // The trade port.
-    const geography::Area* supply_source = nullptr;
-    // The home port supplying trade goods.
-    const geography::Area* trade_source = nullptr;
-    // The home port receiving supplies.
-    const geography::Area* dropoff = nullptr;
-    // Importance of the trade; supplies delivered and created divided by time
-    // taken.
-    micro::Measure goodness;
-  };
-
-  // Create paths going straight to a trade port.
-  // Later we will consider whether a home stop is an improvement.
-  // This is caching the first half of the combinatorics.
+  // Create paths going straight to a trade port. Metric of goodness: Trade
+  // goods delivered plus supplies brought home (both weighted) divided by time
+  // taken. Later we will consider whether a home stop is an improvement. This
+  // is caching the first half of the combinatorics.
   std::vector<PlannedPath> possible_paths;
   util::Status status;
   for (const auto& area : world.areas_) {
-    const auto& state = game_->AreaState(area->area_id());
-    if (!canDoEuropeanTrade(*area, state, faction_id)) {
-      continue;
-    }
-
-    possible_paths.emplace_back();
-    possible_paths.back().supply_source = area.get();
-    std::vector<uint64> traverse;
-    status =
-        ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
-                           ai::impl::ZeroHeuristic, area->area_id(), &traverse);
+    PlannedPath candidate;
+    status = createCandidatePath(unit, *area, faction_id, &candidate);
     if (!status.ok()) {
-      possible_paths.pop_back();
+      // Indicates bad candidate, no need to propagate.
       continue;
     }
-    // TODO: Use the actual arrival time here.
-    possible_paths.back().first_distance =
-        ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
-    int timeTaken = ai::impl::NumTurns(unit, traverse);
-    possible_paths.back().supplies =
-        netGoods(faction_id, constants::Supplies(), state,
-                 game_->timestamp() + timeTaken);
-  }
-
-  // Now add the possibility of a home-port stop; supply port is fixed in what
-  // follows.
-  for (auto& planned_path : possible_paths) {
-    planned_path.home_distance = micro::kMaxU;
-    geography::proto::Location supply_location;
-    *supply_location.mutable_a_area_id() =
-        planned_path.supply_source->area_id();
-    for (const auto& area : world.areas_) {
-      const auto& state = game_->AreaState(area->area_id());
-      if (faction_id != state.owner_id()) {
-        continue;
-      }
-      std::vector<uint64> traverse;
-      geography::proto::Location home_location;
-      *home_location.mutable_a_area_id() = area->area_id();
-      auto status = ai::impl::FindPath(
-          home_location, ai::impl::ShortestDistance, ai::impl::ZeroHeuristic,
-          planned_path.supply_source->area_id(), &traverse);
-      if (status.ok()) {
-        // Consider whether this is a useful home port.
-        micro::Measure dist =
-            ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
-        if (dist < planned_path.home_distance) {
-          planned_path.home_distance = dist;
-          planned_path.dropoff = area.get();
-          planned_path.goodness = tradePoints(
-              planned_path.trade_goods, planned_path.supplies,
-              planned_path.first_distance + planned_path.outbound_distance +
-                  planned_path.home_distance);
-        }
-
-        // Presumably the distance is the same both ways. So check if it is a
-        // useful trade-supply port using the same distance.
-        // TODO: If I ever implement prevailing winds this assumption may
-        // change.
-        std::vector<uint64> pathhome;
-        status = ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
-                                    ai::impl::ZeroHeuristic, area->area_id(),
-                                    &pathhome);
-        if (status.ok()) {
-          micro::Measure pickup_dist =
-              ai::impl::CalculateDistance(pathhome, ai::impl::ShortestDistance);
-          const auto& state = game_->AreaState(area->area_id());
-          int timeTaken = ai::impl::NumTurns(unit, pathhome);
-          micro::Measure availableTrade =
-              netGoods(faction_id, constants::TradeGoods(), state,
-                       game_->timestamp() + timeTaken);
-          // Supplies must account for the additional time taken to detour home.
-          timeTaken += ai::impl::NumTurns(unit, traverse);
-          micro::Measure availableSupplies =
-              netGoods(faction_id, constants::Supplies, state,
-                       game_->timestamp() + timeTaken);
-          micro::Measure hypothetical =
-              tradePoints(availableTrade, availableSupplies,
-                          pickup_dist + dist + planned_path.home_distance);
-          if (hypothetical > planned_path.goodness) {
-            planned_path.goodness = hypothetical;
-            planned_path.trade_goods = availableTrade;
-            planned_path.supplies = availableSupplies;
-            planned_path.first_distance = pickup_dist;
-            planned_path.outbound_distance = dist;
-            planned_path.trade_source = area.get();
-          }
-        }
-      }
-    }
+    possible_paths.push_back(candidate);
   }
 
   if (possible_paths.empty()) {
@@ -259,7 +251,18 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
         util::objectid::DisplayString(unit.unit_id()),
         status.error_message().as_string()));
   }
-  
+
+  // Now add the possibility of a home-port stop; supply port is fixed in what
+  // follows.
+  // TODO: Use time, not distance. Distance is a distraction, time is the
+  // important metric.
+  for (auto& planned_path : possible_paths) {
+    planned_path.home_distance = micro::kMaxU;
+    for (const auto& area : world.areas_) {
+      checkForHomePort(unit, area->area_id(), faction_id, &planned_path);
+    }
+  }
+ 
   int idx = 0;
   for (int i = 1; i < possible_paths.size(); ++i) {
     if (possible_paths[i].goodness < possible_paths[idx].goodness) {
@@ -269,35 +272,47 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   }
 
   auto& path = possible_paths[idx];
-  auto location = unit.location();
-  if (path.trade_source != nullptr) {
-    status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                                ai::impl::ZeroHeuristic,
-                                path.trade_source->area_id(), plan);
+  DLOGF(Log::P_DEBUG, "Unit %s picked path %d of %d: %s to %s to %s",
+        unit.unit_id().DebugString(), idx, possible_paths.size(),
+        util::objectid::IsNull(path.trade_source_id)
+            ? "(none)"
+            : util::objectid::Tag(path.trade_source_id),
+        util::objectid::Tag(path.supply_source_id),
+        util::objectid::Tag(path.dropoff_id));
+
+  geography::proto::Location location = unit.location();
+  if (!util::objectid::IsNull(path.trade_source_id)) {
+    status =
+        ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                           ai::impl::ZeroHeuristic, path.trade_source_id, plan);
+    DLOGF(Log::P_DEBUG, "Looked for path to trade source %s",
+          path.trade_source_id.DebugString());
     if (!status.ok()) {
       return status;
     }
-    *location.mutable_a_area_id() = path.trade_source->area_id();
+    *location.mutable_a_area_id() = path.trade_source_id;
     planTrade(unit, constants::TradeGoods(), plan);
   }
 
   std::vector<uint64> traverse;
   status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
-                              ai::impl::ZeroHeuristic,
-                              path.supply_source->area_id(), &traverse);
-  if (!status.ok()) {
-    return status;
-  }
-  planTrade(unit, constants::Supplies(), plan);
-  *location.mutable_a_area_id() = path.supply_source->area_id();
-
-  traverse.clear();
-  status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
-                              ai::impl::ZeroHeuristic, path.dropoff->area_id(),
+                              ai::impl::ZeroHeuristic, path.supply_source_id,
                               &traverse);
   if (!status.ok()) {
     return status;
   }
+  ai::impl::PlanPath(location, traverse, plan);
+  planTrade(unit, constants::Supplies(), plan);
+  *location.mutable_a_area_id() = path.supply_source_id;
+
+  traverse.clear();
+  status =
+      ai::impl::FindPath(location, ai::impl::ShortestDistance,
+                         ai::impl::ZeroHeuristic, path.dropoff_id, &traverse);
+  if (!status.ok()) {
+    return status;
+  }
+  ai::impl::PlanPath(location, traverse, plan);
   planTrade(unit, "", plan);
 
   return util::OkStatus();

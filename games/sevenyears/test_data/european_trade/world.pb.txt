@@ -1,9 +1,26 @@
-# World file for European Trade test.
+# World file for AI unit tests.
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 1
+    tag: "england"
+  }
+}
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 2
+    tag: "denmark"
+  }
+}
 
 areas {
   area_id {
     kind: "area"
     number: 1
+    tag: "london"
   }
 }
 
@@ -11,6 +28,15 @@ areas {
   area_id {
     kind: "area"
     number: 2
+    tag: "edinburgh"
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 3
+    tag: "bergen"
   }
   fields {
     name: "Bergen"
@@ -23,18 +49,110 @@ areas {
   }
 }
 
+areas {
+  area_id {
+    kind: "area"
+    number: 4
+    tag: "aarhus"
+  }
+  fields {
+    name: "Aarhus"
+    resources {
+      quantities {
+        key: "import_capacity"
+        value: 1000000
+      }
+    }
+  }
+}
+
 connections {
-  type: CT_OPEN_SEA
+  type: CT_COASTAL
   id: 1
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
     kind: "area"
-    number: 1
+    tag: "london"
   }
   z_area_id {
     kind: "area"
-    number: 2
+    tag: "edinburgh"
+  }
+}
+
+connections {
+  type: CT_COASTAL
+  id: 2
+  distance_u: 1000000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "bergen"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 3
+  distance_u: 1200000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "edinburgh"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "bergen"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 4
+  distance_u: 1700000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "edinburgh"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 5
+  distance_u: 1100000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 6
+  distance_u: 2000000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "bergen"
   }
 }
 
@@ -43,10 +161,14 @@ units {
     kind: "brig"
     number: 1
   }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
   location {
     a_area_id {
       kind: "area"
-      number: 1
+      tag: "aarhus"
     }
   }
   strategy {
@@ -92,6 +214,39 @@ units {
     owner_id {
       kind: "faction"
       number: 1
+    }
+    production: "home_production_trade"
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "trade_goods"
+          value: 0
+        }
+      }
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 3
+    }
+    owner_id {
+      kind: "faction"
+      number: 2
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 4
+    }
+    owner_id {
+      kind: "faction"
+      number: 2
     }
   }
 }

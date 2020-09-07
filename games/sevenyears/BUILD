@@ -34,6 +34,7 @@ cc_library(
         "//games/ai:executer",
         "//games/ai:planner",
         "//games/ai/impl:unit_ai_impl",
+        "//games/ai/impl:utils",
         "//games/industry:industry",
         "//games/market:goods_utils",
         "//games/sevenyears/proto:ai_state_proto",
@@ -49,7 +50,10 @@ cc_library(
 
 filegroup(
     name = "testdata",
-    srcs = glob(["test_data/*/*.pb.txt"]),
+    srcs = glob([
+        "test_data/*/*.pb.txt",
+        "test_data/*/goldens/*.pb.txt",
+    ]),
 )
 
 cc_library(
@@ -62,6 +66,7 @@ cc_library(
         "//games/setup:setup",
         "//games/sevenyears/proto:sevenyears_proto",
         "//util/logging:logging",
+        "//util/proto:file",
         "//util/proto:object_id_proto",
         "@com_google_absl//absl/strings:strings",
     ],

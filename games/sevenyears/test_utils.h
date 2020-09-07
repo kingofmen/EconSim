@@ -7,12 +7,27 @@
 #include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.pb.h"
+#include "util/proto/object_id.h"
 #include "util/status/status.h"
 
 namespace sevenyears {
 
+// Struct to hold golden protos for tests.
+struct Golden {
+  std::unique_ptr<std::unordered_map<std::string, actions::proto::Plan*>>
+      plans_;
+
+  void Plans();
+};
+
 void PopulateScenarioFiles(const std::string& location,
                            games::setup::proto::ScenarioFiles* config);
+
+// Loads golden protobufs into the provided object.
+util::Status LoadGoldens(const std::string& location, Golden* golds);
+
+// Returns a filename for the provided object ID.
+const std::string FileTag(const util::proto::ObjectId& obj_id);
 
 class TestState : public SevenYearsState {
 public:

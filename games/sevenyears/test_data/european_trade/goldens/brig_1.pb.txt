@@ -1,0 +1,40 @@
+# actions.proto.Plan
+
+# Starts in Aarhus, needs to go to London to get trade goods, back to
+# trade, then back to London for dropoff.
+
+# Aarhus to London
+steps {
+  action: AA_MOVE
+  connection_id: 5
+}
+# Load trade goods.
+steps {
+  key: "offload_cargo"
+}
+steps {
+  good: "trade_goods"
+  key: "load_cargo"
+}
+# Back to Aarhus.
+steps {
+  action: AA_MOVE
+  connection_id: 5
+}
+# Load supplies.
+steps {
+  key: "offload_cargo"
+}
+steps {
+  good: "supplies"
+  key: "load_cargo"
+}
+# Back to London and offload.
+steps {
+  action: AA_MOVE
+  connection_id: 5
+}
+steps {
+  key: "offload_cargo"
+}
+

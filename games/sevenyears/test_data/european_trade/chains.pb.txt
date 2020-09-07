@@ -1,0 +1,25 @@
+production_chains {
+  name: "european_trade"
+  outputs {
+    quantities {
+      key: "supplies"
+      value: 2000000
+    }
+  }
+  steps {
+    variants {
+      consumables {
+        quantities {
+          key: "trade_goods"
+          value: 1000000
+        }
+      }
+      raw_materials {
+        quantities {
+          key: "import_capacity"
+          value: 1000000
+        }
+      }
+    }
+  }
+}
