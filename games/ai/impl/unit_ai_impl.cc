@@ -167,7 +167,7 @@ void PlanPath(const geography::proto::Location& source,
 
     DLOGF(Log::P_DEBUG,
           "PlanPath start equals end %d but in connection %d, turning around",
-          start_id.number(), source.connection_id());
+          source.a_area_id().number(), source.connection_id());
     auto* step = plan->add_steps();
     step->set_action(actions::proto::AA_TURN_AROUND);
     step = plan->add_steps();
@@ -182,7 +182,7 @@ void PlanPath(const geography::proto::Location& source,
       DLOGF(Log::P_DEBUG,
             "Need to turn around on connection %d before "
             "starting from area %d on connection %d",
-            source.connection_id(), start_id.number(), path.back());
+            source.connection_id(), source.a_area_id().number(), path.back());
       auto* step = plan->add_steps();
       step->set_action(actions::proto::AA_TURN_AROUND);
       step = plan->add_steps();
