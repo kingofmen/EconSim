@@ -27,6 +27,9 @@ bool IsNull(const util::proto::ObjectId& obj_id);
 // Returns a string suitable for display to humans.
 std::string DisplayString(const util::proto::ObjectId& obj_id);
 
+// Removes all existing tags; mainly to clear for tests.
+void ClearTags();
+
 extern const util::proto::ObjectId kNullId;
 
 }  // namespace objectid

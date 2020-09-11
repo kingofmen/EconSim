@@ -94,6 +94,11 @@ util::Status Canonicalise(util::proto::ObjectId* obj_id) {
   return util::OkStatus();
 }
 
+void ClearTags() {
+  numToTagMap.clear();
+  tagToNumMap.clear();
+}
+
 std::string Tag(const util::proto::ObjectId& obj_id) {
   if (obj_id.has_tag()) {
     return obj_id.tag();
