@@ -3,19 +3,19 @@
 #include <experimental/filesystem>
 
 #include "games/actions/strategy.h"
-#include "games/setup/validation/validation.h"
 #include "games/factions/proto/factions.pb.h"
 #include "games/geography/connection.h"
 #include "games/geography/geography.h"
 #include "games/industry/decisions/production_evaluator.h"
 #include "games/market/goods_utils.h"
 #include "games/market/market.h"
+#include "games/setup/validation/validation.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/keywords/keywords.h"
+#include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/status/status.h"
-#include "util/logging/logging.h"
 
 namespace games {
 namespace setup {
@@ -56,7 +56,7 @@ Constants::Constants(const games::setup::proto::Scenario& proto) {
   }
 }
 
-std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
+std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto) {
   auto world = std::make_unique<World>();
   for (const auto& pop : proto.pops()) {
     world->pops_.emplace_back(new population::PopUnit(pop));
@@ -102,7 +102,8 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
   }
 
   for (const auto& faction : proto.factions()) {
-    world->factions_.emplace_back(factions::FactionController::FromProto(faction));
+    world->factions_.emplace_back(
+        factions::FactionController::FromProto(faction));
     auto& curr = world->factions_.back();
     if (!curr) {
       Log::Errorf("Could not load faction: %s", faction.DebugString());
@@ -118,49 +119,33 @@ std::unique_ptr<World> World::FromProto(const proto::GameWorld& proto){
   return world;
 }
 
-void tagIfPossible(util::proto::ObjectId* proto) {
-  std::string tag = util::objectid::Tag(*proto);
-  if (!tag.empty()) {
-    proto->clear_number();
-    proto->set_tag(tag);
-  }
-}
-
 void World::restoreTags() {
   for (auto& area : areas_) {
     auto* area_proto = area->Proto();
     if (!area_proto->has_area_id()) {
       continue;
     }
-    std::string tag = util::objectid::Tag(area_proto->area_id());
-    if (tag.empty()) {
-      continue;
-    }
-    area_proto->mutable_area_id()->set_tag(tag);
+    util::objectid::RestoreTag(area_proto->mutable_area_id());
   }
   for (auto& faction : factions_) {
     auto* faction_proto = faction->mutable_proto();
     if (!faction_proto->has_faction_id()) {
       continue;
     }
-    std::string tag = util::objectid::Tag(faction_proto->faction_id());
-    if (tag.empty()) {
-      continue;
-    }
-    faction_proto->mutable_faction_id()->set_tag(tag);
+    util::objectid::RestoreTag(faction_proto->mutable_faction_id());
   }
 
   for (auto& conn : connections_) {
     auto* proto = conn->mutable_proto();
-    tagIfPossible(proto->mutable_a_area_id());
-    tagIfPossible(proto->mutable_z_area_id());
+    util::objectid::UnCanonicalise(proto->mutable_a_area_id());
+    util::objectid::UnCanonicalise(proto->mutable_z_area_id());
   }
 
   for (auto& unit : units_) {
     auto* loc = unit->mutable_location();
-    tagIfPossible(loc->mutable_a_area_id());
+    util::objectid::UnCanonicalise(loc->mutable_a_area_id());
     if (loc->has_z_area_id()) {
-      tagIfPossible(loc->mutable_z_area_id());
+      util::objectid::UnCanonicalise(loc->mutable_z_area_id());
     }
   }
 }
@@ -190,7 +175,7 @@ util::Status World::ToProto(proto::GameWorld* proto) {
     auto& unit_proto = *proto->add_units();
     unit_proto = unit->Proto();
     if (unit_proto.has_faction_id()) {
-      tagIfPossible(unit_proto.mutable_faction_id());
+      util::objectid::UnCanonicalise(unit_proto.mutable_faction_id());
     }
   }
 
@@ -201,7 +186,6 @@ util::Status World::ToProto(proto::GameWorld* proto) {
 
   return util::OkStatus();
 }
-
 
 util::Status LoadScenario(const proto::ScenarioFiles& config,
                           proto::Scenario* scenario) {
@@ -247,7 +231,8 @@ util::Status LoadScenario(const proto::ScenarioFiles& config,
 util::Status LoadWorld(const proto::ScenarioFiles& config,
                        proto::GameWorld* world) {
   std::experimental::filesystem::path base_path = config.root_path();
-  std::experimental::filesystem::path world_path = base_path / config.world_file();
+  std::experimental::filesystem::path world_path =
+      base_path / config.world_file();
   auto status = util::proto::ParseProtoFile(world_path.string(), world);
   if (!status.ok()) {
     return status;
@@ -287,12 +272,12 @@ LoadExtras(const proto::ScenarioFiles& config,
   return util::OkStatus();
 }
 
-
 util::Status CanonicaliseScenario(proto::Scenario* scenario) {
   return util::OkStatus();
 }
 
 util::Status CanonicaliseWorld(proto::GameWorld* world) {
+  util::objectid::ClearTags();
   util::Status status;
   // First canonicalise all self-id objects.
   for (auto& faction : *(world->mutable_factions())) {
@@ -431,7 +416,5 @@ util::Status CreateWorld(const proto::ScenarioFiles& config,
   return util::OkStatus();
 }
 
-
-
-}  // namespace setup
-}  // namespace games
+} // namespace setup
+} // namespace games
