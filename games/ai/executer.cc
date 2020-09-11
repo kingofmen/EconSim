@@ -49,11 +49,10 @@ util::Status executeAction(actions::proto::AtomicAction action,
   return execution_action_map[step.action()](step, unit);  
 }
 
-// Returns the cost of the action for the unit, first looking for a specially
-// registered CostCalculator for the action, then the default cost calculator,
-// finally falling back to returning zero.
-uint64 getCost(const actions::proto::Step& step, units::Unit* unit) {
-  uint64 cost_u = 0;
+}  // namespace
+
+micro::uMeasure GetCost(const actions::proto::Step& step, units::Unit* unit) {
+  micro::uMeasure cost_u = 0;
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
       if (key_cost_map.find(step.key()) != key_cost_map.end()) {
@@ -71,9 +70,6 @@ uint64 getCost(const actions::proto::Step& step, units::Unit* unit) {
   }
   return 0;
 }
-
-}  // namespace
-
 
 void RegisterCost(const std::string& key, CostCalculator cost) {
   key_cost_map[key] = cost;
@@ -95,15 +91,15 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-uint64 ZeroCost(const actions::proto::Step&, units::Unit*) {
+micro::uMeasure ZeroCost(const actions::proto::Step&, units::Unit*) {
   return 0;
 }
 
-uint64 OneCost(const actions::proto::Step&, units::Unit*) {
+micro::uMeasure OneCost(const actions::proto::Step&, units::Unit*) {
   return micro::kOneInU;
 }
 
-uint64 DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit) {
+micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit) {
   if (step.trigger_case() != actions::proto::Step::kAction) {
     return micro::kuMaxU;
   }
@@ -124,9 +120,9 @@ uint64 DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit) {
     return micro::kuMaxU;
   }
 
-  uint64 progress_u = location.progress_u();
-  uint64 distance_u = connection->length_u() - progress_u;
-  uint64 speed_u = unit->speed_u(connection->type());
+  micro::uMeasure progress_u = location.progress_u();
+  micro::uMeasure distance_u = connection->length_u() - progress_u;
+  micro::uMeasure speed_u = unit->speed_u(connection->type());
 
   if (distance_u >= speed_u) {
     // We won't finish this in one step.
@@ -144,7 +140,7 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
     return util::InvalidArgumentError("Null unit");
   }
   const auto& step = plan.steps(0);
-  auto cost_u = getCost(step, unit);
+  auto cost_u = GetCost(step, unit);
   if (cost_u > unit->action_points_u()) {
     return util::FailedPreconditionError("Not enough action points");
   }

@@ -13,15 +13,20 @@ namespace ai {
 typedef std::function<util::Status(const actions::proto::Step&, units::Unit*)>
     StepExecutor;
 
-typedef std::function<uint64(const actions::proto::Step&, units::Unit*)>
+typedef std::function<micro::uMeasure(const actions::proto::Step&, units::Unit*)>
     CostCalculator;
 
 // Default CostCalculator that always returns 0.
-uint64 ZeroCost(const actions::proto::Step& step, units::Unit* unit);
+micro::uMeasure ZeroCost(const actions::proto::Step& step, units::Unit* unit);
 // Default CostCalculator that always returns 1.
-uint64 OneCost(const actions::proto::Step& step, units::Unit* unit);
+micro::uMeasure OneCost(const actions::proto::Step& step, units::Unit* unit);
 // Variable cost for movement.
-uint64 DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit);
+micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit);
+
+// Returns the cost of the action for the unit, first looking for a specially
+// registered CostCalculator for the action, then the default cost calculator,
+// finally falling back to returning zero.
+micro::uMeasure GetCost(const actions::proto::Step& step, units::Unit* unit);
 
 void RegisterExecutor(const std::string& key, StepExecutor exe);
 void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe);
