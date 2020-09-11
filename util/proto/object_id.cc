@@ -159,6 +159,17 @@ void RestoreTag(util::proto::ObjectId* obj_id) {
   obj_id->set_tag(numToTagMap[numkey]);
 }
 
+void UnCanonicalise(util::proto::ObjectId* obj_id) {
+  if (obj_id->has_tag()) {
+    return;
+  }
+
+  RestoreTag(obj_id);
+  if (obj_id->has_tag()) {
+    obj_id->clear_number();
+  }
+}
+
 }  // namespace objectid
 }  // namespace util
 

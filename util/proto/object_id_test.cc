@@ -54,8 +54,13 @@ TEST(ObjectId, TestTags) {
   EXPECT_EQ(Tag(obj_id), "one");
   RestoreTag(&obj_id);
   EXPECT_EQ(obj_id.tag(), "one");
-  obj_id.clear_tag();
 
+  obj_id.clear_tag();
+  UnCanonicalise(&obj_id);
+  EXPECT_EQ("one", obj_id.tag());
+  EXPECT_FALSE(obj_id.has_number());
+
+  obj_id.clear_tag();
   obj_id.set_number(2);
   EXPECT_EQ(Tag(obj_id), "1_2");
   RestoreTag(&obj_id);
@@ -111,7 +116,12 @@ TEST(ObjectId, TestTagsWithKind) {
   obj_id.set_number(1);
   EXPECT_EQ(Tag(obj_id), "one");
   RestoreTag(&obj_id);
-  EXPECT_EQ(obj_id.tag(), "one");
+  EXPECT_EQ("one", obj_id.tag());
+
+  obj_id.clear_tag();
+  UnCanonicalise(&obj_id);
+  EXPECT_EQ("one", obj_id.tag());
+  EXPECT_FALSE(obj_id.has_number());
   obj_id.clear_tag();
 
   obj_id.set_number(2);

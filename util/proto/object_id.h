@@ -34,6 +34,9 @@ std::string DisplayString(const util::proto::ObjectId& obj_id);
 // form kind-number-tag that defines a tag-number mapping.
 void RestoreTag(util::proto::ObjectId* obj_id);
 
+// Sets the ObjectId to the kind-tag format if possible.
+void UnCanonicalise(util::proto::ObjectId* obj_id);
+
 extern const util::proto::ObjectId kNullId;
 
 }  // namespace objectid
