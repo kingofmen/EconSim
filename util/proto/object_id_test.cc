@@ -52,9 +52,14 @@ TEST(ObjectId, TestTags) {
   obj_id.clear_tag();
   obj_id.set_number(1);
   EXPECT_EQ(Tag(obj_id), "one");
+  RestoreTag(&obj_id);
+  EXPECT_EQ(obj_id.tag(), "one");
+  obj_id.clear_tag();
 
   obj_id.set_number(2);
   EXPECT_EQ(Tag(obj_id), "1_2");
+  RestoreTag(&obj_id);
+  EXPECT_EQ(obj_id.tag(), "");
 
   obj_id.set_number(1);
   EXPECT_EQ(Tag(obj_id), "one");
@@ -105,6 +110,20 @@ TEST(ObjectId, TestTagsWithKind) {
   obj_id.clear_tag();
   obj_id.set_number(1);
   EXPECT_EQ(Tag(obj_id), "one");
+  RestoreTag(&obj_id);
+  EXPECT_EQ(obj_id.tag(), "one");
+  obj_id.clear_tag();
+
+  obj_id.set_number(2);
+  EXPECT_EQ(Tag(obj_id), "type_one_2");
+  RestoreTag(&obj_id);
+  EXPECT_EQ(obj_id.tag(), "");
+
+  obj_id.set_number(1);
+  EXPECT_EQ(Tag(obj_id), "one");
+  ClearTags();
+  EXPECT_EQ(Tag(obj_id), "type_one_1");
+
 }
 
 TEST(ObjectId, TestDisplayString) {

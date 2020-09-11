@@ -15,6 +15,9 @@ namespace objectid {
 // the tag.
 util::Status Canonicalise(util::proto::ObjectId* obj_id);
 
+// Removes all existing tags.
+void ClearTags();
+
 // Returns the associated tag.
 std::string Tag(const util::proto::ObjectId& obj_id);
 
@@ -27,8 +30,9 @@ bool IsNull(const util::proto::ObjectId& obj_id);
 // Returns a string suitable for display to humans.
 std::string DisplayString(const util::proto::ObjectId& obj_id);
 
-// Removes all existing tags; mainly to clear for tests.
-void ClearTags();
+// Restores the tag if it exists, meaning the ObjectId will have the
+// form kind-number-tag that defines a tag-number mapping.
+void RestoreTag(util::proto::ObjectId* obj_id);
 
 extern const util::proto::ObjectId kNullId;
 

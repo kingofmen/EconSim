@@ -37,6 +37,31 @@ public:
 std::unordered_map<std::pair<std::string, uint64>, std::string> numToTagMap;
 std::unordered_map<std::pair<std::string, std::string>, uint64> tagToNumMap;
 
+namespace {
+
+std::string getKind(const util::proto::ObjectId& obj_id) {
+  std::string kind = obj_id.kind();
+  if (kind.empty()) {
+    kind = absl::Substitute("$0", obj_id.type());
+  }
+  return kind;
+}
+
+// Returns the ObjectId's key into numToTagMap.
+std::pair<std::string, uint64> makeNumKey(const util::proto::ObjectId& obj_id) {
+  std::string kind = getKind(obj_id);
+  return std::make_pair(kind, obj_id.number());
+}
+
+// Returns the ObjectId's key into tagToNumMap.
+std::pair<std::string, std::string>
+makeTagKey(const util::proto::ObjectId& obj_id) {
+  std::string kind = getKind(obj_id);
+  return std::make_pair(kind, obj_id.tag());
+}
+
+} // namespace
+
 namespace util {
 namespace objectid {
 
@@ -49,10 +74,8 @@ util::Status Canonicalise(util::proto::ObjectId* obj_id) {
         obj_id->DebugString()));
   }
 
-  std::string kind = obj_id->kind();
-  if (kind.empty()) {
-    kind = absl::Substitute("$0", obj_id->type());
-  }
+  auto numkey = makeNumKey(*obj_id);
+  auto tagkey = makeTagKey(*obj_id);
 
   if (obj_id->has_number()) {
     if (!obj_id->has_tag()) {
@@ -61,13 +84,11 @@ util::Status Canonicalise(util::proto::ObjectId* obj_id) {
     }
 
     // Original object.
-    auto numkey = std::make_pair(kind, obj_id->number());
     if (numToTagMap.find(numkey) != numToTagMap.end()) {
       return util::AlreadyExistsError(absl::Substitute(
           "Object $0 (number) already exists", obj_id->DebugString()));
     }
 
-    auto tagkey = std::make_pair(kind, obj_id->tag());
     if (tagToNumMap.find(tagkey) != tagToNumMap.end()) {
       return util::AlreadyExistsError(absl::Substitute(
           "Object $0 (tag) already exists", obj_id->DebugString()));
@@ -84,7 +105,6 @@ util::Status Canonicalise(util::proto::ObjectId* obj_id) {
         "Object ID with no number or tag: $0", obj_id->DebugString()));
   }
 
-  auto tagkey = std::make_pair(kind, obj_id->tag());
   if (tagToNumMap.find(tagkey) == tagToNumMap.end()) {
     return util::NotFoundError(absl::Substitute(
         "Cannot find number for tagged ID: $0", obj_id->DebugString()));
@@ -103,16 +123,12 @@ std::string Tag(const util::proto::ObjectId& obj_id) {
   if (obj_id.has_tag()) {
     return obj_id.tag();
   }
-  std::string kind = obj_id.kind();
-  if (kind.empty()) {
-    kind = absl::Substitute("$0", obj_id.type());
-  }
-  auto numkey = std::make_pair(kind, obj_id.number());
+  auto numkey = makeNumKey(obj_id);
   if (numToTagMap.find(numkey) != numToTagMap.end()) {
     return numToTagMap[numkey];
   }
 
-  return absl::Substitute("$0_$1", kind, obj_id.number());
+  return absl::Substitute("$0_$1", getKind(obj_id), obj_id.number());
 }
 
 bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
@@ -133,6 +149,14 @@ std::string DisplayString(const util::proto::ObjectId& obj_id) {
                             obj_id.tag());
   }
   return absl::Substitute("($0, \"$1\")", obj_id.kind(), obj_id.tag());
+}
+
+void RestoreTag(util::proto::ObjectId* obj_id) {
+  auto numkey = makeNumKey(*obj_id);
+  if (numToTagMap.find(numkey) == numToTagMap.end()) {
+    return;
+  }
+  obj_id->set_tag(numToTagMap[numkey]);
 }
 
 }  // namespace objectid
