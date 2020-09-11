@@ -6,7 +6,8 @@ namespace sevenyears {
 
 namespace {
 
-uint64 cost(const actions::proto::AtomicAction action, units::Unit* unit) {
+micro::uMeasure cost(const actions::proto::AtomicAction action,
+                     const units::Unit& unit) {
   switch (action) {
     case actions::proto::AA_MOVE:
       return micro::kOneInU;
@@ -16,14 +17,14 @@ uint64 cost(const actions::proto::AtomicAction action, units::Unit* unit) {
   return micro::kOneInU;
 }
 
-uint64 cost(const std::string& action, units::Unit* unit) {
+micro::uMeasure cost(const std::string& action, const units::Unit& unit) {
   return micro::kOneInU;
 }
 
 }  // namespace
 
-uint64 ActionCostCalculator::operator()(const actions::proto::Step& step,
-                                        units::Unit* unit) {
+micro::uMeasure ActionCostCalculator::
+operator()(const actions::proto::Step& step, const units::Unit& unit) {
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
       return cost(step.key(), unit);

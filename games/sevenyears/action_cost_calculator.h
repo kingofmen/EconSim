@@ -16,7 +16,8 @@ public:
       : game_(seven) {}
 
   // To satisfy CostCalculator typedef.
-  uint64 operator()(const actions::proto::Step& step, units::Unit* unit);
+  micro::uMeasure operator()(const actions::proto::Step& step,
+                             const units::Unit& unit);
 
 private:
   const sevenyears::SevenYearsState* game_;

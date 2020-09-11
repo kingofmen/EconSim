@@ -51,7 +51,7 @@ util::Status executeAction(actions::proto::AtomicAction action,
 
 }  // namespace
 
-micro::uMeasure GetCost(const actions::proto::Step& step, units::Unit* unit) {
+micro::uMeasure GetCost(const actions::proto::Step& step, const units::Unit& unit) {
   micro::uMeasure cost_u = 0;
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
@@ -91,22 +91,22 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-micro::uMeasure ZeroCost(const actions::proto::Step&, units::Unit*) {
+micro::uMeasure ZeroCost(const actions::proto::Step&, const units::Unit&) {
   return 0;
 }
 
-micro::uMeasure OneCost(const actions::proto::Step&, units::Unit*) {
+micro::uMeasure OneCost(const actions::proto::Step&, const units::Unit&) {
   return micro::kOneInU;
 }
 
-micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, units::Unit* unit) {
+micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, const units::Unit& unit) {
   if (step.trigger_case() != actions::proto::Step::kAction) {
     return micro::kuMaxU;
   }
   if (!step.has_connection_id()) {
     return micro::kuMaxU;
   }
-  const geography::proto::Location& location = unit->location();
+  const geography::proto::Location& location = unit.location();
   const geography::Connection* connection = nullptr;
   if (location.has_connection_id()) {
     connection = geography::Connection::ById(location.connection_id());
@@ -122,11 +122,11 @@ micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, units::Unit* u
 
   micro::uMeasure progress_u = location.progress_u();
   micro::uMeasure distance_u = connection->length_u() - progress_u;
-  micro::uMeasure speed_u = unit->speed_u(connection->type());
+  micro::uMeasure speed_u = unit.speed_u(connection->type());
 
   if (distance_u >= speed_u) {
     // We won't finish this in one step.
-    return std::min(micro::kOneInU, unit->action_points_u());
+    return std::min(micro::kOneInU, unit.action_points_u());
   }
 
   return micro::DivideU(distance_u, speed_u);
@@ -140,7 +140,7 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
     return util::InvalidArgumentError("Null unit");
   }
   const auto& step = plan.steps(0);
-  auto cost_u = GetCost(step, unit);
+  auto cost_u = GetCost(step, *unit);
   if (cost_u > unit->action_points_u()) {
     return util::FailedPreconditionError("Not enough action points");
   }
