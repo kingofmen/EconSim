@@ -13,6 +13,38 @@
 namespace ai {
 namespace impl {
 
+namespace {
+
+util::Status validateMove(const actions::proto::Step& step, const geography::proto::Location& location) {
+  if (location.has_connection_id() && location.connection_id() != step.connection_id()) {
+    return util::NotFoundError(absl::Substitute(
+        "Unit in connection $0 trying to move in connection $1",
+        location.connection_id(), step.connection_id()));
+  }
+
+  if (!location.has_a_area_id()) {
+    return util::NotFoundError("Unit trying to move without A location");
+  }
+  const auto* connection = geography::Connection::ById(step.connection_id());
+  if (!connection) {
+    DLOGF(Log::P_DEBUG, "  validateMove could not find connection ID %d",
+          step.connection_id());
+    return util::NotFoundError(absl::Substitute(
+        "Could not find connection ID $0", step.connection_id()));
+  }
+
+  if (util::objectid::IsNull(connection->OtherSide(location.a_area_id()))) {
+    return util::NotFoundError(absl::Substitute(
+        "Could not find area on other side of area $0 through connection $1",
+        location.a_area_id().number(), step.connection_id()));
+  }
+
+  return util::OkStatus();
+}
+
+} // namespace
+
+
 // TODO: Allow this to cost fractional actions if we have speed left over.
 util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   if (!step.has_connection_id()) {
@@ -20,40 +52,15 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   }
 
   geography::proto::Location* location = unit->mutable_location();
-  if (location->has_connection_id()) {
-    if (location->connection_id() != step.connection_id()) {
-      return util::NotFoundError(absl::Substitute(
-          "Unit in connection $0 trying to move in connection $1",
-          location->connection_id(), step.connection_id()));
-    }
-  } else {
-    if (!location->has_a_area_id()) {
-      return util::NotFoundError("Unit trying to move without A location");
-    }
-    const auto* connection = geography::Connection::ById(step.connection_id());
-    if (!connection) {
-      DLOGF(Log::P_DEBUG, "  MoveUnit could not find connection ID %d",
-            step.connection_id());
-      return util::NotFoundError(absl::Substitute(
-          "Could not find connection ID $0", step.connection_id()));
-    }
-
-    if (util::objectid::IsNull(connection->OtherSide(location->a_area_id()))) {
-      return util::NotFoundError(absl::Substitute(
-          "Could not find area on other side of area $0 through connection $1",
-          location->a_area_id().number(), step.connection_id()));
-    }
-
-    // Step into the connection before starting traverse.
-    location->set_connection_id(step.connection_id());
+  auto status = validateMove(step, *location);
+  if (!status.ok()) {
+    return status;
   }
 
-  auto* connection = geography::Connection::ById(step.connection_id());
-  if (connection == nullptr) {
-    return util::NotFoundError(
-        absl::Substitute("Could not find connection $0", step.connection_id()));
-  }
-
+  // Ensure there is a connection to traverse. Validation done above.
+  location->set_connection_id(step.connection_id());
+  // Connection known to exist from validation.
+  const auto* connection = geography::Connection::ById(step.connection_id());
   uint64 progress_u = location->progress_u();
   uint64 length_u = connection->length_u() - progress_u;
   // TODO: Don't assume here that the cost is exactly one.
