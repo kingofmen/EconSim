@@ -31,27 +31,30 @@ public:
   const games::setup::Constants& Constants() const override {
     return constants_;
   }
+
   const sevenyears::proto::AreaState&
   AreaState(const util::proto::ObjectId& area_id) const override;
+
   const industry::Production&
   ProductionChain(const std::string& name) const override;
+
   // Load the state of object_id into proto, if it exists.
   void Fetch(const util::proto::ObjectId& object_id,
              google::protobuf::Message* proto);
+
+  // Returns the current internal time in turns.
   uint64 timestamp() const override { return timestamp_; }
 
+  sevenyears::proto::AreaState*
+  mutable_area_state(const util::proto::ObjectId& area_id) override;
+
 private:
-  // Creates ExpectedArrival objects in ports the unit plans to arrive at.
-  void createExpectedArrivals(const units::Unit& unit,
-                              const actions::proto::Plan& plan);
   // Moves units, updating their plans if needed.
   void moveUnits();
   void runAreaProduction(proto::AreaState* area_state, geography::Area* area);
   void runEuropeanTrade(proto::AreaState* area_state, geography::Area* area);
   std::vector<std::string>
   validation(const games::setup::proto::GameWorld& world);
-  sevenyears::proto::AreaState*
-  mutable_area_state(const util::proto::ObjectId& area_id);
 
   // Executors.
   util::Status doEuropeanTrade(const actions::proto::Step& step,

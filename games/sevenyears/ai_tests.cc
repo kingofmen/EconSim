@@ -8,6 +8,7 @@
 #include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
 #include "games/setup/setup.h"
+#include "games/sevenyears/ai_state_handlers.h"
 #include "games/sevenyears/constants.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -72,6 +73,7 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
   ASSERT_TRUE(status.ok()) << status.error_message();
   Golden golds;
   golds.Plans();
+  golds.AreaStates();
   status = LoadGoldens(constants::EuropeanTrade(), &golds);
   EXPECT_OK(status) << "Could not load golden files: "
                     << status.error_message();
@@ -97,6 +99,21 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
         << util::objectid::DisplayString(unit->unit_id()) << ": Golden plan "
         << goldPlan->DebugString() << "\ndiffers from found plan\n"
         << unit->plan().DebugString();
+  }
+
+  for (auto& unit : world_state_->World().units_) {
+    CreateExpectedArrivals(*unit, unit->plan(), world_state_.get());
+  }
+
+  for (auto& goldIt : *(golds.area_states_)) {
+    std::string tag = goldIt.first;
+    auto* goldState = goldIt.second;
+    const util::proto::ObjectId& area_id = goldState->area_id();
+    const auto& actual = world_state_->AreaState(area_id);
+    EXPECT_TRUE(differ.Equals(*goldState, actual))
+        << util::objectid::DisplayString(area_id) << ": Golden state "
+        << goldState->DebugString() << "\ndiffers from actual state\n"
+        << actual.DebugString();
   }
 
   /*

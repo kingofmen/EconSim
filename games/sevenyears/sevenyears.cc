@@ -7,12 +7,14 @@
 #include "games/actions/proto/strategy.pb.h"
 #include "games/actions/strategy.h"
 #include "games/ai/executer.h"
+#include "games/ai/impl/ai_utils.h"
 #include "games/ai/planner.h"
 #include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/setup/setup.h"
 #include "games/setup/validation/validation.h"
+#include "games/sevenyears/ai_state_handlers.h"
 #include "games/sevenyears/constants.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/merchant_ship_ai.h"
@@ -32,17 +34,7 @@ constexpr int kMaxIncompleteWait = 5;
 // exist.
 market::proto::Container* findWarehouse(const util::proto::ObjectId& faction_id,
                                         proto::AreaState* state) {
-  for (int i = 0; i < state->factions_size(); ++i) {
-    auto* lfi = state->mutable_factions(i);
-    if (lfi->faction_id() == faction_id) {
-      return lfi->mutable_warehouse();
-    }
-  }
-  Log::Debugf("Creating new warehouse for %s in %s",
-              util::objectid::DisplayString(faction_id),
-              util::objectid::DisplayString(state->area_id()));
-  auto* lfi = state->add_factions();
-  *lfi->mutable_faction_id() = faction_id;
+  auto* lfi = FindLocalFactionInfo(faction_id, state);
   return lfi->mutable_warehouse();
 }
 
@@ -131,7 +123,6 @@ util::Status validateWorldState(
 
 }  // namespace
 
-
 util::Status SevenYears::InitialiseAI() {
   ai::RegisterExecutor(
       constants::LoadShip(),
@@ -215,9 +206,6 @@ util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
   return util::OkStatus();
 }
 
-void SevenYears::createExpectedArrivals(const units::Unit& unit,
-                                        const actions::proto::Plan& plan) {}
-
 void SevenYears::moveUnits() {
   // Units all plan simultaneously.
   for (auto& unit : game_world_->units_) {
@@ -235,7 +223,7 @@ void SevenYears::moveUnits() {
                    unit->ID().DebugString(), status.error_message());
         continue;
       }
-      createExpectedArrivals(*unit, *plan);
+      CreateExpectedArrivals(*unit, *plan, this);
     }
   }
 

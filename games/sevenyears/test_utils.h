@@ -16,8 +16,12 @@ namespace sevenyears {
 struct Golden {
   std::unique_ptr<std::unordered_map<std::string, actions::proto::Plan*>>
       plans_;
+  std::unique_ptr<
+      std::unordered_map<std::string, sevenyears::proto::AreaState*>>
+      area_states_;
 
   void Plans();
+  void AreaStates();
 };
 
 void PopulateScenarioFiles(const std::string& location,
@@ -43,6 +47,9 @@ public:
   const industry::Production&
   ProductionChain(const std::string& name) const override;
   uint64 timestamp() const override { return timestamp_; }
+
+  sevenyears::proto::AreaState*
+  mutable_area_state(const util::proto::ObjectId& area_id) override;
 
 private:
   std::unordered_map<util::proto::ObjectId, proto::AreaState> state_map_;

@@ -17,6 +17,28 @@ cc_library(
 )
 
 cc_library(
+    name = "sevenyears_ai_state_handlers",
+    srcs = [
+        "ai_state_handlers.cc",
+    ],
+    hdrs = [
+        "ai_state_handlers.h",
+    ],
+    deps = [
+        ":sevenyears_interfaces",
+        ":sevenyears_constants",
+        "//games/actions/proto:plan_proto",
+        "//games/ai:executer",
+        "//games/ai/impl:utils",
+        "//games/sevenyears/proto:ai_state_proto",
+        "//games/sevenyears/proto:sevenyears_proto",
+        "//games/geography:geography",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
+    ],
+)
+
+cc_library(
     name = "sevenyears_ai_lib",
     srcs = [
         "merchant_ship_ai.cc",
@@ -52,7 +74,7 @@ filegroup(
     name = "testdata",
     srcs = glob([
         "test_data/*/*.pb.txt",
-        "test_data/*/goldens/*.pb.txt",
+        "test_data/*/goldens/*/*.pb.txt",
     ]),
 )
 
@@ -78,6 +100,7 @@ cc_test(
     srcs = ["ai_tests.cc"],
     deps = [
         ":sevenyears_ai_lib",
+        ":sevenyears_ai_state_handlers",
         ":sevenyears_constants",
         ":sevenyears_interfaces",
         ":test_utils",
@@ -124,6 +147,7 @@ cc_library(
     hdrs = ["sevenyears.h"],
     deps = [
         ":sevenyears_ai_lib",
+        ":sevenyears_ai_state_handlers",
         ":sevenyears_constants",
         ":sevenyears_interfaces",
         "//games/actions/proto:plan_proto",
@@ -156,6 +180,7 @@ cc_binary(
         ":sevenyears_lib",
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",
+        "//games/ai/impl:utils",
         "//games/setup/proto:setup_proto",
         "//games/setup:setup",
         "//games/sevenyears/graphics:sdl_interface",
