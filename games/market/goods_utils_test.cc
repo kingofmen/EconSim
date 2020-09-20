@@ -18,10 +18,12 @@ using proto::Container;
 
 TEST(GoodsUtilsTest, HelperFunctions) {
   Container container;
+  EXPECT_TRUE(Empty(container));
   Quantity quantity;
   quantity.set_kind(kTestGood1);
   container += quantity;
 
+  EXPECT_TRUE(Empty(container));
   EXPECT_TRUE(Contains(container, kTestGood1));
   EXPECT_TRUE(Contains(container, quantity));
   EXPECT_FALSE(Contains(container, kTestGood2));
@@ -32,6 +34,7 @@ TEST(GoodsUtilsTest, HelperFunctions) {
   container += quantity;
   EXPECT_EQ(GetAmount(container, kTestGood1), 1);
   EXPECT_EQ(GetAmount(container, quantity), 1);
+  EXPECT_FALSE(Empty(container));
 
   Clear(&container);
   EXPECT_FALSE(Contains(container, kTestGood1));

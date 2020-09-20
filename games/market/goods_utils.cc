@@ -129,6 +129,15 @@ void Erase(const std::pair<std::string, micro::Measure> amount,
   Erase(amount.first, con);
 }
 
+bool Empty(const market::proto::Container& con) {
+  for (const auto& good : con.quantities()) {
+    if (good.second != 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 std::vector<Quantity> Expand(const market::proto::Container& con) {
   std::vector<Quantity> ret;
   for (const auto& good : con.quantities()) {

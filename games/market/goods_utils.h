@@ -62,6 +62,9 @@ void Erase(const market::proto::Quantity& kind, market::proto::Container* con);
 void Erase(const std::pair<std::string, micro::Measure> amount,
            market::proto::Container* con);
 
+// Returns true if con has no entries, or all the entries are zero.
+bool Empty(const market::proto::Container& con);
+
 // Returns a vector of the contained Quantities.
 std::vector<market::proto::Quantity>
 Expand(const market::proto::Container& con);
