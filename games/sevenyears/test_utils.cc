@@ -59,7 +59,8 @@ loadGoldenPlans(const std::string& base,
 
 util::Status loadGoldenStates(
     const std::string& base,
-    std::unordered_map<std::string, sevenyears::proto::AreaState*>* states) {
+    std::unordered_map<std::string,
+                       sevenyears::testdata::proto::AreaStateList*>* states) {
   if (states == nullptr) {
     return util::OkStatus();
   }
@@ -71,7 +72,7 @@ util::Status loadGoldenStates(
 
   auto& stateRef = *states;
   for (auto& entry : std::experimental::filesystem::directory_iterator(dir)) {
-    auto* state = new sevenyears::proto::AreaState();
+    auto* state = new sevenyears::testdata::proto::AreaStateList();
     auto path = entry.path();
     auto status = util::proto::ParseProtoFile(path.string(), state);
     if (!status.ok()) {
@@ -91,7 +92,8 @@ void Golden::Plans() {
 
 void Golden::AreaStates() {
   area_states_.reset(
-      new std::unordered_map<std::string, sevenyears::proto::AreaState*>());
+      new std::unordered_map<std::string,
+                             sevenyears::testdata::proto::AreaStateList*>());
 }
 
 void PopulateScenarioFiles(const std::string& location,

@@ -12,6 +12,7 @@
 #include "games/sevenyears/constants.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "games/sevenyears/proto/testdata.pb.h"
 #include "games/sevenyears/test_utils.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -107,37 +108,17 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
 
   for (auto& goldIt : *(golds.area_states_)) {
     std::string tag = goldIt.first;
-    auto* goldState = goldIt.second;
-    const util::proto::ObjectId& area_id = goldState->area_id();
+    auto* goldStateList = goldIt.second;
+    const auto& goldState = goldStateList->states(0);
+    const util::proto::ObjectId& area_id = goldState.area_id();
     const auto& actual = world_state_->AreaState(area_id);
-    EXPECT_TRUE(differ.Equals(*goldState, actual))
+    EXPECT_TRUE(differ.Equals(goldState, actual))
         << util::objectid::DisplayString(area_id) << ": Golden state "
-        << goldState->DebugString() << "\ndiffers from actual state\n"
+        << goldState.DebugString() << "\ndiffers from actual state\n"
         << actual.DebugString();
   }
-
-  /*
-  auto& unit = world_state_->World().units_[0];
-  status = merchant_ai_->AddStepsToPlan(*unit, unit->strategy(),
-                                        unit->mutable_plan());
-  EXPECT_TRUE(status.ok()) << status.error_message();
-  EXPECT_EQ(4, unit->plan().steps_size()) << unit->plan().DebugString();
-  EXPECT_EQ(constants::LoadShip(), unit->plan().steps(0).key());
-  EXPECT_EQ(constants::TradeGoods(), unit->plan().steps(0).good());
-  EXPECT_EQ(actions::proto::AA_MOVE, unit->plan().steps(1).action());
-  EXPECT_EQ(constants::OffloadCargo(), unit->plan().steps(2).key());
-  EXPECT_EQ(constants::LoadShip(), unit->plan().steps(3).key());
-  EXPECT_EQ(constants::Supplies(), unit->plan().steps(3).good());
-
-  unit->mutable_plan()->clear_steps();
-  unit->mutable_location()->mutable_a_area_id()->set_number(2);
-  status = merchant_ai_->AddStepsToPlan(*unit, unit->strategy(),
-                                        unit->mutable_plan());
-  EXPECT_TRUE(status.ok()) << status.error_message();
-  EXPECT_EQ(2, unit->plan().steps_size()) << unit->plan().DebugString();
-  EXPECT_EQ(actions::proto::AA_MOVE, unit->plan().steps(0).action());
-  EXPECT_EQ(constants::OffloadCargo(), unit->plan().steps(1).key());
-  */
 }
+
+
 
 }  // namespace sevenyears

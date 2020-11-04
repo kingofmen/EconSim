@@ -1,23 +1,25 @@
 # Aarhus final state.
-area_id {
-  kind: "area"
-  number: 4
-}
-owner_id {
-  kind: "faction"
-  number: 2
-}
-factions {
-  faction_id {
-    number: 1
-    kind: "faction"
+states {
+  area_id {
+    kind: "area"
+    number: 4
   }
-  arrivals {
-    timestamp: 2
-    cargo {
-      quantities {
-        key: "trade_goods"
-        value: 2000000
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    arrivals {
+      timestamp: 2
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
       }
     }
   }

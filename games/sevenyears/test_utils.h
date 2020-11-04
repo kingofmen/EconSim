@@ -5,6 +5,7 @@
 #include "games/setup/setup.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "games/sevenyears/proto/testdata.pb.h"
 #include "util/logging/logging.h"
 #include "util/proto/object_id.pb.h"
 #include "util/proto/object_id.h"
@@ -16,8 +17,8 @@ namespace sevenyears {
 struct Golden {
   std::unique_ptr<std::unordered_map<std::string, actions::proto::Plan*>>
       plans_;
-  std::unique_ptr<
-      std::unordered_map<std::string, sevenyears::proto::AreaState*>>
+  std::unique_ptr<std::unordered_map<
+      std::string, sevenyears::testdata::proto::AreaStateList*>>
       area_states_;
 
   void Plans();

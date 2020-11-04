@@ -1,27 +1,57 @@
-# Final London state.
-area_id {
-  kind: "area"
-  number: 1
-}
-owner_id {
-  kind: "faction"
-  number: 1
-}
-production: "home_production_trade"
-factions {
-  faction_id {
+# State after creating expected arrivals.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
     kind: "faction"
     number: 1
   }
-  warehouse {
-    quantities {
-      key: "trade_goods"
-      value: 2000000
+  production: "home_production_trade"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 2000000
+      }
+    }
+    arrivals {
+      timestamp: 3
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
+      }
     }
   }
-  arrivals {
-    timestamp: 3
-    cargo {
+}
+# State after ship arrives.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_trade"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 2000000
+      }
       quantities {
         key: "supplies"
         value: 1666666

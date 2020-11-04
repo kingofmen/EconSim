@@ -14,6 +14,13 @@ cc_proto_library(
     ],
 )
 
+cc_proto_library(
+    name = "testdata_proto",
+    deps = [
+        ":testdata_proto_lib",
+    ],
+)
+
 proto_library(
     name = "sevenyears_proto_lib",
     srcs = [
@@ -32,5 +39,15 @@ proto_library(
         "ai_state.proto",
     ],
     deps = [
+    ],
+)
+
+proto_library(
+    name = "testdata_proto_lib",
+    srcs = [
+        "testdata.proto",
+    ],
+    deps = [
+        ":sevenyears_proto_lib",
     ],
 )
