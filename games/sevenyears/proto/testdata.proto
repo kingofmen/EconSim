@@ -1,0 +1,11 @@
+syntax = "proto2";
+package sevenyears.testdata.proto;
+
+import "games/sevenyears/proto/sevenyears.proto";
+
+// Successive states of the same area.
+message AreaStateList {
+  repeated sevenyears.proto.AreaState states = 1;
+  optional int32 index = 2;
+}
+
