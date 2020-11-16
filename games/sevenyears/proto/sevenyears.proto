@@ -8,6 +8,7 @@ import "games/setup/proto/setup.proto";
 message ExpectedArrival {
   optional uint64 timestamp = 1;
   optional market.proto.Container cargo = 2;
+  optional util.proto.ObjectId unit_id = 3;
 }
 
 message LocalFactionInfo {

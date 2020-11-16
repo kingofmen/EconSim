@@ -1,4 +1,5 @@
-# Aarhus final state.
+# Aarhus after expected arrivals are created;
+# ship should get here in two turns.
 states {
   area_id {
     kind: "area"
@@ -21,6 +22,28 @@ states {
           value: 2000000
         }
       }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
     }
+  }
+}
+# After registering arrival.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    # No goods are actually delivered by the test.
   }
 }

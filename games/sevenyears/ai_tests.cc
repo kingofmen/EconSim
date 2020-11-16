@@ -69,6 +69,27 @@ TEST_F(SevenYearsMerchantTest, TestValidMission) {
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
+void checkAreaStatesForStage(const TestState& got, const Golden& want,
+                             int stage) {
+  google::protobuf::util::MessageDifferencer differ;
+  for (const auto& goldIt : *(want.area_states_)) {
+    std::string tag = goldIt.first;
+    const auto* goldStateList = goldIt.second;
+    if (goldStateList->states_size() <= stage) {
+      EXPECT_GT(goldStateList->states_size(), stage);
+      continue;
+    }
+    const auto& goldState = goldStateList->states(stage);
+    const util::proto::ObjectId& area_id = goldState.area_id();
+    const auto& actual = got.AreaState(area_id);
+    EXPECT_TRUE(differ.Equals(goldState, actual))
+        << "Stage " << stage << ": " << util::objectid::DisplayString(area_id)
+        << ": Golden state " << goldState.DebugString()
+        << "\ndiffers from actual state\n"
+        << actual.DebugString();
+  }
+}
+
 TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
   auto status = LoadTestData(constants::EuropeanTrade());
   ASSERT_TRUE(status.ok()) << status.error_message();
@@ -105,18 +126,23 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
   for (auto& unit : world_state_->World().units_) {
     CreateExpectedArrivals(*unit, unit->plan(), world_state_.get());
   }
+  checkAreaStatesForStage(*world_state_, golds, 0);
 
-  for (auto& goldIt : *(golds.area_states_)) {
-    std::string tag = goldIt.first;
-    auto* goldStateList = goldIt.second;
-    const auto& goldState = goldStateList->states(0);
-    const util::proto::ObjectId& area_id = goldState.area_id();
-    const auto& actual = world_state_->AreaState(area_id);
-    EXPECT_TRUE(differ.Equals(goldState, actual))
-        << util::objectid::DisplayString(area_id) << ": Golden state "
-        << goldState.DebugString() << "\ndiffers from actual state\n"
-        << actual.DebugString();
+  for (auto& unit : world_state_->World().units_) {
+    util::proto::ObjectId area_id = unit->location().a_area_id();
+    const auto& plan = unit->plan();
+    for (const auto& step : plan.steps()) {
+      if (step.action() == actions::proto::AA_MOVE) {
+        const auto* connection = geography::Connection::ById(step.connection_id());
+        area_id = connection->OtherSide(area_id);
+        continue;
+      }
+      if (step.has_key() && step.key() == constants::OffloadCargo()) {
+        RegisterArrival(*unit, area_id, world_state_.get());
+      }
+    }
   }
+  checkAreaStatesForStage(*world_state_, golds, 1);
 }
 
 

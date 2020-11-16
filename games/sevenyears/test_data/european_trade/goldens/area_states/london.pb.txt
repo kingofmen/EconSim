@@ -22,6 +22,10 @@ states {
     }
     arrivals {
       timestamp: 3
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
       cargo {
         quantities {
           key: "supplies"
@@ -52,10 +56,9 @@ states {
         key: "trade_goods"
         value: 2000000
       }
-      quantities {
-        key: "supplies"
-        value: 1666666
-      }
+      # Supplies would go here but test
+      # doesn't do the production, so no
+      # additional resources are delivered.
     }
   }
 }

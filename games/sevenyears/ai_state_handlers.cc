@@ -87,6 +87,7 @@ void CreateExpectedArrivals(const units::Unit& unit,
           auto* arrival = lfi->add_arrivals();
           arrival->set_timestamp(expected_time);
           *arrival->mutable_cargo() << projected_cargo;
+          *arrival->mutable_unit_id() = unit.unit_id();
         } else if (step.key() == constants::LoadShip()) {
           auto good = step.good();
           if (good.empty()) {
@@ -98,6 +99,29 @@ void CreateExpectedArrivals(const units::Unit& unit,
         }
         break;
       default: break;
+    }
+  }
+}
+
+void RegisterArrival(const units::Unit& unit,
+                     const util::proto::ObjectId& area_id,
+                     SevenYearsState* world_state) {
+  auto* state = world_state->mutable_area_state(area_id);
+  const util::proto::ObjectId& faction_id = unit.faction_id();
+  auto* lfi = FindLocalFactionInfo(faction_id, state);
+  const util::proto::ObjectId& unit_id = unit.unit_id();
+  auto* arrivals = lfi->mutable_arrivals();
+  // This is probably O(mn), removals times size of the vector. But m should
+  // be small, usually 0 or 1.
+  auto& curr = arrivals->cbegin();
+  while (curr != arrivals->cend()) {
+    int count = 0;
+    while (curr != arrivals->cend() && curr->unit_id() == unit_id) {
+      curr = arrivals->erase(curr);
+      count++;
+    }
+    if (count == 0) {
+      curr++;
     }
   }
 }
