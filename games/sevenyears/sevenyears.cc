@@ -132,6 +132,7 @@ util::Status SevenYears::InitialiseAI() {
   ai::RegisterExecutor(
       constants::OffloadCargo(),
       [this](const actions::proto::Step& step, units::Unit* unit) {
+        RegisterArrival(*unit, unit->area_id(), this);
         return this->offloadCargo(step, unit);
       });
 
