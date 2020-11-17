@@ -186,6 +186,9 @@ const util::proto::ObjectId& Unit::unit_id() const { return proto_.unit_id(); }
 const util::proto::ObjectId& Unit::faction_id() const {
   return proto_.faction_id();
 }
+const util::proto::ObjectId& Unit::area_id() const {
+  return proto_.location().a_area_id();
+}
 
 
 Unit* ById(const util::proto::ObjectId unit_id) {

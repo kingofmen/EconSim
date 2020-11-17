@@ -36,6 +36,7 @@ public:
   const util::proto::ObjectId& ID() const { return proto_.unit_id(); }
   const util::proto::ObjectId& unit_id() const;
   const util::proto::ObjectId& faction_id() const;
+  const util::proto::ObjectId& area_id() const;
   const proto::Template& Template() const;
 
   // Planning interface.
