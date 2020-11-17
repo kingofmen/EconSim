@@ -77,7 +77,6 @@ void CreateExpectedArrivals(const units::Unit& unit,
         // Movement already handled, nothing else to do.
       break;
       case actions::proto::Step::kKey:
-        Log::Infof("Key step %s", step.key());
         if (step.key() == constants::OffloadCargo()) {
           if (market::Empty(projected_cargo)) {
             break;
@@ -111,18 +110,14 @@ void RegisterArrival(const units::Unit& unit,
   auto* lfi = FindLocalFactionInfo(faction_id, state);
   const util::proto::ObjectId& unit_id = unit.unit_id();
   auto* arrivals = lfi->mutable_arrivals();
-  // This is probably O(mn), removals times size of the vector. But m should
-  // be small, usually 0 or 1.
-  auto& curr = arrivals->cbegin();
-  while (curr != arrivals->cend()) {
-    int count = 0;
-    while (curr != arrivals->cend() && curr->unit_id() == unit_id) {
-      curr = arrivals->erase(curr);
-      count++;
+
+  for (auto& curr = arrivals->cbegin(); curr != arrivals->cend(); ++curr) {
+    if (curr->unit_id() != unit_id) {
+      continue;
     }
-    if (count == 0) {
-      curr++;
-    }
+    curr = arrivals->erase(curr);
+    // Remove only the first expected arrival.
+    break;
   }
 }
 

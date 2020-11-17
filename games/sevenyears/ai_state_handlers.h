@@ -20,8 +20,8 @@ sevenyears::proto::LocalFactionInfo*
 FindLocalFactionInfo(const util::proto::ObjectId& faction_id,
                      proto::AreaState* state);
 
-// Remove any expected-arrival objects associated with the unit in the relevant
-// area.
+// Remove first expected-arrival object associated with the unit in the
+// relevant area.
 void RegisterArrival(const units::Unit& unit,
                      const util::proto::ObjectId& area_id,
                      SevenYearsState* world_state);
