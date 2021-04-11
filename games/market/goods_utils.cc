@@ -4,6 +4,8 @@
 #include <limits>
 #include <unordered_map>
 
+#include "absl/strings/substitute.h"
+#include "absl/strings/str_join.h"
 #include "games/market/proto/goods.pb.h"
 #include "util/arithmetic/microunits.h"
 
@@ -236,8 +238,21 @@ void MultiplyU(market::proto::Container& lhs, const proto::Container& rhs_u) {
   lhs /= micro::kOneInU;
 }
 
+std::string DisplayString(const std::string& kind, micro::Measure amount,
+                          int digits) {
+  return absl::Substitute("$0: $1", kind, micro::DisplayString(amount, digits));
+}
+
 std::string DisplayString(const proto::Quantity& q, int digits) {
-  return micro::DisplayString(q.amount(), digits);
+  return DisplayString(q.kind(), q.amount(), digits);
+}
+
+std::string DisplayString(const proto::Container& q, int digits) {
+  std::vector<std::string> items;
+  for (auto& quantity : q.quantities()) {
+    items.push_back(DisplayString(quantity.first, quantity.second, digits));
+  }
+  return absl::Substitute("($0)", absl::StrJoin(items, ", "));
 }
 
 namespace proto {

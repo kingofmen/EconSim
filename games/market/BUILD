@@ -19,6 +19,7 @@ cc_library(
     deps = [
         "//games/market/proto:goods_proto",
         "//util/arithmetic:microunits",
+        "@com_google_absl//absl/strings:strings",
     ],
 )
 

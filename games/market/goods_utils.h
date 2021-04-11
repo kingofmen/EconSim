@@ -113,7 +113,10 @@ void MultiplyU(market::proto::Container& lhs,
 
 // Returns a human-readable string, that is, in units rather than micro-units.
 // Note that the rounding is truncation.
-std::string DisplayString(const market::proto::Quantity& q, int digits);
+std::string DisplayString(const std::string& kind, micro::Measure amount,
+                          int digits = 2);
+std::string DisplayString(const market::proto::Quantity& q, int digits = 2);
+std::string DisplayString(const market::proto::Container& q, int digits = 2);
 
 namespace proto {
 
