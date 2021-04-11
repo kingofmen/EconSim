@@ -94,8 +94,11 @@ util::Status Production::StepPossible(
   market::MultiplyU(required_fixcap, scaling_u);
 
   if (!(fixed_capital > required_fixcap)) {
-    return util::ResourceExhaustedError(
-        absl::Substitute("Insufficient fixed capital for $0", progress.name()));
+    return util::ResourceExhaustedError(absl::Substitute(
+        "Insufficient fixed capital for $0 at scale $1: Have $2, need $3",
+        progress.name(), micro::DisplayString(progress.scaling_u(), 2),
+        market::DisplayString(fixed_capital, 2),
+        market::DisplayString(required_fixcap, 2)));
   }
 
   const micro::Measure experience_u =
