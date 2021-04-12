@@ -6,6 +6,9 @@
 #include "games/industry/industry.h"
 #include "games/setup/setup.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "src/google/protobuf/util/message_differencer.h"
 #include "util/logging/logging.h"
 #include "util/proto/file.h"
 #include "util/proto/object_id.pb.h"
@@ -202,5 +205,29 @@ const std::string FileTag(const util::proto::ObjectId& obj_id) {
   return util::objectid::Tag(obj_id) + ".pb.txt";
 }
 
+void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
+                             int stage) {
+  google::protobuf::util::MessageDifferencer differ;
+  if (want.area_states_->empty()) {
+    EXPECT_FALSE(want.area_states_->empty()) << "No golden area states.";
+    return;
+  }
+  for (const auto& goldIt : *(want.area_states_)) {
+    std::string tag = goldIt.first;
+    const auto* goldStateList = goldIt.second;
+    if (goldStateList->states_size() <= stage) {
+      EXPECT_GT(goldStateList->states_size(), stage);
+      continue;
+    }
+    const auto& goldState = goldStateList->states(stage);
+    const util::proto::ObjectId& area_id = goldState.area_id();
+    const auto& actual = got.AreaState(area_id);
+    EXPECT_TRUE(differ.Equals(goldState, actual))
+        << "Stage " << stage << ": " << util::objectid::DisplayString(area_id)
+        << ": Golden state " << goldState.DebugString()
+        << "\ndiffers from actual state\n"
+        << actual.DebugString();
+  }
+}
 
 }  // namespace sevenyears

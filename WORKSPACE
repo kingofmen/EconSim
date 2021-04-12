@@ -64,6 +64,6 @@ new_local_repository(
 
 new_local_repository(
     name = "sdl2",
-    path = "C:\\Users\\Rolf\\base\\third_party\sdl2",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\sdl2\BUILD.bazel",
+    path = "C:\\Users\\Rolf\\base\\third_party\\sdl2",
+    build_file = "C:\\Users\\Rolf\\base\\third_party\\sdl2\\BUILD.bazel",
 )

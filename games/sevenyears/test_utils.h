@@ -34,6 +34,10 @@ util::Status LoadGoldens(const std::string& location, Golden* golds);
 // Returns a filename for the provided object ID.
 const std::string FileTag(const util::proto::ObjectId& obj_id);
 
+// Compares the world state against the golden state for the given stage.
+void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
+                             int stage);
+
 class TestState : public SevenYearsState {
 public:
   TestState() {}

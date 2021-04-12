@@ -92,6 +92,7 @@ cc_library(
         "//util/proto:file",
         "//util/proto:object_id_proto",
         "@com_google_absl//absl/strings:strings",
+        "@gtest//:gtest",
     ],
     testonly = 1,
 )

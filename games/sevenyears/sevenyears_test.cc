@@ -49,7 +49,8 @@ TEST_F(SevenYearsTest, TestExecutors) {
         << absl::Substitute("$0 has unexpected step remaining: $1",
                             util::objectid::DisplayString(unit->unit_id()),
                             unit->plan().DebugString());
-    // TODO: Don't hardcode unit numbers here, make a proper golden-state proto.
+    // TODO(issue 28): Don't hardcode unit numbers here, make a proper
+    // golden-state proto.
     switch (unit->unit_id().number()) {
       case 1:
         EXPECT_EQ(2 * micro::kOneInU,
@@ -62,6 +63,23 @@ TEST_F(SevenYearsTest, TestExecutors) {
       default:
         break;
     }
+  }
+}
+
+// End-to-end test for European trade.
+TEST_F(SevenYearsTest, TestEuropeanTradeE2E) {
+  auto status = LoadTestData("european_trade_e2e");
+  ASSERT_TRUE(status.ok()) << status.error_message();
+  status = game_->InitialiseAI();
+  ASSERT_TRUE(status.ok()) << status.error_message();
+
+  Golden golds;
+  golds.AreaStates();
+  status = LoadGoldens("european_trade_e2e", &golds);
+  int numStages = 1;
+  for (int stage = 0; stage < numStages; ++stage) {
+    game_->NewTurn();
+    CheckAreaStatesForStage(*game_, golds, stage);
   }
 }
 
