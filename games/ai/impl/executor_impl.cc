@@ -48,7 +48,9 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
 // TODO: Allow this to cost fractional actions if we have speed left over.
 util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   if (!step.has_connection_id()) {
-    return util::InvalidArgumentError("Cannot move without connection ID");
+    return util::InvalidArgumentError(
+        absl::Substitute("$0 cannot move without connection ID",
+                         util::objectid::DisplayString(unit->unit_id())));
   }
 
   geography::proto::Location* location = unit->mutable_location();
@@ -66,6 +68,11 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   // TODO: Don't assume here that the cost is exactly one.
   uint64 distance_u =
       ai::utils::GetProgress(micro::kOneInU, *unit, *connection);
+  DLOGF(Log::P_DEBUG, "Unit %s progress %s moving from %s to %s",
+        util::objectid::DisplayString(unit->unit_id()),
+        micro::DisplayString(distance_u, 2),
+        util::objectid::DisplayString(location->a_area_id()),
+        util::objectid::DisplayString(location->z_area_id()));
 
   // TODO: Add a detections vector, and handle them.
   connection->Listen(*unit, distance_u, nullptr);
