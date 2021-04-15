@@ -61,9 +61,8 @@ bool isValidMission(const std::string& mission) {
 
 void planTrade(const units::Unit& unit, const std::string& goods,
                actions::proto::Plan* plan) {
-  DLOGF(Log::P_DEBUG, "Planning trade for unit %s in %s",
-        unit.unit_id().DebugString(), goods);
-
+  DLOGF(Log::P_DEBUG, "Planning trade for unit %s in \"%s\"",
+        util::objectid::DisplayString(unit.unit_id()), goods);
   auto* step = plan->add_steps();
   step->set_key(constants::OffloadCargo());
   if (!goods.empty()) {
