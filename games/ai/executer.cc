@@ -51,8 +51,7 @@ util::Status executeAction(actions::proto::AtomicAction action,
 
 }  // namespace
 
-micro::uMeasure GetCost(const actions::proto::Step& step, const units::Unit& unit) {
-  micro::uMeasure cost_u = 0;
+ActionCost GetCost(const actions::proto::Step& step, const units::Unit& unit) {
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
       if (key_cost_map.find(step.key()) != key_cost_map.end()) {
@@ -91,15 +90,15 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-micro::uMeasure ZeroCost(const actions::proto::Step&, const units::Unit&) {
+ActionCost ZeroCost(const actions::proto::Step&, const units::Unit&) {
   return 0;
 }
 
-micro::uMeasure OneCost(const actions::proto::Step&, const units::Unit&) {
+ActionCost OneCost(const actions::proto::Step&, const units::Unit&) {
   return micro::kOneInU;
 }
 
-micro::uMeasure DefaultMoveCost(const actions::proto::Step& step, const units::Unit& unit) {
+ActionCost DefaultMoveCost(const actions::proto::Step& step, const units::Unit& unit) {
   if (step.trigger_case() != actions::proto::Step::kAction) {
     return micro::kuMaxU;
   }
