@@ -260,6 +260,9 @@ void SevenYears::moveUnits() {
           unit->mutable_plan()->clear_steps();
           unit->mutable_plan()->clear_incomplete();
         } else {
+          Log::Debugf("%s attempted %s, incomplete: %d",
+                      util::objectid::DisplayString(unit->unit_id()),
+                      actions::StepName(unit->plan().steps(0)), inc);
           unit->mutable_plan()->set_incomplete(inc);
         }
       } else {
