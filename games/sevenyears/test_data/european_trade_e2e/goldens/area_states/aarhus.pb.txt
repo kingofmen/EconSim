@@ -1,0 +1,51 @@
+# Aarhus after expected arrivals are created;
+# ship should get here in two turns. (Note that
+# turns start at 1, so the arrival time is
+# timestamp 3.)
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    arrivals {
+      timestamp: 3
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
+      }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+    }
+  }
+}
+# After registering arrival.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    # No goods are actually delivered by the test.
+  }
+}
