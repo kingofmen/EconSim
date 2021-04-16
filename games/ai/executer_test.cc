@@ -87,8 +87,10 @@ TEST_F(ExecuterTest, TestExecuteStep) {
   EXPECT_TRUE(touched);
 
   uint64 current_cost = 10;
-  CostCalculator cost = [&current_cost](
-      const actions::proto::Step&, const units::Unit&) { return current_cost; };
+  CostCalculator cost = [&current_cost](const actions::proto::Step&,
+                                        const units::Unit&) {
+    return ActionCost(current_cost, micro::kOneInU);
+  };
   RegisterCost(step->key(), cost);
 
   touched = false;

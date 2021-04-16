@@ -66,8 +66,8 @@ void CreateExpectedArrivals(const units::Unit& unit,
 
     // Handle other actions.
     const auto& step = plan.steps(idx);
-    auto cost_u = ai::GetCost(step, unit);
-    current_action_points_u -= cost_u;
+    const auto action = ai::GetCost(step, unit);
+    current_action_points_u -= action.cost_u;
     if (current_action_points_u < 0) {
       expected_time++;
       current_action_points_u = unit.action_points_u();
