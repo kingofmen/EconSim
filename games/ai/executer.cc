@@ -91,7 +91,7 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
 }
 
 ActionCost ZeroCost() {
-  return ActionCost(0, 0);
+  return ActionCost(0, micro::kOneInU);
 }
 
 ActionCost OneCost() {
