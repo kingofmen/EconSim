@@ -29,6 +29,13 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   auto status = MoveUnit(ZeroCost(), plan_.steps(0), unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
+  EXPECT_EQ(unit_->location().progress_u(), 0);
+
+  ActionCost halfCost(micro::kHalfInU, micro::kHalfInU);
+  status = MoveUnit(halfCost, plan_.steps(0), unit_.get());
+  EXPECT_TRUE(util::IsNotComplete(status)) << status.error_message();
+  EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
+  EXPECT_EQ(unit_->location().progress_u(), micro::kHalfInU);
 }
 
 TEST_F(ExecutorImplTest, TestBuy) {

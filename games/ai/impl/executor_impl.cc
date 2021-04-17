@@ -66,9 +66,8 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
   const auto* connection = geography::Connection::ById(step.connection_id());
   uint64 progress_u = location->progress_u();
   uint64 length_u = connection->length_u() - progress_u;
-  // TODO: Don't assume here that the cost is exactly one.
   uint64 distance_u =
-      ai::utils::GetProgress(micro::kOneInU, *unit, *connection);
+      ai::utils::GetProgress(cost.fraction_u, *unit, *connection);
   DLOGF(Log::P_DEBUG, "Unit %s progress %s moving from %s to %s",
         util::objectid::DisplayString(unit->unit_id()),
         micro::DisplayString(distance_u, 2),
