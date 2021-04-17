@@ -32,6 +32,7 @@ cc_library(
     deps = [
         "//games/actions/proto:plan_proto",
         "//games/ai/impl:executor_impl",
+        "//games/ai/public:cost",
         "//games/geography:connection",
         "//games/units:units",
         "//util/arithmetic:microunits",

@@ -30,45 +30,27 @@ std::unordered_map<std::string, CostCalculator> key_cost_map = {};
 
 CostCalculator default_cost = nullptr;
 
-util::Status executeKey(const std::string& key,
+util::Status executeKey(const ActionCost& cost, const std::string& key,
                         const actions::proto::Step& step, units::Unit* unit) {
   if (execution_key_map.find(key) != execution_key_map.end()) {
-    return execution_key_map.at(key)(step, unit);
+    return execution_key_map.at(key)(cost, step, unit);
   }
   return util::NotImplementedError(
       absl::Substitute("Executor for key $0 not implemented", key));
 }
 
-util::Status executeAction(actions::proto::AtomicAction action,
+util::Status executeAction(const ActionCost& cost,
+                           actions::proto::AtomicAction action,
                            const actions::proto::Step& step,
                            units::Unit* unit) {
   if (execution_action_map.find(action) == execution_action_map.end()) {
     return util::NotImplementedError(
         absl::Substitute("Executor for action $0 not implemented", action));
   }
-  return execution_action_map[step.action()](step, unit);  
+  return execution_action_map[step.action()](cost, step, unit);  
 }
 
 }  // namespace
-
-ActionCost GetCost(const actions::proto::Step& step, const units::Unit& unit) {
-  switch (step.trigger_case()) {
-    case actions::proto::Step::kKey:
-      if (key_cost_map.find(step.key()) != key_cost_map.end()) {
-        return key_cost_map.at(step.key())(step, unit);
-      }
-    case actions::proto::Step::kAction:
-      if (action_cost_map.find(step.action()) != action_cost_map.end()) {
-        return action_cost_map.at(step.action())(step, unit);
-      }
-    default:
-      break;
-  }
-  if (default_cost != nullptr) {
-    return default_cost(step, unit);
-  }
-  return ZeroCost(step, unit);
-}
 
 void RegisterCost(const std::string& key, CostCalculator cost) {
   key_cost_map[key] = cost;
@@ -90,62 +72,23 @@ void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe) {
   execution_action_map[action] = exe;
 }
 
-ActionCost ZeroCost() {
-  return ActionCost(0, micro::kOneInU);
-}
-
-ActionCost OneCost() {
-  return ActionCost(micro::kOneInU, micro::kOneInU);
-}
-
-ActionCost InfiniteCost() {
-  return ActionCost(micro::kuMaxU, 0);
-}
-
-ActionCost ZeroCost(const actions::proto::Step&, const units::Unit&) {
-  return ZeroCost();
-}
-
-ActionCost OneCost(const actions::proto::Step&, const units::Unit&) {
-  return OneCost();
-}
-
-ActionCost InfiniteCost(const actions::proto::Step&, const units::Unit&) {
-  return InfiniteCost();
-}
-
-ActionCost DefaultMoveCost(const actions::proto::Step& step, const units::Unit& unit) {
-  if (step.trigger_case() != actions::proto::Step::kAction) {
-    return InfiniteCost();
+ActionCost GetCost(const actions::proto::Step& step, const units::Unit& unit) {
+  switch (step.trigger_case()) {
+    case actions::proto::Step::kKey:
+      if (key_cost_map.find(step.key()) != key_cost_map.end()) {
+        return key_cost_map.at(step.key())(step, unit);
+      }
+    case actions::proto::Step::kAction:
+      if (action_cost_map.find(step.action()) != action_cost_map.end()) {
+        return action_cost_map.at(step.action())(step, unit);
+      }
+    default:
+      break;
   }
-  if (!step.has_connection_id()) {
-    return InfiniteCost();
+  if (default_cost != nullptr) {
+    return default_cost(step, unit);
   }
-  const geography::proto::Location& location = unit.location();
-  const geography::Connection* connection = nullptr;
-  if (location.has_connection_id()) {
-    connection = geography::Connection::ById(location.connection_id());
-  } else {
-    connection = geography::Connection::ById(step.connection_id());
-  }
-  if (!connection) {
-    DLOGF(Log::P_DEBUG, "  DefaultMoveCost could not find connection ID %d",
-          location.has_connection_id() ? location.connection_id()
-                                       : step.connection_id());
-    return InfiniteCost();
-  }
-
-  micro::uMeasure progress_u = location.progress_u();
-  micro::uMeasure distance_u = connection->length_u() - progress_u;
-  micro::uMeasure speed_u = unit.speed_u(connection->type());
-
-  if (distance_u >= speed_u) {
-    // We won't finish this in one step.
-    return ActionCost(std::min(micro::kOneInU, unit.action_points_u()),
-                      micro::DivideU(speed_u, distance_u));
-  }
-
-  return ActionCost(micro::DivideU(distance_u, speed_u), micro::kOneInU);
+  return ZeroCost(step, unit);
 }
 
 util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
@@ -163,9 +106,9 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit) {
   unit->use_action_points(action.cost_u);
   switch (step.trigger_case()) {
     case actions::proto::Step::kKey:
-      return executeKey(step.key(), step, unit);
+      return executeKey(action, step.key(), step, unit);
     case actions::proto::Step::kAction:
-      return executeAction(step.action(), step, unit);
+      return executeAction(action, step.action(), step, unit);
     case actions::proto::Step::TRIGGER_NOT_SET:
     default:
       return util::InvalidArgumentError("Plan step has neither action or key");

@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "games/ai/public/cost.h"
 #include "games/actions/proto/plan.pb.h"
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
@@ -10,45 +11,9 @@
 
 namespace ai {
 
-struct ActionCost {
-  ActionCost(micro::uMeasure c_u, micro::uMeasure f_u)
-      : cost_u(c_u), fraction_u(f_u) {}
-
-  // The amount to be subtracted from the actor's reserve.
-  micro::uMeasure cost_u;
-
-  // The completion fraction of the task.
-  micro::uMeasure fraction_u;
-};
-
-typedef std::function<util::Status(const actions::proto::Step&, units::Unit*)>
+typedef std::function<util::Status(const ActionCost&,
+                                   const actions::proto::Step&, units::Unit*)>
     StepExecutor;
-
-typedef std::function<ActionCost(const actions::proto::Step&, const units::Unit&)>
-    CostCalculator;
-
-// Default CostCalculator that always returns 0.
-ActionCost ZeroCost(const actions::proto::Step& step,
-                    const units::Unit& unit);
-ActionCost ZeroCost();
-// Default CostCalculator that always returns 1.
-ActionCost OneCost(const actions::proto::Step& step,
-                   const units::Unit& unit);
-ActionCost OneCost();
-// Default CostCalculator that always returns 0
-// completion, maximum possible cost.
-ActionCost InfiniteCost(const actions::proto::Step& step,
-                        const units::Unit& unit);
-ActionCost InfiniteCost();
-// Variable cost for movement.
-ActionCost DefaultMoveCost(const actions::proto::Step& step,
-                           const units::Unit& unit);
-
-// Returns the cost of the action for the unit, first looking for a specially
-// registered CostCalculator for the action, then the default cost calculator,
-// finally falling back to returning zero.
-ActionCost GetCost(const actions::proto::Step& step,
-                   const units::Unit& unit);
 
 void RegisterExecutor(const std::string& key, StepExecutor exe);
 void RegisterExecutor(actions::proto::AtomicAction action, StepExecutor exe);
@@ -64,6 +29,11 @@ util::Status ExecuteStep(const actions::proto::Plan& plan, units::Unit* unit);
 // Deletes the first step of plan.
 void DeleteStep(actions::proto::Plan* plan);
 
+// Returns the cost of the action for the unit, first looking for a specially
+// registered CostCalculator for the action, then the default cost calculator,
+// finally falling back to returning zero.
+ActionCost GetCost(const actions::proto::Step& step,
+                   const units::Unit& unit);
 
 } // namespace ai
 

@@ -30,6 +30,7 @@ cc_library(
         "//games/actions/proto:plan_proto",
         "//games/ai:executer",
         "//games/ai/impl:utils",
+        "//games/ai/public:cost",
         "//games/sevenyears/proto:ai_state_proto",
         "//games/sevenyears/proto:sevenyears_proto",
         "//games/geography:geography",

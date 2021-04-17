@@ -2,6 +2,7 @@
 
 #include "games/actions/proto/plan.pb.h"
 #include "games/ai/impl/ai_testing.h"
+#include "games/ai/public/cost.h"
 #include "games/geography/connection.h"
 #include "games/geography/geography.h"
 #include "games/geography/proto/geography.pb.h"
@@ -25,7 +26,7 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   step->set_action(actions::proto::AA_MOVE);
   step->set_connection_id(connection_12->ID());
 
-  auto status = MoveUnit(plan_.steps(0), unit_.get());
+  auto status = MoveUnit(ZeroCost(), plan_.steps(0), unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
 }
@@ -35,9 +36,9 @@ TEST_F(ExecutorImplTest, TestBuy) {
   step->set_action(actions::proto::AA_BUY);
   step->set_good(kTestGood1);
 
-  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()).ok());
+  EXPECT_TRUE(BuyOrSell(ZeroCost(), plan_.steps(0), unit_.get()).ok());
   step->set_action(actions::proto::AA_SELL);
-  EXPECT_TRUE(BuyOrSell(plan_.steps(0), unit_.get()).ok());
+  EXPECT_TRUE(BuyOrSell(ZeroCost(), plan_.steps(0), unit_.get()).ok());
 }
 
 TEST_F(ExecutorImplTest, TestSwitchState) {
@@ -46,7 +47,7 @@ TEST_F(ExecutorImplTest, TestSwitchState) {
   unit_->mutable_strategy()->mutable_shuttle_trade()->set_state(
       actions::proto::ShuttleTrade::STS_BUY_A);
 
-  EXPECT_TRUE(SwitchState(*step, unit_.get()).ok());
+  EXPECT_TRUE(SwitchState(ZeroCost(), *step, unit_.get()).ok());
   EXPECT_EQ(actions::proto::ShuttleTrade::STS_BUY_Z,
             unit_->strategy().shuttle_trade().state());
 }
@@ -57,7 +58,7 @@ TEST_F(ExecutorImplTest, TestTurnAround) {
   step->set_action(actions::proto::AA_TURN_AROUND);
   unit_->mutable_location()->set_connection_id(connection_12->connection_id());
   unit_->mutable_location()->set_progress_u(kStartProgress);
-  auto status = TurnAround(*step, unit_.get());
+  auto status = TurnAround(ZeroCost(), *step, unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(connection_12->length_u() - kStartProgress,
             unit_->location().progress_u());

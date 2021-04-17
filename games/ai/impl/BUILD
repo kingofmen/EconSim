@@ -40,6 +40,7 @@ cc_library(
     deps = [
         "//games/actions/proto:plan_proto",
         "//games/actions/proto:strategy_proto",
+        "//games/ai/public:cost",
         "//games/ai/impl:utils",
         "//games/geography:connection",
         "//games/geography:geography",
@@ -124,6 +125,7 @@ cc_test(
         ":executor_impl",
         ":test_base",
         "//games/actions/proto:plan_proto",
+        "//games/ai/public:cost",
         "//games/geography:connection",
         "//games/geography:geography",
         "//games/geography/proto:geography_proto",

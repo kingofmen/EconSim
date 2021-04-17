@@ -64,7 +64,8 @@ TEST_F(ExecuterTest, TestExecuteStep) {
       << status.error_message();
 
   bool touched = false;
-  StepExecutor noop = [&touched](const actions::proto::Step&, units::Unit*) {
+  StepExecutor noop = [&touched](const ActionCost&, const actions::proto::Step&,
+                                 units::Unit*) {
     touched = true;
     return util::OkStatus();
   };

@@ -46,7 +46,8 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
 
 
 // TODO: Allow this to cost fractional actions if we have speed left over.
-util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
+util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
+                      units::Unit* unit) {
   if (!step.has_connection_id()) {
     return util::InvalidArgumentError(
         absl::Substitute("$0 cannot move without connection ID",
@@ -88,7 +89,8 @@ util::Status MoveUnit(const actions::proto::Step& step, units::Unit* unit) {
   }
 }
 
-util::Status BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {
+util::Status BuyOrSell(const ActionCost& cost, const actions::proto::Step& step,
+                       units::Unit* unit) {
   if (!step.has_good()) {
     return util::InvalidArgumentError("Cannot do BuyOrSell without good");
   }
@@ -126,7 +128,8 @@ util::Status BuyOrSell(const actions::proto::Step& step, units::Unit* unit) {
   return util::OkStatus();
 }
 
-util::Status SwitchState(const actions::proto::Step& step, units::Unit* unit) {
+util::Status SwitchState(const ActionCost& cost,
+                         const actions::proto::Step& step, units::Unit* unit) {
   actions::proto::Strategy* strat = unit->mutable_strategy();
   switch (strat->strategy_case()) {
   case actions::proto::Strategy::kShuttleTrade: {
@@ -145,7 +148,8 @@ util::Status SwitchState(const actions::proto::Step& step, units::Unit* unit) {
       absl::Substitute("SwitchState for strategy case $0 not implemented"));
 }
 
-util::Status TurnAround(const actions::proto::Step& step, units::Unit* unit) {
+util::Status TurnAround(const ActionCost& cost,
+                        const actions::proto::Step& step, units::Unit* unit) {
   auto* location = unit->mutable_location();
   if (!location->has_connection_id()) {
     return util::FailedPreconditionError(absl::Substitute(

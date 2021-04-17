@@ -6,6 +6,7 @@
 #include "games/actions/proto/plan.pb.h"
 #include "games/actions/proto/strategy.pb.h"
 #include "games/actions/strategy.h"
+#include "games/ai/public/cost.h"
 #include "games/ai/executer.h"
 #include "games/ai/impl/ai_utils.h"
 #include "games/ai/planner.h"
@@ -126,15 +127,15 @@ util::Status validateWorldState(
 util::Status SevenYears::InitialiseAI() {
   ai::RegisterExecutor(
       constants::LoadShip(),
-      [this](const actions::proto::Step& step, units::Unit* unit) {
-        return this->loadShip(step, unit);
-      });
-  ai::RegisterExecutor(
-      constants::OffloadCargo(),
-      [this](const actions::proto::Step& step, units::Unit* unit) {
-        RegisterArrival(*unit, unit->area_id(), this);
-        return this->offloadCargo(step, unit);
-      });
+      [this](const ai::ActionCost&, const actions::proto::Step& step,
+             units::Unit* unit) { return this->loadShip(step, unit); });
+  ai::RegisterExecutor(constants::OffloadCargo(),
+                       [this](const ai::ActionCost&,
+                              const actions::proto::Step& step,
+                              units::Unit* unit) {
+                         RegisterArrival(*unit, unit->area_id(), this);
+                         return this->offloadCargo(step, unit);
+                       });
 
   merchant_ai_.reset(new SevenYearsMerchant(this));
   ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
