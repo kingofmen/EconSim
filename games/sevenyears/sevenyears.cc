@@ -188,7 +188,7 @@ util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
     return util::FailedPreconditionError(absl::Substitute(
-        "Unit $0 tried to unload cargo while in transit: 1, $2",
+        "Unit $0 tried to unload cargo while in transit: $1, $2",
         util::objectid::DisplayString(unit_id), unit->location().progress_u(),
         unit->location().connection_id()));
   }
@@ -279,7 +279,6 @@ void SevenYears::moveUnits() {
   }
 }
   
-
 void SevenYears::NewTurn() {
   ++timestamp_;
   Log::Infof("New turn (%d)", timestamp_);
