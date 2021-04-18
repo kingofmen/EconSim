@@ -35,7 +35,7 @@ states {
     }
   }
 }
-# State after ship arrives.
+# Ship arrives but doesn't have time to load.
 states {
   area_id {
     kind: "area"
@@ -54,11 +54,80 @@ states {
     warehouse {
       quantities {
         key: "trade_goods"
-        value: 2000000
+        value: 6000000
       }
-      # Supplies would go here but test
-      # doesn't do the production, so no
-      # additional resources are delivered.
+    }
+  }
+}
+# Ship moves out carrying this turn's production.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_trade"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 6000000
+      }
+    }
+  }
+}
+# Production continues.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_trade"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 8000000
+      }
+    }
+  }
+}
+# Production continues.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_trade"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 10000000
+      }
     }
   }
 }

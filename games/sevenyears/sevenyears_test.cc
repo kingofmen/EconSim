@@ -76,7 +76,12 @@ TEST_F(SevenYearsTest, TestEuropeanTradeE2E) {
   Golden golds;
   golds.AreaStates();
   status = LoadGoldens("european_trade_e2e", &golds);
-  int numStages = 1;
+  int numStages = 0;
+  for (const auto& as : *golds.area_states_) {
+    if (as.second->states_size() > numStages) {
+      numStages = as.second->states_size();
+    }
+  }
   for (int stage = 0; stage < numStages; ++stage) {
     game_->NewTurn();
     CheckAreaStatesForStage(*game_, golds, stage);

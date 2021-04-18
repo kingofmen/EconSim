@@ -31,7 +31,7 @@ states {
     }
   }
 }
-# After registering arrival.
+# Ship is now in London picking up goods.
 states {
   area_id {
     kind: "area"
@@ -46,6 +46,104 @@ states {
       number: 1
       kind: "faction"
     }
-    # No goods are actually delivered by the test.
+    warehouse {}
+    arrivals {
+      timestamp: 3
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
+      }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+    }
+  }
+}
+# Nothing happening this turn.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    warehouse {}
+    arrivals {
+      timestamp: 3
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
+      }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+    }
+  }
+}
+# Ship arrives but doesn't have time to unload.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    warehouse {}
+    arrivals {
+      timestamp: 3
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
+      }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+    }
+  }
+}
+# Ship offloads.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 2000000
+      }
+    }
   }
 }
