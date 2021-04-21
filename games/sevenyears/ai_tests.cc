@@ -116,14 +116,30 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
         area_id = connection->OtherSide(area_id);
         continue;
       }
+      market::proto::Container amount;
       if (step.has_key() && step.key() == constants::OffloadCargo()) {
-        RegisterArrival(*unit, area_id, world_state_.get());
+        RegisterArrival(*unit, area_id, amount, world_state_.get());
       }
     }
   }
   CheckAreaStatesForStage(*world_state_, golds, 1);
 }
 
+TEST_F(SevenYearsMerchantTest, TestRegisterArrival) {
+  const std::string testName("arrivals");
+  auto status = LoadTestData(testName);
+  ASSERT_TRUE(status.ok()) << status.error_message();
+  Golden golds;
+  golds.AreaStates();
+  status = LoadGoldens(testName, &golds);
+  EXPECT_OK(status) << "Could not load golden files: "
+                    << status.error_message();
 
+  for (auto& unit : world_state_->World().units_) {
+    util::proto::ObjectId area_id = unit->location().z_area_id();
+    RegisterArrival(*unit, area_id, unit->resources(), world_state_.get());
+  }
+  CheckAreaStatesForStage(*world_state_, golds, 0);
+}
 
 }  // namespace sevenyears

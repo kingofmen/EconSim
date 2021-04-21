@@ -60,5 +60,18 @@ states {
       # doesn't do the production, so no
       # additional resources are delivered.
     }
+    arrivals {
+      timestamp: 3
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
+      }
+    }
   }
 }

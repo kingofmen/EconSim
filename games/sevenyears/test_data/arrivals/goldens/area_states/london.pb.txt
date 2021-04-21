@@ -1,0 +1,29 @@
+# Expect brig-1 arrival to be entirely removed.
+states {
+  area_id {
+    kind: "area"
+    number: 2
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    arrivals {
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 100
+        }
+      }
+      unit_id {
+        kind: "brig"
+        number: 2
+      }
+    }
+  }
+}

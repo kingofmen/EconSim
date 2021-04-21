@@ -1,0 +1,41 @@
+# Expect half removal of brig-2 arrival.
+states {
+  area_id {
+    kind: "area"
+    number: 3
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    arrivals {
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 100
+        }
+      }
+      unit_id {
+        kind: "brig"
+        number: 1
+      }
+    }
+    arrivals {
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 50
+        }
+      }
+      unit_id {
+        kind: "brig"
+        number: 2
+      }
+    }
+  }
+}

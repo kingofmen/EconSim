@@ -44,6 +44,20 @@ states {
       number: 1
       kind: "faction"
     }
-    # No goods are actually delivered by the test.
+    # No goods are actually delivered by the test, so the
+    # arrival is not removed.
+    arrivals {
+      timestamp: 2
+      cargo {
+        quantities {
+          key: "trade_goods"
+          value: 2000000
+        }
+      }
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+    }
   }
 }

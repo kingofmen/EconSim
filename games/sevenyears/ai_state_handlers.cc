@@ -104,19 +104,28 @@ void CreateExpectedArrivals(const units::Unit& unit,
 
 void RegisterArrival(const units::Unit& unit,
                      const util::proto::ObjectId& area_id,
+                     const market::proto::Container& loaded,
                      SevenYearsState* world_state) {
+  if (market::Empty(loaded)) {
+    return;
+  }
   auto* state = world_state->mutable_area_state(area_id);
   const util::proto::ObjectId& faction_id = unit.faction_id();
   auto* lfi = FindLocalFactionInfo(faction_id, state);
   const util::proto::ObjectId& unit_id = unit.unit_id();
   auto* arrivals = lfi->mutable_arrivals();
 
-  for (auto& curr = arrivals->cbegin(); curr != arrivals->cend(); ++curr) {
+  for (auto& curr = arrivals->begin(); curr != arrivals->end(); ++curr) {
     if (curr->unit_id() != unit_id) {
       continue;
     }
-    curr = arrivals->erase(curr);
-    // Remove only the first expected arrival.
+    if (loaded >= curr->cargo()) {
+      curr = arrivals->erase(curr);
+    } else {
+      *(curr->mutable_cargo()) =
+          market::SubtractFloor(curr->cargo(), loaded, 0);
+    }
+    // Affects only the first expected arrival.
     break;
   }
 }

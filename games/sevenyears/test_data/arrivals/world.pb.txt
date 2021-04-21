@@ -1,0 +1,189 @@
+# World file for AI unit tests.
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 1
+    tag: "england"
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 1
+    tag: "center"
+  }
+}
+areas {
+  area_id {
+    kind: "area"
+    number: 2
+    tag: "london"
+  }
+}
+areas {
+  area_id {
+    kind: "area"
+    number: 3
+    tag: "bergen"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 1
+  distance_u: 100
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "center"
+  }
+}
+
+
+units {
+  unit_id {
+    kind: "brig"
+    number: 1
+  }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      tag: "center"
+    }
+    z_area_id {
+      kind: "area"
+      tag: "london"
+    }
+  }
+  resources {
+    quantities {
+      key: "trade_goods"
+      value: 100
+    }
+  }
+}
+units {
+  unit_id {
+    kind: "brig"
+    number: 2
+  }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      tag: "center"
+    }
+    z_area_id {
+      kind: "area"
+      tag: "bergen"
+    }
+  }
+  resources {
+    quantities {
+      key: "trade_goods"
+      value: 50
+    }
+  }
+}
+
+[sevenyears.proto.WorldState.sevenyears_state] {
+  area_states {
+    area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 2
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      arrivals {
+        cargo {
+	  quantities {
+  	    key: "trade_goods"
+	    value: 100
+	  }
+	}
+	unit_id {
+	  kind: "brig"
+          number: 1
+	}
+      }
+      arrivals {
+        cargo {
+	  quantities {
+  	    key: "trade_goods"
+	    value: 100
+	  }
+	}
+	unit_id {
+	  kind: "brig"
+          number: 2
+	}
+      }
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 3
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      arrivals {
+        cargo {
+	  quantities {
+  	    key: "trade_goods"
+	    value: 100
+	  }
+	}
+	unit_id {
+	  kind: "brig"
+          number: 1
+	}
+      }
+      arrivals {
+        cargo {
+	  quantities {
+  	    key: "trade_goods"
+	    value: 100
+	  }
+	}
+	unit_id {
+	  kind: "brig"
+          number: 2
+	}
+      }
+    }
+  }
+}

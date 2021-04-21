@@ -57,6 +57,19 @@ states {
         value: 6000000
       }
     }
+    arrivals {
+      timestamp: 4
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
+      }
+    }
   }
 }
 # Ship moves out carrying this turn's production.
@@ -79,6 +92,19 @@ states {
       quantities {
         key: "trade_goods"
         value: 6000000
+      }
+    }
+    arrivals {
+      timestamp: 4
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
       }
     }
   }
@@ -105,6 +131,19 @@ states {
         value: 8000000
       }
     }
+    arrivals {
+      timestamp: 4
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
+      }
+    }
   }
 }
 # Production continues.
@@ -127,6 +166,19 @@ states {
       quantities {
         key: "trade_goods"
         value: 10000000
+      }
+    }
+    arrivals {
+      timestamp: 4
+      unit_id {
+        number: 1
+	kind: "brig"
+      }
+      cargo {
+        quantities {
+          key: "supplies"
+          value: 1666666
+        }
       }
     }
   }

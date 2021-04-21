@@ -24,6 +24,7 @@ FindLocalFactionInfo(const util::proto::ObjectId& faction_id,
 // relevant area.
 void RegisterArrival(const units::Unit& unit,
                      const util::proto::ObjectId& area_id,
+                     const market::proto::Container& loaded,
                      SevenYearsState* world_state);
 
 } // namespace sevenyears

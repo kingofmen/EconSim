@@ -129,13 +129,19 @@ util::Status SevenYears::InitialiseAI() {
       constants::LoadShip(),
       [this](const ai::ActionCost&, const actions::proto::Step& step,
              units::Unit* unit) { return this->loadShip(step, unit); });
-  ai::RegisterExecutor(constants::OffloadCargo(),
-                       [this](const ai::ActionCost&,
-                              const actions::proto::Step& step,
-                              units::Unit* unit) {
-                         RegisterArrival(*unit, unit->area_id(), this);
-                         return this->offloadCargo(step, unit);
-                       });
+  ai::RegisterExecutor(
+      constants::OffloadCargo(),
+      [this](const ai::ActionCost& action, const actions::proto::Step& step,
+             units::Unit* unit) {
+        market::proto::Container offloaded;
+        auto status =
+            this->offloadCargo(action.fraction_u, step, unit, &offloaded);
+        if (!status.ok()) {
+          return status;
+        }
+        RegisterArrival(*unit, unit->area_id(), offloaded, this);
+        return status;
+      });
 
   merchant_ai_.reset(new SevenYearsMerchant(this));
   ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
@@ -183,8 +189,10 @@ util::Status SevenYears::loadShip(const actions::proto::Step& step,
   return util::NotComplete();
 }
 
-util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
-                                      units::Unit* unit) {
+util::Status SevenYears::offloadCargo(const micro::Measure /*fraction_u*/,
+                                      const actions::proto::Step& step,
+                                      units::Unit* unit,
+                                      market::proto::Container* amount) {
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
     return util::FailedPreconditionError(absl::Substitute(
@@ -203,7 +211,10 @@ util::Status SevenYears::offloadCargo(const actions::proto::Step& step,
 
   auto* warehouse = findWarehouse(unit->faction_id(), area_state);
   auto* cargo_hold = unit->mutable_resources();
-  *warehouse << *cargo_hold;
+  for (auto& resource : cargo_hold->quantities()) {
+    market::Add(resource.first, resource.second, amount);
+    market::Move(resource.first, resource.second, cargo_hold, warehouse);
+  }
 
   return util::OkStatus();
 }
