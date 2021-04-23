@@ -253,7 +253,7 @@ void SevenYears::moveUnits() {
       if (unit->plan().steps_size() == 0) {
         continue;
       }
-      auto status =
+      const auto& status =
           ai::ExecuteStep(unit->plan(), unit.get());
       if (status.ok()) {
         Log::Debugf("%s completed %s",
@@ -284,6 +284,7 @@ void SevenYears::moveUnits() {
                     status.error_message());
       }
     }
+
     if (count == 0) {
       break;
     }
@@ -395,10 +396,14 @@ void SevenYears::runEuropeanTrade(proto::AreaState* area_state,
     micro::Measure relation_bonus_u = 0;
     // TODO: Don't assume the variant index.
     int var_index = 0;
-    // TODO: Do something about failure.
-    trade.PerformStep(field->fixed_capital(), relation_bonus_u, var_index,
-                      warehouse, field->mutable_resources(), warehouse,
-                      warehouse, &progress);
+    auto status = trade.PerformStep(
+        field->fixed_capital(), relation_bonus_u, var_index, warehouse,
+        field->mutable_resources(), warehouse, warehouse, &progress);
+    if (!status.ok()) {
+      Log::Debugf("Could not perform process %s step %d: %s", trade.get_name(),
+                  progress.step(), status.error_message());
+      break;
+    }
   }
 }
 
