@@ -40,6 +40,13 @@ ActionCost InfiniteCost();
 ActionCost DefaultMoveCost(const actions::proto::Step& step,
                            const units::Unit& unit);
 
+// Default calculator that returns 1 if the unit has
+// at least one action point available; otherwise, it
+// returns the fraction the unit has.
+ActionCost PartialCost(const actions::proto::Step& step,
+                       const units::Unit& unit);
+ActionCost PartialCost(const units::Unit& unit);
+
 } // namespace ai
 
 #endif
