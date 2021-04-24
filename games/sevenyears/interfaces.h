@@ -25,6 +25,17 @@ public:
   mutable_area_state(const util::proto::ObjectId& area_id) = 0;
 };
 
+// Default implementation.
+class SevenYearsStateImpl : public SevenYearsState {
+public:
+  uint64 timestamp() const override { return timestamp_; }
+  void incrementTime() { timestamp_++; }
+  void setTime(uint64 t) { timestamp_ = t; }
+
+private:
+  uint64 timestamp_;
+};
+
 }  // namespace sevenyears
 
 

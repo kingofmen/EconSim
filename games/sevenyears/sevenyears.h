@@ -16,7 +16,7 @@
 namespace sevenyears {
 
 // Class for running actual game mechanics.
-class SevenYears : public SevenYearsState, public interface::StateFetcher {
+class SevenYears : public SevenYearsStateImpl, public interface::StateFetcher {
 public:
   SevenYears() : dirtyGraphics_(true) {}
   ~SevenYears() {}
@@ -41,9 +41,6 @@ public:
   // Load the state of object_id into proto, if it exists.
   void Fetch(const util::proto::ObjectId& object_id,
              google::protobuf::Message* proto);
-
-  // Returns the current internal time in turns.
-  uint64 timestamp() const override { return timestamp_; }
 
   sevenyears::proto::AreaState*
   mutable_area_state(const util::proto::ObjectId& area_id) override;
@@ -73,7 +70,6 @@ private:
       area_states_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
-  uint64 timestamp_;
 };
 
 }  // namespace sevenyears

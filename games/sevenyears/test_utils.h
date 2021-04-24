@@ -38,7 +38,7 @@ const std::string FileTag(const util::proto::ObjectId& obj_id);
 void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
                              int stage);
 
-class TestState : public SevenYearsState {
+class TestState : public SevenYearsStateImpl {
 public:
   TestState() {}
 
@@ -51,7 +51,6 @@ public:
   AreaState(const util::proto::ObjectId& area_id) const override;
   const industry::Production&
   ProductionChain(const std::string& name) const override;
-  uint64 timestamp() const override { return timestamp_; }
 
   sevenyears::proto::AreaState*
   mutable_area_state(const util::proto::ObjectId& area_id) override;
@@ -62,7 +61,6 @@ private:
   games::setup::Constants constants_;
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_proto_;
-  uint64 timestamp_;
 };
 
 }  // namespace sevenyears

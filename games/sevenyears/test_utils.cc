@@ -157,6 +157,7 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
   for (const auto& as : world_state->area_states()) {
     state_map_[as.area_id()] = as;
   }
+  setTime(world_state->timestamp());
   return util::OkStatus();
 }
 

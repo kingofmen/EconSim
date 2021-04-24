@@ -310,8 +310,8 @@ void SevenYears::moveUnits() {
 }
   
 void SevenYears::NewTurn() {
-  ++timestamp_;
-  Log::Infof("New turn (%d)", timestamp_);
+  incrementTime();
+  Log::Infof("New turn (%d)", timestamp());
 
   for (const auto& area : game_world_->areas_) {
     area->Update();
@@ -560,7 +560,7 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   if (!status.ok()) {
     return status;
   }
-  timestamp_ = world_state->timestamp();
+  setTime(world_state->timestamp());
 
   for (const auto& ai : world_state->area_states()) {
     area_states_[ai.area_id()] = ai;
