@@ -35,7 +35,8 @@ states {
     }
   }
 }
-# Ship arrives but doesn't have time to load.
+# Ship arrived and offloaded last turn (instant because it had
+# no cargo); now it loads up.
 states {
   area_id {
     kind: "area"
@@ -54,7 +55,7 @@ states {
     warehouse {
       quantities {
         key: "trade_goods"
-        value: 6000000
+        value: 4000000
       }
     }
     arrivals {

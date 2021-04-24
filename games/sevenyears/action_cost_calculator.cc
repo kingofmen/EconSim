@@ -1,5 +1,7 @@
 #include "games/sevenyears/action_cost_calculator.h"
 
+#include "games/ai/public/cost.h"
+#include "games/sevenyears/constants.h"
 #include "util/arithmetic/microunits.h"
 
 namespace sevenyears {
@@ -18,6 +20,12 @@ ai::ActionCost cost(const actions::proto::AtomicAction action,
 }
 
 ai::ActionCost cost(const std::string& action, const units::Unit& unit) {
+  if (action == constants::OffloadCargo()) {
+    return ai::PartialCost(unit);
+  }
+  if (action == constants::LoadShip()) {
+    return ai::PartialCost(unit);
+  }
   return ai::OneCost();
 }
 

@@ -59,7 +59,8 @@ private:
   // Executors.
   util::Status doEuropeanTrade(const actions::proto::Step& step,
                                units::Unit* unit);
-  util::Status loadShip(const actions::proto::Step& step, units::Unit* unit);
+  util::Status loadShip(micro::Measure fraction_u,
+                        const actions::proto::Step& step, units::Unit* unit);
   util::Status offloadCargo(micro::Measure fraction_u,
                             const actions::proto::Step& step, units::Unit* unit,
                             market::proto::Container* amount);

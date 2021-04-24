@@ -62,7 +62,7 @@ states {
     }
   }
 }
-# Nothing happening this turn.
+# Ship arrives and offloads a little.
 states {
   area_id {
     kind: "area"
@@ -77,13 +77,18 @@ states {
       number: 1
       kind: "faction"
     }
-    warehouse {}
+    warehouse {
+      quantities {
+        key: "trade_goods"
+        value: 166668
+      }
+    }
     arrivals {
       timestamp: 3
       cargo {
         quantities {
           key: "trade_goods"
-          value: 2000000
+          value: 1833332
         }
       }
       unit_id {
@@ -93,38 +98,7 @@ states {
     }
   }
 }
-# Ship arrives but doesn't have time to unload.
-states {
-  area_id {
-    kind: "area"
-    number: 4
-  }
-  owner_id {
-    kind: "faction"
-    number: 2
-  }
-  factions {
-    faction_id {
-      number: 1
-      kind: "faction"
-    }
-    warehouse {}
-    arrivals {
-      timestamp: 3
-      cargo {
-        quantities {
-          key: "trade_goods"
-          value: 2000000
-        }
-      }
-      unit_id {
-        number: 1
-	kind: "brig"
-      }
-    }
-  }
-}
-# Ship offloads.
+# Unloading finishes.
 states {
   area_id {
     kind: "area"
@@ -143,6 +117,34 @@ states {
       quantities {
         key: "trade_goods"
         value: 2000000
+      }
+    }
+  }
+}
+# Area produces supplies, but some of them are loaded
+# onto the ship.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 1
+      kind: "faction"
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 333334
+      }
+      quantities {
+        key: "trade_goods"
+        value: 1000000
       }
     }
   }

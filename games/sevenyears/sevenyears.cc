@@ -125,10 +125,12 @@ util::Status validateWorldState(
 }  // namespace
 
 util::Status SevenYears::InitialiseAI() {
-  ai::RegisterExecutor(
-      constants::LoadShip(),
-      [this](const ai::ActionCost&, const actions::proto::Step& step,
-             units::Unit* unit) { return this->loadShip(step, unit); });
+  ai::RegisterExecutor(constants::LoadShip(),
+                       [this](const ai::ActionCost& action,
+                              const actions::proto::Step& step,
+                              units::Unit* unit) {
+                         return this->loadShip(action.fraction_u, step, unit);
+                       });
   ai::RegisterExecutor(
       constants::OffloadCargo(),
       [this](const ai::ActionCost& action, const actions::proto::Step& step,
@@ -136,9 +138,6 @@ util::Status SevenYears::InitialiseAI() {
         market::proto::Container offloaded;
         auto status =
             this->offloadCargo(action.fraction_u, step, unit, &offloaded);
-        if (!status.ok()) {
-          return status;
-        }
         RegisterArrival(*unit, unit->area_id(), offloaded, this);
         return status;
       });
@@ -150,7 +149,8 @@ util::Status SevenYears::InitialiseAI() {
   return merchant_ai_->Initialise();
 }
 
-util::Status SevenYears::loadShip(const actions::proto::Step& step,
+util::Status SevenYears::loadShip(const micro::Measure fraction_u,
+                                  const actions::proto::Step& step,
                                   units::Unit* unit) {
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
@@ -181,6 +181,9 @@ util::Status SevenYears::loadShip(const actions::proto::Step& step,
   if (available_u > capacity_u) {
     available_u = capacity_u;
   }
+  if (fraction_u < micro::kOneInU) {
+    available_u = micro::MultiplyU(available_u, fraction_u);
+  }
   market::Move(step.good(), available_u, warehouse, unit->mutable_resources());
   capacity_u -= available_u;
   if (capacity_u <= 0) {
@@ -189,7 +192,7 @@ util::Status SevenYears::loadShip(const actions::proto::Step& step,
   return util::NotComplete();
 }
 
-util::Status SevenYears::offloadCargo(const micro::Measure /*fraction_u*/,
+util::Status SevenYears::offloadCargo(const micro::Measure fraction_u,
                                       const actions::proto::Step& step,
                                       units::Unit* unit,
                                       market::proto::Container* amount) {
@@ -209,11 +212,26 @@ util::Status SevenYears::offloadCargo(const micro::Measure /*fraction_u*/,
         util::objectid::DisplayString(unit_id)));
   }
 
-  auto* warehouse = findWarehouse(unit->faction_id(), area_state);
   auto* cargo_hold = unit->mutable_resources();
+  if (market::Empty(*cargo_hold)) {
+    return util::OkStatus();
+  }
+  if (fraction_u < 1) {
+    return util::NotComplete();
+  }
+
+  auto* warehouse = findWarehouse(unit->faction_id(), area_state);
   for (auto& resource : cargo_hold->quantities()) {
-    market::Add(resource.first, resource.second, amount);
-    market::Move(resource.first, resource.second, cargo_hold, warehouse);
+    auto transfer_u = resource.second;
+    if (fraction_u < micro::kOneInU) {
+      transfer_u = micro::MultiplyU(transfer_u, fraction_u);
+    }
+    market::Add(resource.first, transfer_u, amount);
+    market::Move(resource.first, transfer_u, cargo_hold, warehouse);
+  }
+
+  if (!market::Empty(*cargo_hold)) {
+    return util::NotComplete();
   }
 
   return util::OkStatus();
