@@ -45,16 +45,10 @@ public:
   util::Status Initialise(const games::setup::proto::ScenarioFiles& config);
   util::Status Initialise(const std::string& location);
 
-  const proto::AreaState&
-  AreaState(const util::proto::ObjectId& area_id) const override;
   const industry::Production&
   ProductionChain(const std::string& name) const override;
 
-  sevenyears::proto::AreaState*
-  mutable_area_state(const util::proto::ObjectId& area_id) override;
-
 private:
-  std::unordered_map<util::proto::ObjectId, proto::AreaState> state_map_;
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_proto_;
 };

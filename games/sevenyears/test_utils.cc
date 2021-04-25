@@ -155,7 +155,7 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
   sevenyears::proto::WorldState* world_state = world_proto_.MutableExtension(
       sevenyears::proto::WorldState::sevenyears_state);
   for (const auto& as : world_state->area_states()) {
-    state_map_[as.area_id()] = as;
+    area_states_[as.area_id()] = as;
   }
   setTime(world_state->timestamp());
   return util::OkStatus();
@@ -166,26 +166,6 @@ TestState::Initialise(const std::string& location) {
   games::setup::proto::ScenarioFiles config;
   PopulateScenarioFiles(location, &config);
   return Initialise(config);
-}
-
-const proto::AreaState&
-TestState::AreaState(const util::proto::ObjectId& area_id) const {
-  if (state_map_.find(area_id) == state_map_.end()) {
-    Log::Errorf("No state for area %s", util::objectid::DisplayString(area_id));
-    static proto::AreaState dummy;
-    return dummy;
-  }
-  return state_map_.at(area_id);
-}
-
-sevenyears::proto::AreaState*
-TestState::mutable_area_state(const util::proto::ObjectId& area_id) {
-  if (state_map_.find(area_id) == state_map_.end()) {
-    Log::Errorf("No state for area %s", util::objectid::DisplayString(area_id));
-    static proto::AreaState dummy;
-    return &dummy;
-  }
-  return &state_map_.at(area_id);
 }
 
 const industry::Production&

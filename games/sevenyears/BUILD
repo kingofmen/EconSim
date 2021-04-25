@@ -3,9 +3,11 @@ package(default_visibility = ["//games/sevenyears:__subpackages__"])
 cc_library(
     name = "sevenyears_interfaces",
     hdrs = ["interfaces.h"],
+    srcs = ["interfaces.cc"],
     deps = [
         "//games/setup:setup",
         "//games/sevenyears/proto:sevenyears_proto",
+        "//util/logging:logging",
         "//util/proto:object_id_proto",
     ],
 )

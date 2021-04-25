@@ -26,18 +26,12 @@ public:
   void UpdateGraphicsInfo(interface::Base* gfx);
   util::Status InitialiseAI();
 
-  const sevenyears::proto::AreaState&
-  AreaState(const util::proto::ObjectId& area_id) const override;
-
   const industry::Production&
   ProductionChain(const std::string& name) const override;
 
   // Load the state of object_id into proto, if it exists.
   void Fetch(const util::proto::ObjectId& object_id,
              google::protobuf::Message* proto);
-
-  sevenyears::proto::AreaState*
-  mutable_area_state(const util::proto::ObjectId& area_id) override;
 
 private:
   // Moves units, updating their plans if needed.
@@ -58,8 +52,6 @@ private:
 
   bool dirtyGraphics_;
   std::unordered_map<std::string, industry::Production> production_chains_;
-  std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
-      area_states_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
 };

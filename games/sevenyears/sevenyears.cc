@@ -581,29 +581,6 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
   return util::OkStatus();
 }
 
-const sevenyears::proto::AreaState&
-SevenYears::AreaState(const util::proto::ObjectId& area_id) const {
-  if (area_states_.find(area_id) == area_states_.end()) {
-    Log::Errorf("Could not find state for area %s",
-                util::objectid::DisplayString(area_id));
-    static sevenyears::proto::AreaState dummy_area_state;
-    *dummy_area_state.mutable_area_id() = util::objectid::kNullId;
-    return dummy_area_state;
-  }
-  return area_states_.at(area_id);
-}
-
-sevenyears::proto::AreaState*
-SevenYears::mutable_area_state(const util::proto::ObjectId& area_id) {
-  if (area_states_.find(area_id) == area_states_.end()) {
-    Log::Errorf("Could not find state for area %s",
-                util::objectid::DisplayString(area_id));
-    static sevenyears::proto::AreaState dummy_area_state_;
-    return &dummy_area_state_;
-  }
-  return &area_states_.at(area_id);
-}
-
 const industry::Production&
 SevenYears::ProductionChain(const std::string& name) const {
   if (production_chains_.find(name) == production_chains_.end()) {

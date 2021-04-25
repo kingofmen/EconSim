@@ -38,10 +38,17 @@ public:
   const games::setup::Constants& Constants() const override {
     return constants_;
   }
+  const sevenyears::proto::AreaState&
+  AreaState(const util::proto::ObjectId& area_id) const override;
+
+  sevenyears::proto::AreaState*
+  mutable_area_state(const util::proto::ObjectId& area_id) override;
 
 protected:
   std::unique_ptr<games::setup::World> game_world_;
   games::setup::Constants constants_;
+  std::unordered_map<util::proto::ObjectId, sevenyears::proto::AreaState>
+      area_states_;
 
 private:
   uint64 timestamp_;
