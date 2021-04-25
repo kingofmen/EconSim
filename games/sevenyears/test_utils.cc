@@ -151,7 +151,7 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
   if (!status.ok()) {
     return status;
   }
-  world_ = games::setup::World::FromProto(world_proto_);
+  game_world_ = games::setup::World::FromProto(world_proto_);
   sevenyears::proto::WorldState* world_state = world_proto_.MutableExtension(
       sevenyears::proto::WorldState::sevenyears_state);
   for (const auto& as : world_state->area_states()) {
@@ -166,14 +166,6 @@ TestState::Initialise(const std::string& location) {
   games::setup::proto::ScenarioFiles config;
   PopulateScenarioFiles(location, &config);
   return Initialise(config);
-}
-
-const games::setup::World& TestState::World() const {
-  return *world_;
-}
-
-const games::setup::Constants& TestState::Constants() const {
-  return constants_;
 }
 
 const proto::AreaState&

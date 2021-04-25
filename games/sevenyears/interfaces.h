@@ -28,9 +28,20 @@ public:
 // Default implementation.
 class SevenYearsStateImpl : public SevenYearsState {
 public:
+  // Time-related methods.
   uint64 timestamp() const override { return timestamp_; }
   void incrementTime() { timestamp_++; }
   void setTime(uint64 t) { timestamp_ = t; }
+
+  // World-state accessors.
+  const games::setup::World& World() const override { return *game_world_; }
+  const games::setup::Constants& Constants() const override {
+    return constants_;
+  }
+
+protected:
+  std::unique_ptr<games::setup::World> game_world_;
+  games::setup::Constants constants_;
 
 private:
   uint64 timestamp_;
