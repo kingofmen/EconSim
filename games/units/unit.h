@@ -60,6 +60,9 @@ public:
   const market::proto::Container& resources() const;
   market::proto::Container* mutable_resources();
 
+  // Adds the template attrition to the unit.
+  void Attrite();
+
   // Returns the amount of good that can still be loaded, whether limited
   // by bulk or weight.
   micro::Measure RemainingCapacity(const std::string& good) const;

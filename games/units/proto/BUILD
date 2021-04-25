@@ -31,6 +31,7 @@ proto_library(
     srcs = ["templates.proto"],
     deps = [
         "//games/market/proto:goods_proto_lib",
+        "//games/population/proto:consumption_proto_lib",
         "//util/proto:object_id_proto_lib",
     ],
 )

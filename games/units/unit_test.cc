@@ -23,6 +23,7 @@ class UnitTest : public testing::Test {
     template_.mutable_mobility()->set_speed_u(1);
     template_.mutable_mobility()->set_max_bulk_u(micro::kOneInU);
     template_.mutable_mobility()->set_max_weight_u(micro::kOneInU);
+    market::Add("hunger", micro::kOneInU, template_.mutable_attrition());
     Unit::RegisterTemplate(template_);
 
     unit_proto_.mutable_unit_id()->set_kind("template");
@@ -109,6 +110,15 @@ TEST_F(UnitTest, Unregister) {
   EXPECT_TRUE(Unit::RegisterTemplate(template_));
   Unit::ClearTemplates();
   EXPECT_TRUE(Unit::RegisterTemplate(template_));
+}
+
+TEST_F(UnitTest, Attrition) {
+  EXPECT_TRUE(market::Empty(unit_->resources()));
+  unit_->Attrite();
+  for (const auto& irritant : template_.attrition().quantities()) {
+    EXPECT_EQ(market::GetAmount(unit_->resources(), irritant.first),
+              irritant.second);
+  }
 }
 
 } // namespace units

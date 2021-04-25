@@ -41,7 +41,6 @@ void Unit::ClearTemplates() {
   template_map_.clear();
 }
 
-
 bool Unit::RegisterTemplate(const proto::Template& proto) {
   if (!proto.has_template_id()) {
     return false;
@@ -86,6 +85,10 @@ const proto::Template& Unit::Template() const {
                 proto_.unit_id().DebugString());
   }
   return *t;
+}
+
+void Unit::Attrite() {
+  *mutable_resources() += Template().attrition();
 }
 
 actions::proto::Strategy* Unit:: mutable_strategy() {
