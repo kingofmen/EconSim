@@ -11,15 +11,20 @@ cc_library(
     ],
 )
 
+filegroup(
+    name = "testdata",
+    srcs = glob(["test_data/*.pb.txt"]),
+)
+
 cc_test(
     name = "file_test",
     srcs = ["file_test.cc"],
     data = [
-        ":test_data/industry.pb.txt",
+        ":testdata",
     ],
     deps = [
         ":file",
-        "//games/industry/proto:industry_proto",
+        ":object_id_proto",
         "//util/status:status",
         "@com_google_absl//absl/strings",
         "@gtest",

@@ -1,7 +1,0 @@
-steps {}
-land_type: LT_FIELDS
-name: "Industry test proto"
-outputs {
-  quantities { key: "one" value: 1 }
-  quantities { key: "two" value: 2 }
-}
