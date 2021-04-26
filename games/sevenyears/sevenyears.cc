@@ -237,6 +237,37 @@ util::Status SevenYears::offloadCargo(const micro::Measure fraction_u,
   return util::OkStatus();
 }
 
+void SevenYears::consumeSupplies() {
+  for (auto& unit : game_world_->units_) {
+    unit->Attrite();
+    const auto& area_id = unit->location().a_area_id();
+    auto* area_state = mutable_area_state(area_id);
+    if (area_state == nullptr) {
+      Log::Errorf("Could not find state for area %s so %s could not consume",
+                  util::objectid::DisplayString(area_id),
+                  util::objectid::DisplayString(unit->unit_id()));
+      continue;
+    }
+    auto* warehouse = findWarehouse(unit->faction_id(), area_state);
+
+    for (const auto& con : unit->Template().supplies()) {
+      // Not using the full consumption model here.
+      if (con.goods_size() < 1) {
+        continue;
+      }
+
+      const auto& required = con.goods(0).consumed();
+      if (*warehouse >= required) {
+        *warehouse -= required;
+        *unit->mutable_resources() =
+            market::SubtractFloor(unit->resources(), con.relief(), 0);
+      } else {
+        break;
+      }
+    }
+  }
+}
+
 void SevenYears::moveUnits() {
   // Units all plan simultaneously.
   for (auto& unit : game_world_->units_) {
@@ -337,6 +368,7 @@ void SevenYears::NewTurn() {
     }
   }
 
+  consumeSupplies();
   moveUnits();
 
   dirtyGraphics_ = true;

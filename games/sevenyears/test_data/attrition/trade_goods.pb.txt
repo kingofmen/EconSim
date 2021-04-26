@@ -1,0 +1,9 @@
+trade_goods {
+  name: "supplies"
+  decay_rate_u: 0
+  transport_type: TTT_STANDARD
+  # Average of water (1 cubic meter, 1 ton) and lead (1 cubic meter,
+  # 11.3 tons)
+  bulk_u: 1000000
+  weight_u: 6000000
+}

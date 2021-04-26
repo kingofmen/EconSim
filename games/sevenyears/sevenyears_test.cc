@@ -37,7 +37,7 @@ protected:
   std::unique_ptr<sevenyears::SevenYears> game_;
 };
 
-TEST_F(SevenYearsTest, TestExecutors) {
+TEST_F(SevenYearsTest, Executors) {
   auto status = LoadTestData("executors");
   ASSERT_TRUE(status.ok()) << status.error_message();
   status = game_->InitialiseAI();
@@ -67,15 +67,16 @@ TEST_F(SevenYearsTest, TestExecutors) {
 }
 
 // End-to-end test for European trade.
-TEST_F(SevenYearsTest, TestEuropeanTradeE2E) {
-  auto status = LoadTestData("european_trade_e2e");
+TEST_F(SevenYearsTest, EuropeanTradeE2E) {
+  const std::string testName("european_trade_e2e");
+  auto status = LoadTestData(testName);
   ASSERT_TRUE(status.ok()) << status.error_message();
   status = game_->InitialiseAI();
   ASSERT_TRUE(status.ok()) << status.error_message();
 
   Golden golds;
   golds.AreaStates();
-  status = LoadGoldens("european_trade_e2e", &golds);
+  status = LoadGoldens(testName, &golds);
   int numStages = 0;
   for (const auto& as : *golds.area_states_) {
     if (as.second->states_size() > numStages) {
@@ -86,6 +87,28 @@ TEST_F(SevenYearsTest, TestEuropeanTradeE2E) {
     game_->NewTurn();
     CheckAreaStatesForStage(*game_, golds, stage);
   }
+}
+
+// Test for attrition and supply consumption.
+TEST_F(SevenYearsTest, ConsumeSupplies) {
+  const std::string testName("attrition");
+  auto status = LoadTestData(testName);
+  ASSERT_TRUE(status.ok()) << status.error_message();
+
+  int numStages = 1;
+  Golden golds;
+  golds.Units();
+  status = LoadGoldens(testName, &golds);
+  for (const auto& as : *golds.unit_states_) {
+    if (as.second->states_size() > numStages) {
+      numStages = as.second->states_size();
+    }
+  }
+  for (int stage = 0; stage < numStages; ++stage) {
+    game_->consumeSupplies();
+    CheckUnitStatesForStage(*game_, golds, stage);
+  }
+
 }
 
 }  // namespace sevenyears

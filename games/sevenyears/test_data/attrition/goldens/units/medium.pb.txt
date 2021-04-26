@@ -1,0 +1,35 @@
+states {
+  unit_id {
+    kind: "cavalry"
+    number: 2
+    tag: "medium"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 1000000
+    }
+    quantities {
+      key: "hungry"
+      value: 0
+    }
+    quantities {
+      key: "starving"
+      value: 0
+    }
+    quantities {
+      key: "undisciplined"
+      value: 1000000
+    }
+  }
+}

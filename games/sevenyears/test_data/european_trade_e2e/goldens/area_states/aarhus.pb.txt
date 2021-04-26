@@ -16,6 +16,7 @@ states {
       number: 1
       kind: "faction"
     }
+    warehouse {}
     arrivals {
       timestamp: 3
       cargo {

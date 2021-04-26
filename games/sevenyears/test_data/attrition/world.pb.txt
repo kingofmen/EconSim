@@ -1,0 +1,92 @@
+# World file for Attrition test.
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+}
+
+units {
+  unit_id {
+    kind: "cavalry"
+    number: 1
+    tag: "rich"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+units {
+  unit_id {
+    kind: "cavalry"
+    number: 2
+    tag: "medium"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+units {
+  unit_id {
+    kind: "cavalry"
+    number: 3
+    tag: "poor"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
+[sevenyears.proto.WorldState.sevenyears_state] {
+  area_states {
+    area_id {
+      kind: "area"
+      number: 1
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "supplies"
+          value: 6000000
+        }
+      }
+    }
+  }
+}

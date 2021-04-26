@@ -49,5 +49,6 @@ proto_library(
     ],
     deps = [
         ":sevenyears_proto_lib",
+        "//games/units/proto:units_proto_lib",
     ],
 )

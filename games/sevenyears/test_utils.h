@@ -20,9 +20,13 @@ struct Golden {
   std::unique_ptr<std::unordered_map<
       std::string, sevenyears::testdata::proto::AreaStateList*>>
       area_states_;
+  std::unique_ptr<std::unordered_map<
+      std::string, sevenyears::testdata::proto::UnitStateList*>>
+      unit_states_;
 
   void Plans();
   void AreaStates();
+  void Units();
 };
 
 void PopulateScenarioFiles(const std::string& location,
@@ -36,6 +40,10 @@ const std::string FileTag(const util::proto::ObjectId& obj_id);
 
 // Compares the world state against the golden state for the given stage.
 void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
+                             int stage);
+
+// Compares world state against golden unit states for the given stage.
+void CheckUnitStatesForStage(const SevenYearsState& got, const Golden& want,
                              int stage);
 
 class TestState : public SevenYearsStateImpl {

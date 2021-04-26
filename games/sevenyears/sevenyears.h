@@ -34,6 +34,9 @@ public:
              google::protobuf::Message* proto);
 
 private:
+  // Use supplies.
+  friend class SevenYearsTest_ConsumeSupplies_Test;
+  void consumeSupplies();
   // Moves units, updating their plans if needed.
   void moveUnits();
   void runAreaProduction(proto::AreaState* area_state, geography::Area* area);

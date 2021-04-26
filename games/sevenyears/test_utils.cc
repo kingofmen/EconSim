@@ -24,6 +24,7 @@ const std::string kChains = "chains.pb.txt";
 const std::string kGoldens = "goldens";
 const std::string kPlans = "plans";
 const std::string kStates = "area_states";
+const std::string kUnits = "units";
 //const std::string kConsumption = "consumption.pb.txt";
 
 namespace {
@@ -87,6 +88,33 @@ util::Status loadGoldenStates(
   return util::OkStatus();
 }
 
+util::Status loadGoldenUnits(
+    const std::string& base,
+    std::unordered_map<std::string,
+                       sevenyears::testdata::proto::UnitStateList*>* states) {
+  if (states == nullptr) {
+    return util::OkStatus();
+  }
+
+  auto dir = absl::StrJoin({base, kUnits}, "/");
+  if (!std::experimental::filesystem::exists(dir)) {
+    return util::NotFoundErrorf("Could not find %s", dir);
+  }
+
+  auto& stateRef = *states;
+  for (auto& entry : std::experimental::filesystem::directory_iterator(dir)) {
+    auto* state = new sevenyears::testdata::proto::UnitStateList();
+    auto path = entry.path();
+    auto status = util::proto::ParseProtoFile(path.string(), state);
+    if (!status.ok()) {
+      return status;
+    }
+    stateRef[path.filename().string()] = state;
+  }
+
+  return util::OkStatus();
+}
+
 } // namespace
 
 void Golden::Plans() {
@@ -97,6 +125,12 @@ void Golden::AreaStates() {
   area_states_.reset(
       new std::unordered_map<std::string,
                              sevenyears::testdata::proto::AreaStateList*>());
+}
+
+void Golden::Units() {
+  unit_states_.reset(
+      new std::unordered_map<std::string,
+                             sevenyears::testdata::proto::UnitStateList*>());
 }
 
 void PopulateScenarioFiles(const std::string& location,
@@ -130,6 +164,10 @@ util::Status LoadGoldens(const std::string& location, Golden* golds) {
     return status;
   }
   status = loadGoldenStates(kBase, golds->area_states_.get());
+  if (!status.ok()) {
+    return status;
+  }
+  status = loadGoldenUnits(kBase, golds->unit_states_.get());
   if (!status.ok()) {
     return status;
   }
@@ -200,6 +238,43 @@ void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
         << ": Golden state " << goldState.DebugString()
         << "\ndiffers from actual state\n"
         << actual.DebugString();
+  }
+}
+
+void CheckUnitStatesForStage(const SevenYearsState& got, const Golden& want,
+                             int stage) {
+  google::protobuf::util::MessageDifferencer differ;
+  if (want.unit_states_->empty()) {
+    EXPECT_FALSE(want.unit_states_->empty()) << "No golden unit states.";
+    return;
+  }
+  for (const auto& goldIt : *(want.unit_states_)) {
+    std::string tag = goldIt.first;
+    const auto* goldStateList = goldIt.second;
+    if (goldStateList->states_size() <= stage) {
+      EXPECT_GT(goldStateList->states_size(), stage);
+      continue;
+    }
+    const auto& goldState = goldStateList->states(stage);
+    const util::proto::ObjectId& unit_id = goldState.unit_id();
+    bool found = false;
+    for (const auto& cand : got.World().units_) {
+      if (cand->unit_id() != unit_id) {
+        continue;
+      }
+      EXPECT_TRUE(differ.Equals(goldState, cand->Proto()))
+          << "Stage " << stage << ": " << util::objectid::DisplayString(unit_id)
+          << ": Golden state " << goldState.DebugString()
+          << "\ndiffers from actual state\n"
+          << cand->Proto().DebugString();
+      found = true;
+      break;
+    }
+    if (!found) {
+      EXPECT_TRUE(found) << "Did not find "
+                         << util::objectid::DisplayString(unit_id)
+                         << " in stage " << stage;
+    }
   }
 }
 
