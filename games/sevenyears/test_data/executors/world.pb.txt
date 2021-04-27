@@ -49,6 +49,7 @@ units {
   unit_id {
     kind: "brig"
     number: 1
+    tag: "loader"
   }
   location {
     a_area_id {
@@ -71,6 +72,7 @@ units {
   unit_id {
     kind: "brig"
     number: 2
+    tag: "offloader"
   }
   location {
     a_area_id {

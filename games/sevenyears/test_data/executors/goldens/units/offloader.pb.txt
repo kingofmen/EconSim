@@ -1,0 +1,25 @@
+states {
+  unit_id {
+    kind: "brig"
+    number: 2
+    tag: "offloader"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  resources {
+    quantities {
+      key: "supplies"
+      value: 0
+    }
+  }
+  plan {}
+  strategy {}
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}

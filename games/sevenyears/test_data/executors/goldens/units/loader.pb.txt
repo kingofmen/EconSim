@@ -1,0 +1,27 @@
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "loader"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "trade_goods"
+      value: 2000000
+    }
+  }
+  plan {
+  }
+  strategy {
+  }
+}

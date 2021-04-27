@@ -38,31 +38,27 @@ protected:
 };
 
 TEST_F(SevenYearsTest, Executors) {
-  auto status = LoadTestData("executors");
+  const std::string testName("executors");
+  auto status = LoadTestData(testName);
   ASSERT_TRUE(status.ok()) << status.error_message();
   status = game_->InitialiseAI();
   ASSERT_TRUE(status.ok()) << status.error_message();
 
-  game_->NewTurn();
-  for (auto& unit : game_->World().units_) {
-    EXPECT_EQ(0, unit->plan().steps_size())
-        << absl::Substitute("$0 has unexpected step remaining: $1",
-                            util::objectid::DisplayString(unit->unit_id()),
-                            unit->plan().DebugString());
-    // TODO(issue 28): Don't hardcode unit numbers here, make a proper
-    // golden-state proto.
-    switch (unit->unit_id().number()) {
-      case 1:
-        EXPECT_EQ(2 * micro::kOneInU,
-                  market::GetAmount(unit->resources(), constants::TradeGoods()));
-        break;
-      case 2:
-        EXPECT_EQ(0,
-                  market::GetAmount(unit->resources(), constants::Supplies()));
-        break;
-      default:
-        break;
+  int numStages = 1;
+  Golden golds;
+  golds.Units();
+  status = LoadGoldens(testName, &golds);
+  if (!status.ok()) {
+    ASSERT_TRUE(status.ok()) << status.error_message();
+  }
+  for (const auto& as : *golds.unit_states_) {
+    if (as.second->states_size() > numStages) {
+      numStages = as.second->states_size();
     }
+  }
+  for (int stage = 0; stage < numStages; ++stage) {
+    game_->NewTurn();
+    CheckUnitStatesForStage(*game_, golds, stage);
   }
 }
 
@@ -77,6 +73,9 @@ TEST_F(SevenYearsTest, EuropeanTradeE2E) {
   Golden golds;
   golds.AreaStates();
   status = LoadGoldens(testName, &golds);
+  if (!status.ok()) {
+    ASSERT_TRUE(status.ok()) << status.error_message();
+  }
   int numStages = 0;
   for (const auto& as : *golds.area_states_) {
     if (as.second->states_size() > numStages) {
@@ -99,6 +98,9 @@ TEST_F(SevenYearsTest, ConsumeSupplies) {
   Golden golds;
   golds.Units();
   status = LoadGoldens(testName, &golds);
+  if (!status.ok()) {
+    ASSERT_TRUE(status.ok()) << status.error_message();
+  }
   for (const auto& as : *golds.unit_states_) {
     if (as.second->states_size() > numStages) {
       numStages = as.second->states_size();
