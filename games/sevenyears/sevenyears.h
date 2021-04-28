@@ -7,6 +7,7 @@
 #include "games/interface/base.h"
 #include "games/setup/proto/setup.pb.h"
 #include "games/sevenyears/action_cost_calculator.h"
+#include "games/sevenyears/army_ai.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/merchant_ship_ai.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -56,6 +57,7 @@ private:
   bool dirtyGraphics_;
   std::unordered_map<std::string, industry::Production> production_chains_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
+  std::unique_ptr<sevenyears::SevenYearsArmyAi> army_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
 };
 

@@ -26,10 +26,15 @@ message SevenYearsMerchant {
   optional string default_mission = 3;
 }
 
+message SevenYearsArmy {
+  optional util.proto.ObjectId base_area_id = 1;
+}
+
 message Strategy {
   oneof strategy {
     ShuttleTrade shuttle_trade = 1;
     SevenYearsMerchant seven_years_merchant = 2;
+    SevenYearsArmy seven_years_army = 5;
   }
   oneof key {
     // If 'define' is set, units may copy this strategy by setting
@@ -37,5 +42,7 @@ message Strategy {
     string define = 3;
     string lookup = 4;
   }
+
+  // Next available ID: 6
 }
 

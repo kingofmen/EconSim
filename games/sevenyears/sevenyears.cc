@@ -142,11 +142,22 @@ util::Status SevenYears::InitialiseAI() {
         return status;
       });
 
-  merchant_ai_.reset(new SevenYearsMerchant(this));
   ai::RegisterCost(actions::proto::AA_MOVE, ai::DefaultMoveCost);
   cost_calculator_.reset(new ActionCostCalculator(this));
   ai::RegisterDefaultCost(*cost_calculator_);
-  return merchant_ai_->Initialise();
+
+  merchant_ai_.reset(new SevenYearsMerchant(this));
+  auto status = merchant_ai_->Initialise();
+  if (!status.ok()) {
+    return status;
+  }
+
+  army_ai_.reset(new SevenYearsArmyAi(this));
+  status = army_ai_->Initialise();
+  if (!status.ok()) {
+    return status;
+  }
+  return util::OkStatus();
 }
 
 util::Status SevenYears::loadShip(const micro::Measure fraction_u,

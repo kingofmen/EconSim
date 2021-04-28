@@ -44,10 +44,12 @@ cc_library(
 cc_library(
     name = "sevenyears_ai_lib",
     srcs = [
+        "army_ai.cc",
         "merchant_ship_ai.cc",
         "action_cost_calculator.cc",
     ],
     hdrs = [
+        "army_ai.h",
         "merchant_ship_ai.h",
         "action_cost_calculator.h",
     ],
