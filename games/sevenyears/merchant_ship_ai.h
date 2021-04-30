@@ -49,15 +49,24 @@ public:
   ValidMission(const actions::proto::SevenYearsMerchant& sym) const;
 
 private:
+  typedef std::function<util::Status(const geography::Area& area,
+                                     const sevenyears::proto::AreaState& state,
+                                     const util::proto::ObjectId& faction_id)>
+      MissionCheck;
+  typedef std::function<micro::Measure(micro::Measure, micro::Measure,
+                                       micro::Measure)>
+      GoodnessMetric;
+
   // Planning helper methods.
-  void checkForHomePort(const units::Unit& unit,
-                        const util::proto::ObjectId& area_id,
-                        const util::proto::ObjectId& faction_id,
-                        PlannedPath* candidate);
+  void checkForGoodsPickup(const units::Unit& unit,
+                           const util::proto::ObjectId& area_id,
+                           const util::proto::ObjectId& faction_id,
+                           GoodnessMetric metric,
+                           PlannedPath* candidate);
   util::Status createCandidatePath(const units::Unit& unit,
                                    const geography::Area& area,
                                    const util::proto::ObjectId& faction_id,
-                                   PlannedPath* candidate);
+                                   MissionCheck pred, PlannedPath* candidate);
   util::Status
   planEuropeanTrade(const units::Unit& unit,
                     const actions::proto::SevenYearsMerchant& strategy,
@@ -65,7 +74,7 @@ private:
   util::Status planColonialTrade(const units::Unit& unit,
                                  actions::proto::Plan* plan) const;
   util::Status planSupplyArmies(const units::Unit& unit,
-                                actions::proto::Plan* plan) const;
+                                actions::proto::Plan* plan);
   util::Status
   planReturnToBase(const units::Unit& unit,
                    const actions::proto::SevenYearsMerchant& strategy,

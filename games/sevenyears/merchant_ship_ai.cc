@@ -23,11 +23,14 @@
 namespace sevenyears {
 namespace {
 
-bool canDoEuropeanTrade(const geography::Area& area,
-                        const sevenyears::proto::AreaState& state,
-                        const util::proto::ObjectId faction_id) {
+util::Status canDoEuropeanTrade(const geography::Area& area,
+                                const sevenyears::proto::AreaState& state,
+                                const util::proto::ObjectId& faction_id) {
   if (faction_id == state.owner_id()) {
-    return false;
+    return util::FailedPreconditionErrorf(
+        "No European trade: %s owns %s",
+        util::objectid::DisplayString(faction_id),
+        util::objectid::DisplayString(area.area_id()));
   }
 
   // TODO: Don't rely purely on import capacity here.
@@ -38,10 +41,18 @@ bool canDoEuropeanTrade(const geography::Area& area,
     }
     if (market::GetAmount(field->resources(), constants::ImportCapacity()) >=
         micro::kOneInU) {
-      return true;
+      return util::OkStatus();
     }
   }
-  return false;
+  return util::FailedPreconditionErrorf(
+      "No European trade in %s: No import capacity.",
+      util::objectid::DisplayString(area.area_id()));
+}
+
+util::Status canDoArmySupply(const geography::Area& area,
+                                const sevenyears::proto::AreaState& state,
+                                const util::proto::ObjectId& faction_id) {
+  return util::OkStatus();
 }
 
 bool isMerchantShip(const units::Unit& unit) {
@@ -122,18 +133,17 @@ micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
 // area, if possible. Otherwise returns a non-OK status.
 util::Status SevenYearsMerchant::createCandidatePath(
     const units::Unit& unit, const geography::Area& area,
-    const util::proto::ObjectId& faction_id, PlannedPath* candidate) {
+    const util::proto::ObjectId& faction_id, MissionCheck pred,
+    PlannedPath* candidate) {
   const auto& state = game_->AreaState(area.area_id());
-  if (!canDoEuropeanTrade(area, state, faction_id)) {
-    return util::FailedPreconditionError(
-        absl::Substitute("$0 cannot do European trade for $1",
-                         util::objectid::DisplayString(area.area_id()),
-                         util::objectid::DisplayString(faction_id)));
+  auto status = pred(area, state, faction_id);
+  if (!status.ok()) {
+    return status;
   }
 
   candidate->supply_source_id = area.area_id();
   std::vector<uint64> traverse;
-  auto status =
+  status =
       ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
                          ai::impl::ZeroHeuristic, area.area_id(), &traverse);
   if (!status.ok()) {
@@ -147,9 +157,13 @@ util::Status SevenYearsMerchant::createCandidatePath(
   return util::OkStatus();
 }
 
-void SevenYearsMerchant::checkForHomePort(
+// Calculates the goodness of a pickup stop in the target area,
+// and changes candidate to use this pickup if it's better than
+// the current one.
+void SevenYearsMerchant::checkForGoodsPickup(
     const units::Unit& unit, const util::proto::ObjectId& area_id,
-    const util::proto::ObjectId& faction_id, PlannedPath* candidate) {
+    const util::proto::ObjectId& faction_id, GoodnessMetric metric,
+    PlannedPath* candidate) {
   const auto& state = game_->AreaState(area_id);
   if (faction_id != state.owner_id()) {
     return;
@@ -171,10 +185,10 @@ void SevenYearsMerchant::checkForHomePort(
   if (dist < candidate->home_distance) {
     candidate->home_distance = dist;
     candidate->dropoff_id = area_id;
-    candidate->goodness = tradePoints(
-        candidate->trade_goods, candidate->supplies,
-        candidate->first_distance + candidate->outbound_distance +
-            candidate->home_distance);
+    candidate->goodness =
+        metric(candidate->trade_goods, candidate->supplies,
+               candidate->first_distance + candidate->outbound_distance +
+                   candidate->home_distance);
   }
 
   // Presumably the distance is the same both ways. So check if it is a
@@ -202,8 +216,8 @@ void SevenYearsMerchant::checkForHomePort(
   micro::Measure availableSupplies = netGoods(
       faction_id, constants::Supplies(), state, game_->timestamp() + timeTaken);
   micro::Measure hypothetical =
-      tradePoints(availableTrade, availableSupplies,
-                  pickup_dist + dist + candidate->home_distance);
+      metric(availableTrade, availableSupplies,
+             pickup_dist + dist + candidate->home_distance);
   if (hypothetical > candidate->goodness) {
     candidate->goodness = hypothetical;
     candidate->trade_goods = availableTrade;
@@ -228,6 +242,7 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   auto& faction = factions_.at(faction_id);
   clearUnitInfo(unit, &faction);
   auto supplyCapacity = unit.Capacity(constants::Supplies());
+  // This line is necessary but I don't understand why. TODO: Remove it.
   const auto& home_base_id = strategy.base_area_id();
   const auto& world = game_->World();
 
@@ -239,7 +254,8 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   util::Status status;
   for (const auto& area : world.areas_) {
     PlannedPath candidate;
-    status = createCandidatePath(unit, *area, faction_id, &candidate);
+    status = createCandidatePath(unit, *area, faction_id, canDoEuropeanTrade,
+                                 &candidate);
     if (!status.ok()) {
       // Indicates bad candidate, no need to propagate.
       continue;
@@ -261,7 +277,8 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   for (auto& planned_path : possible_paths) {
     planned_path.home_distance = micro::kMaxU;
     for (const auto& area : world.areas_) {
-      checkForHomePort(unit, area->area_id(), faction_id, &planned_path);
+      checkForGoodsPickup(unit, area->area_id(), faction_id, tradePoints,
+                          &planned_path);
     }
   }
  
@@ -326,10 +343,13 @@ SevenYearsMerchant::planColonialTrade(const units::Unit& unit,
   return util::NotImplementedError("Colonial trade AI is not implemented.");
 }
 
-util::Status
-SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
-                                     actions::proto::Plan* plan) const {
-  return util::NotImplementedError("Army supply AI is not implemented.");
+// The supply algorithm is: Sort the list of supply-requiring army bases
+// by priority, which is a combination of supplies used, supplies already
+// present (including on the way), closeness, and risk. Send the ship to
+// the highest priority, adding a detour to pick up the supplies if needed.
+util::Status SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
+                                                  actions::proto::Plan* plan) {
+  return util::OkStatus();
 }
 
 util::Status SevenYearsMerchant::planReturnToBase(
@@ -358,8 +378,9 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   }
 
   if (!isMerchantShip(unit)) {
-    return util::InvalidArgumentError(absl::Substitute(
-        "Unit $0 is not a merchant ship.", unit.unit_id().DebugString()));
+    return util::InvalidArgumentErrorf(
+        "Unit %s is not a merchant ship.",
+        util::objectid::DisplayString(unit.unit_id()));
   }
 
   if (factions_.find(unit.faction_id()) == factions_.end()) {
@@ -388,7 +409,8 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   } else if (mission == constants::SupplyArmies()) {
     return planSupplyArmies(unit, plan);
   }
-  return util::NotImplementedError("This error should be unreachable.");
+  return util::NotImplementedErrorf("This error should be unreachable: %s",
+                                    plan->DebugString());
 }
 
 util::Status SevenYearsMerchant::Initialise() {
