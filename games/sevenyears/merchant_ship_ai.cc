@@ -127,6 +127,12 @@ micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
   return micro::DivideU(value, distance);
 }
 
+micro::Measure supplyPoints(micro::Measure goods, micro::Measure supplies,
+                            micro::Measure distance) {
+  micro::Measure value = supplies;
+  return micro::DivideU(value, distance);
+}
+
 }  // namespace
 
 // Fills in the PlannedPath from the unit's current location to the provided
@@ -141,7 +147,7 @@ util::Status SevenYearsMerchant::createCandidatePath(
     return status;
   }
 
-  candidate->supply_source_id = area.area_id();
+  candidate->target_port_id = area.area_id();
   std::vector<uint64> traverse;
   status =
       ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
@@ -157,10 +163,7 @@ util::Status SevenYearsMerchant::createCandidatePath(
   return util::OkStatus();
 }
 
-// Calculates the goodness of a pickup stop in the target area,
-// and changes candidate to use this pickup if it's better than
-// the current one.
-void SevenYearsMerchant::checkForGoodsPickup(
+void SevenYearsMerchant::checkForDropoff(
     const units::Unit& unit, const util::proto::ObjectId& area_id,
     const util::proto::ObjectId& faction_id, GoodnessMetric metric,
     PlannedPath* candidate) {
@@ -173,13 +176,14 @@ void SevenYearsMerchant::checkForGoodsPickup(
   *home_location.mutable_a_area_id() = area_id;
   auto status = ai::impl::FindPath(home_location, ai::impl::ShortestDistance,
                                    ai::impl::ZeroHeuristic,
-                                   candidate->supply_source_id, &traverse);
+                                   candidate->target_port_id, &traverse);
   if (!status.ok()) {
-    // No safe path, but that's ok, just don't use this port.
+    // No safe path, but that's ok, just don't use this port as the dropoff.
     return;
   }
 
-  // We can reach it; now consider whether this is a useful home port.
+  // We can reach it; now consider whether this is a useful dropoff, i.e.
+  // final, port.
   micro::Measure dist =
       ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
   if (dist < candidate->home_distance) {
@@ -190,40 +194,62 @@ void SevenYearsMerchant::checkForGoodsPickup(
                candidate->first_distance + candidate->outbound_distance +
                    candidate->home_distance);
   }
+}
 
-  // Presumably the distance is the same both ways. So check if it is a
-  // useful trade-supply port using the same distance.
-  // TODO: If I ever implement prevailing winds this assumption may
-  // change.
-  std::vector<uint64> pathhome;
-  status =
-      ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
-                         ai::impl::ZeroHeuristic, area_id, &pathhome);
+// Calculates the goodness of a pickup stop in the target area,
+// and changes candidate to use this pickup if it's better than
+// the current one.
+void SevenYearsMerchant::checkForPickup(
+    const units::Unit& unit, const util::proto::ObjectId& area_id,
+    const util::proto::ObjectId& faction_id, GoodnessMetric metric,
+    PlannedPath* candidate) {
+  const auto& state = game_->AreaState(area_id);
+  if (faction_id != state.owner_id()) {
+    return;
+  }
+  std::vector<uint64> carry_path;
+  geography::proto::Location home_location;
+  // Check if we can get from the area to the target.
+  *home_location.mutable_a_area_id() = area_id;
+  auto status = ai::impl::FindPath(home_location, ai::impl::ShortestDistance,
+                                   ai::impl::ZeroHeuristic,
+                                   candidate->target_port_id, &carry_path);
+  if (!status.ok()) {
+    // No safe path, but that's ok, just don't use this port for pickup.
+    return;
+  }
+
+  std::vector<uint64> pickup_path;
+  status = ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
+                              ai::impl::ZeroHeuristic, area_id, &pickup_path);
   if (!status.ok()) {
     // Problem with this specific port, not worth returning.
-    DLOGF(Log::P_DEBUG, "Could not find path from %s to %s",
-          unit.location().DebugString(), area_id.DebugString());
+    DLOGF(Log::P_DEBUG, "Could not find path from %s to %s for pickup",
+          unit.location().DebugString(),
+          util::objectid::DisplayString(area_id));
     return;
   }
   micro::Measure pickup_dist =
-      ai::impl::CalculateDistance(pathhome, ai::impl::ShortestDistance);
-  int timeTaken = ai::utils::NumTurns(unit, pathhome);
+      ai::impl::CalculateDistance(pickup_path, ai::impl::ShortestDistance);
+  int timeTaken = ai::utils::NumTurns(unit, pickup_path);
   micro::Measure availableTrade =
       netGoods(faction_id, constants::TradeGoods(), state,
                game_->timestamp() + timeTaken);
-  // Supplies must account for the additional time taken to detour home.
-  timeTaken += ai::utils::NumTurns(unit, traverse);
+  // Supplies must account for the additional time taken to detour to pickup.
+  timeTaken += ai::utils::NumTurns(unit, carry_path);
   micro::Measure availableSupplies = netGoods(
       faction_id, constants::Supplies(), state, game_->timestamp() + timeTaken);
+  micro::Measure carry_dist =
+      ai::impl::CalculateDistance(carry_path, ai::impl::ShortestDistance);
   micro::Measure hypothetical =
       metric(availableTrade, availableSupplies,
-             pickup_dist + dist + candidate->home_distance);
+             pickup_dist + carry_dist + candidate->home_distance);
   if (hypothetical > candidate->goodness) {
     candidate->goodness = hypothetical;
     candidate->trade_goods = availableTrade;
     candidate->supplies = availableSupplies;
     candidate->first_distance = pickup_dist;
-    candidate->outbound_distance = dist;
+    candidate->outbound_distance = carry_dist;
     candidate->trade_source_id = area_id;
   }
 }
@@ -270,14 +296,21 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
         status.error_message().as_string()));
   }
 
-  // Now add the possibility of a home-port stop; supply port is fixed in what
-  // follows.
   // TODO: Use time, not distance. Distance is a distraction, time is the
   // important metric.
+  // Check if we want this to be the dropoff port.
   for (auto& planned_path : possible_paths) {
     planned_path.home_distance = micro::kMaxU;
     for (const auto& area : world.areas_) {
-      checkForGoodsPickup(unit, area->area_id(), faction_id, tradePoints,
+      checkForDropoff(unit, area->area_id(), faction_id, tradePoints,
+                      &planned_path);
+    }
+  }
+
+  // Check whether this can be the pickup port.
+  for (auto& planned_path : possible_paths) {
+    for (const auto& area : world.areas_) {
+      checkForPickup(unit, area->area_id(), faction_id, tradePoints,
                           &planned_path);
     }
   }
@@ -296,7 +329,7 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
         util::objectid::IsNull(path.trade_source_id)
             ? "(none)"
             : util::objectid::Tag(path.trade_source_id),
-        util::objectid::Tag(path.supply_source_id),
+        util::objectid::Tag(path.target_port_id),
         util::objectid::Tag(path.dropoff_id));
 
   geography::proto::Location location = unit.location();
@@ -315,14 +348,14 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
 
   std::vector<uint64> traverse;
   status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
-                              ai::impl::ZeroHeuristic, path.supply_source_id,
+                              ai::impl::ZeroHeuristic, path.target_port_id,
                               &traverse);
   if (!status.ok()) {
     return status;
   }
   ai::impl::PlanPath(location, traverse, plan);
   planTrade(unit, constants::Supplies(), plan);
-  *location.mutable_a_area_id() = path.supply_source_id;
+  *location.mutable_a_area_id() = path.target_port_id;
 
   traverse.clear();
   status =

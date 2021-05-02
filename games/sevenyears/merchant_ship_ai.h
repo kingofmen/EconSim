@@ -16,8 +16,10 @@ namespace sevenyears {
 class SevenYears;
 
 // Struct to keep track of candidate for trade paths. Exposed for testing.
+// Missions operate with at most four ports, not all of which need be
+// distinct: Current location, (optional) pickup, target, and dropoff.
 struct PlannedPath {
-  // Expected supplies carried home.
+  // Expected supplies carried home or delivered.
   micro::Measure supplies;
   // Expected trade goods carried to a supply source.
   micro::Measure trade_goods;
@@ -28,7 +30,7 @@ struct PlannedPath {
   // Distance from supply source to final destination.
   micro::Measure home_distance;
   // The trade port.
-  util::proto::ObjectId supply_source_id;
+  util::proto::ObjectId target_port_id;
   // The home port supplying trade goods.
   util::proto::ObjectId trade_source_id;
   // The home port receiving supplies.
@@ -58,11 +60,14 @@ private:
       GoodnessMetric;
 
   // Planning helper methods.
-  void checkForGoodsPickup(const units::Unit& unit,
-                           const util::proto::ObjectId& area_id,
-                           const util::proto::ObjectId& faction_id,
-                           GoodnessMetric metric,
-                           PlannedPath* candidate);
+  void checkForDropoff(const units::Unit& unit,
+                       const util::proto::ObjectId& area_id,
+                       const util::proto::ObjectId& faction_id,
+                       GoodnessMetric metric, PlannedPath* candidate);
+  void checkForPickup(const units::Unit& unit,
+                      const util::proto::ObjectId& area_id,
+                      const util::proto::ObjectId& faction_id,
+                      GoodnessMetric metric, PlannedPath* candidate);
   util::Status createCandidatePath(const units::Unit& unit,
                                    const geography::Area& area,
                                    const util::proto::ObjectId& faction_id,
