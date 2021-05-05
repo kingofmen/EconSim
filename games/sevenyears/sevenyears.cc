@@ -78,8 +78,8 @@ util::Status validateWorldState(
     const auto& area_id = area_state->area_id();
     auto* area = geography::Area::GetById(area_id);
     if (area == nullptr) {
-      return util::NotFoundError(
-          absl::Substitute("Could not find area $0", area_id.DebugString()));
+      return util::NotFoundErrorf("Could not find area %s",
+                                  util::objectid::DisplayString(area_id));
     }
 
     int numFields = area->num_fields();
@@ -293,7 +293,8 @@ void SevenYears::moveUnits() {
       auto status = ai::MakePlan(*unit, unit->strategy(), plan);
       if (!status.ok()) {
         Log::Warnf("Could not create plan for unit %s: %s",
-                   unit->ID().DebugString(), status.error_message());
+                   util::objectid::DisplayString(unit->unit_id()),
+                   status.error_message());
         continue;
       }
       CreateExpectedArrivals(*unit, *plan, this);
