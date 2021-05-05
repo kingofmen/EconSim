@@ -23,16 +23,16 @@ struct PlannedPath {
   micro::Measure supplies;
   // Expected trade goods carried to a supply source.
   micro::Measure trade_goods;
-  // Distance from current location to trade or supply source.
-  micro::Measure first_distance;
-  // Distance from trade source to supply source.
-  micro::Measure outbound_distance;
-  // Distance from supply source to final destination.
-  micro::Measure home_distance;
-  // The trade port.
+  // Time in turns from current location to either pickup or target.
+  int first_traverse_time;
+  // Time from pickup to target.
+  int pickup_to_target_time;
+  // Distance from target to dropoff.
+  int target_to_dropoff_time;
+  // The target port.
   util::proto::ObjectId target_port_id;
-  // The home port supplying trade goods.
-  util::proto::ObjectId trade_source_id;
+  // The home port supplying the cargo.
+  util::proto::ObjectId pickup_id;
   // The home port receiving supplies.
   util::proto::ObjectId dropoff_id;
   // Importance of the trade; supplies delivered and created divided by time

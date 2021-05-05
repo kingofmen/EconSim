@@ -23,6 +23,9 @@
 namespace sevenyears {
 namespace {
 
+// If it takes longer than this, don't bother.
+const int kMaxUsefulTime = 100;
+
 util::Status canDoEuropeanTrade(const geography::Area& area,
                                 const sevenyears::proto::AreaState& state,
                                 const util::proto::ObjectId& faction_id) {
@@ -155,11 +158,10 @@ util::Status SevenYearsMerchant::createCandidatePath(
   if (!status.ok()) {
     return status;
   }
-  candidate->first_distance =
-      ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
-  int timeTaken = ai::utils::NumTurns(unit, traverse);
-  candidate->supplies = netGoods(faction_id, constants::Supplies(), state,
-                                 game_->timestamp() + timeTaken);
+  candidate->first_traverse_time = ai::utils::NumTurns(unit, traverse);
+  candidate->supplies =
+      netGoods(faction_id, constants::Supplies(), state,
+               game_->timestamp() + candidate->first_traverse_time);
   return util::OkStatus();
 }
 
@@ -184,15 +186,14 @@ void SevenYearsMerchant::checkForDropoff(
 
   // We can reach it; now consider whether this is a useful dropoff, i.e.
   // final, port.
-  micro::Measure dist =
-      ai::impl::CalculateDistance(traverse, ai::impl::ShortestDistance);
-  if (dist < candidate->home_distance) {
-    candidate->home_distance = dist;
+  micro::Measure dropoff_time = ai::utils::NumTurns(unit, traverse);
+  if (dropoff_time < candidate->target_to_dropoff_time) {
+    candidate->target_to_dropoff_time = dropoff_time;
     candidate->dropoff_id = area_id;
-    candidate->goodness =
-        metric(candidate->trade_goods, candidate->supplies,
-               candidate->first_distance + candidate->outbound_distance +
-                   candidate->home_distance);
+    candidate->goodness = metric(candidate->trade_goods, candidate->supplies,
+                                 candidate->first_traverse_time +
+                                     candidate->pickup_to_target_time +
+                                     candidate->target_to_dropoff_time);
   }
 }
 
@@ -229,28 +230,25 @@ void SevenYearsMerchant::checkForPickup(
           util::objectid::DisplayString(area_id));
     return;
   }
-  micro::Measure pickup_dist =
-      ai::impl::CalculateDistance(pickup_path, ai::impl::ShortestDistance);
-  int timeTaken = ai::utils::NumTurns(unit, pickup_path);
+  int pickup_time = ai::utils::NumTurns(unit, pickup_path);
   micro::Measure availableTrade =
       netGoods(faction_id, constants::TradeGoods(), state,
-               game_->timestamp() + timeTaken);
+               game_->timestamp() + pickup_time);
   // Supplies must account for the additional time taken to detour to pickup.
-  timeTaken += ai::utils::NumTurns(unit, carry_path);
-  micro::Measure availableSupplies = netGoods(
-      faction_id, constants::Supplies(), state, game_->timestamp() + timeTaken);
-  micro::Measure carry_dist =
-      ai::impl::CalculateDistance(carry_path, ai::impl::ShortestDistance);
+  int carry_time = ai::utils::NumTurns(unit, carry_path);
+  micro::Measure availableSupplies =
+      netGoods(faction_id, constants::Supplies(), state,
+               game_->timestamp() + pickup_time + carry_time);
   micro::Measure hypothetical =
       metric(availableTrade, availableSupplies,
-             pickup_dist + carry_dist + candidate->home_distance);
+             pickup_time + carry_time + candidate->target_to_dropoff_time);
   if (hypothetical > candidate->goodness) {
     candidate->goodness = hypothetical;
     candidate->trade_goods = availableTrade;
     candidate->supplies = availableSupplies;
-    candidate->first_distance = pickup_dist;
-    candidate->outbound_distance = carry_dist;
-    candidate->trade_source_id = area_id;
+    candidate->first_traverse_time = pickup_time;
+    candidate->pickup_to_target_time = carry_time;
+    candidate->pickup_id = area_id;
   }
 }
 
@@ -296,11 +294,9 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
         status.error_message().as_string()));
   }
 
-  // TODO: Use time, not distance. Distance is a distraction, time is the
-  // important metric.
   // Check if we want this to be the dropoff port.
   for (auto& planned_path : possible_paths) {
-    planned_path.home_distance = micro::kMaxU;
+    planned_path.target_to_dropoff_time = kMaxUsefulTime;
     for (const auto& area : world.areas_) {
       checkForDropoff(unit, area->area_id(), faction_id, tradePoints,
                       &planned_path);
@@ -326,23 +322,23 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   auto& path = possible_paths[idx];
   DLOGF(Log::P_DEBUG, "Unit %s picked path %d of %d: %s to %s to %s",
         unit.unit_id().DebugString(), idx, possible_paths.size(),
-        util::objectid::IsNull(path.trade_source_id)
+        util::objectid::IsNull(path.pickup_id)
             ? "(none)"
-            : util::objectid::Tag(path.trade_source_id),
+            : util::objectid::Tag(path.pickup_id),
         util::objectid::Tag(path.target_port_id),
         util::objectid::Tag(path.dropoff_id));
 
   geography::proto::Location location = unit.location();
-  if (!util::objectid::IsNull(path.trade_source_id)) {
+  if (!util::objectid::IsNull(path.pickup_id)) {
     status =
         ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                           ai::impl::ZeroHeuristic, path.trade_source_id, plan);
+                           ai::impl::ZeroHeuristic, path.pickup_id, plan);
     DLOGF(Log::P_DEBUG, "Looked for path to trade source %s",
-          path.trade_source_id.DebugString());
+          path.pickup_id.DebugString());
     if (!status.ok()) {
       return status;
     }
-    *location.mutable_a_area_id() = path.trade_source_id;
+    *location.mutable_a_area_id() = path.pickup_id;
     planTrade(unit, constants::TradeGoods(), plan);
   }
 
