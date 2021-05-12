@@ -198,6 +198,24 @@ Unit* ById(const util::proto::ObjectId unit_id) {
   return Unit::ById(unit_id);
 }
 
+const util::Status Unit::Match(const Filter& filter) {
+  if (!util::objectid::IsNull(filter.faction_id)) {
+    if (faction_id() != filter.faction_id) {
+      return util::NotFoundErrorf("wrong faction %s",
+                                  util::objectid::DisplayString(faction_id()));
+    }
+  }
+
+  if (!util::objectid::IsNull(filter.location_id)) {
+    const auto& loc = location().a_area_id();
+    if (loc != filter.location_id) {
+      return util::NotFoundErrorf("wrong location %s",
+                                  util::objectid::DisplayString(loc));
+    }
+  }
+
+  return util::OkStatus();
+}
 
 
 } // namespace units

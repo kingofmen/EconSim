@@ -6,6 +6,7 @@
 #include "games/market/proto/goods.pb.h"
 #include "games/units/proto/templates.pb.h"
 #include "games/units/proto/units.pb.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "src/google/protobuf/util/message_differencer.h"
 #include "util/arithmetic/microunits.h"
@@ -26,8 +27,10 @@ class UnitTest : public testing::Test {
     market::Add("hunger", micro::kOneInU, template_.mutable_attrition());
     Unit::RegisterTemplate(template_);
 
-    unit_proto_.mutable_unit_id()->set_kind("template");
-    unit_proto_.mutable_unit_id()->set_number(1);
+    *unit_proto_.mutable_unit_id() = util::objectid::New("template", 1);
+    *unit_proto_.mutable_faction_id() = util::objectid::New("faction", 1);
+    *unit_proto_.mutable_location()->mutable_a_area_id() =
+        util::objectid::New("area", 1);
     unit_ = Unit::FromProto(unit_proto_);
   }
 
@@ -37,9 +40,7 @@ class UnitTest : public testing::Test {
 };
 
 TEST_F(UnitTest, GetById) {
-  util::proto::ObjectId id;
-  id.set_kind("template");
-  id.set_number(1);
+  const auto id = util::objectid::New("template", 1);
   EXPECT_EQ(unit_.get(), Unit::ById(id));
 }
 
@@ -119,6 +120,34 @@ TEST_F(UnitTest, Attrition) {
     EXPECT_EQ(market::GetAmount(unit_->resources(), irritant.first),
               irritant.second);
   }
+}
+
+TEST_F(UnitTest, Match) {
+  Filter filter;
+  auto status = unit_->Match(filter);
+  EXPECT_OK(status) << status.error_message();
+
+  filter.faction_id = util::objectid::New("faction", 1);
+  status = unit_->Match(filter);
+  EXPECT_OK(status) << status.error_message();
+
+  filter.faction_id = util::objectid::New("faction", 2);
+  status = unit_->Match(filter);
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("wrong faction"));
+
+  filter.location_id = util::objectid::New("area", 2);
+  status = unit_->Match(filter);
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("wrong faction"));
+  filter.faction_id = util::objectid::New("faction", 1);
+  status = unit_->Match(filter);
+  EXPECT_THAT(status.error_message().as_string(),
+              testing::HasSubstr("wrong location"));
+
+  filter.location_id = util::objectid::New("area", 1);
+  status = unit_->Match(filter);
+  EXPECT_OK(status) << status.error_message();
 }
 
 } // namespace units

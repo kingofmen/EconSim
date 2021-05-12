@@ -15,6 +15,12 @@
 
 namespace units {
 
+// Filter for matching units.
+struct Filter {
+  util::proto::ObjectId location_id;
+  util::proto::ObjectId faction_id;
+};
+
 // Class to represent anything that moves about in the world, from mule trains
 // to army groups.
 class Unit : public geography::Mobile {
@@ -74,6 +80,9 @@ public:
   micro::Measure TotalCapacity(const std::string& good) const;
   
   const std::string& template_kind() const { return proto_.unit_id().kind(); }
+
+  // Returns an OK Status if the unit passes the filter.
+  const util::Status Match(const Filter& filter);
 
 private:
   Unit(const proto::Unit& proto);
