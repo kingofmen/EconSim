@@ -27,6 +27,11 @@ struct Golden {
   void Plans();
   void AreaStates();
   void Units();
+
+  // Not-not here to force implicit bool cast.
+  bool HasPlans() {return !!(plans_);}
+  bool HasAreaStates() {return !!(area_states_);}
+  bool HasUnits() {return !!(unit_states_);}
 };
 
 void PopulateScenarioFiles(const std::string& location,
