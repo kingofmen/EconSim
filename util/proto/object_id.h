@@ -30,6 +30,9 @@ bool IsNull(const util::proto::ObjectId& obj_id);
 // Returns a string suitable for display to humans.
 std::string DisplayString(const util::proto::ObjectId& obj_id);
 
+// Returns a new ObjectId proto.
+util::proto::ObjectId New(const std::string& kind, int num);
+
 // Restores the tag if it exists, meaning the ObjectId will have the
 // form kind-number-tag that defines a tag-number mapping.
 void RestoreTag(util::proto::ObjectId* obj_id);

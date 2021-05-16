@@ -151,6 +151,13 @@ std::string DisplayString(const util::proto::ObjectId& obj_id) {
   return absl::Substitute("($0, \"$1\")", obj_id.kind(), obj_id.tag());
 }
 
+util::proto::ObjectId New(const std::string& kind, int num) {
+  util::proto::ObjectId id;
+  id.set_kind(kind);
+  id.set_number(num);
+  return id;
+}
+
 void RestoreTag(util::proto::ObjectId* obj_id) {
   auto numkey = makeNumKey(*obj_id);
   if (numToTagMap.find(numkey) == numToTagMap.end()) {
