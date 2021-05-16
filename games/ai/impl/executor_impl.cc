@@ -44,8 +44,6 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
 
 } // namespace
 
-
-// TODO: Allow this to cost fractional actions if we have speed left over.
 util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
                       units::Unit* unit) {
   if (!step.has_connection_id()) {
@@ -68,18 +66,19 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
   uint64 length_u = connection->length_u() - progress_u;
   uint64 distance_u =
       ai::utils::GetProgress(cost.fraction_u, *unit, *connection);
+  const auto& a_area_id = location->a_area_id();
+  const auto& z_area_id = connection->OtherSide(a_area_id);
   DLOGF(Log::P_DEBUG, "Unit %s progress %s moving from %s to %s",
         util::objectid::DisplayString(unit->unit_id()),
         micro::DisplayString(distance_u, 2),
-        util::objectid::DisplayString(location->a_area_id()),
-        util::objectid::DisplayString(location->z_area_id()));
+        util::objectid::DisplayString(a_area_id),
+        util::objectid::DisplayString(z_area_id));
 
   // TODO: Add a detections vector, and handle them.
   connection->Listen(*unit, distance_u, nullptr);
   if (distance_u >= length_u) {
     location->clear_progress_u();
-    *location->mutable_a_area_id() =
-        connection->OtherSide(location->a_area_id());
+    *location->mutable_a_area_id() = z_area_id;
     location->clear_connection_id();
     return util::OkStatus();
   } else {
