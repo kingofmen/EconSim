@@ -82,7 +82,7 @@ public:
   const std::string& template_kind() const { return proto_.unit_id().kind(); }
 
   // Returns an OK Status if the unit passes the filter.
-  const util::Status Match(const Filter& filter);
+  const util::Status Match(const Filter& filter) const;
 
 private:
   Unit(const proto::Unit& proto);

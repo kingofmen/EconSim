@@ -198,7 +198,7 @@ Unit* ById(const util::proto::ObjectId unit_id) {
   return Unit::ById(unit_id);
 }
 
-const util::Status Unit::Match(const Filter& filter) {
+const util::Status Unit::Match(const Filter& filter) const {
   if (!util::objectid::IsNull(filter.faction_id)) {
     if (faction_id() != filter.faction_id) {
       return util::NotFoundErrorf("wrong faction %s",
