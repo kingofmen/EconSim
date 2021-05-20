@@ -2,6 +2,7 @@
 #define GAMES_SEVENYEARS_INTERFACES_H
 
 #include "games/industry/industry.h"
+#include "games/units/unit.h"
 #include "games/setup/setup.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
 #include "util/proto/object_id.pb.h"
@@ -19,6 +20,10 @@ public:
   virtual const industry::Production&
   ProductionChain(const std::string& name) const = 0;
   virtual uint64 timestamp() const = 0;
+
+  // Filtered accessors. The implementation may be stateful.
+  virtual std::vector<const units::Unit*>
+  ListUnits(const units::Filter& filter) const = 0;
 
   // Non-const methods.
   virtual sevenyears::proto::AreaState*

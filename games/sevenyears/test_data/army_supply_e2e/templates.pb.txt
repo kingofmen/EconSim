@@ -1,0 +1,112 @@
+unit_templates {
+  template_id {
+    kind: "brig"
+    tag: "transport"
+  }
+  mobility {
+    speed_u: 1200000
+    max_bulk_u: 2000000
+    max_weight_u: 12000000
+  }
+  tags: "merchant"
+  base_action_points_u: 1000000
+}
+unit_templates {
+  template_id {
+    kind: "regiment"
+    tag: "consumer"
+  }
+  mobility {
+    speed_u: 1000000
+    max_bulk_u: 100000
+    max_weight_u: 100000
+  }
+  tags: "army"
+  base_action_points_u: 1000000
+  attrition {
+    quantities {
+      key: "starving"
+      value: 1000000
+    }
+    quantities {
+      key: "hungry"
+      value: 1000000
+    }
+    quantities {
+      key: "bad_weapons"
+      value: 1000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 1000000
+    }
+  }
+  supplies {
+    goods {
+      name: "starvation_rations"
+      consumed {
+        quantities {
+	  key: "supplies"
+	  value: 1000000
+	}
+      }
+    }
+    relief {
+      quantities {
+        key: "starving"
+        value: 1000000
+      }
+    }
+  }
+  supplies {
+    goods {
+      name: "basic_rations"
+      consumed {
+        quantities {
+	  key: "supplies"
+	  value: 1000000
+	}
+      }
+    }
+    relief {
+      quantities {
+        key: "hungry"
+        value: 1000000
+      }
+    }
+  }
+  supplies {
+    goods {
+      name: "ammunition"
+      consumed {
+        quantities {
+	  key: "supplies"
+	  value: 1000000
+	}
+      }
+    }
+    relief {
+      quantities {
+        key: "bad_weapons"
+        value: 1000000
+      }
+    }
+  }
+  supplies {
+    goods {
+      name: "exercises"
+      consumed {
+        quantities {
+	  key: "supplies"
+	  value: 1000000
+	}
+      }
+    }
+    relief {
+      quantities {
+        key: "undisciplined"
+        value: 1000000
+      }
+    }
+  }
+}

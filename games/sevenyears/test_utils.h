@@ -61,6 +61,9 @@ public:
   const industry::Production&
   ProductionChain(const std::string& name) const override;
 
+  std::vector<const units::Unit*>
+  ListUnits(const units::Filter& filter) const override;
+
 private:
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_proto_;

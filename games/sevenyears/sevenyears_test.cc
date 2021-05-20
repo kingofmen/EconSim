@@ -34,8 +34,36 @@ protected:
     return game_->LoadScenario(config);
   }
 
+  void EndToEndTest(const std::string& testName, Golden* golds);
   std::unique_ptr<sevenyears::SevenYears> game_;
 };
+
+void SevenYearsTest::EndToEndTest(const std::string& testName, Golden* golds) {
+  auto status = LoadTestData(testName);
+  ASSERT_TRUE(status.ok()) << status.error_message();
+  status = game_->InitialiseAI();
+  ASSERT_TRUE(status.ok()) << status.error_message();
+
+  status = LoadGoldens(testName, golds);
+  if (!status.ok()) {
+    ASSERT_TRUE(status.ok()) << status.error_message();
+  }
+  int numStages = 0;
+  for (const auto& as : *golds->area_states_) {
+    if (as.second->states_size() > numStages) {
+      numStages = as.second->states_size();
+    }
+  }
+  for (int stage = 0; stage < numStages; ++stage) {
+    game_->NewTurn();
+    if (golds->HasAreaStates()) {
+      CheckAreaStatesForStage(*game_, *golds, stage);
+    }
+    if (golds->HasUnits()) {
+      CheckUnitStatesForStage(*game_, *golds, stage);
+    }
+  }
+}
 
 TEST_F(SevenYearsTest, Executors) {
   const std::string testName("executors");
@@ -64,28 +92,17 @@ TEST_F(SevenYearsTest, Executors) {
 
 // End-to-end test for European trade.
 TEST_F(SevenYearsTest, EuropeanTradeE2E) {
-  const std::string testName("european_trade_e2e");
-  auto status = LoadTestData(testName);
-  ASSERT_TRUE(status.ok()) << status.error_message();
-  status = game_->InitialiseAI();
-  ASSERT_TRUE(status.ok()) << status.error_message();
-
   Golden golds;
   golds.AreaStates();
-  status = LoadGoldens(testName, &golds);
-  if (!status.ok()) {
-    ASSERT_TRUE(status.ok()) << status.error_message();
-  }
-  int numStages = 0;
-  for (const auto& as : *golds.area_states_) {
-    if (as.second->states_size() > numStages) {
-      numStages = as.second->states_size();
-    }
-  }
-  for (int stage = 0; stage < numStages; ++stage) {
-    game_->NewTurn();
-    CheckAreaStatesForStage(*game_, golds, stage);
-  }
+  EndToEndTest("european_trade_e2e", &golds);
+}
+
+// End-to-end test for army supply.
+TEST_F(SevenYearsTest, ArmySupplyE2E) {
+  Golden golds;
+  golds.AreaStates();
+  golds.Units();
+  EndToEndTest("army_supply_e2e", &golds);
 }
 
 // Test for attrition and supply consumption.

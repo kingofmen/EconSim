@@ -1,0 +1,260 @@
+# World file for AI unit tests.
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 1
+    tag: "england"
+  }
+}
+
+factions {
+  faction_id {
+    kind: "faction"
+    number: 2
+    tag: "denmark"
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 1
+    tag: "london"
+  }
+  fields {
+    fixed_capital {
+      quantities {
+        key: "war_production_capital"
+        value: 1000000
+      }
+    }
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 2
+    tag: "edinburgh"
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 3
+    tag: "emden"
+  }
+}
+
+areas {
+  area_id {
+    kind: "area"
+    number: 4
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_COASTAL
+  id: 1
+  distance_u: 1000000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "edinburgh"
+  }
+}
+
+connections {
+  type: CT_COASTAL
+  id: 2
+  distance_u: 1000000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "emden"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 3
+  distance_u: 1200000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "edinburgh"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "emden"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 4
+  distance_u: 1700000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "edinburgh"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 5
+  distance_u: 1100000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "aarhus"
+  }
+}
+
+connections {
+  type: CT_OPEN_SEA
+  id: 6
+  distance_u: 1200000
+  width_u: 1000000
+  a_area_id {
+    kind: "area"
+    tag: "london"
+  }
+  z_area_id {
+    kind: "area"
+    tag: "emden"
+  }
+}
+
+units {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      tag: "edinburgh"
+    }
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        kind: "area"
+	number: 1
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}
+
+units {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  faction_id {
+    kind: "faction"
+    tag: "england"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      tag: "emden"
+    }
+  }
+}
+
+[sevenyears.proto.WorldState.sevenyears_state] {
+  area_states {
+    area_id {
+      kind: "area"
+      number: 1
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    production: "home_production_supply"
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "supplies"
+          value: 2000000
+        }
+      }
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 2
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+    factions {
+      faction_id {
+        kind: "faction"
+        number: 1
+      }
+      warehouse {
+        quantities {
+          key: "supplies"
+          value: 0
+        }
+      }
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 3
+    }
+    owner_id {
+      kind: "faction"
+      number: 1
+    }
+  }
+  area_states {
+    area_id {
+      kind: "area"
+      number: 4
+    }
+    owner_id {
+      kind: "faction"
+      number: 2
+    }
+  }
+}

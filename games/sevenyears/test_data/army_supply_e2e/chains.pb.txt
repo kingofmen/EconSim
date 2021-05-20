@@ -1,0 +1,19 @@
+production_chains {
+  name: "home_production_supply"
+  outputs {
+    quantities {
+      key: "supplies"
+      value: 2000000
+    }
+  }
+  steps {
+    variants {
+      fixed_capital {
+        quantities {
+          key: "war_production_capital"
+          value: 1000000
+        }
+      }
+    }
+  }
+}

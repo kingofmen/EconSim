@@ -19,10 +19,13 @@ class SevenYears;
 // Missions operate with at most four ports, not all of which need be
 // distinct: Current location, (optional) pickup, target, and dropoff.
 struct PlannedPath {
+  // Unit performing the mission.
+  util::proto::ObjectId unit_id;
   // Expected supplies carried home or delivered.
+  // TODO: Rename this to "delivered_u".
   micro::Measure supplies;
-  // Expected trade goods carried to a supply source.
-  micro::Measure trade_goods;
+  // Expected goods carried to target.
+  micro::Measure carried_u;
   // Time in turns from current location to either pickup or target.
   int first_traverse_time;
   // Time from pickup to target.
@@ -55,9 +58,7 @@ private:
                                      const sevenyears::proto::AreaState& state,
                                      const util::proto::ObjectId& faction_id)>
       MissionCheck;
-  typedef std::function<micro::Measure(micro::Measure, micro::Measure,
-                                       micro::Measure)>
-      GoodnessMetric;
+  typedef std::function<micro::Measure(const PlannedPath&)> GoodnessMetric;
 
   // Planning helper methods.
   void checkForDropoff(const units::Unit& unit,
@@ -67,7 +68,9 @@ private:
   void checkForPickup(const units::Unit& unit,
                       const util::proto::ObjectId& area_id,
                       const util::proto::ObjectId& faction_id,
-                      GoodnessMetric metric, PlannedPath* candidate);
+                      const std::string& pickupGoods,
+                      const std::string& exchangeGoods, GoodnessMetric metric,
+                      PlannedPath* candidate);
   util::Status createCandidatePath(const units::Unit& unit,
                                    const geography::Area& area,
                                    const util::proto::ObjectId& faction_id,

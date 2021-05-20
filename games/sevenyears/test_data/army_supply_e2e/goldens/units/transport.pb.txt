@@ -1,0 +1,206 @@
+# In round one the brig moves to London for pickup.
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  resources {
+  }
+  plan {
+    steps {
+      good: "supplies"
+      key: "load_cargo"
+    }
+    steps {
+      action: AA_MOVE
+      connection_id: 6
+    }
+    steps {
+      key: "offload_cargo"
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        number: 1
+        kind: "area"
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}
+# Resources are loaded.
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "supplies"
+      value: 2000000
+    }
+  }
+  plan {
+    steps {
+      action: AA_MOVE
+      connection_id: 6
+    }
+    steps {
+      key: "offload_cargo"
+    }
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        number: 1
+        kind: "area"
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}
+# Reaches Emden.
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "supplies"
+      value: 2000000
+    }
+  }
+  plan {
+    steps {
+      key: "offload_cargo"
+    }
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        number: 1
+        kind: "area"
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}
+# Reaches Emden and offloads.
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "supplies"
+      value: 0
+    }
+  }
+  plan {
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        number: 1
+        kind: "area"
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}
+# Back to London for another pickup.
+states {
+  unit_id {
+    kind: "brig"
+    number: 1
+    tag: "transport"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "supplies"
+      value: 0
+    }
+  }
+  plan {
+    steps {
+      key: "offload_cargo"
+    }
+    steps {
+      good: "supplies"
+      key: "load_cargo"
+    }
+    steps {
+      action: AA_MOVE
+      connection_id: 6
+    }
+    steps {
+      key: "offload_cargo"
+    }
+  }
+  strategy {
+    seven_years_merchant {
+      base_area_id {
+        number: 1
+        kind: "area"
+      }
+      default_mission: "supply_armies"
+    }
+  }
+}

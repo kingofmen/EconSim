@@ -34,7 +34,12 @@ public:
   void Fetch(const util::proto::ObjectId& object_id,
              google::protobuf::Message* proto);
 
+  std::vector<const units::Unit*>
+  ListUnits(const units::Filter& filter) const override;
+
 private:
+  // Recalculate the units-by-area map.
+  void cacheUnitLocations();
   // Use supplies.
   friend class SevenYearsTest_ConsumeSupplies_Test;
   void consumeSupplies();
@@ -56,6 +61,8 @@ private:
 
   bool dirtyGraphics_;
   std::unordered_map<std::string, industry::Production> production_chains_;
+  std::unordered_map<util::proto::ObjectId, std::vector<const units::Unit*>>
+      unitsByAreaId_;
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
   std::unique_ptr<sevenyears::SevenYearsArmyAi> army_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;

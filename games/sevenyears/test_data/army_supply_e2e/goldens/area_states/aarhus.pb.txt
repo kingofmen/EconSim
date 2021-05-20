@@ -1,0 +1,88 @@
+# Aarhus is a dummy in this test, just ensuring that
+# the AI doesn't pick truly stupid areas to go to even
+# when it has the option, so nothing ever happens here.
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 2
+      kind: "faction"
+    }
+    warehouse {}
+  }
+}
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 2
+      kind: "faction"
+    }
+    warehouse {}
+  }
+}
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 2
+      kind: "faction"
+    }
+    warehouse {}
+  }
+}
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 2
+      kind: "faction"
+    }
+    warehouse {}
+  }
+}
+states {
+  area_id {
+    kind: "area"
+    number: 4
+  }
+  owner_id {
+    kind: "faction"
+    number: 2
+  }
+  factions {
+    faction_id {
+      number: 2
+      kind: "faction"
+    }
+    warehouse {}
+  }
+}

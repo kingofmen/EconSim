@@ -1,0 +1,121 @@
+# State after creating expected arrivals.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supply"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 4000000
+      }
+    }
+  }
+}
+# Ship arrived and offloaded last turn (instant because it had
+# no cargo); now it loads up this turn's production.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supply"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 4000000
+      }
+    }
+  }
+}
+# Ship goes away, production continues.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supply"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 6000000
+      }
+    }
+  }
+}
+# Production continues.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supply"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 8000000
+      }
+    }
+  }
+}
+# Production continues.
+states {
+  area_id {
+    kind: "area"
+    number: 1
+  }
+  owner_id {
+    kind: "faction"
+    number: 1
+  }
+  production: "home_production_supply"
+  factions {
+    faction_id {
+      kind: "faction"
+      number: 1
+    }
+    warehouse {
+      quantities {
+        key: "supplies"
+        value: 10000000
+      }
+    }
+  }
+}

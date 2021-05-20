@@ -6,9 +6,9 @@
 #include "games/actions/proto/plan.pb.h"
 #include "games/actions/proto/strategy.pb.h"
 #include "games/ai/executer.h"
-#include "games/ai/planner.h"
-#include "games/ai/impl/unit_ai_impl.h"
 #include "games/ai/impl/ai_utils.h"
+#include "games/ai/impl/unit_ai_impl.h"
+#include "games/ai/planner.h"
 #include "games/geography/geography.h"
 #include "games/industry/industry.h"
 #include "games/market/goods_utils.h"
@@ -53,8 +53,8 @@ util::Status canDoEuropeanTrade(const geography::Area& area,
 }
 
 util::Status canDoArmySupply(const geography::Area& area,
-                                const sevenyears::proto::AreaState& state,
-                                const util::proto::ObjectId& faction_id) {
+                             const sevenyears::proto::AreaState& state,
+                             const util::proto::ObjectId& faction_id) {
   return util::OkStatus();
 }
 
@@ -121,22 +121,57 @@ micro::Measure netGoods(const util::proto::ObjectId& faction_id,
   return amount;
 }
 
+// Returns the supplies consumed each turn by units of the given faction
+// in the given area.
+micro::Measure suppliesConsumed(const sevenyears::SevenYearsState& world,
+                                const util::proto::ObjectId& faction_id,
+                                const proto::AreaState& state) {
+  const auto& area_id = state.area_id();
+  micro::Measure consumed_u = 0;
+  units::Filter filter;
+  filter.location_id = area_id;
+  filter.faction_id = faction_id;
+  for (const auto* unit : world.ListUnits(filter)) {
+    for (const auto& con : unit->Template().supplies()) {
+      for (const auto& goods : con.goods()) {
+        consumed_u +=
+            market::GetAmount(goods.consumed(), constants::Supplies());
+      }
+    }
+  }
+  return consumed_u;
+}
+
 // Returns the value of a hypothetical trade.
 // TODO: Weighted sum?
-// TODO: Use time, not distance!
-micro::Measure tradePoints(micro::Measure goods, micro::Measure supplies,
-                           micro::Measure distance) {
-  micro::Measure value = goods + supplies;
-  return micro::DivideU(value, distance);
+micro::Measure tradePoints(const PlannedPath& candidate) {
+  micro::Measure value_u = candidate.carried_u + candidate.supplies;
+  micro::Measure time_u = candidate.first_traverse_time +
+                          candidate.pickup_to_target_time +
+                          candidate.target_to_dropoff_time;
+  return micro::DivideU(value_u, time_u);
 }
 
-micro::Measure supplyPoints(micro::Measure goods, micro::Measure supplies,
-                            micro::Measure distance) {
-  micro::Measure value = supplies;
-  return micro::DivideU(value, distance);
+micro::Measure supplyPoints(const PlannedPath& candidate) {
+  const auto* unit = units::ById(candidate.unit_id);
+  if (unit == nullptr) {
+    return 0;
+  }
+  if (candidate.supplies == 0) {
+    return 0;
+  }
+  if (candidate.carried_u == 0) {
+    return 0;
+  }
+  auto delivered_u = micro::MultiplyU(candidate.carried_u, candidate.supplies);
+  micro::Measure time_u = candidate.first_traverse_time +
+                          candidate.pickup_to_target_time +
+                          candidate.target_to_dropoff_time;
+  time_u *= micro::kOneInU;
+  return micro::DivideU(delivered_u, time_u);
 }
 
-}  // namespace
+} // namespace
 
 // Fills in the PlannedPath from the unit's current location to the provided
 // area, if possible. Otherwise returns a non-OK status.
@@ -150,7 +185,6 @@ util::Status SevenYearsMerchant::createCandidatePath(
     return status;
   }
 
-  candidate->target_port_id = area.area_id();
   std::vector<uint64> traverse;
   status =
       ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
@@ -158,10 +192,11 @@ util::Status SevenYearsMerchant::createCandidatePath(
   if (!status.ok()) {
     return status;
   }
+  candidate->unit_id = unit.unit_id();
+  candidate->target_port_id = area.area_id();
   candidate->first_traverse_time = ai::utils::NumTurns(unit, traverse);
-  candidate->supplies =
-      netGoods(faction_id, constants::Supplies(), state,
-               game_->timestamp() + candidate->first_traverse_time);
+  candidate->pickup_to_target_time = 0;
+  candidate->target_to_dropoff_time = 0;
   return util::OkStatus();
 }
 
@@ -190,20 +225,23 @@ void SevenYearsMerchant::checkForDropoff(
   if (dropoff_time < candidate->target_to_dropoff_time) {
     candidate->target_to_dropoff_time = dropoff_time;
     candidate->dropoff_id = area_id;
-    candidate->goodness = metric(candidate->trade_goods, candidate->supplies,
-                                 candidate->first_traverse_time +
-                                     candidate->pickup_to_target_time +
-                                     candidate->target_to_dropoff_time);
+    candidate->goodness = metric(*candidate);
   }
 }
 
 // Calculates the goodness of a pickup stop in the target area,
 // and changes candidate to use this pickup if it's better than
 // the current one.
-void SevenYearsMerchant::checkForPickup(
-    const units::Unit& unit, const util::proto::ObjectId& area_id,
-    const util::proto::ObjectId& faction_id, GoodnessMetric metric,
-    PlannedPath* candidate) {
+void SevenYearsMerchant::checkForPickup(const units::Unit& unit,
+                                        const util::proto::ObjectId& area_id,
+                                        const util::proto::ObjectId& faction_id,
+                                        const std::string& pickupGoods,
+                                        const std::string& exchangeGoods,
+                                        GoodnessMetric metric,
+                                        PlannedPath* candidate) {
+  if (area_id == candidate->target_port_id) {
+    return;
+  }
   const auto& state = game_->AreaState(area_id);
   if (faction_id != state.owner_id()) {
     return;
@@ -231,21 +269,30 @@ void SevenYearsMerchant::checkForPickup(
     return;
   }
   int pickup_time = ai::utils::NumTurns(unit, pickup_path);
-  micro::Measure availableTrade =
-      netGoods(faction_id, constants::TradeGoods(), state,
-               game_->timestamp() + pickup_time);
+  micro::Measure availablePickup = netGoods(faction_id, pickupGoods, state,
+                                            game_->timestamp() + pickup_time);
   // Supplies must account for the additional time taken to detour to pickup.
   int carry_time = ai::utils::NumTurns(unit, carry_path);
-  micro::Measure availableSupplies =
-      netGoods(faction_id, constants::Supplies(), state,
-               game_->timestamp() + pickup_time + carry_time);
-  micro::Measure hypothetical =
-      metric(availableTrade, availableSupplies,
-             pickup_time + carry_time + candidate->target_to_dropoff_time);
-  if (hypothetical > candidate->goodness) {
-    candidate->goodness = hypothetical;
-    candidate->trade_goods = availableTrade;
-    candidate->supplies = availableSupplies;
+
+  PlannedPath hypothetical;
+  hypothetical.unit_id = candidate->unit_id;
+  hypothetical.supplies = candidate->supplies;
+  micro::Measure availableExchange = 0;
+  if (!exchangeGoods.empty()) {
+    availableExchange = netGoods(faction_id, exchangeGoods, state,
+                                 game_->timestamp() + pickup_time + carry_time);
+    hypothetical.supplies = availableExchange;
+  }
+
+  hypothetical.carried_u = availablePickup;
+  hypothetical.first_traverse_time = pickup_time;
+  hypothetical.pickup_to_target_time = carry_time;
+  hypothetical.target_to_dropoff_time = candidate->target_to_dropoff_time;
+  auto hypoGoodness = metric(hypothetical);
+  if (hypoGoodness > candidate->goodness) {
+    candidate->goodness = hypoGoodness;
+    candidate->carried_u = availablePickup;
+    candidate->supplies = availableExchange;
     candidate->first_traverse_time = pickup_time;
     candidate->pickup_to_target_time = carry_time;
     candidate->pickup_id = area_id;
@@ -284,6 +331,13 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
       // Indicates bad candidate, no need to propagate.
       continue;
     }
+    const auto& state = game_->AreaState(area->area_id());
+    candidate.supplies =
+        netGoods(faction_id, constants::Supplies(), state,
+                 game_->timestamp() + candidate.first_traverse_time);
+    if (candidate.supplies > supplyCapacity) {
+      candidate.supplies = supplyCapacity;
+    }
     possible_paths.push_back(candidate);
   }
 
@@ -306,11 +360,11 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   // Check whether this can be the pickup port.
   for (auto& planned_path : possible_paths) {
     for (const auto& area : world.areas_) {
-      checkForPickup(unit, area->area_id(), faction_id, tradePoints,
-                          &planned_path);
+      checkForPickup(unit, area->area_id(), faction_id, constants::TradeGoods(),
+                     constants::Supplies(), tradePoints, &planned_path);
     }
   }
- 
+
   int idx = 0;
   for (int i = 1; i < possible_paths.size(); ++i) {
     if (possible_paths[i].goodness < possible_paths[idx].goodness) {
@@ -320,8 +374,9 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   }
 
   auto& path = possible_paths[idx];
-  DLOGF(Log::P_DEBUG, "Unit %s picked path %d of %d: %s to %s to %s",
-        unit.unit_id().DebugString(), idx, possible_paths.size(),
+  DLOGF(Log::P_DEBUG, "Trade unit %s picked path %d of %d: %s to %s to %s",
+        util::objectid::DisplayString(unit.unit_id()), idx,
+        possible_paths.size(),
         util::objectid::IsNull(path.pickup_id)
             ? "(none)"
             : util::objectid::Tag(path.pickup_id),
@@ -330,9 +385,8 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
 
   geography::proto::Location location = unit.location();
   if (!util::objectid::IsNull(path.pickup_id)) {
-    status =
-        ai::impl::FindPath(unit, ai::impl::ShortestDistance,
-                           ai::impl::ZeroHeuristic, path.pickup_id, plan);
+    status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                                ai::impl::ZeroHeuristic, path.pickup_id, plan);
     DLOGF(Log::P_DEBUG, "Looked for path to trade source %s",
           path.pickup_id.DebugString());
     if (!status.ok()) {
@@ -378,6 +432,86 @@ SevenYearsMerchant::planColonialTrade(const units::Unit& unit,
 // the highest priority, adding a detour to pick up the supplies if needed.
 util::Status SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
                                                   actions::proto::Plan* plan) {
+  const auto& faction_id = unit.faction_id();
+  auto& faction = factions_.at(faction_id);
+  clearUnitInfo(unit, &faction);
+  auto supplyCapacity = unit.Capacity(constants::Supplies());
+  const auto& world = game_->World();
+
+  // Create paths going straight to an army base.
+  std::vector<PlannedPath> possible_paths;
+  util::Status status;
+  for (const auto& area : world.areas_) {
+    PlannedPath candidate;
+    status = createCandidatePath(unit, *area, faction_id, canDoArmySupply,
+                                 &candidate);
+    if (!status.ok()) {
+      // Indicates bad candidate, no need to propagate.
+      continue;
+    }
+    const auto& state = game_->AreaState(area->area_id());
+    candidate.supplies = suppliesConsumed(*game_, faction_id, state);
+    candidate.carried_u =
+        market::GetAmount(unit.resources(), constants::Supplies());
+    candidate.goodness = supplyPoints(candidate);
+    possible_paths.push_back(candidate);
+  }
+  if (possible_paths.empty()) {
+    return util::NotFoundErrorf(
+        "Could not find suitable supply target for %s; most recent problem: %s",
+        util::objectid::DisplayString(unit.unit_id()),
+        status.error_message().as_string());
+  }
+
+  for (auto& planned_path : possible_paths) {
+    // TODO: Filter the area list so this isn't quite O(n^2).
+    for (const auto& area : world.areas_) {
+      checkForPickup(unit, area->area_id(), faction_id, constants::Supplies(),
+                     "", supplyPoints, &planned_path);
+    }
+  }
+
+  int idx = 0;
+  for (int i = 1; i < possible_paths.size(); ++i) {
+    if (possible_paths[i].goodness < possible_paths[idx].goodness) {
+      continue;
+    }
+    idx = i;
+  }
+
+  auto& path = possible_paths[idx];
+  DLOGF(Log::P_DEBUG,
+        "Supply unit %s picked path %d of %d with goodness %d: %s to %s",
+        util::objectid::DisplayString(unit.unit_id()), idx,
+        possible_paths.size(), path.goodness,
+        util::objectid::IsNull(path.pickup_id)
+            ? "(none)"
+            : util::objectid::Tag(path.pickup_id),
+        util::objectid::Tag(path.target_port_id));
+
+  geography::proto::Location location = unit.location();
+  if (!util::objectid::IsNull(path.pickup_id)) {
+    status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
+                                ai::impl::ZeroHeuristic, path.pickup_id, plan);
+    DLOGF(Log::P_DEBUG, "Looked for path to supply source %s",
+          util::objectid::DisplayString(path.pickup_id));
+    if (!status.ok()) {
+      return status;
+    }
+    *location.mutable_a_area_id() = path.pickup_id;
+    planTrade(unit, constants::Supplies(), plan);
+  }
+
+  std::vector<uint64> pathToTarget;
+  status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
+                              ai::impl::ZeroHeuristic, path.target_port_id,
+                              &pathToTarget);
+  if (!status.ok()) {
+    return status;
+  }
+  ai::impl::PlanPath(location, pathToTarget, plan);
+  planTrade(unit, "", plan);
+
   return util::OkStatus();
 }
 
@@ -417,7 +551,7 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   }
 
   const auto& merchant_strategy = strategy.seven_years_merchant();
-
+  Log::Infof("Here for %s", util::objectid::DisplayString(unit.unit_id()));
   std::string mission = merchant_strategy.mission();
   if (mission.empty()) {
     mission = merchant_strategy.default_mission();
@@ -436,6 +570,8 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   } else if (mission == constants::ColonialTrade()) {
     return planColonialTrade(unit, plan);
   } else if (mission == constants::SupplyArmies()) {
+    Log::Infof("Supply armies for %s",
+               util::objectid::DisplayString(unit.unit_id()));
     return planSupplyArmies(unit, plan);
   }
   return util::NotImplementedErrorf("This error should be unreachable: %s",
@@ -465,4 +601,4 @@ util::Status SevenYearsMerchant::ValidMission(
   return util::OkStatus();
 }
 
-}  // namespace sevenyears
+} // namespace sevenyears

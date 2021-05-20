@@ -216,6 +216,12 @@ const std::string FileTag(const util::proto::ObjectId& obj_id) {
   return util::objectid::Tag(obj_id) + ".pb.txt";
 }
 
+// Dummy implementation, not actually used.
+std::vector<const units::Unit*>
+TestState::ListUnits(const units::Filter& filter) const {
+  return {};
+}
+
 void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
                              int stage) {
   google::protobuf::util::MessageDifferencer differ;

@@ -248,6 +248,19 @@ util::Status SevenYears::offloadCargo(const micro::Measure fraction_u,
   return util::OkStatus();
 }
 
+void SevenYears::cacheUnitLocations() {
+  unitsByAreaId_.clear();
+  for (const auto& unit : World().units_) {
+    const auto& location_id = unit->location().a_area_id();
+    if (unitsByAreaId_.find(location_id) == unitsByAreaId_.end()) {
+      unitsByAreaId_.emplace(std::make_pair(
+          location_id, std::vector<const units::Unit*>{unit.get()}));
+      continue;
+    }
+    unitsByAreaId_.at(location_id).emplace_back(unit.get());
+  }
+}
+
 void SevenYears::consumeSupplies() {
   for (auto& unit : game_world_->units_) {
     unit->Attrite();
@@ -350,6 +363,8 @@ void SevenYears::moveUnits() {
       break;
     }
   }
+
+  cacheUnitLocations();
 }
   
 void SevenYears::NewTurn() {
@@ -622,6 +637,8 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
     area_states_[area_id] = state;
   }
 
+  cacheUnitLocations();
+
   return util::OkStatus();
 }
 
@@ -640,6 +657,33 @@ void SevenYears::Fetch(const util::proto::ObjectId& object_id,
   if (area_states_.find(object_id) != area_states_.end()) {
     proto->CopyFrom(area_states_.at(object_id));
   }
+}
+
+std::vector<const units::Unit*>
+SevenYears::ListUnits(const units::Filter& filter) const {
+  std::vector<const units::Unit*> ret;
+  if (util::objectid::IsNull(filter.location_id)) {
+    for (const auto& uptr : World().units_) {
+      if (!uptr->Match(filter).ok()) {
+        continue;
+      }
+      ret.push_back(uptr.get());
+    }
+    return ret;
+  }
+
+  if (unitsByAreaId_.find(filter.location_id) == unitsByAreaId_.end()) {
+    return ret;
+  }
+
+  for (const auto* uptr : unitsByAreaId_.at(filter.location_id)) {
+    if (!uptr->Match(filter).ok()) {
+      continue;
+    }
+    ret.push_back(uptr);
+  }
+
+  return ret;
 }
 
 }  // namespace sevenyears

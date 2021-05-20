@@ -1,0 +1,186 @@
+states {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  strategy {
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 1000000
+    }
+    quantities {
+      key: "hungry"
+      value: 1000000
+    }
+    quantities {
+      key: "starving"
+      value: 1000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 1000000
+    }
+  }
+}
+states {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  strategy {
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 2000000
+    }
+    quantities {
+      key: "hungry"
+      value: 2000000
+    }
+    quantities {
+      key: "starving"
+      value: 2000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 2000000
+    }
+  }
+}
+states {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  strategy {
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 3000000
+    }
+    quantities {
+      key: "hungry"
+      value: 3000000
+    }
+    quantities {
+      key: "starving"
+      value: 3000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 3000000
+    }
+  }
+}
+states {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  strategy {
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 4000000
+    }
+    quantities {
+      key: "hungry"
+      value: 4000000
+    }
+    quantities {
+      key: "starving"
+      value: 4000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 4000000
+    }
+  }
+}
+# Supplies have arrived; hungry and starving do not increase.
+states {
+  unit_id {
+    kind: "regiment"
+    number: 1
+    tag: "consumer"
+  }
+  location {
+    a_area_id {
+      kind: "area"
+      number: 3
+    }
+  }
+  strategy {
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+  resources {
+    quantities {
+      key: "bad_weapons"
+      value: 5000000
+    }
+    quantities {
+      key: "hungry"
+      value: 4000000
+    }
+    quantities {
+      key: "starving"
+      value: 4000000
+    }
+    quantities {
+      key: "undisciplined"
+      value: 5000000
+    }
+  }
+}
