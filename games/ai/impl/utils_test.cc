@@ -13,7 +13,7 @@ namespace utils {
 class AiUtilsTest : public AiTestBase {};
 
 TEST_F(AiUtilsTest, TestNumTurns) {
-  std::vector<uint64> path;
+  std::vector<geography::Connection::IdType> path;
   path.push_back(connection_12->connection_id());
   EXPECT_EQ(1, NumTurns(*unit_, path));
   path.push_back(connection_23->connection_id());
@@ -32,8 +32,7 @@ TEST_F(AiUtilsTest, TestLowerSpeed) {
   unit.mutable_unit_id()->set_number(2);
   *unit.mutable_location()->mutable_a_area_id() = area1_->area_id();
   unit_ = units::Unit::FromProto(unit);
-
-  std::vector<uint64> path;
+  std::vector<geography::Connection::IdType> path;
   path.push_back(connection_12->connection_id());
   EXPECT_EQ(2, NumTurns(*unit_, path));
   path.push_back(connection_23->connection_id());

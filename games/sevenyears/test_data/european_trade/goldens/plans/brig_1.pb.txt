@@ -6,7 +6,10 @@
 # Aarhus to London
 steps {
   action: AA_MOVE
-  connection_id: 5
+  connection_id {
+    number: 5
+    kind: "connection"
+  }
 }
 # Load trade goods.
 steps {
@@ -19,7 +22,10 @@ steps {
 # Back to Aarhus.
 steps {
   action: AA_MOVE
-  connection_id: 5
+  connection_id {
+    number: 5
+    kind: "connection"
+  }
 }
 # Load supplies.
 steps {
@@ -32,7 +38,10 @@ steps {
 # Back to London and offload.
 steps {
   action: AA_MOVE
-  connection_id: 5
+  connection_id {
+    number: 5
+    kind: "connection"
+  }
 }
 steps {
   key: "offload_cargo"

@@ -44,7 +44,7 @@ void CreateExpectedArrivals(const units::Unit& unit,
   market::Copy(unit.resources(), unit.resources(), &projected_cargo);
   for (int idx = 0; idx < plan.steps_size(); ++idx) {
     // Special case for movement.
-    std::vector<uint64> path_ids;
+    std::vector<geography::Connection::IdType> path_ids;
     while (idx < plan.steps_size() &&
            plan.steps(idx).action() == actions::proto::AA_MOVE) {
       auto connection_id = plan.steps(idx).connection_id();

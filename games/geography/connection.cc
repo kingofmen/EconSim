@@ -9,7 +9,7 @@ std::unordered_map<util::proto::ObjectId,
     endpoint_map_;
 std::unordered_map<uint64, std::unordered_set<geography::Connection*>>
     both_endpoints_map_;
-std::unordered_map<uint64, geography::Connection*> id_map_;
+std::unordered_map<geography::Connection::IdType, geography::Connection*> id_map_;
 std::equal_to<util::proto::ObjectId> ids_equal;
 
 namespace geography {
@@ -30,7 +30,7 @@ Connection::Connection(const proto::Connection& conn) : proto_(conn) {
       .insert(this);
   both_endpoints_map_[Fingerprint(proto_.z_area_id(), proto_.a_area_id())]
       .insert(this);
-  id_map_[proto_.id()] = this;
+  id_map_[proto_.connection_id()] = this;
 }
 
 Connection::~Connection() {
@@ -40,7 +40,7 @@ Connection::~Connection() {
       .erase(this);
   both_endpoints_map_[Fingerprint(proto_.z_area_id(), proto_.a_area_id())]
       .erase(this);
-  id_map_.erase(ID());
+  id_map_.erase(connection_id());
 }
 
 void Connection::Register(const util::proto::ObjectId& unit_id,
@@ -56,10 +56,10 @@ std::unique_ptr<Connection>
 Connection::FromProto(const proto::Connection& conn) {
   std::unique_ptr<Connection> ret;
   // TODO: Actually handle these errors.
-  if (conn.id() == 0) {
+  if (util::objectid::IsNull(conn.connection_id())) {
     return ret;
   }
-  if (ById(conn.id()) != NULL) {
+  if (ById(conn.connection_id()) != NULL) {
     return ret;
   }
   if (!conn.has_a_area_id()) {
@@ -93,7 +93,12 @@ Connection::ByEndpoints(const util::proto::ObjectId& area_one,
   return both_endpoints_map_[Fingerprint(area_one, area_two)];
 }
 
-Connection* Connection::ById(uint64 conn_id) { return id_map_[conn_id]; }
+Connection* Connection::ById(const Connection::IdType& conn_id) {
+  if (id_map_.find(conn_id) == id_map_.end()) {
+    return nullptr;
+  }
+  return id_map_.at(conn_id);
+}
 
 const util::proto::ObjectId&
 Connection::OtherSide(const util::proto::ObjectId& area_id) const {

@@ -48,6 +48,7 @@ cc_test(
     deps = [
         ":executer",
         "//games/actions/proto:plan_proto",
+        "//util/proto:object_id",
         "@gtest",
         "@gtest//:gtest_main",
     ],

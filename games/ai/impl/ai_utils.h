@@ -15,7 +15,8 @@ micro::Measure GetProgress(const micro::Measure cost_u, const units::Unit& unit,
                            const geography::Connection& conn);
 
 // Returns the number of turns the unit will take to traverse the path.
-int NumTurns(const units::Unit& unit, const std::vector<uint64> path);
+int NumTurns(const units::Unit& unit,
+             const std::vector<geography::Connection::IdType>& path);
 
 } // namespace utils
 } // namespace ai

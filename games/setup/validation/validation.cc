@@ -13,7 +13,8 @@ std::unordered_map<std::string, market::proto::TradeGood> goods;
 std::unordered_map<util::proto::ObjectId, geography::proto::Area> areas;
 std::unordered_map<uint64, units::proto::Template> templates;
 std::unordered_map<std::string, units::proto::Template> template_map;
-std::unordered_map<uint64, geography::proto::Connection> connections;
+std::unordered_map<util::proto::ObjectId, geography::proto::Connection>
+    connections;
 std::unordered_map<uint64, population::proto::PopUnit> pops;
 std::unordered_map<util::proto::ObjectId, units::proto::Unit> unit_map;
 std::unordered_map<std::string, games::setup::validation::Validator>
@@ -213,42 +214,50 @@ void validatePops(const games::setup::proto::GameWorld& world,
 void validateConnections(const games::setup::proto::GameWorld& world,
                          std::vector<std::string>* errors) {
   for (const auto& conn : world.connections()) {
-    if (!conn.has_id()) {
+    if (!conn.has_connection_id()) {
       errors->push_back(
           absl::Substitute("Connection without ID: $0", conn.DebugString()));
       continue;
     }
-    if (conn.id() < 1) {
-      errors->push_back(absl::Substitute("Bad connection ID: $0", conn.id()));
+    const auto& conn_id = conn.connection_id();
+    if (util::objectid::IsNull(conn_id)) {
+      errors->push_back(absl::Substitute(
+          "Bad connection ID: $0", util::objectid::DisplayString(conn_id)));
     }
-    if (connections.find(conn.id()) != connections.end()) {
+    if (connections.find(conn.connection_id()) != connections.end()) {
       errors->push_back(
-          absl::Substitute("Connection ID $0 is not unique", conn.id()));
+          absl::Substitute("Connection ID $0 is not unique",
+                           util::objectid::DisplayString(conn_id)));
       continue;
     }
-    connections[conn.id()] = conn;
+    connections[conn_id] = conn;
     if (!conn.has_a_area_id() || !conn.has_z_area_id()) {
       errors->push_back(
-          absl::Substitute("Connection $0 does not connect", conn.id()));
+          absl::Substitute("$0 does not connect",
+                           util::objectid::DisplayString(conn_id)));
     } else {
       if (areas.find(conn.a_area_id()) == areas.end()) {
         errors->push_back(
-            absl::Substitute("Connection $0 has A end $1, which doesn't exist",
-                             conn.id(), conn.a_area_id().DebugString()));
+            absl::Substitute("$0 has A end $1, which doesn't exist",
+                             util::objectid::DisplayString(conn_id),
+                             util::objectid::DisplayString(conn.a_area_id())));
       }
       if (areas.find(conn.z_area_id()) == areas.end()) {
         errors->push_back(
-            absl::Substitute("Connection $0 has Z end $1, which doesn't exist",
-                             conn.id(), conn.z_area_id().DebugString()));
+            absl::Substitute("$0 has Z end $1, which doesn't exist",
+                             util::objectid::DisplayString(conn_id),
+                             util::objectid::DisplayString(conn.z_area_id())));
       }
     }
     if (conn.distance_u() < 1) {
-      errors->push_back(absl::Substitute("Connection $0 has bad length $1",
-                                         conn.id(), conn.distance_u()));
+      errors->push_back(absl::Substitute("$0 has bad length $1",
+                                         util::objectid::DisplayString(conn_id),
+                                         conn.distance_u()));
     }
     if (conn.width_u() < 1) {
-      errors->push_back(absl::Substitute("Connection $0 has bad width $1",
-                                         conn.id(), conn.width_u()));
+      errors->push_back(absl::Substitute("$0 has bad width $1",
+                                         util::objectid::DisplayString(conn_id),
+                                         conn.width_u()));
     }
   }
 }
@@ -293,24 +302,26 @@ void validateUnits(const games::setup::proto::GameWorld& world,
                                          unit_id.kind(), unit_id.number()));
     } else if (areas.find(location.a_area_id()) == areas.end()) {
       errors->push_back(absl::Substitute(
-          "Unit {$0, $1} has nonexistent location $2", unit_id.kind(),
-          unit_id.number(), location.a_area_id().DebugString()));
+          "$0 has nonexistent location $1",
+          util::objectid::DisplayString(unit_id),
+          util::objectid::DisplayString(location.a_area_id())));
     }
     if (location.has_connection_id()) {
-      uint64 conn_id = location.connection_id();
+      auto& conn_id = location.connection_id();
       if (connections.find(conn_id) == connections.end()) {
         errors->push_back(
-            absl::Substitute("Unit {$0, $1} has nonexistent connection $2",
-                             unit_id.kind(), unit_id.number(), conn_id));
+            absl::Substitute("Unit $0 has nonexistent connection $1",
+                             util::objectid::DisplayString(unit_id),
+                             util::objectid::DisplayString(conn_id)));
       } else {
         const auto& conn = connections[conn_id];
         if (conn.a_area_id() != location.a_area_id() &&
             conn.z_area_id() != location.a_area_id()) {
-          errors->push_back(
-              absl::Substitute("Unit {$0, $1} is in connection $2 which does "
-                               "not connect source $3",
-                               unit_id.kind(), unit_id.number(), conn_id,
-                               location.a_area_id().DebugString()));
+          errors->push_back(absl::Substitute(
+              "$0 is in $1 which does not connect source $2",
+              util::objectid::DisplayString(unit_id),
+              util::objectid::DisplayString(conn_id),
+              util::objectid::DisplayString(location.a_area_id())));
         }
       }
     }

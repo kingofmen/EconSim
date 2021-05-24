@@ -185,7 +185,7 @@ util::Status SevenYearsMerchant::createCandidatePath(
     return status;
   }
 
-  std::vector<uint64> traverse;
+  std::vector<geography::Connection::IdType> traverse;
   status =
       ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
                          ai::impl::ZeroHeuristic, area.area_id(), &traverse);
@@ -208,7 +208,7 @@ void SevenYearsMerchant::checkForDropoff(
   if (faction_id != state.owner_id()) {
     return;
   }
-  std::vector<uint64> traverse;
+  std::vector<geography::Connection::IdType> traverse;
   geography::proto::Location home_location;
   *home_location.mutable_a_area_id() = area_id;
   auto status = ai::impl::FindPath(home_location, ai::impl::ShortestDistance,
@@ -246,7 +246,7 @@ void SevenYearsMerchant::checkForPickup(const units::Unit& unit,
   if (faction_id != state.owner_id()) {
     return;
   }
-  std::vector<uint64> carry_path;
+  std::vector<geography::Connection::IdType> carry_path;
   geography::proto::Location home_location;
   // Check if we can get from the area to the target.
   *home_location.mutable_a_area_id() = area_id;
@@ -258,7 +258,7 @@ void SevenYearsMerchant::checkForPickup(const units::Unit& unit,
     return;
   }
 
-  std::vector<uint64> pickup_path;
+  std::vector<geography::Connection::IdType> pickup_path;
   status = ai::impl::FindPath(unit.location(), ai::impl::ShortestDistance,
                               ai::impl::ZeroHeuristic, area_id, &pickup_path);
   if (!status.ok()) {
@@ -396,7 +396,7 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
     planTrade(unit, constants::TradeGoods(), plan);
   }
 
-  std::vector<uint64> traverse;
+  std::vector<geography::Connection::IdType> traverse;
   status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
                               ai::impl::ZeroHeuristic, path.target_port_id,
                               &traverse);
@@ -502,7 +502,7 @@ util::Status SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
     planTrade(unit, constants::Supplies(), plan);
   }
 
-  std::vector<uint64> pathToTarget;
+  std::vector<geography::Connection::IdType> pathToTarget;
   status = ai::impl::FindPath(location, ai::impl::ShortestDistance,
                               ai::impl::ZeroHeuristic, path.target_port_id,
                               &pathToTarget);

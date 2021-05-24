@@ -76,7 +76,10 @@ areas {
 
 connections {
   type: CT_COASTAL
-  id: 1
+  connection_id {
+    number: 1
+    kind: "connection"
+  }
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
@@ -91,7 +94,10 @@ connections {
 
 connections {
   type: CT_COASTAL
-  id: 2
+  connection_id {
+    number: 2
+    kind: "connection"
+  }
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
@@ -106,7 +112,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 3
+  connection_id {
+    number: 3
+    kind: "connection"
+  }
   distance_u: 1200000
   width_u: 1000000
   a_area_id {
@@ -121,7 +130,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 4
+  connection_id {
+    number: 4
+    kind: "connection"
+  }
   distance_u: 1700000
   width_u: 1000000
   a_area_id {
@@ -136,7 +148,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 5
+  connection_id {
+    number: 5
+    kind: "connection"
+  }
   distance_u: 1100000
   width_u: 1000000
   a_area_id {
@@ -151,7 +166,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 6
+  connection_id {
+    number: 6
+    kind: "connection"
+  }
   distance_u: 2000000
   width_u: 1000000
   a_area_id {

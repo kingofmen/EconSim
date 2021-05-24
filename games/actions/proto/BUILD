@@ -24,5 +24,6 @@ proto_library(
     name = "plan_proto_lib",
     srcs = ["plan.proto"],
     deps = [
+        "//util/proto:object_id_proto_lib",
     ],
 )

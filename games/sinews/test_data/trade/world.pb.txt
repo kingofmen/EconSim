@@ -52,7 +52,10 @@ areas {
 
 connections {
   type: CT_OPEN
-  id: 1
+  connection_id {
+    number: 1
+    kind: "connection"
+  }
   distance_u: 1
   width_u: 1
   a_area_id {

@@ -57,9 +57,11 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
   EXPECT_EQ(5, plan.steps_size());
   if (plan.steps_size() >= 2) {
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(0).action());
-    EXPECT_EQ(connection_12->ID(), plan.steps(0).connection_id());
+    EXPECT_TRUE(util::objectid::Equal(connection_12->connection_id(),
+                                      plan.steps(0).connection_id()));
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(1).action());
-    EXPECT_EQ(connection_23->ID(), plan.steps(1).connection_id());
+    EXPECT_TRUE(util::objectid::Equal(connection_23->connection_id(),
+                                      plan.steps(1).connection_id()));
   }
 }
 
@@ -73,7 +75,8 @@ TEST_F(UnitAiImplTest, TestFindPath) {
 
   // Path starting in connection.
   plan.Clear();
-  unit_->mutable_location()->set_connection_id(connection_12->connection_id());
+  *unit_->mutable_location()->mutable_connection_id() =
+      connection_12->connection_id();
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area3_->area_id(),
                     &plan);
@@ -82,7 +85,8 @@ TEST_F(UnitAiImplTest, TestFindPath) {
 
   // Path starting in connection, but we have to backtrack.
   plan.Clear();
-  unit_->mutable_location()->set_connection_id(connection_12->connection_id());
+  *unit_->mutable_location()->mutable_connection_id() =
+      connection_12->connection_id();
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area4_->area_id(),
                     &plan);
@@ -91,7 +95,8 @@ TEST_F(UnitAiImplTest, TestFindPath) {
 
   // Return to A location when we've made some progress.
   plan.Clear();
-  unit_->mutable_location()->set_connection_id(connection_12->connection_id());
+  *unit_->mutable_location()->mutable_connection_id() =
+      connection_12->connection_id();
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area1_->area_id(),
                     &plan);

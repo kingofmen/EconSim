@@ -29,6 +29,7 @@ public:
     int64 target_sees;
   };
   typedef std::function<Detection(const Mobile&)> Listener;
+  typedef util::proto::ObjectId IdType;
 
   // Callbacks for detection and evasion.
   void Register(const util::proto::ObjectId& unit_id, Listener l);
@@ -51,9 +52,7 @@ public:
   Area* OtherSide(const Area* area);
   const Area* OtherSide(const Area* area) const;
 
-  uint64 connection_id() const { return proto_.id();}
-  // Deprecated, used connection_id instead.
-  uint64 ID() const { return proto_.id(); }
+  IdType connection_id() const { return proto_.connection_id();}
   uint64 length_u() const { return proto_.distance_u(); }
   uint64 width_u() const { return proto_.width_u(); }
   geography::proto::ConnectionType type() const { return proto_.type(); }
@@ -74,7 +73,7 @@ public:
   ByEndpoints(const util::proto::ObjectId& a, const util::proto::ObjectId& z);
 
   // Lookup by connection ID.
-  static Connection* ById(uint64 conn_id);
+  static Connection* ById(const IdType& conn_id);
 
 private:
   Connection() = delete;

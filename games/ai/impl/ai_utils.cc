@@ -15,14 +15,15 @@ micro::Measure GetProgress(const micro::Measure fraction_u, const units::Unit& u
   return distance_u;
 }
 
-int NumTurns(const units::Unit& unit, const std::vector<uint64> path) {
+int NumTurns(const units::Unit& unit,
+             const std::vector<geography::Connection::IdType>& path) {
   int turns = 0;
-  for (const auto pid : path) {
+  for (const auto& pid : path) {
     const geography::Connection* conn = geography::Connection::ById(pid);
     if (conn == nullptr) {
       // Traversing nonexistent connections presumably takes zero time.
-      DLOGF(Log::P_DEBUG, "Attempted to traverse nonexistent connection %d",
-            pid);
+      DLOGF(Log::P_DEBUG, "Attempted to traverse nonexistent connection %s",
+            util::objectid::DisplayString(pid));
       continue;
     }
     micro::Measure progress_u = 0;

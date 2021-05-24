@@ -16,10 +16,12 @@ namespace impl {
 namespace {
 
 util::Status validateMove(const actions::proto::Step& step, const geography::proto::Location& location) {
-  if (location.has_connection_id() && location.connection_id() != step.connection_id()) {
-    return util::NotFoundError(absl::Substitute(
-        "Unit in connection $0 trying to move in connection $1",
-        location.connection_id(), step.connection_id()));
+  if (location.has_connection_id() &&
+      location.connection_id() != step.connection_id()) {
+    return util::NotFoundErrorf(
+        "Unit in connection %s trying to move in connection %s",
+        util::objectid::DisplayString(location.connection_id()),
+        util::objectid::DisplayString(step.connection_id()));
   }
 
   if (!location.has_a_area_id()) {
@@ -27,16 +29,18 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
   }
   const auto* connection = geography::Connection::ById(step.connection_id());
   if (!connection) {
-    DLOGF(Log::P_DEBUG, "  validateMove could not find connection ID %d",
-          step.connection_id());
-    return util::NotFoundError(absl::Substitute(
-        "Could not find connection ID $0", step.connection_id()));
+    DLOGF(Log::P_DEBUG, "  validateMove could not find %s",
+          util::objectid::DisplayString(step.connection_id()));
+    return util::NotFoundErrorf(
+        "Could not find %s",
+        util::objectid::DisplayString(step.connection_id()));
   }
 
   if (util::objectid::IsNull(connection->OtherSide(location.a_area_id()))) {
-    return util::NotFoundError(absl::Substitute(
-        "Could not find area on other side of area $0 through connection $1",
-        location.a_area_id().number(), step.connection_id()));
+    return util::NotFoundErrorf(
+        "Could not find area on other side of %s through %s",
+        util::objectid::DisplayString(location.a_area_id()),
+        util::objectid::DisplayString(step.connection_id()));
   }
 
   return util::OkStatus();
@@ -47,9 +51,9 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
 util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
                       units::Unit* unit) {
   if (!step.has_connection_id()) {
-    return util::InvalidArgumentError(
-        absl::Substitute("$0 cannot move without connection ID",
-                         util::objectid::DisplayString(unit->unit_id())));
+    return util::InvalidArgumentErrorf(
+        "%s cannot move without connection ID",
+        util::objectid::DisplayString(unit->unit_id()));
   }
 
   geography::proto::Location* location = unit->mutable_location();
@@ -59,7 +63,7 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
   }
 
   // Ensure there is a connection to traverse. Validation done above.
-  location->set_connection_id(step.connection_id());
+  *location->mutable_connection_id() = step.connection_id();
   // Connection known to exist from validation.
   const auto* connection = geography::Connection::ById(step.connection_id());
   uint64 progress_u = location->progress_u();
@@ -96,22 +100,23 @@ util::Status BuyOrSell(const ActionCost& cost, const actions::proto::Step& step,
   const geography::proto::Location& location = unit->location();
   if (location.has_progress_u() && location.progress_u() > 0) {
     // Cannot buy while in a Connection.
-    return util::InvalidArgumentError(
-        absl::Substitute("BuyOrSell while still traversing connection $0",
-                         location.connection_id()));
+    return util::InvalidArgumentErrorf(
+        "BuyOrSell while still traversing connection %s",
+        util::objectid::DisplayString(location.connection_id()));
   }
 
   geography::Area* area = geography::Area::GetById(location.a_area_id());
   if (area == NULL) {
-    return util::NotFoundError(absl::Substitute(
-        "BuyOrSell in nonexistent area $0", location.a_area_id().number()));
+    return util::NotFoundErrorf(
+        "BuyOrSell in nonexistent %s",
+        util::objectid::DisplayString(location.a_area_id()));
   }
 
   market::Market* market = area->mutable_market();
   if (market == NULL) {
-    return util::NotFoundError(
-        absl::Substitute("BuyOrSell in area $0 which has no market",
-                         location.a_area_id().number()));
+    return util::NotFoundErrorf(
+        "BuyOrSell in %s which has no market",
+        util::objectid::DisplayString(location.a_area_id()));
   }
 
   if (step.action() == actions::proto::AA_BUY) {
@@ -150,19 +155,18 @@ util::Status TurnAround(const ActionCost& cost,
                         const actions::proto::Step& step, units::Unit* unit) {
   auto* location = unit->mutable_location();
   if (!location->has_connection_id()) {
-    return util::FailedPreconditionError(absl::Substitute(
-        "Unit ($0, $0) tried to turn around but is not in a connection",
-        unit->unit_id().kind(), unit->unit_id().number()));
+    return util::FailedPreconditionErrorf(
+        "%s tried to turn around but is not in a connection",
+        util::objectid::DisplayString(unit->unit_id()));
   }
 
   const auto* connection =
       geography::Connection::ById(location->connection_id());
   if (connection == nullptr) {
-    return util::NotFoundError(
-        absl::Substitute("Unit ($0, $0) tried to turn around but is in "
-                         "nonexistent connection %d",
-                         unit->unit_id().kind(), unit->unit_id().number(),
-                         location->connection_id()));
+    return util::NotFoundErrorf(
+        "%s tried to turn around but is in nonexistent %s",
+        util::objectid::DisplayString(unit->unit_id()),
+        util::objectid::DisplayString(location->connection_id()));
   }
 
   auto progress_u = connection->length_u();

@@ -1,6 +1,8 @@
 syntax = "proto2";
 package actions.proto;
 
+import "util/proto/object_id.proto";
+
 enum AtomicAction {
   AA_UNKNOWN = 0;
   AA_MOVE = 1;
@@ -17,7 +19,7 @@ message Step {
     // Replaces 'action' to trigger custom, game-specific handlers.
     string key = 4;
   }
-  optional uint64 connection_id = 2;
+  optional util.proto.ObjectId connection_id = 2;
   optional string good = 3;
   // Next field: 5
 }

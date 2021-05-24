@@ -165,10 +165,11 @@ util::Status SevenYears::loadShip(const micro::Measure fraction_u,
                                   units::Unit* unit) {
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
-    return util::FailedPreconditionError(absl::Substitute(
-        "Unit $0 tried to load $1 while in transit: $2, $3",
+    return util::FailedPreconditionErrorf(
+        "%s tried to load %s while in transit: %d, %s",
         util::objectid::DisplayString(unit_id), step.good(),
-        unit->location().progress_u(), unit->location().connection_id()));
+        unit->location().progress_u(),
+        util::objectid::DisplayString(unit->location().connection_id()));
   }
   const auto& area_id = unit->location().a_area_id();
   auto* area_state = mutable_area_state(area_id);
@@ -209,10 +210,10 @@ util::Status SevenYears::offloadCargo(const micro::Measure fraction_u,
                                       market::proto::Container* amount) {
   const auto& unit_id = unit->unit_id();
   if (unit->location().has_progress_u() && unit->location().progress_u() != 0) {
-    return util::FailedPreconditionError(absl::Substitute(
-        "Unit $0 tried to unload cargo while in transit: $1, $2",
+    return util::FailedPreconditionErrorf(
+        "%s tried to unload cargo while in transit: %d, %s",
         util::objectid::DisplayString(unit_id), unit->location().progress_u(),
-        unit->location().connection_id()));
+        util::objectid::DisplayString(unit->location().connection_id()));
   }
   const auto& area_id = unit->location().a_area_id();
   auto* area_state = mutable_area_state(area_id);

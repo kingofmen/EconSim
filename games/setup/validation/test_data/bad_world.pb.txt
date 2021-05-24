@@ -58,7 +58,10 @@ pops {
 
 connections {
   type: CT_OPEN
-  id: 1
+  connection_id {
+    number: 1
+    kind: "connection"
+  }
   distance_u: 1
   width_u: 1
   a_area_id {
@@ -71,14 +74,20 @@ connections {
 
 connections {
   type: CT_OPEN
-  id: 2
+  connection_id {
+    number: 2
+    kind: "connection"
+  }
   distance_u: 0
   width_u: 0
 }
 
 connections {
   type: CT_OPEN
-  id: 3
+  connection_id {
+    number: 3
+    kind: "connection"
+  }
   distance_u: 1
   width_u: 1
   a_area_id {
@@ -90,7 +99,10 @@ connections {
 }
 
 connections {
-  id: 3
+  connection_id {
+    number: 3
+    kind: "connection"
+  }
 }
 
 units {}
@@ -132,7 +144,10 @@ units {
     a_area_id {
       number: 1
     }
-    connection_id: 12
+    connection_id {
+      number: 12
+      kind: "connection"
+    }
   }
 }
 units {
@@ -144,7 +159,10 @@ units {
     a_area_id {
       number: 1
     }
-    connection_id: 3
+    connection_id {
+      number: 3
+      kind: "connection"
+    }
   }
 }
 units {

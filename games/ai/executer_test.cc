@@ -5,6 +5,7 @@
 #include "games/units/proto/templates.pb.h"
 #include "games/units/proto/units.pb.h"
 #include "games/units/unit.h"
+#include "util/proto/object_id.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -22,7 +23,7 @@ class ExecuterTest : public testing::Test {
 TEST_F(ExecuterTest, TestDeleteStep) {
   auto* step = plan_.add_steps();
   step->set_action(actions::proto::AA_MOVE);
-  step->set_connection_id(1);
+  *step->mutable_connection_id() = util::objectid::New("connection", 1);
   DeleteStep(&plan_);
 
   EXPECT_EQ(0, plan_.steps_size());

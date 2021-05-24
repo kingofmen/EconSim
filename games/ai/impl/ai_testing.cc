@@ -29,7 +29,7 @@ void AiTestBase::SetUp() {
   area4_ = geography::Area::FromProto(area);
 
   geography::proto::Connection conn;
-  conn.set_id(1);
+  *conn.mutable_connection_id() = util::objectid::New("connection", 1);
   conn.mutable_a_area_id()->set_kind("area");
   conn.mutable_z_area_id()->set_kind("area");
   conn.mutable_a_area_id()->set_number(1);
@@ -37,11 +37,11 @@ void AiTestBase::SetUp() {
   conn.set_distance_u(micro::kOneInU);
   conn.set_width_u(1);
   connection_12 = geography::Connection::FromProto(conn);
-  conn.set_id(2);
+  *conn.mutable_connection_id() = util::objectid::New("connection", 2);
   conn.mutable_a_area_id()->set_number(3);
   conn.mutable_z_area_id()->set_number(2);
   connection_23 = geography::Connection::FromProto(conn);
-  conn.set_id(3);
+  *conn.mutable_connection_id() = util::objectid::New("connection", 3);
   conn.mutable_a_area_id()->set_number(1);
   conn.mutable_z_area_id()->set_number(4);
   connection_14 = geography::Connection::FromProto(conn);

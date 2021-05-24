@@ -99,7 +99,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   area101->mutable_area_id()->set_tag("area_one_oh_one");
 
   auto* conn = gameworld.add_connections();
-  conn->set_id(1);
+  util::objectid::Set("connection", 1, conn->mutable_connection_id());
   conn->set_distance_u(1);
   conn->set_width_u(1);
   conn->mutable_a_area_id()->set_kind("area");
@@ -115,7 +115,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   loc->mutable_a_area_id()->set_tag("area_fifty_one");
   loc->mutable_z_area_id()->set_kind("area");
   loc->mutable_z_area_id()->set_tag("area_one_oh_one");
-  loc->set_connection_id(1);
+  util::objectid::Set("connection", 1, loc->mutable_connection_id());
   auto* faction_id = unit->mutable_faction_id();
   faction_id->set_kind("faction");
   faction_id->set_tag("faction_one");

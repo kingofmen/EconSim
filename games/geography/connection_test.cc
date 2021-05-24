@@ -27,8 +27,10 @@ protected:
 };
 
 TEST_F(ConnectionTest, TestFromProto) {
+  const auto connection_id = util::objectid::New("connection", 1);
+
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_z_area_id() = z_end_->area_id();
   proto_.set_distance_u(1);
   proto_.set_width_u(1);
@@ -44,7 +46,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_a_area_id() = a_end_->area_id();
   proto_.set_distance_u(1);
   proto_.set_width_u(1);
@@ -52,7 +54,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_a_area_id() = a_end_->area_id();
   *proto_.mutable_z_area_id() = z_end_->area_id();
   proto_.set_width_u(1);
@@ -60,7 +62,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_a_area_id() = a_end_->area_id();
   *proto_.mutable_z_area_id() = z_end_->area_id();
   proto_.set_distance_u(1);
@@ -68,7 +70,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_a_area_id() = a_end_->area_id();
   proto_.mutable_z_area_id()->set_number(1);
   proto_.set_distance_u(1);
@@ -77,7 +79,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(NULL, connection.get());
 
   proto_.Clear();
-  proto_.set_id(1);
+  *proto_.mutable_connection_id() = connection_id;
   *proto_.mutable_a_area_id() = a_end_->area_id();
   *proto_.mutable_z_area_id() = z_end_->area_id();
   proto_.set_distance_u(1);
@@ -98,7 +100,7 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(1, lookup_z.size());
   EXPECT_EQ(connection.get(), *lookup_z.begin());
 
-  const auto* lookup_id = Connection::ById(1);
+  const auto* lookup_id = Connection::ById(connection_id);
   EXPECT_EQ(connection.get(), lookup_id);
 
   const auto& lookup_a_z =

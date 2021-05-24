@@ -20,7 +20,10 @@ states {
     }
     steps {
       action: AA_MOVE
-      connection_id: 6
+      connection_id {
+        number: 6
+	kind: "connection"
+      }
     }
     steps {
       key: "offload_cargo"
@@ -66,7 +69,10 @@ states {
   plan {
     steps {
       action: AA_MOVE
-      connection_id: 6
+      connection_id {
+        number: 6
+	kind: "connection"
+      }
     }
     steps {
       key: "offload_cargo"
@@ -188,7 +194,10 @@ states {
     }
     steps {
       action: AA_MOVE
-      connection_id: 6
+      connection_id {
+        number: 6
+	kind: "connection"
+      }
     }
     steps {
       key: "offload_cargo"

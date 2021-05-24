@@ -56,8 +56,9 @@ micro::Measure ZeroHeuristic(const util::proto::ObjectId& cand_id,
   return 0;
 }
 
-micro::Measure CalculateDistance(const std::vector<uint64>& path,
-                                 const CostFunction& cost_function) {
+micro::Measure
+CalculateDistance(const std::vector<geography::Connection::IdType>& path,
+                  const CostFunction& cost_function) {
   micro::Measure distance = 0;
   for (const auto& id : path) {
     const auto* conn = geography::Connection::ById(id);
@@ -73,7 +74,7 @@ util::Status FindPath(const geography::proto::Location& source,
                       const CostFunction& cost_function,
                       const Heuristic& heuristic,
                       const util::proto::ObjectId& target_id,
-                      std::vector<uint64>* path) {
+                      std::vector<geography::Connection::IdType>* path) {
   util::proto::ObjectId start_id = source.a_area_id();
   if (start_id == target_id) {
     DLOGF(Log::P_DEBUG, "FindPath start equals end %d, nothing to do",
@@ -85,7 +86,7 @@ util::Status FindPath(const geography::proto::Location& source,
         target_id.number());
   struct Node {
     util::proto::ObjectId previous_id;
-    uint64 conn_id;
+    util::proto::ObjectId conn_id;
     micro::Measure cost_u;
     micro::Measure heuristic_u;
   };
@@ -94,7 +95,9 @@ util::Status FindPath(const geography::proto::Location& source,
   util::proto::ObjectId least_cost_id = start_id;
   micro::Measure least_cost_u = 0;
   open.insert(least_cost_id);
-  visited.insert({least_cost_id, {util::objectid::kNullId, 0, least_cost_u}});
+  visited.insert(
+      {least_cost_id,
+       {util::objectid::kNullId, util::objectid::kNullId, least_cost_u}});
   // No closed set as we cannot guarantee the heuristic is consistent, and
   // besides it would interact badly with the possibility of multiple edges
   // between two nodes.
@@ -112,11 +115,11 @@ util::Status FindPath(const geography::proto::Location& source,
       const auto& existing = visited.find(other_side_id);
       if (existing == visited.end()) {
         visited.insert({other_side_id,
-                        {least_cost_id, conn->ID(), real_cost_u,
+                        {least_cost_id, conn->connection_id(), real_cost_u,
                          heuristic(other_side_id, target_id)}});
         open.insert(other_side_id);
       } else if (real_cost_u < existing->second.cost_u) {
-        existing->second.conn_id = conn->ID();
+        existing->second.conn_id = conn->connection_id();
         existing->second.cost_u = real_cost_u;
         open.insert(other_side_id);
       }
@@ -142,9 +145,9 @@ util::Status FindPath(const geography::proto::Location& source,
   if (visited.find(target_id) == visited.end()) {
     DLOG(Log::P_DEBUG, "  Didn't find a path");
     // Didn't find a path.
-    return util::NotFoundError(
-        absl::Substitute("Couldn't find path from $0 to $1", start_id.number(),
-                         target_id.number()));
+    return util::NotFoundErrorf("Couldn't find path from %s to %s",
+                                util::objectid::DisplayString(start_id),
+                                util::objectid::DisplayString(target_id));
   }
 
   util::proto::ObjectId current_area_id = target_id;
@@ -157,7 +160,8 @@ util::Status FindPath(const geography::proto::Location& source,
 }
 
 void PlanPath(const geography::proto::Location& source,
-              const std::vector<uint64>& path, actions::proto::Plan* plan) {
+              const std::vector<geography::Connection::IdType>& path,
+              actions::proto::Plan* plan) {
   if (path.empty()) {
     // Unit is either not going anywhere, or wants to turn around
     // having just set out from A.
@@ -166,13 +170,14 @@ void PlanPath(const geography::proto::Location& source,
     }
 
     DLOGF(Log::P_DEBUG,
-          "PlanPath start equals end %d but in connection %d, turning around",
-          source.a_area_id().number(), source.connection_id());
+          "PlanPath start equals end %s but in connection %s, turning around",
+          util::objectid::DisplayString(source.a_area_id()),
+          util::objectid::DisplayString(source.connection_id()));
     auto* step = plan->add_steps();
     step->set_action(actions::proto::AA_TURN_AROUND);
     step = plan->add_steps();
     step->set_action(actions::proto::AA_MOVE);
-    step->set_connection_id(source.connection_id());
+    *step->mutable_connection_id() = source.connection_id();
     return;
   }
 
@@ -187,16 +192,17 @@ void PlanPath(const geography::proto::Location& source,
       step->set_action(actions::proto::AA_TURN_AROUND);
       step = plan->add_steps();
       step->set_action(actions::proto::AA_MOVE);
-      step->set_connection_id(source.connection_id());
+      *step->mutable_connection_id() = source.connection_id();
     }
   }
 
   for (int i = path.size() - 1; i >= 0; --i) {
-    auto conn_id = path[i];
-    DLOGF(Log::P_DEBUG, "  Path step: connection %d", conn_id);
+    auto& conn_id = path[i];
+    DLOGF(Log::P_DEBUG, "  Path step: %s",
+          util::objectid::DisplayString(conn_id));
     auto* step = plan->add_steps();
     step->set_action(actions::proto::AA_MOVE);
-    step->set_connection_id(conn_id);
+    *step->mutable_connection_id() = conn_id;
   }
 }
 
@@ -208,7 +214,7 @@ util::Status FindPath(const units::Unit& unit,
                       const util::proto::ObjectId& target_id,
                       actions::proto::Plan* plan) {
   const auto& source = unit.location();
-  std::vector<uint64> path;
+  std::vector<geography::Connection::IdType> path;
   auto status = FindPath(source, cost_function, heuristic, target_id, &path);
   if (!status.ok()) {
     return status;

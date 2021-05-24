@@ -24,7 +24,7 @@ class ExecutorImplTest : public AiTestBase {};
 TEST_F(ExecutorImplTest, TestMoveUnit) {
   auto* step = plan_.add_steps();
   step->set_action(actions::proto::AA_MOVE);
-  step->set_connection_id(connection_12->ID());
+  *step->mutable_connection_id() = connection_12->connection_id();
 
   auto status = MoveUnit(ZeroCost(), plan_.steps(0), unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
@@ -63,7 +63,8 @@ TEST_F(ExecutorImplTest, TestTurnAround) {
   auto* step = plan_.add_steps();
   int kStartProgress = 10000;
   step->set_action(actions::proto::AA_TURN_AROUND);
-  unit_->mutable_location()->set_connection_id(connection_12->connection_id());
+  *(unit_->mutable_location()->mutable_connection_id()) =
+      connection_12->connection_id();
   unit_->mutable_location()->set_progress_u(kStartProgress);
   auto status = TurnAround(ZeroCost(), *step, unit_.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
