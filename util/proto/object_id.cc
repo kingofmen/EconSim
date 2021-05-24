@@ -166,6 +166,11 @@ void RestoreTag(util::proto::ObjectId* obj_id) {
   obj_id->set_tag(numToTagMap[numkey]);
 }
 
+void Set(const std::string& kind, int num, util::proto::ObjectId* obj_id) {
+  obj_id->set_kind(kind);
+  obj_id->set_number(num);
+}
+
 void UnCanonicalise(util::proto::ObjectId* obj_id) {
   if (obj_id->has_tag()) {
     return;

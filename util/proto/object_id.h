@@ -37,6 +37,9 @@ util::proto::ObjectId New(const std::string& kind, int num);
 // form kind-number-tag that defines a tag-number mapping.
 void RestoreTag(util::proto::ObjectId* obj_id);
 
+// Sets the kind and number of the given object ID.
+void Set(const std::string& kind, int num, util::proto::ObjectId* obj_id);
+
 // Sets the ObjectId to the kind-tag format if possible.
 void UnCanonicalise(util::proto::ObjectId* obj_id);
 

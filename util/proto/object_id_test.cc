@@ -149,5 +149,14 @@ TEST(ObjectId, TestDisplayString) {
   EXPECT_EQ("(kind, \"tag\")", DisplayString(obj_id));
 }
 
+TEST(ObjectId, Utils) {
+  auto obj_id = New("test", 1);
+  EXPECT_EQ(obj_id.number(), 1);
+  EXPECT_EQ(obj_id.kind(), "test");
+  Set("other", 2, &obj_id);
+  EXPECT_EQ(obj_id.number(), 2);
+  EXPECT_EQ(obj_id.kind(), "other");
+}
+
 }  // namespace objectid
 }  // namespace util
