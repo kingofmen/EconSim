@@ -150,12 +150,22 @@ cc_test(
 )
 
 cc_library(
+    name = "sevenyears_battles",
+    srcs = ["battles.cc"],
+    hdrs = ["battles.h"],
+    deps = [
+        "//games/geography:connection",
+    ],
+)
+
+cc_library(
     name = "sevenyears_lib",
     srcs = ["sevenyears.cc"],
     hdrs = ["sevenyears.h"],
     deps = [
         ":sevenyears_ai_lib",
         ":sevenyears_ai_state_handlers",
+        ":sevenyears_battles",
         ":sevenyears_constants",
         ":sevenyears_interfaces",
         "//games/actions/proto:plan_proto",

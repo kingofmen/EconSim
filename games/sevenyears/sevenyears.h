@@ -8,6 +8,7 @@
 #include "games/setup/proto/setup.pb.h"
 #include "games/sevenyears/action_cost_calculator.h"
 #include "games/sevenyears/army_ai.h"
+#include "games/sevenyears/battles.h"
 #include "games/sevenyears/interfaces.h"
 #include "games/sevenyears/merchant_ship_ai.h"
 #include "games/sevenyears/proto/sevenyears.pb.h"
@@ -66,6 +67,8 @@ private:
   std::unique_ptr<sevenyears::SevenYearsMerchant> merchant_ai_;
   std::unique_ptr<sevenyears::SevenYearsArmyAi> army_ai_;
   std::unique_ptr<sevenyears::ActionCostCalculator> cost_calculator_;
+  std::unique_ptr<sevenyears::SeaMoveObserver> sea_listener_;
+  std::unique_ptr<sevenyears::LandMoveObserver> land_listener_;
 };
 
 }  // namespace sevenyears

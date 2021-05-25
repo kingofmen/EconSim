@@ -638,6 +638,22 @@ SevenYears::LoadScenario(const games::setup::proto::ScenarioFiles& setup) {
     area_states_[area_id] = state;
   }
 
+  sea_listener_.reset(new SeaMoveObserver());
+  land_listener_.reset(new LandMoveObserver());
+  const auto seaListenerId = util::objectid::New("listener", 1);
+  const auto landListenerId = util::objectid::New("listener", 2);
+  for (auto& conn : game_world_->connections_) {
+    switch (conn->type()) {
+      case geography::proto::CT_COASTAL:
+      case geography::proto::CT_OPEN_SEA:
+        conn->Register(seaListenerId, sea_listener_.get());
+        break;
+      default:
+        conn->Register(landListenerId, land_listener_.get());
+        break;
+    }
+  }
+
   cacheUnitLocations();
 
   return util::OkStatus();
