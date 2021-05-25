@@ -43,13 +43,13 @@ Connection::~Connection() {
   id_map_.erase(connection_id());
 }
 
-void Connection::Register(const util::proto::ObjectId& unit_id,
-                          Connection::Listener l) {
-  listeners_[unit_id] = l;
+void Connection::Register(const util::proto::ObjectId& listener_id,
+                          Connection::Listener* l) {
+  listeners_[listener_id] = l;
 }
 
-void Connection::UnRegister(const util::proto::ObjectId& unit_id) {
-  listeners_.erase(unit_id);
+void Connection::UnRegister(const util::proto::ObjectId& listener_id) {
+  listeners_.erase(listener_id);
 }
 
 std::unique_ptr<Connection>
@@ -132,12 +132,9 @@ const Area* Connection::OtherSide(const Area* area) const {
   return NULL;
 }
 
-void Connection::Listen(const Mobile& mobile, uint64 distance_u,
-                        std::vector<Connection::Detection>* detections) const {
+void Connection::Listen(const Connection::Movement& movement) const {
   for (const auto& listener : listeners_) {
-    Connection::Detection det = listener.second(mobile);
-    det.unit_id = listener.first;
-    detections->emplace_back(std::move(det));
+    listener.second->Listen(movement);
   }
 }
 

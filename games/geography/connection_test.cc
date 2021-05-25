@@ -127,4 +127,43 @@ TEST_F(ConnectionTest, TestFromProto) {
   EXPECT_EQ(z_end_.get(), connection->OtherSide(a_end_.get()));
 }
 
+TEST_F(ConnectionTest, Listen) {
+  proto_.Clear();
+  util::objectid::Set("connection", 1, proto_.mutable_connection_id());
+  util::objectid::Set("area", 1, proto_.mutable_a_area_id());
+  util::objectid::Set("area", 2, proto_.mutable_z_area_id());
+  proto_.set_distance_u(1);
+  proto_.set_width_u(1);
+  auto connection = Connection::FromProto(proto_);
+  ASSERT_NE(connection.get(), nullptr);
+
+  struct Counter : public Connection::Listener {
+    Counter() : count_u(0) {}
+    void Listen(const Connection::Movement& movement) {
+      count_u += movement.distance_u;
+    }
+    micro::uMeasure count_u;
+  };
+
+  auto counter_id1 = util::objectid::New("counter", 1);
+  Counter counter1 = Counter();
+  connection->Register(counter_id1, &counter1);
+  auto counter_id2 = util::objectid::New("counter", 2);
+  Counter counter2 = Counter();
+  connection->Register(counter_id2, &counter2);
+
+  auto unit_id = util::objectid::New("unit", 1);
+  Connection::Movement movement(unit_id, 1);
+
+  connection->Listen(movement);
+  EXPECT_EQ(counter1.count_u, 1);
+  EXPECT_EQ(counter2.count_u, 1);
+
+  connection->UnRegister(counter_id1);
+  movement.distance_u = 2;
+  connection->Listen(movement);
+  EXPECT_EQ(counter1.count_u, 1);
+  EXPECT_EQ(counter2.count_u, 3);
+}
+
 } // namespace geography

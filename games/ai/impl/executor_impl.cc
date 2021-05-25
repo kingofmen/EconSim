@@ -50,10 +50,10 @@ util::Status validateMove(const actions::proto::Step& step, const geography::pro
 
 util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
                       units::Unit* unit) {
+  const auto& unit_id = unit->unit_id();
   if (!step.has_connection_id()) {
-    return util::InvalidArgumentErrorf(
-        "%s cannot move without connection ID",
-        util::objectid::DisplayString(unit->unit_id()));
+    return util::InvalidArgumentErrorf("%s cannot move without connection ID",
+                                       util::objectid::DisplayString(unit_id));
   }
 
   geography::proto::Location* location = unit->mutable_location();
@@ -73,13 +73,13 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
   const auto& a_area_id = location->a_area_id();
   const auto& z_area_id = connection->OtherSide(a_area_id);
   DLOGF(Log::P_DEBUG, "Unit %s progress %s moving from %s to %s",
-        util::objectid::DisplayString(unit->unit_id()),
+        util::objectid::DisplayString(unit_id),
         micro::DisplayString(distance_u, 2),
         util::objectid::DisplayString(a_area_id),
         util::objectid::DisplayString(z_area_id));
 
-  // TODO: Add a detections vector, and handle them.
-  connection->Listen(*unit, distance_u, nullptr);
+  geography::Connection::Movement movement(unit_id, distance_u);
+  connection->Listen(movement);
   if (distance_u >= length_u) {
     location->clear_progress_u();
     *location->mutable_a_area_id() = z_area_id;

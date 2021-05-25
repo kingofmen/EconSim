@@ -23,19 +23,26 @@ class Connection {
 public:
   ~Connection();
 
-  struct Detection {
-    util::proto::ObjectId unit_id;
-    int64 see_target;
-    int64 target_sees;
+  // Holds information about a unit passing through the connection.
+  struct Movement {
+    Movement(const util::proto::ObjectId& id, micro::uMeasure d_u)
+        : distance_u(d_u) {
+      object_id.Clear();
+      object_id.MergeFrom(id);
+    }
+    util::proto::ObjectId object_id;
+    micro::uMeasure distance_u;
   };
-  typedef std::function<Detection(const Mobile&)> Listener;
+
+  struct Listener {
+    virtual void Listen(const Movement& movement) = 0;
+  };
   typedef util::proto::ObjectId IdType;
 
   // Callbacks for detection and evasion.
-  void Register(const util::proto::ObjectId& unit_id, Listener l);
-  void UnRegister(const util::proto::ObjectId& unit_id);
-  void Listen(const Mobile& mobile, uint64 distance_u,
-              std::vector<Detection>* detections) const;
+  void Register(const util::proto::ObjectId& listener_id, Listener* l);
+  void UnRegister(const util::proto::ObjectId& listener_id);
+  void Listen(const Movement& movement) const;
 
   // Endpoint access.
   Area* a() { return Area::GetById(proto_.a_area_id()); }
@@ -83,7 +90,7 @@ private:
   proto::Connection proto_;
 
   // Listener map.
-  std::unordered_map<util::proto::ObjectId, Listener> listeners_;
+  std::unordered_map<util::proto::ObjectId, Listener*> listeners_;
 };
 
 } // namespace geography
