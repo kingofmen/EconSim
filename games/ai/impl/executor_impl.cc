@@ -78,7 +78,8 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
         util::objectid::DisplayString(a_area_id),
         util::objectid::DisplayString(z_area_id));
 
-  geography::Connection::Movement movement(unit_id, distance_u);
+  geography::Connection::Movement movement(unit_id, a_area_id, progress_u,
+                                           distance_u);
   connection->Listen(movement);
   if (distance_u >= length_u) {
     location->clear_progress_u();

@@ -25,12 +25,18 @@ public:
 
   // Holds information about a unit passing through the connection.
   struct Movement {
-    Movement(const util::proto::ObjectId& id, micro::uMeasure d_u)
-        : distance_u(d_u) {
+    Movement(const util::proto::ObjectId& id,
+             const util::proto::ObjectId& area_id, micro::uMeasure s_u,
+             micro::uMeasure d_u)
+        : start_u(s_u), distance_u(d_u) {
       object_id.Clear();
       object_id.MergeFrom(id);
+      base_area_id.Clear();
+      base_area_id.MergeFrom(area_id);
     }
     util::proto::ObjectId object_id;
+    util::proto::ObjectId base_area_id;
+    micro::uMeasure start_u;
     micro::uMeasure distance_u;
   };
 
