@@ -63,9 +63,10 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
   }
 
   // Ensure there is a connection to traverse. Validation done above.
-  *location->mutable_connection_id() = step.connection_id();
+  const auto& connection_id = step.connection_id();
+  *location->mutable_connection_id() = connection_id;
   // Connection known to exist from validation.
-  const auto* connection = geography::Connection::ById(step.connection_id());
+  const auto* connection = geography::Connection::ById(connection_id);
   uint64 progress_u = location->progress_u();
   uint64 length_u = connection->length_u() - progress_u;
   uint64 distance_u =
@@ -78,8 +79,8 @@ util::Status MoveUnit(const ActionCost& cost, const actions::proto::Step& step,
         util::objectid::DisplayString(a_area_id),
         util::objectid::DisplayString(z_area_id));
 
-  geography::Connection::Movement movement(unit_id, a_area_id, progress_u,
-                                           distance_u);
+  geography::Connection::Movement movement(connection_id, unit_id, a_area_id,
+                                           progress_u, distance_u);
   connection->Listen(movement);
   if (distance_u >= length_u) {
     location->clear_progress_u();

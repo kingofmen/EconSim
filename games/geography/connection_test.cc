@@ -154,7 +154,7 @@ TEST_F(ConnectionTest, Listen) {
   connection->Register(counter_id2, &counter2);
 
   auto unit_id = util::objectid::New("unit", 1);
-  Connection::Movement movement(unit_id, area_id, 1, 1);
+  Connection::Movement movement(proto_.connection_id(), unit_id, area_id, 1, 1);
 
   connection->Listen(movement);
   EXPECT_EQ(counter1.count_u, 1);
