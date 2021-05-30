@@ -28,6 +28,8 @@ constexpr int64 kTwoThirdsInU    = 666667;
 constexpr int64 kOneFourthInU    = kOneInU * 1 / 4;
 constexpr int64 kHalfInU         = kOneInU * 1 / 2;
 constexpr int64 kThreeFourthsInU = kOneInU * 3 / 4;
+// Useful for lining up expressions in test cases.
+constexpr int64 kZeroInU         = 0;
 
 // Returns the square root of value_u in micro-units.
 int64 SqrtU(int64 value_u);
