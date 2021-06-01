@@ -34,6 +34,8 @@ struct Golden {
   bool HasUnits() {return !!(unit_states_);}
 };
 
+// Loads file locations into the config object, intended to be
+// passed on to a full SevenYears object.
 void PopulateScenarioFiles(const std::string& location,
                            games::setup::proto::ScenarioFiles* config);
 
@@ -64,7 +66,12 @@ public:
   std::vector<const units::Unit*>
   ListUnits(const units::Filter& filter) const override;
 
-private:
+  // Loads proto objects and creates a world; intended for loading partial
+  // configurations (for example, templates and units only) without creating
+  // a runnable SevenYears game.
+  util::Status PopulateProtos(const games::setup::proto::ScenarioFiles& config);
+
+protected:
   games::setup::proto::GameWorld world_proto_;
   games::setup::proto::Scenario scenario_proto_;
 };

@@ -321,6 +321,8 @@ void SevenYears::moveUnits() {
 
   while (true) {
     int count = 0;
+    sea_listener_->Clear();
+    land_listener_->Clear();
     for (auto& unit : game_world_->units_) {
       if (unit->action_points_u() < 1) {
         continue;
@@ -360,11 +362,14 @@ void SevenYears::moveUnits() {
       }
     }
 
+    sea_listener_->Battle(DefaultBattleResolver());
+    land_listener_->Battle(DefaultBattleResolver());
+
     if (count == 0) {
       break;
     }
-  }
-
+  } 
+  
   cacheUnitLocations();
 }
   

@@ -1,0 +1,39 @@
+units {
+  unit_id {
+    kind: "regiment"
+    number: 1
+  }
+  faction_id {
+    kind: "faction"
+    number: 1
+  }
+}
+
+units {
+  unit_id {
+    kind: "regiment"
+    number: 2
+  }
+  faction_id {
+    kind: "faction"
+    number: 2
+  }
+}
+
+connections {
+  type: CT_OPEN
+  connection_id {
+    number: 1
+    kind: "connection"
+  }
+  distance_u: 1000000
+  width_u: 1
+  a_area_id {
+    kind: "area"
+    number: 1
+  }
+  z_area_id {
+    kind: "area"
+    number: 2
+  }
+}

@@ -1,0 +1,12 @@
+unit_templates {
+  template_id {
+    kind: "regiment"
+  }
+  mobility {
+    speed_u:      1000000
+    max_bulk_u:   1000000
+    max_weight_u: 1000000
+  }
+  tags: "army"
+  base_action_points_u: 1000000
+}

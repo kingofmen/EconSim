@@ -155,7 +155,28 @@ cc_library(
     hdrs = ["battles.h"],
     deps = [
         "//games/geography:connection",
+        "//games/units:units",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
     ],
+)
+
+cc_test(
+    name = "battles_test",
+    srcs = ["battles_test.cc"],
+    deps = [
+        ":sevenyears_battles",
+        ":test_utils",
+        "//games/geography:connection",
+        "//games/setup/proto:setup_proto",
+        "//games/setup:setup",
+        "//games/units:units",
+        "//util/logging:logging",
+        "//util/proto:object_id_proto",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    data = [":testdata"],
 )
 
 cc_library(

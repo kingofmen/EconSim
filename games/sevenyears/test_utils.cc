@@ -154,6 +154,20 @@ void PopulateScenarioFiles(const std::string& location,
   config->set_description(absl::Substitute("Unit test '$0'", location));
 }
 
+util::Status
+TestState::PopulateProtos(const games::setup::proto::ScenarioFiles& config) {
+  auto status = games::setup::LoadScenario(config, &scenario_proto_);
+  if (!status.ok()) {
+    return status;
+  }
+  status = games::setup::LoadWorld(config, &world_proto_);
+  if (!status.ok()) {
+    return status;
+  }
+  constants_ = games::setup::Constants(scenario_proto_);
+  return util::OkStatus();
+}
+
 util::Status LoadGoldens(const std::string& location, Golden* golds) {
   const std::string kBase = absl::StrJoin({baseDir(location), kGoldens}, "/");
   if (!std::experimental::filesystem::exists(kBase)) {
@@ -176,15 +190,10 @@ util::Status LoadGoldens(const std::string& location, Golden* golds) {
 
 util::Status
 TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
-  auto status = games::setup::LoadScenario(config, &scenario_proto_);
+  auto status = PopulateProtos(config);
   if (!status.ok()) {
     return status;
   }
-  status = games::setup::LoadWorld(config, &world_proto_);
-  if (!status.ok()) {
-    return status;
-  }
-  constants_ = games::setup::Constants(scenario_proto_);
   status = games::setup::CanonicaliseWorld(&world_proto_);
   if (!status.ok()) {
     return status;
