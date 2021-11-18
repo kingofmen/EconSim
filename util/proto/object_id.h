@@ -10,6 +10,11 @@
 namespace util {
 namespace objectid {
 
+// Any function returning a boolean from two ObjectIds.
+typedef std::function<bool(const util::proto::ObjectId&,
+                           const util::proto::ObjectId&)>
+    Predicate;
+
 // Sets the object ID to its canonical type-number form if it has a tag.
 // If it has both number and tag, stores the tag-number mapping and removes
 // the tag.
@@ -21,7 +26,7 @@ void ClearTags();
 // Returns the associated tag.
 std::string Tag(const util::proto::ObjectId& obj_id);
 
-// Returns true if the ObjectIds are equal.
+// Returns true if the ObjectIds are equal. Satisfies Predicate.
 bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
 
 // Returns true if obj_id compares equal to a null ObjectId with no fields set.
