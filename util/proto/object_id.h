@@ -29,6 +29,9 @@ std::string Tag(const util::proto::ObjectId& obj_id);
 // Returns true if the ObjectIds are equal. Satisfies Predicate.
 bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
 
+// Returns false if the ObjectIds are equal. Satisfies Predicate.
+bool NotEqual(const util::proto::ObjectId& one, const util::proto::ObjectId& two);
+
 // Returns true if obj_id compares equal to a null ObjectId with no fields set.
 bool IsNull(const util::proto::ObjectId& obj_id);
 

@@ -136,6 +136,10 @@ bool Equal(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
   return ids_equal(one, two);
 }
 
+bool NotEqual(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
+  return !Equal(one, two);
+}
+
 bool IsNull(const util::proto::ObjectId& obj_id) {
   return Equal(obj_id, kNullId);
 }
