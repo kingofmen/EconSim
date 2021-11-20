@@ -12,11 +12,29 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "bits",
+    srcs = ["bits.cc"],
+    hdrs = ["bits.h"],
+    deps = [
+    ],
+)
+
 cc_test(
     name = "microunits_test",
     srcs = ["microunits_test.cc"],
     deps = [
         ":microunits",
+        "@gtest",
+        "@gtest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "bits_test",
+    srcs = ["bits_test.cc"],
+    deps = [
+        ":bits",
         "@gtest",
         "@gtest//:gtest_main",
     ],
