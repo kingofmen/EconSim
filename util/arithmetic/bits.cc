@@ -19,4 +19,43 @@ Mask MakeMask(unsigned int count, ...) {
   return mask;
 }
 
+Mask GetMask(unsigned int m1) {
+  Mask mask;
+  mask.set(m1-1);
+  return mask;
+}
+Mask GetMask(unsigned int m1, unsigned int m2) {
+  Mask mask;
+  mask.set(m1-1);
+  mask.set(m2-1);
+  return mask;
+}
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3) {
+  Mask mask;
+  mask.set(m1-1);
+  mask.set(m2-1);
+  mask.set(m3-1);
+  return mask;
+}
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3,
+             unsigned int m4) {
+  Mask mask;
+  mask.set(m1-1);
+  mask.set(m2-1);
+  mask.set(m3-1);
+  mask.set(m4-1);
+  return mask;
+}
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4,
+             unsigned int m5) {
+  Mask mask;
+  mask.set(m1-1);
+  mask.set(m2-1);
+  mask.set(m3-1);
+  mask.set(m4-1);
+  mask.set(m5-1);
+  return mask;
+}
+
+
 } // namespace bits

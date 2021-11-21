@@ -44,7 +44,20 @@ constexpr Mask kThirtyOne   = 1 << 30;
 constexpr Mask kThirtyTwo   = 1 << 31;
 constexpr Mask kAll         = std::numeric_limits<unsigned long int>::max();
 
+// Returns the OR of the provided 'count' of mask indices,
+// where 1 corresponds to kOne and so on. Additional indices
+// are ignored; it is an error to provide fewer indices than
+// count.
 Mask MakeMask(unsigned int count, ...);
+
+// Returns the OR of the given mask indices.
+Mask GetMask(unsigned int m1);
+Mask GetMask(unsigned int m1, unsigned int m2);
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3);
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3,
+             unsigned int m4);
+Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4,
+             unsigned int m5);
 
 } // namespace bits
 

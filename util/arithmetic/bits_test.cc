@@ -25,6 +25,24 @@ TEST(BitsTest, MakeMask) {
   EXPECT_EQ(mask, kAll);
   EXPECT_TRUE(mask.all());
   EXPECT_EQ(mask.count(), 32);
+
+  mask = GetMask(1);
+  EXPECT_EQ(mask, kOne);
+  EXPECT_EQ(mask.count(), 1);
+  mask = GetMask(4, 7);
+  EXPECT_EQ(mask, kFour | kSeven);
+  EXPECT_EQ(mask.count(), 2);
+  mask = GetMask(3, 12, 18);
+  EXPECT_EQ(mask, kThree | kTwelve | kEighteen);
+  EXPECT_EQ(mask.count(), 3);
+  mask = GetMask(5, 21, 22, 31);
+  EXPECT_EQ(mask, kFive | kTwentyOne | kTwentyTwo | kThirtyOne);
+  EXPECT_EQ(mask.count(), 4);
+  mask = GetMask(32, 10, 24, 15, 16);
+  EXPECT_EQ(mask, kTen | kFifteen | kSixteen | kTwentyFour | kThirtyTwo);
+  EXPECT_EQ(mask.count(), 5);
 }
+
+         
 
 } // namespace bits
