@@ -32,6 +32,7 @@ cc_test(
 
 cc_test(
     name = "bits_test",
+    size = "small",
     srcs = ["bits_test.cc"],
     deps = [
         ":bits",

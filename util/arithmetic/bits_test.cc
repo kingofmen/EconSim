@@ -43,6 +43,16 @@ TEST(BitsTest, MakeMask) {
   EXPECT_EQ(mask.count(), 5);
 }
 
-         
+TEST(BitsTest, Subsets) {
+  EXPECT_TRUE(Subset(kZero, kAll));
+  EXPECT_TRUE(Subset(kZero, kTwentyThree));
+  EXPECT_TRUE(Subset(kZero, kZero));
+  EXPECT_TRUE(Subset(kTwentyThree, kTwentyThree));
+  EXPECT_TRUE(Subset(kThirtyTwo, kAll));
+  EXPECT_TRUE(Subset(GetMask(4, 1), GetMask(1, 4, 10)));
+  EXPECT_TRUE(Subset(GetMask(1, 2, 3), GetMask(1, 2, 3)));
+  EXPECT_FALSE(Subset(GetMask(1, 2, 3), GetMask(2, 3, 4)));
+  EXPECT_FALSE(Subset(GetMask(1, 2, 3), GetMask(4, 5, 6)));
+}
 
 } // namespace bits
