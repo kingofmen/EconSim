@@ -4,6 +4,7 @@
 
 #include <bitset>
 #include <limits>
+#include <vector>
 
 namespace bits {
 
@@ -59,6 +60,8 @@ Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3,
              unsigned int m4);
 Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4,
              unsigned int m5);
+Mask GetMask(std::vector<unsigned int> ms);
+
 
 // Subset returns true if cand is a subset of super.
 bool Subset(const Mask& cand, const Mask& super);

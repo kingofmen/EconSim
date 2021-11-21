@@ -57,6 +57,15 @@ Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4,
   return mask;
 }
 
+Mask GetMask(std::vector<unsigned int> ms) {
+  Mask mask;
+  for (const auto& m : ms) {
+    mask.set(m);
+  }
+  return mask;
+}
+
+
 bool Subset(const Mask& cand, const Mask& super) {
   return ((cand ^ super) & cand).none();
 }
