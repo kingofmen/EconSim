@@ -10,10 +10,10 @@ Mask MakeMask(unsigned int count, ...) {
   Mask mask;
   for (unsigned int i = 0; i < count; ++i) {
     unsigned int idx = va_arg(args, unsigned int);
-    if (idx > 32 || idx == 0) {
+    if (idx > 31) {
       continue;
     }
-    mask.set(idx-1);
+    mask.set(idx);
   }
   va_end(args);
   return mask;
@@ -21,39 +21,39 @@ Mask MakeMask(unsigned int count, ...) {
 
 Mask GetMask(unsigned int m1) {
   Mask mask;
-  mask.set(m1-1);
+  mask.set(m1);
   return mask;
 }
 Mask GetMask(unsigned int m1, unsigned int m2) {
   Mask mask;
-  mask.set(m1-1);
-  mask.set(m2-1);
+  mask.set(m1);
+  mask.set(m2);
   return mask;
 }
 Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3) {
   Mask mask;
-  mask.set(m1-1);
-  mask.set(m2-1);
-  mask.set(m3-1);
+  mask.set(m1);
+  mask.set(m2);
+  mask.set(m3);
   return mask;
 }
 Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3,
              unsigned int m4) {
   Mask mask;
-  mask.set(m1-1);
-  mask.set(m2-1);
-  mask.set(m3-1);
-  mask.set(m4-1);
+  mask.set(m1);
+  mask.set(m2);
+  mask.set(m3);
+  mask.set(m4);
   return mask;
 }
 Mask GetMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4,
              unsigned int m5) {
   Mask mask;
-  mask.set(m1-1);
-  mask.set(m2-1);
-  mask.set(m3-1);
-  mask.set(m4-1);
-  mask.set(m5-1);
+  mask.set(m1);
+  mask.set(m2);
+  mask.set(m3);
+  mask.set(m4);
+  mask.set(m5);
   return mask;
 }
 
