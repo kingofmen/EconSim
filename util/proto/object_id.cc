@@ -68,6 +68,10 @@ namespace objectid {
 
 const util::proto::ObjectId kNullId;
 
+bool Always(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
+  return true;
+}
+
 util::Status Canonicalise(util::proto::ObjectId* obj_id) {
   if (!obj_id->has_type() && !obj_id->has_kind()) {
     return util::InvalidArgumentError(absl::Substitute(
@@ -162,6 +166,10 @@ std::string DisplayString(const std::vector<util::proto::ObjectId>& obj_ids) {
     names.push_back(DisplayString(obj_id));
   }
   return absl::StrJoin(names, ", ");
+}
+
+bool Never(const util::proto::ObjectId& one, const util::proto::ObjectId& two) {
+  return false;
 }
 
 util::proto::ObjectId New(const std::string& kind, int num) {
