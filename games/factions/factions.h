@@ -6,8 +6,20 @@
 
 #include "games/factions/proto/factions.pb.h"
 #include "util/headers/int_types.h"
+#include "util/proto/object_id.h"
 
 namespace factions {
+
+// Divide returns pairs of sets of the provided IDs such that each pair
+// is a possible candidate for a conflict. This means that in each set,
+// every faction willAlly every other; and every faction in one set willFight
+// every faction in the other. Note that not every ID is necessarily assigned
+// to a conflict; indeed there may be no conflicts at all. Also note that
+// factions may be assigned to more than one conflict.
+std::vector<std::pair<std::vector<util::proto::ObjectId>,
+                      std::vector<util::proto::ObjectId>>>
+Divide(const std::vector<util::proto::ObjectId> factions,
+       util::objectid::Predicate willAlly, util::objectid::Predicate willFight);
 
 // Information about the control and extent of a faction.
 class FactionController {

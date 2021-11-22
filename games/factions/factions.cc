@@ -1,5 +1,6 @@
 #include "games/factions/factions.h"
 
+#include "util/arithmetic/bits.h"
 #include "util/proto/object_id.h"
 
 namespace factions {
@@ -67,6 +68,91 @@ FactionController::FromProto(const proto::Faction& proto) {
   }
   ret.reset(new FactionController(proto));
   return ret;
+}
+
+std::vector<std::pair<std::vector<util::proto::ObjectId>,
+                      std::vector<util::proto::ObjectId>>>
+Divide(const std::vector<util::proto::ObjectId> factions,
+       util::objectid::Predicate willAlly,
+       util::objectid::Predicate willFight) {
+  std::vector<std::pair<std::vector<util::proto::ObjectId>,
+                        std::vector<util::proto::ObjectId>>>
+      conflicts;
+
+  auto numFactions = factions.size();
+  std::vector<bits::Mask> alliance;
+  std::vector<bits::Mask> hostile;
+  for (unsigned int ii = 0; ii < numFactions; ++ii) {
+    alliance.push_back(bits::GetMask(ii));
+    hostile.push_back(bits::kEmpty);
+  }
+  for (unsigned int ii = 0; ii < numFactions; ++ii) {
+    for (unsigned int jj = ii+1; jj < numFactions; ++jj) {
+      if (ii == jj) {
+        continue;
+      }
+      if (willAlly(factions[ii], factions[jj])) {
+        alliance[ii].set(jj);
+        alliance[jj].set(ii);
+      }
+      if (willFight(factions[ii], factions[jj])) {
+        hostile[ii].set(jj);
+        hostile[jj].set(ii);
+      }
+    }
+  }
+
+  std::vector<bits::Mask> combats;
+  for (unsigned int ii = 0; ii < numFactions; ++ii) {
+    for (unsigned int jj = ii+1; jj < numFactions; ++jj) {
+      if (!hostile[ii].test(jj)) {
+        continue;
+      }
+
+      auto combat = bits::GetMask(ii, jj);
+      auto conflict = std::pair<std::vector<util::proto::ObjectId>,
+                                std::vector<util::proto::ObjectId>>(
+          {factions[ii]}, {factions[jj]});
+      auto oneSide = bits::GetMask(ii);
+      auto otherSide = bits::GetMask(jj);
+      for (unsigned int kk = 0; kk < numFactions; ++kk) {
+        if (kk == ii || kk == jj) {
+          continue;
+        }
+        auto support = alliance[kk] & oneSide;
+        if (support == oneSide) {
+          auto oppose = hostile[kk] & otherSide;
+          if (oppose == otherSide) {
+            oneSide.set(kk);
+            conflict.first.push_back(factions[kk]);
+            continue;
+          }
+        }
+        support = alliance[kk] & otherSide;
+        if (support == otherSide) {
+          auto oppose = hostile[kk] & oneSide;
+          if (oppose == oneSide) {
+            conflict.second.push_back(factions[kk]);
+            otherSide.set(kk);
+          }
+        }
+      }
+      bool seen = false;
+      auto current = oneSide | otherSide;
+      for (const auto& combat : combats) {
+        if (bits::Subset(current, combat)) {
+          seen = true;
+          break;
+        }
+      }
+      if (seen) {
+        continue;
+      }
+      conflicts.push_back(conflict);
+      combats.push_back(current);
+    }
+  }
+  return conflicts;
 }
 
 } // namespace factions

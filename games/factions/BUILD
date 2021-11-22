@@ -6,7 +6,9 @@ cc_library(
     hdrs = ["factions.h"],
     deps = [
         "//games/factions/proto:factions_proto",
+        "//util/arithmetic:bits",
         "//util/arithmetic:microunits",
+        "//util/logging:logging",
         "//util/headers:int_types",
         "//util/proto:object_id",
     ],
@@ -18,8 +20,10 @@ cc_test(
     deps = [
         ":factions",
         "//games/factions/proto:factions_proto",
+        "//util/arithmetic:bits",
         "//util/arithmetic:microunits",
         "//util/proto:object_id",
+        "@com_google_absl//absl/strings:strings",
         "@gtest",
         "@gtest//:gtest_main",
     ],
