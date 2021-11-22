@@ -1,5 +1,6 @@
 #include "util/proto/object_id.h"
 
+#include "absl/strings/str_join.h"
 #include "absl/strings/substitute.h"
 #include "util/proto/object_id.pb.h"
 #include "util/status/status.h"
@@ -153,6 +154,14 @@ std::string DisplayString(const util::proto::ObjectId& obj_id) {
                             obj_id.tag());
   }
   return absl::Substitute("($0, \"$1\")", obj_id.kind(), obj_id.tag());
+}
+
+std::string DisplayString(const std::vector<util::proto::ObjectId>& obj_ids) {
+  std::vector<std::string> names;
+  for (const auto& obj_id : obj_ids) {
+    names.push_back(DisplayString(obj_id));
+  }
+  return absl::StrJoin(names, ", ");
 }
 
 util::proto::ObjectId New(const std::string& kind, int num) {

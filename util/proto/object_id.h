@@ -38,6 +38,9 @@ bool IsNull(const util::proto::ObjectId& obj_id);
 // Returns a string suitable for display to humans.
 std::string DisplayString(const util::proto::ObjectId& obj_id);
 
+// Returns a string suitable for display to humans.
+std::string DisplayString(const std::vector<util::proto::ObjectId>& obj_ids);
+
 // Returns a new ObjectId proto.
 util::proto::ObjectId New(const std::string& kind, int num);
 
