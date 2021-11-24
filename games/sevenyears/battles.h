@@ -2,6 +2,7 @@
 #define GAMES_SEVENYEARS_BATTLES_H
 
 #include <unordered_map>
+#include <vector>
 
 #include "games/geography/connection.h"
 #include "games/units/unit.h"
@@ -13,8 +14,7 @@ namespace sevenyears {
 // presumably to do battle.
 struct Encounter {
   micro::uMeasure point_u;
-  std::unordered_map<util::proto::ObjectId, std::vector<units::Unit*>>
-      armies;
+  std::unordered_map<util::proto::ObjectId, std::vector<units::Unit*>> armies;
 };
 
 // Abstract base class for resolving battles.
@@ -24,11 +24,14 @@ class BattleResolver {
 };
 
 // Default implementation.
-// TODO: Make it actually do something.
 class DefaultBattleResolver : public BattleResolver {
-  void Resolve(Encounter& encounter) override {}
-};
+public:
+  void Resolve(Encounter& encounter) override;
 
+private:
+  void fight(std::vector<units::Unit*> armyOne,
+             std::vector<units::Unit*> armyTwo);
+};
 
 // Class to determine whether a unit moving at sea encounters
 // any enemies and send such encounters to a resolver.

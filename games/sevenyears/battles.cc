@@ -1,5 +1,8 @@
 #include "games/sevenyears/battles.h"
 
+#include <algorithm>
+
+#include "games/factions/factions.h"
 #include "games/units/unit.h"
 #include "util/logging/logging.h"
 
@@ -131,7 +134,6 @@ void LandMoveObserver::Battle(BattleResolver& resolver) {
           // This should never happen.
           continue;
         }
-        // TODO: Implement an actual hostility-checker here.
         if (util::objectid::Equal(faction_id, cand->faction_id())) {
           continue;
         }
@@ -161,6 +163,62 @@ void LandMoveObserver::Battle(BattleResolver& resolver) {
 
 void LandMoveObserver::Clear() {
   traversals_.clear();
+}
+
+void DefaultBattleResolver::Resolve(Encounter& encounter) {
+  std::vector<util::proto::ObjectId> faction_ids;
+  for (const auto& army : encounter.armies) {
+    faction_ids.push_back(army.first);
+  }
+  // TODO: Insert actual alliance mechanics for the predicates.
+  auto conflicts = factions::Divide(faction_ids, util::objectid::Equal,
+                                    util::objectid::NotEqual);
+  // Do largest battles first.
+  std::sort(
+      conflicts.begin(), conflicts.end(),
+      [&encounter](const std::pair<std::vector<util::proto::ObjectId>,
+                                   std::vector<util::proto::ObjectId>>& one,
+                   const std::pair<std::vector<util::proto::ObjectId>,
+                                   std::vector<util::proto::ObjectId>>& two) {
+        // Just count the units involved.
+        int oneCount = 0;
+        int twoCount = 0;
+        for (const auto& faction : one.first) {
+          oneCount += encounter.armies[faction].size();
+        }
+        for (const auto& faction : one.second) {
+          oneCount += encounter.armies[faction].size();
+        }
+        for (const auto& faction : two.first) {
+          twoCount += encounter.armies[faction].size();
+        }
+        for (const auto& faction : two.second) {
+          twoCount += encounter.armies[faction].size();
+        }
+        return oneCount > twoCount;
+      });
+
+  for (const auto& conflict : conflicts) {
+    std::vector<units::Unit*> armyOne;
+    for (const auto& faction : conflict.first) {
+      for (auto* unit : encounter.armies[faction]) {
+        armyOne.push_back(unit);
+      }
+    }
+    std::vector<units::Unit*> armyTwo;
+    for (const auto& faction : conflict.second) {
+      for (auto* unit : encounter.armies[faction]) {
+        armyTwo.push_back(unit);
+      }
+    }
+
+    fight(armyOne, armyTwo);
+  }
+}
+
+void DefaultBattleResolver::fight(std::vector<units::Unit*> armyOne,
+                                  std::vector<units::Unit*> armyTwo) {
+  // TODO: Fill in this stub.
 }
 
 } // namespace sevenyears

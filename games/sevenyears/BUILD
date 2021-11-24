@@ -155,6 +155,7 @@ cc_library(
     hdrs = ["battles.h"],
     deps = [
         "//games/geography:connection",
+        "//games/factions:factions",
         "//games/units:units",
         "//util/logging:logging",
         "//util/proto:object_id_proto",
