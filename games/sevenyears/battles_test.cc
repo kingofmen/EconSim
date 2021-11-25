@@ -139,8 +139,9 @@ TEST_F(ObserverTest, DetectMeetings) {
 
   class TestResolver : public BattleResolver {
    public:
-    void Resolve(Encounter& encounter) override {
+    std::vector<BattleResult> Resolve(Encounter& encounter) override {
       encounters.push_back(encounter.point_u);
+      return {};
     }
     std::vector<micro::Measure> encounters;
   };

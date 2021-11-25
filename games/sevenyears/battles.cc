@@ -3,6 +3,8 @@
 #include <algorithm>
 
 #include "games/factions/factions.h"
+#include "games/market/goods_utils.h"
+#include "games/sevenyears/constants.h"
 #include "games/units/unit.h"
 #include "util/logging/logging.h"
 
@@ -63,7 +65,8 @@ void LandMoveObserver::Listen(const geography::Connection::Movement& movement) {
   traversals_[conn_id].push_back(movement);
 }
 
-void LandMoveObserver::Battle(BattleResolver& resolver) {
+std::vector<BattleResult> LandMoveObserver::Battle(BattleResolver& resolver) {
+  std::vector<BattleResult> results;
   for (const auto& it : traversals_) {
     const auto& conn_id = it.first;
     const auto* connection = geography::Connection::ById(conn_id);
@@ -156,16 +159,20 @@ void LandMoveObserver::Battle(BattleResolver& resolver) {
       }
     }
     for (auto& meeting : meetings) {
-      resolver.Resolve(meeting);
+      auto fights = resolver.Resolve(meeting);
+      for (const auto& fight : fights) {
+        results.push_back(fight);
+      }
     }
   }
+  return results;
 }
 
 void LandMoveObserver::Clear() {
   traversals_.clear();
 }
 
-void DefaultBattleResolver::Resolve(Encounter& encounter) {
+std::vector<BattleResult> DefaultBattleResolver::Resolve(Encounter& encounter) {
   std::vector<util::proto::ObjectId> faction_ids;
   for (const auto& army : encounter.armies) {
     faction_ids.push_back(army.first);
@@ -198,6 +205,7 @@ void DefaultBattleResolver::Resolve(Encounter& encounter) {
         return oneCount > twoCount;
       });
 
+  std::vector<BattleResult> results;
   for (const auto& conflict : conflicts) {
     std::vector<units::Unit*> armyOne;
     for (const auto& faction : conflict.first) {
@@ -212,13 +220,33 @@ void DefaultBattleResolver::Resolve(Encounter& encounter) {
       }
     }
 
-    fight(armyOne, armyTwo);
+    results.push_back(fight(armyOne, armyTwo));
   }
+
+  return results;
 }
 
-void DefaultBattleResolver::fight(std::vector<units::Unit*> armyOne,
-                                  std::vector<units::Unit*> armyTwo) {
-  // TODO: Fill in this stub.
+BattleResult DefaultBattleResolver::fight(std::vector<units::Unit*> armyOne,
+                                          std::vector<units::Unit*> armyTwo) {
+  BattleResult result;
+  // Primitive first-pass algorithm: Just count the supplies on each side.
+  micro::Measure strengthOne;
+  micro::Measure strengthTwo;
+  for (const auto* unit : armyOne) {
+    strengthOne += market::GetAmount(unit->resources(), constants::Supplies());
+  }
+  for (const auto* unit : armyTwo) {
+    strengthTwo += market::GetAmount(unit->resources(), constants::Supplies());
+  }
+
+  if (strengthOne >= strengthTwo) {
+    result.victors = armyOne;
+    result.defeated = armyTwo;
+  } else {
+    result.victors = armyTwo;
+    result.defeated = armyOne;
+  }
+  return result;
 }
 
 } // namespace sevenyears

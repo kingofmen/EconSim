@@ -363,7 +363,7 @@ void SevenYears::moveUnits() {
     }
 
     sea_listener_->Battle(DefaultBattleResolver());
-    land_listener_->Battle(DefaultBattleResolver());
+    auto results = land_listener_->Battle(DefaultBattleResolver());
 
     if (count == 0) {
       break;

@@ -17,20 +17,25 @@ struct Encounter {
   std::unordered_map<util::proto::ObjectId, std::vector<units::Unit*>> armies;
 };
 
+struct BattleResult {
+  std::vector<units::Unit*> victors;
+  std::vector<units::Unit*> defeated;
+};
+
 // Abstract base class for resolving battles.
 class BattleResolver {
  public:
-  virtual void Resolve(Encounter& encounter) = 0;
+  virtual std::vector<BattleResult> Resolve(Encounter& encounter) = 0;
 };
 
 // Default implementation.
 class DefaultBattleResolver : public BattleResolver {
 public:
-  void Resolve(Encounter& encounter) override;
+   std::vector<BattleResult> Resolve(Encounter& encounter) override;
 
 private:
-  void fight(std::vector<units::Unit*> armyOne,
-             std::vector<units::Unit*> armyTwo);
+  BattleResult fight(std::vector<units::Unit*> armyOne,
+                     std::vector<units::Unit*> armyTwo);
 };
 
 // Class to determine whether a unit moving at sea encounters
@@ -54,7 +59,7 @@ class LandMoveObserver : public geography::Connection::Listener {
   void Listen(const geography::Connection::Movement& movement) override;
 
   // Find and resolve battles.
-  void Battle(BattleResolver& resolver);
+   std::vector<BattleResult> Battle(BattleResolver& resolver);
 
   // Clear the cache.
   void Clear();

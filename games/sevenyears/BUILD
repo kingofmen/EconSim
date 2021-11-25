@@ -154,8 +154,10 @@ cc_library(
     srcs = ["battles.cc"],
     hdrs = ["battles.h"],
     deps = [
+        ":sevenyears_constants",
         "//games/geography:connection",
         "//games/factions:factions",
+        "//games/market:goods_utils",
         "//games/units:units",
         "//util/logging:logging",
         "//util/proto:object_id_proto",
