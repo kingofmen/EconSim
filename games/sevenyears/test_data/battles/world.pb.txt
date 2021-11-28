@@ -7,6 +7,20 @@ units {
     kind: "faction"
     number: 1
   }
+  location {
+    connection_id {
+      number: 1
+      kind: "connection"
+    }
+    a_area_id {
+      kind: "area"
+      number: 1
+    }
+    z_area_id {
+      kind: "area"
+      number: 2
+    }
+  }
 }
 
 units {
@@ -17,6 +31,20 @@ units {
   faction_id {
     kind: "faction"
     number: 2
+  }
+  location {
+    connection_id {
+      number: 1
+      kind: "connection"
+    }
+    a_area_id {
+      kind: "area"
+      number: 2
+    }
+    z_area_id {
+      kind: "area"
+      number: 1
+    }
   }
 }
 

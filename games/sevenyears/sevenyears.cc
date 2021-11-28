@@ -23,6 +23,7 @@
 #include "games/units/unit.h"
 #include "util/arithmetic/microunits.h"
 #include "util/logging/logging.h"
+#include "util/proto/object_id.h"
 #include "util/status/status.h"
 
 namespace sevenyears {
@@ -364,6 +365,9 @@ void SevenYears::moveUnits() {
 
     sea_listener_->Battle(DefaultBattleResolver());
     auto results = land_listener_->Battle(DefaultBattleResolver());
+    for (auto& result : results) {
+      ApplyBattleOutcome(result);
+    }
 
     if (count == 0) {
       break;
@@ -372,7 +376,7 @@ void SevenYears::moveUnits() {
   
   cacheUnitLocations();
 }
-  
+
 void SevenYears::NewTurn() {
   incrementTime();
   Log::Infof("New turn (%d)", timestamp());

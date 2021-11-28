@@ -155,6 +155,7 @@ std::vector<BattleResult> LandMoveObserver::Battle(BattleResolver& resolver) {
         }
       }
       if (!tempMeeting.armies.empty()) {
+        tempMeeting.connection_id = conn_id;
         meetings.push_back(tempMeeting);
       }
     }
@@ -221,6 +222,8 @@ std::vector<BattleResult> DefaultBattleResolver::Resolve(Encounter& encounter) {
     }
 
     results.push_back(fight(armyOne, armyTwo));
+    results.back().point_u = encounter.point_u;
+    results.back().connection_id = encounter.connection_id;
   }
 
   return results;
@@ -230,8 +233,8 @@ BattleResult DefaultBattleResolver::fight(std::vector<units::Unit*> armyOne,
                                           std::vector<units::Unit*> armyTwo) {
   BattleResult result;
   // Primitive first-pass algorithm: Just count the supplies on each side.
-  micro::Measure strengthOne;
-  micro::Measure strengthTwo;
+  micro::Measure strengthOne = 0;
+  micro::Measure strengthTwo = 0;
   for (const auto* unit : armyOne) {
     strengthOne += market::GetAmount(unit->resources(), constants::Supplies());
   }
@@ -242,11 +245,46 @@ BattleResult DefaultBattleResolver::fight(std::vector<units::Unit*> armyOne,
   if (strengthOne >= strengthTwo) {
     result.victors = armyOne;
     result.defeated = armyTwo;
+    result.margin_u = strengthOne - strengthTwo;
   } else {
     result.victors = armyTwo;
     result.defeated = armyOne;
+    result.margin_u = strengthTwo - strengthOne;
   }
   return result;
+}
+
+void ApplyBattleOutcome(const BattleResult& battle) {
+  const auto* connection = geography::Connection::ById(battle.connection_id);
+  const auto length_u = connection->length_u();
+  for (auto* unit : battle.victors) {
+    unit->use_action_points(unit->action_points_u());
+    auto dist_u = battle.point_u;
+    if (unit->location().a_area_id() == connection->z_id()) {
+      dist_u = length_u - battle.point_u;
+    }
+    unit->mutable_location()->set_progress_u(dist_u);
+  }
+  for (auto* unit : battle.defeated) {
+    unit->use_action_points(unit->action_points_u());
+    auto dist_u = battle.point_u;
+    if (unit->location().a_area_id() == connection->z_id()) {
+      dist_u = length_u - battle.point_u;
+    }
+    unit->mutable_location()->set_progress_u(dist_u);
+  }
+
+  if (battle.margin_u < micro::kOneInU) {
+    // Battle is a draw, neither side retreats.
+    return;
+  }
+
+  // Retreat losing side to starting point.
+  // TODO: Deeper retreats, retreats depending on margin.
+  // TODO: Pursuit damage.
+  for (auto* unit : battle.defeated) {
+    unit->mutable_location()->set_progress_u(0);
+  }
 }
 
 } // namespace sevenyears

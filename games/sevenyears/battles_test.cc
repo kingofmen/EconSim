@@ -186,4 +186,65 @@ TEST_F(ObserverTest, DetectMeetings) {
   }
 }
 
+TEST_F(ObserverTest, BattleResults) {
+  const std::string testName("battles");
+  auto status = Initialise(testName);
+  ASSERT_TRUE(status.ok()) << testName << ": Failed to initialise test state: "
+                           << status.error_message();
+  std::unordered_map<int, units::Unit*> unitMap;
+  for (auto* unit : ListUnits({})) {
+    unitMap[unit->unit_id().number()] = (units::Unit*) unit;
+  }
+  auto connId = util::objectid::New("connection", 1);
+  struct TestCase {
+    std::string desc;
+    std::vector<int> victors;
+    std::vector<int> defeated;
+    BattleResult result;
+    std::unordered_map<int, micro::Measure> unitLocations;
+  };
+
+  auto cases = std::vector<TestCase>(
+      {{"Drawn battle",
+        {1},
+        {2},
+        {{}, {}, 0, micro::kThreeFourthsInU, connId},
+        {{1, micro::kThreeFourthsInU}, {2, micro::kOneFourthInU}}},
+       {"Side one wins",
+        {1},
+        {2},
+        {{}, {}, micro::kTenInU, micro::kThreeFourthsInU, connId},
+        {{1, micro::kThreeFourthsInU}, {2, 0}}},
+       {"Side two wins",
+        {2},
+        {1},
+        {{}, {}, micro::kTenInU, micro::kThreeFourthsInU, connId},
+        {{1, 0}, {2, micro::kOneFourthInU}}}});
+
+  for (auto& cc : cases) {
+    for (auto n : cc.victors) {
+      auto* unit = unitMap[n];
+      ASSERT_TRUE(unit != nullptr)
+          << testName << "/" << cc.desc << ": Could not find unit " << n;
+      cc.result.victors.push_back(unit);
+    }
+    for (auto n : cc.defeated) {
+      auto* unit = unitMap[n];
+      ASSERT_TRUE(unit != nullptr)
+          << testName << "/" << cc.desc << ": Could not find unit " << n;
+      cc.result.defeated.push_back(unit);
+    }
+    ApplyBattleOutcome(cc.result);
+    for (const auto& it : unitMap) {
+      int idx = it.first;
+      units::Unit* unit = it.second;
+      EXPECT_EQ(unit->location().progress_u(), cc.unitLocations[idx])
+          << testName << "/" << cc.desc << ": Unit "
+          << unit->unit_id().DebugString() << " is in wrong location "
+          << unit->location().DebugString() << ", expect progress "
+          << cc.unitLocations[idx];
+    }
+  }
+}
+
 } // namespace sevenyears

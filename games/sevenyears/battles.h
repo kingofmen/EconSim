@@ -14,12 +14,16 @@ namespace sevenyears {
 // presumably to do battle.
 struct Encounter {
   micro::uMeasure point_u;
+  util::proto::ObjectId connection_id;
   std::unordered_map<util::proto::ObjectId, std::vector<units::Unit*>> armies;
 };
 
 struct BattleResult {
   std::vector<units::Unit*> victors;
   std::vector<units::Unit*> defeated;
+  micro::Measure margin_u;
+  micro::Measure point_u;
+  util::proto::ObjectId connection_id;
 };
 
 // Abstract base class for resolving battles.
@@ -70,6 +74,9 @@ class LandMoveObserver : public geography::Connection::Listener {
                       std::vector<geography::Connection::Movement>>
        traversals_;
 };
+
+// Retreats losing units and starts sieges.
+void ApplyBattleOutcome(const BattleResult& battle);
 
 // Returns the distance at which the two movements meet, which may be
 // out of range of the actual movements. Exposed for testing.

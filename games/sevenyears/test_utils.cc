@@ -205,6 +205,7 @@ TestState::Initialise(const games::setup::proto::ScenarioFiles& config) {
     area_states_[as.area_id()] = as;
   }
   setTime(world_state->timestamp());
+
   return util::OkStatus();
 }
 
@@ -225,11 +226,16 @@ const std::string FileTag(const util::proto::ObjectId& obj_id) {
   return util::objectid::Tag(obj_id) + ".pb.txt";
 }
 
-// Dummy implementation, not actually used.
 std::vector<const units::Unit*>
 TestState::ListUnits(const units::Filter& filter) const {
-  return {};
+  std::vector<const units::Unit*> result;
+  // TODO: Implement filtering.
+  for (const auto& uptr : game_world_->units_) {
+    result.push_back(uptr.get());
+  }
+  return result;
 }
+
 
 void CheckAreaStatesForStage(const SevenYearsState& got, const Golden& want,
                              int stage) {
