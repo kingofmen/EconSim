@@ -261,7 +261,7 @@ void GameWorld::TimeStep(
         ++count;
       } else {
         Log::Warnf("Could not execute step in plan: %s due to %s",
-                   unit->plan().DebugString(), status.error_message());
+                   unit->plan().DebugString(), status.message());
       }
     }
     if (count == 0) {

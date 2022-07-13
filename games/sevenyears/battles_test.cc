@@ -89,7 +89,7 @@ TEST_F(ObserverTest, DetectMeetings) {
   games::setup::proto::ScenarioFiles config;
   PopulateScenarioFiles("battles", &config);
   auto status = PopulateProtos(config);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
   ASSERT_EQ(world_proto_.units_size(), 2);
   ASSERT_EQ(world_proto_.connections_size(), 1);
 
@@ -190,7 +190,7 @@ TEST_F(ObserverTest, BattleResults) {
   const std::string testName("battles");
   auto status = Initialise(testName);
   ASSERT_TRUE(status.ok()) << testName << ": Failed to initialise test state: "
-                           << status.error_message();
+                           << status.message();
   std::unordered_map<int, units::Unit*> unitMap;
   for (auto* unit : ListUnits({})) {
     unitMap[unit->unit_id().number()] = (units::Unit*) unit;

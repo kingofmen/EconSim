@@ -34,7 +34,7 @@ TEST(SetupTest, TestIdempotency) {
   config.set_world_file(kWorld);
 
   auto status = games::setup::LoadScenario(config, &scenario);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   games::setup::Constants constants(scenario);
   // Add better tests here.
   ASSERT_EQ(constants.auto_production_.size(), scenario.auto_production_size());
@@ -60,14 +60,14 @@ TEST(SetupTest, TestIdempotency) {
   }
 
   status = games::setup::LoadWorld(config, &gameworld);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   auto world = games::setup::World::FromProto(gameworld);
   EXPECT_TRUE(world != NULL) << "Did not create world object";
 
   games::setup::proto::GameWorld save;
   status = world->ToProto(&save);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   EXPECT_TRUE(differ.Equals(gameworld, save))
       << gameworld.DebugString() << "\n\ndiffers from\n"
@@ -122,7 +122,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
 
   // Test canonicalisation.
   auto status = games::setup::CanonicaliseWorld(&gameworld);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   // Tags are all empty after canonicalisation.
   EXPECT_TRUE(area51->area_id().tag().empty()) << area51->DebugString();
   EXPECT_TRUE(area101->area_id().tag().empty()) << area101->DebugString();
@@ -159,7 +159,7 @@ TEST(SetupTest, TestCanonicaliseAndRestoreTags) {
   // Test restoration.
   gameworld.Clear();
   status = world->ToProto(&gameworld);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(gameworld.factions(0).faction_id().tag(), "faction_one");
   EXPECT_EQ(gameworld.factions(0).faction_id().number(), 1);
   EXPECT_EQ(gameworld.areas(0).area_id().tag(), "area_fifty_one");
@@ -196,6 +196,6 @@ TEST(SetupTest, TestLoadExtras) {
   std::unordered_map<std::string, google::protobuf::Message*> loads;
   loads["chains"] = &scenario;
   auto status = games::setup::LoadExtras(config, loads);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_GT(scenario.production_chains().size(), 0);
 }

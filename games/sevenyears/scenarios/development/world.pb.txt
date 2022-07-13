@@ -78,7 +78,10 @@ areas {
 
 connections {
   type: CT_OPEN_SEA
-  id: 1
+  connection_id {
+    kind: "connection"
+    number: 1
+  }
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
@@ -93,7 +96,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 2
+  connection_id {
+    kind: "connection"
+    number: 2
+  }
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
@@ -108,7 +114,10 @@ connections {
 
 connections {
   type: CT_OPEN_SEA
-  id: 3
+  connection_id {
+    kind: "connection"
+    number: 3
+  }
   distance_u: 1000000
   width_u: 1000000
   a_area_id {
@@ -136,7 +145,10 @@ units {
       tag: "Brest"
     }
     progress_u: 500000
-    connection_id: 1
+    connection_id {
+      kind: "connection"
+      number: 1
+    }
   }
   strategy {
     seven_years_merchant {

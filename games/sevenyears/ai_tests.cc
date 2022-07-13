@@ -51,40 +51,41 @@ protected:
 
 TEST_F(SevenYearsMerchantTest, TestValidMission) {
   auto status = merchant_ai_->ValidMission(*ai_proto_);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("neither mission nor default"));
   ai_proto_->set_mission("bad_mission");
   status = merchant_ai_->ValidMission(*ai_proto_);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("invalid mission"));
   ai_proto_->set_mission("european_trade");
   status = merchant_ai_->ValidMission(*ai_proto_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   ai_proto_->set_default_mission("bad_mission");
   status = merchant_ai_->ValidMission(*ai_proto_);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("invalid default mission"));
   ai_proto_->set_default_mission("european_trade");
   status = merchant_ai_->ValidMission(*ai_proto_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 }
 
 TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
   auto status = LoadTestData(constants::EuropeanTrade());
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.ToString();
   Golden golds;
   golds.Plans();
   golds.AreaStates();
   status = LoadGoldens(constants::EuropeanTrade(), &golds);
-  EXPECT_OK(status) << "Could not load golden files: "
-                    << status.error_message();
+  EXPECT_TRUE(status.ok()) << "Could not load golden files: "
+                    << status.ToString();
   ai_proto_->set_mission(constants::EuropeanTrade());
 
   google::protobuf::util::MessageDifferencer differ;
   for (auto& unit : world_state_->World().units_) {
+    Log::Infof("Calling AddSteps for %s", util::objectid::DisplayString(unit->unit_id()));
     status = merchant_ai_->AddStepsToPlan(*unit, unit->strategy(),
                                           unit->mutable_plan());
-    EXPECT_OK(status) << status.error_message();
+    EXPECT_TRUE(status.ok()) << status.ToString();
     auto unitTag = FileTag(unit->unit_id());
     auto goldIt = golds.plans_->find(unitTag);
     if (goldIt == golds.plans_->end()) {
@@ -97,8 +98,8 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
     auto* goldPlan = goldIt->second;
 
     EXPECT_TRUE(differ.Equals(*goldPlan, unit->plan()))
-        << util::objectid::DisplayString(unit->unit_id()) << ": Golden plan "
-        << goldPlan->DebugString() << "\ndiffers from found plan\n"
+        << util::objectid::DisplayString(unit->unit_id()) << ": Golden plan\n"
+        << goldPlan->DebugString() << "\ndiffers from found plan\n\n"
         << unit->plan().DebugString();
   }
 
@@ -128,12 +129,12 @@ TEST_F(SevenYearsMerchantTest, TestEuropeanTrade) {
 TEST_F(SevenYearsMerchantTest, TestRegisterArrival) {
   const std::string testName("arrivals");
   auto status = LoadTestData(testName);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.ToString();
   Golden golds;
   golds.AreaStates();
   status = LoadGoldens(testName, &golds);
-  EXPECT_OK(status) << "Could not load golden files: "
-                    << status.error_message();
+  EXPECT_TRUE(status.ok()) << "Could not load golden files: "
+                    << status.ToString();
 
   for (auto& unit : world_state_->World().units_) {
     util::proto::ObjectId area_id = unit->location().z_area_id();

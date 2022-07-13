@@ -34,8 +34,8 @@ TEST(ConsumptionTest, Optimum) {
   VerbLog(10);
 
   market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // Some roundoff error from calculating the coefficient.
   EXPECT_EQ(3*micro::kOneInU + 12, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
@@ -45,16 +45,16 @@ TEST(ConsumptionTest, Optimum) {
   market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
   market::SetAmount(kApples, micro::kOneInU, &prices);
   market::SetAmount(kOranges, micro::kOneInU, &prices);
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kOranges));
 
   // More extreme symmetric case.
   market::Add(kApples, 7*micro::kOneInU, subs.mutable_consumed());
   market::Add(kOranges, 7*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   EXPECT_EQ(3333333, market::GetAmount(result, kApples));
   EXPECT_EQ(3333333, market::GetAmount(result, kOranges));
 
@@ -62,7 +62,7 @@ TEST(ConsumptionTest, Optimum) {
   market::SetAmount(kApples, 2*micro::kOneInU, &prices);
   market::SetAmount(kApples, 3*micro::kOneInU, subs.mutable_consumed());
   market::SetAmount(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // Respectively sqrt{2} - 1 and 2\sqrt{2} - 1.
   EXPECT_EQ(414214, market::GetAmount(result, kApples));
   EXPECT_EQ(1828428, market::GetAmount(result, kOranges));
@@ -71,8 +71,8 @@ TEST(ConsumptionTest, Optimum) {
   market::SetAmount(kApples, micro::kOneInU, &prices);
   market::SetAmount(kApples, 3*micro::kOneInU, subs.mutable_consumed());
   market::SetAmount(kOranges, 1*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // -1+2sqrt{1/3}.
   EXPECT_EQ(154700, market::GetAmount(result, kApples));
   // (-1 + 2\sqrt{3})/3.
@@ -85,8 +85,8 @@ TEST(ConsumptionTest, Optimum) {
   market::SetAmount(kApples, micro::kOneInU, &prices);
   market::SetAmount(kOranges, micro::kOneInU, &prices);
   market::SetAmount(kBananas, micro::kOneInU, &prices);
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // Three sevenths.
   EXPECT_EQ(428571, market::GetAmount(result, kApples));
   EXPECT_EQ(428571, market::GetAmount(result, kOranges));
@@ -94,8 +94,8 @@ TEST(ConsumptionTest, Optimum) {
 
   // Asymmetric prices.
   market::SetAmount(kOranges, 3*micro::kOneInU, &prices);
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // Cube-root of either 3, or one-ninth; minus one-half, divide by
   // seven-sixths. This gives a negative number for oranges, which
   // the algorithm will clamp; the other two then come out to
@@ -107,8 +107,8 @@ TEST(ConsumptionTest, Optimum) {
   // Asymmetric crossing points.
   market::SetAmount(kOranges, micro::kOneInU, &prices);
   market::SetAmount(kOranges, 1*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Optimum(subs, prices, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Optimum(subs, prices, &result).ok());
   // One coefficient is 7/2 instead of 7/6, otherwise the same.
   EXPECT_EQ(165738, market::GetAmount(result, kApples));
   EXPECT_EQ(451452, market::GetAmount(result, kOranges));
@@ -119,48 +119,48 @@ TEST(ConsumptionTest, Validation) {
   proto::Substitutes subs;
   subs.set_name("Test");
   auto status = Validate(subs);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("Must specify at least one good"));
 
   market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
   status = Validate(subs);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
 
   subs.set_offset_u(micro::kOneInU);
   status = Validate(subs);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("consumables: D^2 must be strictly greater"));
 
   market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
   subs.set_min_amount_square_u(4*micro::kOneInU);
   subs.set_offset_u(2*micro::kOneInU);
   status = Validate(subs);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("consumables: D^2 must be strictly greater"));
 
   subs.set_offset_u(2*micro::kOneInU-1);
   status = Validate(subs);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("consumed): Nonpositive coefficient ratio"));
   subs.set_offset_u(3*micro::kOneInU/2);
   status = Validate(subs);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
 
   market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
   subs.set_min_amount_square_u(8*micro::kOneInU);
   subs.set_offset_u(2*micro::kOneInU);
   status = Validate(subs);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("consumables: D^2 must be strictly greater"));
 
   subs.set_offset_u(2*micro::kOneInU-1);
   status = Validate(subs);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
 
   market::Add("pears", 3*micro::kOneInU, subs.mutable_consumed());
   status = Validate(subs);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("handle at most"));
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("found 4"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("handle at most"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("found 4"));
 }
 
 struct FakeMarket : public market::AvailabilityEstimator {
@@ -198,34 +198,34 @@ TEST(ConsumptionTest, Consumption) {
   FakeMarket available;
   market::SetAmount(kApples, 0, &prices);
   auto status = Consumption(subs, prices, available, &result);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("Prices must be positive"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("Prices must be positive"));
   market::SetAmount(kApples, micro::kOneInU, &prices);
   market::SetAmount(kOranges, micro::kOneInU, &prices);
   market::SetAmount(kBananas, micro::kOneInU, &prices);
   status = Consumption(subs, prices, available, &result);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("Literally no goods"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("Literally no goods"));
   available.Set(kApples, micro::kTenInU);
 
   market::Add(kApples, 3*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
+  EXPECT_TRUE(Validate(subs).ok());
   status = Consumption(subs, prices, available, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
   EXPECT_EQ(3*micro::kOneInU, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
 
   available.Set(kApples, micro::kOneInU);
   status = Consumption(subs, prices, available, &result);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("enough goods available"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("enough goods available"));
 
   market::Add(kOranges, 3*micro::kOneInU, subs.mutable_consumed());
   available.Set(kOranges, micro::kTenInU);
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kOranges));
 
   available.Set(kApples, micro::kHalfInU);
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
   EXPECT_EQ(1666666, market::GetAmount(result, kOranges));
 
@@ -235,8 +235,8 @@ TEST(ConsumptionTest, Consumption) {
   market::SetAmount(kApples, 7*micro::kOneInU, subs.mutable_consumed());
   market::SetAmount(kOranges, 7*micro::kOneInU, subs.mutable_consumed());
   market::SetAmount(kBananas, 7*micro::kOneInU, subs.mutable_consumed());
-  EXPECT_OK(Validate(subs));
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Validate(subs).ok());
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kOranges));
   EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));
@@ -244,20 +244,20 @@ TEST(ConsumptionTest, Consumption) {
   available.Set(kApples, micro::kTenInU);
   available.Set(kOranges, micro::kTenInU);
   available.Set(kBananas, 0);
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(1828428, market::GetAmount(result, kApples));
   EXPECT_EQ(1828428, market::GetAmount(result, kOranges));
   EXPECT_EQ(0, market::GetAmount(result, kBananas));
 
   available.Set(kOranges, 0);
   available.Set(kBananas, micro::kTenInU);
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(1828428, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
   EXPECT_EQ(1828428, market::GetAmount(result, kBananas));
 
   available.Set(kBananas, 0);
-  EXPECT_OK(Consumption(subs, prices, available, &result));
+  EXPECT_TRUE(Consumption(subs, prices, available, &result).ok());
   EXPECT_EQ(7 * micro::kOneInU, market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
   EXPECT_EQ(0, market::GetAmount(result, kBananas));
@@ -321,13 +321,13 @@ TEST(ConsumptionTest, GreedyLocal) {
   greedy.Set(kOranges, 0);
   greedy.Set(kBananas, 0);
   auto status = Consumption(subs, prices, greedy, &result);
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("Not enough goods available"));
   count = {};
 
   greedy.Set(kApples, 3 * micro::kOneInU);
   status = Consumption(subs, prices, greedy, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
   EXPECT_EQ(market::GetAmount(subs.consumed(), kApples),
             market::GetAmount(result, kApples));
   EXPECT_EQ(0, market::GetAmount(result, kOranges));
@@ -339,10 +339,10 @@ TEST(ConsumptionTest, GreedyLocal) {
   greedy.Set(kApples, 2 * micro::kOneInU);
   greedy.Set(kOranges, 2 * micro::kOneInU);
   status = Consumption(subs, prices, greedy, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
   // Some roundoff error here.
-  EXPECT_EQ(micro::kOneThirdInU - 1, market::GetAmount(result, kApples));
-  EXPECT_EQ(2 * micro::kOneInU, market::GetAmount(result, kOranges));
+  EXPECT_EQ(micro::kOneThirdInU - 1, market::GetAmount(result, kOranges));
+  EXPECT_EQ(2 * micro::kOneInU, market::GetAmount(result, kApples));
   count = {};
   
   market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
@@ -350,10 +350,10 @@ TEST(ConsumptionTest, GreedyLocal) {
   greedy.Set(kOranges, 1 * micro::kOneInU);
   greedy.Set(kBananas, 1 * micro::kOneInU);
   status = Consumption(subs, prices, greedy, &result);
-  EXPECT_OK(status) << status.error_message();
-  EXPECT_EQ(0, market::GetAmount(result, kApples));
-  EXPECT_EQ(600000, market::GetAmount(result, kOranges));
-  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kBananas));
+  EXPECT_TRUE(status.ok()) << status.message();
+  EXPECT_EQ(micro::kOneInU, market::GetAmount(result, kApples));
+  EXPECT_EQ(600000, market::GetAmount(result, kBananas));
+  EXPECT_EQ(0, market::GetAmount(result, kOranges));
 }
 
 TEST(ConsumptionTest, Minima) {
@@ -372,17 +372,17 @@ TEST(ConsumptionTest, Minima) {
   available.Set(kOranges, 4*micro::kOneInU);
 
   auto status = Consumption(subs, prices, available, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(3*micro::kOneInU, market::GetAmount(result, kOranges));
 
   market::Add(kApples, micro::kHalfInU, subs.mutable_minimum());
   status = Consumption(subs, prices, available, &result);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr(": Minimum "));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr(": Minimum "));
 
   available.Set(kApples, 4*micro::kOneInU);
   market::SetAmount(kOranges, micro::kHalfInU, &prices);
   status = Consumption(subs, prices, available, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
   EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
   // Coefficients are one-half, y comes out to five thirds.
   EXPECT_EQ(1666666, market::GetAmount(result, kOranges));
@@ -391,7 +391,7 @@ TEST(ConsumptionTest, Minima) {
   market::Add(kBananas, 3*micro::kOneInU, subs.mutable_consumed());
   available.Set(kBananas, 4*micro::kOneInU);
   status = Consumption(subs, prices, available, &result);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.message();
   EXPECT_EQ(micro::kHalfInU, market::GetAmount(result, kApples));
 
   // Oranges are cheap so expect more of them. Coefficients are seven-sixths;

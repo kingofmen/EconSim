@@ -317,7 +317,7 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
     if (!status.ok()) {
       Log::Errorf("Error registering strategy from unit %s: %s",
                   util::objectid::DisplayString(unit.unit_id()),
-                  status.error_message());
+                  status.message());
       return status;
     }
   }
@@ -351,7 +351,7 @@ util::Status CanonicaliseWorld(proto::GameWorld* world) {
         if (!status.ok()) {
           Log::Errorf("Error loading strategy %s from unit %s: %s", name,
                       util::objectid::DisplayString(unit.unit_id()),
-                      status.error_message());
+                      status.message());
           return status;
         }
       }

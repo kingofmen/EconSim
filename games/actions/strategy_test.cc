@@ -10,23 +10,23 @@ TEST(Strategy, TestRegistry) {
   actions::proto::Strategy load;
 
   auto status = actions::RegisterStrategy(original);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("'define' field"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("'define' field"));
 
   original.set_define("test");
   status = actions::RegisterStrategy(original);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   status = actions::RegisterStrategy(original);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("already registered"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("already registered"));
 
   status = actions::LoadStrategy("nonesuch", nullptr);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("null Strategy"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("null Strategy"));
 
   status = actions::LoadStrategy("nonesuch", &load);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("not found"));
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("not found"));
 
   status = actions::LoadStrategy("test", &load);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(original.define(), load.lookup());
 }
 

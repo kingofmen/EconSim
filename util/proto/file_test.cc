@@ -20,7 +20,7 @@ TEST(ProtoUtils, TestParseProtoFile) {
   auto status = ParseProtoFile(
       absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
       &proto);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ("test", proto.kind()) << proto.DebugString();
   EXPECT_EQ(1, proto.number()) << proto.DebugString();
   EXPECT_EQ("check", proto.tag()) << proto.DebugString();
@@ -32,7 +32,7 @@ TEST(ProtoUtils, TestMergeProtoFile) {
   auto status = MergeProtoFile(
       absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
       &proto);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ("test", proto.kind()) << proto.DebugString();
   EXPECT_EQ(1, proto.number()) << proto.DebugString();
   EXPECT_EQ("check", proto.tag()) << proto.DebugString();
@@ -41,7 +41,7 @@ TEST(ProtoUtils, TestMergeProtoFile) {
   status = MergeProtoFile(
       absl::StrJoin({kTestDir, kWorkdir, kTestDataLocation, filename}, "/"),
       &proto);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ("test", proto.kind()) << proto.DebugString();
   EXPECT_EQ(1, proto.number()) << proto.DebugString();
   EXPECT_EQ("check", proto.tag()) << proto.DebugString();

@@ -109,25 +109,25 @@ protected:
 
 TEST_F(EconomyTest, TestSimpleSteadyState) {
   auto status = LoadTestData("simple");
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   status = SteadyStateTest();
-  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+  EXPECT_TRUE(status.ok()) << status.ToString() << "\n"
                            << world_proto_.DebugString();
 }
 
 TEST_F(EconomyTest, TestFixcapSteadyState) {
   auto status = LoadTestData("fixcap");
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   status = SteadyStateTest();
-  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+  EXPECT_TRUE(status.ok()) << status.ToString() << "\n"
                            << world_proto_.DebugString();
 }
 
 TEST_F(EconomyTest, TestTradingSteadyState) {
   auto status = LoadTestData("trade");
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   status = SteadyStateTest();
-  EXPECT_TRUE(status.ok()) << status.error_message() << "\n"
+  EXPECT_TRUE(status.ok()) << status.ToString() << "\n"
                            << world_proto_.DebugString();
 }
 

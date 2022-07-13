@@ -37,7 +37,7 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
 
   actions::proto::Plan plan;
   auto status = ai::MakePlan(*unit_, strategy_, &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(3, plan.steps_size());
   if (plan.steps_size() == 3) {
     EXPECT_EQ(actions::proto::AA_SELL, plan.steps(0).action());
@@ -53,7 +53,7 @@ TEST_F(UnitAiImplTest, TestShuttleTrader) {
 
   plan.Clear();
   status = ai::MakePlan(*unit_, strategy_, &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(5, plan.steps_size());
   if (plan.steps_size() >= 2) {
     EXPECT_EQ(actions::proto::AA_MOVE, plan.steps(0).action());
@@ -70,7 +70,7 @@ TEST_F(UnitAiImplTest, TestFindPath) {
   // Path from A to Z.
   auto status = FindPath(*unit_, ShortestDistance, ZeroHeuristic,
                          area3_->area_id(), &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(plan.steps_size(), 2);
 
   // Path starting in connection.
@@ -80,7 +80,7 @@ TEST_F(UnitAiImplTest, TestFindPath) {
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area3_->area_id(),
                     &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(plan.steps_size(), 2);
 
   // Path starting in connection, but we have to backtrack.
@@ -90,7 +90,7 @@ TEST_F(UnitAiImplTest, TestFindPath) {
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area4_->area_id(),
                     &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(plan.steps_size(), 3);
 
   // Return to A location when we've made some progress.
@@ -100,7 +100,7 @@ TEST_F(UnitAiImplTest, TestFindPath) {
   unit_->mutable_location()->set_progress_u(micro::kHalfInU);
   status = FindPath(*unit_, ShortestDistance, ZeroHeuristic, area1_->area_id(),
                     &plan);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(plan.steps_size(), 2);
   if (plan.steps_size() == 2) {
     EXPECT_EQ(plan.steps(0).action(), actions::proto::AA_TURN_AROUND);

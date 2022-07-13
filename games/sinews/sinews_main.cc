@@ -33,13 +33,13 @@ int main(int /*argc*/, char** /*argv*/) {
 
   auto status = games::setup::LoadScenario(config, &scenario);
   if (!status.ok()) {
-    std::cout << status.error_message() << "\n";
+    std::cout << status.message() << "\n";
     return 1;
   }
 
   status = games::setup::LoadWorld(config, &world_proto);
   if (!status.ok()) {
-    std::cout << status.error_message() << "\n";
+    std::cout << status.message() << "\n";
     return 1;
   }
 

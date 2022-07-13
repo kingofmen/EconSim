@@ -27,13 +27,13 @@ TEST_F(ExecutorImplTest, TestMoveUnit) {
   *step->mutable_connection_id() = connection_12->connection_id();
 
   auto status = MoveUnit(ZeroCost(), plan_.steps(0), unit_.get());
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
   EXPECT_EQ(unit_->location().progress_u(), 0);
 
   ActionCost halfCost(micro::kHalfInU, micro::kHalfInU);
   status = MoveUnit(halfCost, plan_.steps(0), unit_.get());
-  EXPECT_TRUE(util::IsNotComplete(status)) << status.error_message();
+  EXPECT_TRUE(util::IsNotComplete(status)) << status.ToString();
   EXPECT_EQ(unit_->location().a_area_id().number(), area2_->area_id().number());
   EXPECT_EQ(unit_->location().progress_u(), micro::kHalfInU);
 }
@@ -67,7 +67,7 @@ TEST_F(ExecutorImplTest, TestTurnAround) {
       connection_12->connection_id();
   unit_->mutable_location()->set_progress_u(kStartProgress);
   auto status = TurnAround(ZeroCost(), *step, unit_.get());
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(connection_12->length_u() - kStartProgress,
             unit_->location().progress_u());
   EXPECT_TRUE(unit_->location().a_area_id() == area2_->area_id());

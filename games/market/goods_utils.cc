@@ -145,6 +145,11 @@ std::vector<Quantity> Expand(const market::proto::Container& con) {
   for (const auto& good : con.quantities()) {
     ret.push_back(MakeQuantity(good.first, good.second));
   }
+
+  // Ensure deterministic order of goods.
+  std::sort(ret.begin(), ret.end(), [](const Quantity& one, const Quantity& two) {
+      return one.kind() < two.kind();
+    });
   return ret;
 }
 

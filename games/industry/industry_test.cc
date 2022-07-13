@@ -74,7 +74,7 @@ TEST_F(IndustryTest, EmptyIsComplete) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("already complete"));
   EXPECT_TRUE(production_->Complete(progress_));
 }
@@ -88,7 +88,7 @@ TEST_F(IndustryTest, OneStep) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
@@ -98,7 +98,7 @@ TEST_F(IndustryTest, OneStep) {
   inputs_ << wool_;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_EQ(market::GetAmount(outputs_, cloth_),
@@ -117,14 +117,14 @@ TEST_F(IndustryTest, TwoSteps) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(util::IsNotComplete(status)) << status.error_message();
+  EXPECT_TRUE(util::IsNotComplete(status)) << status.ToString();
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
 
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_FALSE(market::Contains(outputs_, cloth_));
@@ -134,7 +134,7 @@ TEST_F(IndustryTest, TwoSteps) {
   inputs_ << wool_;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_TRUE(market::Contains(outputs_, cloth_));
   EXPECT_FALSE(market::Contains(outputs_, wool_));
@@ -163,7 +163,7 @@ TEST_F(IndustryTest, MovableCapital) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(used_capital_, dogs), 1000);
@@ -187,7 +187,7 @@ TEST_F(IndustryTest, MovableCapitalSameAsInput) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(used_capital_, wool_), 1000);
@@ -213,7 +213,7 @@ TEST_F(IndustryTest, FixedCapital) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("fixed capital"));
   EXPECT_FALSE(production_->Complete(progress_));
 
@@ -221,7 +221,7 @@ TEST_F(IndustryTest, FixedCapital) {
   capital_ << dogs;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
@@ -241,7 +241,7 @@ TEST_F(IndustryTest, InstitutionalCapital) {
   auto status =
       production_->PerformStep(capital_, 1000000, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000);
@@ -260,7 +260,7 @@ TEST_F(IndustryTest, ScalingEffects) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
@@ -269,7 +269,7 @@ TEST_F(IndustryTest, ScalingEffects) {
   inputs_ << wool_;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1900);
@@ -284,7 +284,7 @@ TEST_F(IndustryTest, ScalingEffects) {
   progress_.set_step(0);
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("input materials"));
   EXPECT_FALSE(production_->Complete(progress_));
 
@@ -292,7 +292,7 @@ TEST_F(IndustryTest, ScalingEffects) {
   inputs_ << wool_;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 0);
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 1000 + 900 + 400);
@@ -312,7 +312,7 @@ TEST_F(IndustryTest, SkippingEffects) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(outputs_, cloth_), 500);
 }
@@ -334,7 +334,7 @@ TEST_F(IndustryTest, RawMaterials) {
   auto status =
       production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                &outputs_, &used_capital_, &progress_);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("raw materials"));
   EXPECT_EQ(market::GetAmount(inputs_, wool_), 1000);
 
@@ -342,7 +342,7 @@ TEST_F(IndustryTest, RawMaterials) {
   raw_materials_ << clay;
   status = production_->PerformStep(capital_, 0, 0, &inputs_, &raw_materials_,
                                     &outputs_, &used_capital_, &progress_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(production_->Complete(progress_));
   EXPECT_EQ(market::GetAmount(raw_materials_, clay), 0);
 }

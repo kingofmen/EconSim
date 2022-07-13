@@ -107,7 +107,7 @@ TEST_F(UnitTest, ActionPoints) {
 
 TEST_F(UnitTest, Unregister) {
   auto status = Unit::UnregisterTemplate(template_.template_id());
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(Unit::RegisterTemplate(template_));
   Unit::ClearTemplates();
   EXPECT_TRUE(Unit::RegisterTemplate(template_));
@@ -125,29 +125,29 @@ TEST_F(UnitTest, Attrition) {
 TEST_F(UnitTest, Match) {
   Filter filter;
   auto status = unit_->Match(filter);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   filter.faction_id = util::objectid::New("faction", 1);
   status = unit_->Match(filter);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   filter.faction_id = util::objectid::New("faction", 2);
   status = unit_->Match(filter);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("wrong faction"));
 
   filter.location_id = util::objectid::New("area", 2);
   status = unit_->Match(filter);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("wrong faction"));
   filter.faction_id = util::objectid::New("faction", 1);
   status = unit_->Match(filter);
-  EXPECT_THAT(status.error_message().as_string(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("wrong location"));
 
   filter.location_id = util::objectid::New("area", 1);
   status = unit_->Match(filter);
-  EXPECT_OK(status) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 }
 
 } // namespace units

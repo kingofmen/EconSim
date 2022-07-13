@@ -15,8 +15,8 @@ namespace {
 
 const std::string kTestDataLocation = "games/setup/validation/test_data";
 
-google::protobuf::util::Status ReadFile(const std::string filename,
-                                        google::protobuf::Message* proto) {
+util::Status ReadFile(const std::string filename,
+                      google::protobuf::Message* proto) {
   const std::string kTestDir = std::getenv("TEST_SRCDIR");
   const std::string kWorkdir = std::getenv("TEST_WORKSPACE");
   return util::proto::ParseProtoFile(
@@ -34,9 +34,9 @@ protected:
 
 TEST_F(ValidationTest, TestAllValidations) {
   auto status = ReadFile("bad_scenario.pb.txt", &scenario_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   status = ReadFile("bad_world.pb.txt", &world_proto_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   Validator extra = [](const games::setup::proto::GameWorld& p) {
     return std::vector<std::string>{"extra error"};
@@ -98,7 +98,7 @@ TEST_F(ValidationTest, TestAllValidations) {
 TEST_F(ValidationTest, TestUnitFactions) {
   world_proto_.Clear();
   auto status = ReadFile("unit_factions.pb.txt", &world_proto_);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
 
   auto errors = optional::UnitFactions(world_proto_);
   std::unordered_set<std::string> expected = {

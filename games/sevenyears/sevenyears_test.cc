@@ -40,13 +40,13 @@ protected:
 
 void SevenYearsTest::EndToEndTest(const std::string& testName, Golden* golds) {
   auto status = LoadTestData(testName);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
   status = game_->InitialiseAI();
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
 
   status = LoadGoldens(testName, golds);
   if (!status.ok()) {
-    ASSERT_TRUE(status.ok()) << status.error_message();
+    ASSERT_TRUE(status.ok()) << status.message();
   }
   int numStages = 0;
   for (const auto& as : *golds->area_states_) {
@@ -68,16 +68,16 @@ void SevenYearsTest::EndToEndTest(const std::string& testName, Golden* golds) {
 TEST_F(SevenYearsTest, Executors) {
   const std::string testName("executors");
   auto status = LoadTestData(testName);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
   status = game_->InitialiseAI();
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
 
   int numStages = 1;
   Golden golds;
   golds.Units();
   status = LoadGoldens(testName, &golds);
   if (!status.ok()) {
-    ASSERT_TRUE(status.ok()) << status.error_message();
+    ASSERT_TRUE(status.ok()) << status.message();
   }
   for (const auto& as : *golds.unit_states_) {
     if (as.second->states_size() > numStages) {
@@ -109,14 +109,14 @@ TEST_F(SevenYearsTest, ArmySupplyE2E) {
 TEST_F(SevenYearsTest, ConsumeSupplies) {
   const std::string testName("attrition");
   auto status = LoadTestData(testName);
-  ASSERT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(status.ok()) << status.message();
 
   int numStages = 1;
   Golden golds;
   golds.Units();
   status = LoadGoldens(testName, &golds);
   if (!status.ok()) {
-    ASSERT_TRUE(status.ok()) << status.error_message();
+    ASSERT_TRUE(status.ok()) << status.message();
   }
   for (const auto& as : *golds.unit_states_) {
     if (as.second->states_size() > numStages) {

@@ -2,7 +2,7 @@
 
 namespace util {
 
-using google::protobuf::util::error::Code;
+using absl::StatusCode;
 
 const Status& OkStatus() {
   static Status ok_status;
@@ -10,31 +10,31 @@ const Status& OkStatus() {
 }
 
 Status AlreadyExistsError(const std::string& msg) {
-  return Status(Code::ALREADY_EXISTS, msg);
+  return Status(StatusCode::kAlreadyExists, msg);
 }
 
 Status InvalidArgumentError(const std::string& msg) {
-  return Status(Code::INVALID_ARGUMENT, msg);
+  return Status(StatusCode::kInvalidArgument, msg);
 }
 
 Status FailedPreconditionError(const std::string& msg) {
-  return Status(Code::FAILED_PRECONDITION, msg);
+  return Status(StatusCode::kFailedPrecondition, msg);
 }
 
 Status NotFoundError(const std::string& msg) {
-  return Status(Code::NOT_FOUND, msg);
+  return Status(StatusCode::kNotFound, msg);
 }
 
 Status NotImplementedError(const std::string& msg) {
-  return Status(Code::UNIMPLEMENTED, msg);
+  return Status(StatusCode::kUnimplemented, msg);
 }
 
 Status ResourceExhaustedError(const std::string& msg) {
-  return Status(Code::RESOURCE_EXHAUSTED, msg);
+  return Status(StatusCode::kResourceExhausted, msg);
 }
 
 const Status& NotComplete() {
-  static Status not_complete(Code::RESOURCE_EXHAUSTED, "not completed");
+  static Status not_complete(StatusCode::kResourceExhausted, "not completed");
   return not_complete;
 }
 
@@ -42,7 +42,7 @@ bool Equal(const Status& one, const Status& two) {
   if (one.code() != two.code()) {
     return false;
   }
-  if (one.error_message() != two.error_message()) {
+  if (one.message() != two.message()) {
     return false;
   }
   return true;

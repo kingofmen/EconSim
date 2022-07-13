@@ -10,7 +10,7 @@
 namespace util {
 namespace proto {
 
-google::protobuf::util::Status
+util::Status
 ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   std::ifstream reader(filename);
   if (!reader.good()) {
@@ -26,7 +26,7 @@ ParseProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   return util::OkStatus();
 }
 
-google::protobuf::util::Status
+util::Status
 MergeProtoFile(const std::string& filename, google::protobuf::Message* proto) {
   std::ifstream reader(filename);
   if (!reader.good()) {

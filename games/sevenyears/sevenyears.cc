@@ -309,7 +309,7 @@ void SevenYears::moveUnits() {
       if (!status.ok()) {
         Log::Warnf("Could not create plan for unit %s: %s",
                    util::objectid::DisplayString(unit->unit_id()),
-                   status.error_message());
+                   status.message());
         continue;
       }
       CreateExpectedArrivals(*unit, *plan, this);
@@ -359,7 +359,7 @@ void SevenYears::moveUnits() {
         Log::Debugf("%s could not execute %s: %s",
                     util::objectid::DisplayString(unit->unit_id()),
                     actions::StepName(unit->plan().steps(0)),
-                    status.error_message());
+                    status.message());
       }
     }
 
@@ -488,7 +488,7 @@ void SevenYears::runEuropeanTrade(proto::AreaState* area_state,
         field->mutable_resources(), warehouse, warehouse, &progress);
     if (!status.ok()) {
       Log::Debugf("Could not perform process %s step %d: %s", trade.get_name(),
-                  progress.step(), status.error_message());
+                  progress.step(), status.message());
       break;
     }
   }
@@ -518,7 +518,7 @@ void SevenYears::runAreaProduction(proto::AreaState* area_state,
       Log::Debugf("Could not complete production %s in %s: %s",
                   chain.get_name(),
                   util::objectid::DisplayString(area->area_id()),
-                  status.error_message());
+                  status.message());
       continue;
     }
     if (chain.Complete(field->progress())) {
@@ -554,7 +554,7 @@ SevenYears::validation(const games::setup::proto::GameWorld& world) {
     if (!status.ok()) {
       errors.push_back(absl::Substitute(
           "Unit $0: $1", util::objectid::DisplayString(unit.unit_id()),
-          status.error_message().ToString()));
+          status.message()));
       continue;
     }
   }

@@ -36,13 +36,13 @@ TEST_F(ExecuterTest, TestDeleteStep) {
 
 TEST_F(ExecuterTest, TestExecuteStep) {
   auto status = ExecuteStep(plan_, nullptr);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("No steps"))
-      << status.error_message();
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("No steps"))
+      << status.ToString();
 
   auto* step = plan_.add_steps();
   status = ExecuteStep(plan_, nullptr);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("Null unit"))
-      << status.error_message();
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("Null unit"))
+      << status.ToString();
 
   units::proto::Template temp;
   temp.mutable_template_id()->set_kind("template");
@@ -54,15 +54,15 @@ TEST_F(ExecuterTest, TestExecuteStep) {
   auto unit = units::Unit::FromProto(unit_proto);
 
   status = ExecuteStep(plan_, unit.get());
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("neither action or key"))
-      << status.error_message();
+      << status.ToString();
 
   step->set_action(actions::proto::AA_UNKNOWN);
   status = ExecuteStep(plan_, unit.get());
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("not implemented"))
-      << status.error_message();
+      << status.ToString();
 
   bool touched = false;
   StepExecutor noop = [&touched](const ActionCost&, const actions::proto::Step&,
@@ -73,19 +73,19 @@ TEST_F(ExecuterTest, TestExecuteStep) {
 
   RegisterExecutor(actions::proto::AA_UNKNOWN, noop);
   status = ExecuteStep(plan_, unit.get());
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(touched);
 
   step->set_key("test");
   status = ExecuteStep(plan_, unit.get());
-  EXPECT_THAT(status.error_message(),
+  EXPECT_THAT(status.ToString(),
               testing::HasSubstr("not implemented"))
-      << status.error_message();
+      << status.ToString();
 
   touched = false;
   RegisterExecutor("test", noop);
   status = ExecuteStep(plan_, unit.get());
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(touched);
 
   uint64 current_cost = 10;
@@ -98,14 +98,14 @@ TEST_F(ExecuterTest, TestExecuteStep) {
   touched = false;
   status = ExecuteStep(plan_, unit.get());
   EXPECT_FALSE(touched);
-  EXPECT_THAT(status.error_message(), testing::HasSubstr("action points"))
-      << status.error_message();
+  EXPECT_THAT(status.ToString(), testing::HasSubstr("action points"))
+      << status.ToString();
   EXPECT_EQ(1, unit->action_points_u());
 
   current_cost = 1;
   status = ExecuteStep(plan_, unit.get());
   EXPECT_TRUE(touched);
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(0, unit->action_points_u());
 }
 

@@ -128,7 +128,7 @@ TEST_F(GeographyTest, Transition) {
   EXPECT_FALSE(
       GenerateTransitionProcess(*field_, transition, production_.get()).ok());
   field_->set_land_type(industry::proto::LT_ORCHARDS);
-  EXPECT_OK(GenerateTransitionProcess(*field_, transition, production_.get()));
+  EXPECT_TRUE(GenerateTransitionProcess(*field_, transition, production_.get()).ok());
   EXPECT_EQ(1, production_->Proto()->steps_size());
   EXPECT_DOUBLE_EQ(
       market::GetAmount(production_->Proto()->steps(0).variants(0).consumables(), labour),
@@ -137,7 +137,7 @@ TEST_F(GeographyTest, Transition) {
   fences += 1;
   *field_->mutable_fixed_capital() << fences;
   production_->Proto()->Clear();
-  EXPECT_OK(GenerateTransitionProcess(*field_, transition, production_.get()));
+  EXPECT_TRUE(GenerateTransitionProcess(*field_, transition, production_.get()).ok());
   EXPECT_DOUBLE_EQ(
       market::GetAmount(
           production_->Proto()->steps(0).variants(0).consumables(), labour),

@@ -50,8 +50,8 @@ ActionCost DefaultMoveCost(const actions::proto::Step& step, const units::Unit& 
   }
   if (!connection) {
     DLOGF(Log::P_DEBUG, "  DefaultMoveCost could not find connection ID %d",
-          location.has_connection_id() ? location.connection_id()
-                                       : step.connection_id());
+          location.has_connection_id() ? location.connection_id().number()
+                                       : step.connection_id().number());
     return InfiniteCost();
   }
 

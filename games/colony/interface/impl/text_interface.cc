@@ -483,7 +483,7 @@ void TextInterface::newGameHandler(char inp) {
       selected_detail_idx_ = 0;
       gameDisplay();
     } else {
-      message(FG_RED, status.error_message());
+      message(FG_RED, status.ToString());
       drawMessageBox();
       flip();
     }

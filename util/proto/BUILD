@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["file.h"],
     deps = [
         "//util/status:status",
+        "@com_google_absl//absl/status:status",
         "@com_google_absl//absl/strings:strings",
         "@com_google_protobuf//:protobuf",
     ],

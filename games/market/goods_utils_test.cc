@@ -65,16 +65,10 @@ TEST(GoodsUtilsTest, HelperFunctions) {
   SetAmount(kTestGood2, 2, &container);
   asVector = Expand(container);
   EXPECT_EQ(2, asVector.size());
-  if (asVector[0].amount() == 1) {
-    EXPECT_EQ(kTestGood1, asVector[0].kind());
-    EXPECT_EQ(kTestGood2, asVector[1].kind());
-    EXPECT_EQ(2, asVector[1].amount());
-  } else {
-    EXPECT_EQ(kTestGood2, asVector[0].kind());
-    EXPECT_EQ(kTestGood1, asVector[1].kind());
-    EXPECT_EQ(1, asVector[1].amount());
-    EXPECT_EQ(2, asVector[0].amount());
-  }
+  EXPECT_EQ(kTestGood1, asVector[0].kind());
+  EXPECT_EQ(kTestGood2, asVector[1].kind());
+  EXPECT_EQ(1, asVector[0].amount());
+  EXPECT_EQ(2, asVector[1].amount());
 }
 
 TEST(GoodsUtilsTest, StreamOperators) {

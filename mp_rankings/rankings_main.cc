@@ -268,7 +268,7 @@ int main(int argc, char** argv) {
   rankings::proto::Ranking ranking;
   auto status = util::proto::ParseProtoFile(argv[1], &ranking);
   if (!status.ok()) {
-    std::cout << status.error_message() << "\n";
+    std::cout << status.message() << "\n";
     return 1;
   }
   for (const auto& info : ranking.player_infos()) {

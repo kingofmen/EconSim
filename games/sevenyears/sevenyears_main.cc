@@ -49,7 +49,7 @@ getScenarios(const std::vector<std::experimental::filesystem::path> paths) {
     scenarios.emplace_back();
     auto status = util::proto::ParseProtoFile(path.string(), &scenarios.back());
     if (!status.ok()) {
-      Log::Errorf("Error reading file %s: %s", path.filename().string(), status.error_message());
+      Log::Errorf("Error reading file %s: %s", path.filename().string(), status.message());
       scenarios.pop_back();
       continue;
     }
@@ -143,7 +143,7 @@ int main(int /*argc*/, char** /*argv*/) {
   sevenYears = new sevenyears::SevenYears();
   auto status = sevenYears->InitialiseAI();
   if (!status.ok()) {
-    Log::Errorf("Error initialising AI: %s", status.error_message());
+    Log::Errorf("Error initialising AI: %s", status.message());
     return 3;
   }
   Log::Infof("Initialised AI");
@@ -151,7 +151,7 @@ int main(int /*argc*/, char** /*argv*/) {
   if (scenarios.size() == 1) {
     status = sevenYears->LoadScenario(scenarios[0]);
     if (!status.ok()) {
-      Log::Errorf("Error loading scenario: %s", status.error_message());
+      Log::Errorf("Error loading scenario: %s", status.message());
       return 3;
     }
   }
@@ -167,14 +167,14 @@ int main(int /*argc*/, char** /*argv*/) {
 
   status = graphics->Initialise(config);
   if (!status.ok()) {
-    Log::Errorf("Error initialising interface: %s", status.error_message());
+    Log::Errorf("Error initialising interface: %s", status.message());
     graphics->Cleanup();
     return 4;
   }
 
   status = loadGraphicsInfo(graphics);
   if (!status.ok()) {
-    Log::Errorf("Error loading graphics info: %s", status.error_message());
+    Log::Errorf("Error loading graphics info: %s", status.message());
     graphics->Cleanup();
     return 5;
   }

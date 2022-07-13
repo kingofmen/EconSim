@@ -5,12 +5,16 @@
 
 #include <string>
 
+// TODO: Replace the protobuf stubs with Abseil imports.
+
 #include "absl/strings/str_format.h"
-#include "src/google/protobuf/stubs/status.h"
+#include "absl/status/status.h"
+//#include "src/google/protobuf/stubs/status.h"
 
 namespace util {
 
-typedef google::protobuf::util::Status Status;
+//typedef google::protobuf::util::status_internal::Status Status;
+typedef absl::Status Status;
 
 const Status& OkStatus();
 Status AlreadyExistsError(const std::string& msg);

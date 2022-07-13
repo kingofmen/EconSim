@@ -26,7 +26,7 @@ void GoBuySell(const units::Unit& unit, const util::proto::ObjectId& target_id,
         FindPath(unit, ShortestDistance, ZeroHeuristic, target_id, plan);
     if (!status.ok()) {
       Log::Warnf("Couldn't complete GoBuySell due to FindPath: %s",
-                 status.error_message());
+                 status.message());
       return;
     }
   }
@@ -187,7 +187,7 @@ void PlanPath(const geography::proto::Location& source,
       DLOGF(Log::P_DEBUG,
             "Need to turn around on connection %d before "
             "starting from area %d on connection %d",
-            source.connection_id(), source.a_area_id().number(), path.back());
+            source.connection_id().number(), source.a_area_id().number(), path.back().number());
       auto* step = plan->add_steps();
       step->set_action(actions::proto::AA_TURN_AROUND);
       step = plan->add_steps();

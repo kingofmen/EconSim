@@ -146,10 +146,10 @@ micro::Measure suppliesConsumed(const sevenyears::SevenYearsState& world,
 // TODO: Weighted sum?
 micro::Measure tradePoints(const PlannedPath& candidate) {
   micro::Measure value_u = candidate.carried_u + candidate.supplies;
-  micro::Measure time_u = candidate.first_traverse_time +
-                          candidate.pickup_to_target_time +
-                          candidate.target_to_dropoff_time;
-  return micro::DivideU(value_u, time_u);
+  micro::Measure time = candidate.first_traverse_time +
+                        candidate.pickup_to_target_time +
+                        candidate.target_to_dropoff_time;
+  return value_u / time;
 }
 
 micro::Measure supplyPoints(const PlannedPath& candidate) {
@@ -197,6 +197,8 @@ util::Status SevenYearsMerchant::createCandidatePath(
   candidate->first_traverse_time = ai::utils::NumTurns(unit, traverse);
   candidate->pickup_to_target_time = 0;
   candidate->target_to_dropoff_time = 0;
+  candidate->goodness = 0;
+  candidate->carried_u = 0;
   return util::OkStatus();
 }
 
@@ -316,7 +318,6 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
   // This line is necessary but I don't understand why. TODO: Remove it.
   const auto& home_base_id = strategy.base_area_id();
   const auto& world = game_->World();
-
   // Create paths going straight to a trade port. Metric of goodness: Trade
   // goods delivered plus supplies brought home (both weighted) divided by time
   // taken. Later we will consider whether a home stop is an improvement. This
@@ -345,7 +346,7 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
     return util::NotFoundError(absl::Substitute(
         "Could not find suitable trade port for $0; most recent problem: $1",
         util::objectid::DisplayString(unit.unit_id()),
-        status.error_message().as_string()));
+        status.message()));
   }
 
   // Check if we want this to be the dropoff port.
@@ -382,7 +383,6 @@ util::Status SevenYearsMerchant::planEuropeanTrade(
             : util::objectid::Tag(path.pickup_id),
         util::objectid::Tag(path.target_port_id),
         util::objectid::Tag(path.dropoff_id));
-
   geography::proto::Location location = unit.location();
   if (!util::objectid::IsNull(path.pickup_id)) {
     status = ai::impl::FindPath(unit, ai::impl::ShortestDistance,
@@ -460,7 +460,7 @@ util::Status SevenYearsMerchant::planSupplyArmies(const units::Unit& unit,
     return util::NotFoundErrorf(
         "Could not find suitable supply target for %s; most recent problem: %s",
         util::objectid::DisplayString(unit.unit_id()),
-        status.error_message().as_string());
+        status.message());
   }
 
   for (auto& planned_path : possible_paths) {
@@ -551,7 +551,6 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   }
 
   const auto& merchant_strategy = strategy.seven_years_merchant();
-  Log::Infof("Here for %s", util::objectid::DisplayString(unit.unit_id()));
   std::string mission = merchant_strategy.mission();
   if (mission.empty()) {
     mission = merchant_strategy.default_mission();
@@ -570,8 +569,6 @@ SevenYearsMerchant::AddStepsToPlan(const units::Unit& unit,
   } else if (mission == constants::ColonialTrade()) {
     return planColonialTrade(unit, plan);
   } else if (mission == constants::SupplyArmies()) {
-    Log::Infof("Supply armies for %s",
-               util::objectid::DisplayString(unit.unit_id()));
     return planSupplyArmies(unit, plan);
   }
   return util::NotImplementedErrorf("This error should be unreachable: %s",
