@@ -7,11 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 const (
 	apiToken = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
-	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:TSLA210903C00700000/range/1/day/2021-07-22/2021-07-22"
+	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s210903C00700000/range/1/day/2021-07-22/2021-07-22"
 )
 
 // PolyAggregate is a model of the JSON returned by Polygon's 'aggs' endpoint.
@@ -35,8 +36,12 @@ func handlePolyResponse(res *http.Response) error {
 	return nil
 }
 
-func makeRequest() (*http.Request, error) {
-	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+func makeURL(ticker string) string {
+	return fmt.Sprintf(apiURL, ticker)
+}
+
+func makeRequest(ticker string) (*http.Request, error) {
+	req, err := http.NewRequest(http.MethodGet, makeURL(ticker), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +50,12 @@ func makeRequest() (*http.Request, error) {
 }
 
 func main() {
-	req, err := makeRequest()
+	ticker := "TSLA"
+	if len(os.Args) > 1 {
+		ticker = os.Args[1]
+	}
+
+	req, err := makeRequest(ticker)
 	if err != nil {
 		log.Fatalf("Couldn't create request: %v", err)
 	}
