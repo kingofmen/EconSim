@@ -13,7 +13,7 @@ import (
 
 const (
 	apiToken = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
-	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s%sC00700000/range/1/day/%s/%s"
+	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s%s%s%08d/range/1/day/%s/%s"
 )
 
 var (
@@ -32,6 +32,8 @@ type urlBuilder struct {
 	ticker string
 	priceDate string
 	endDate string
+	call bool
+	priceDollars int
 }
 
 func todayString() string {
@@ -44,6 +46,8 @@ func newURLBuilder() *urlBuilder {
 		ticker: *tickerF,
 		priceDate: todayString(),
 		endDate: *endDateF,
+		call: true,
+		priceDollars: 700,
 	}
 	if len(*priceDateF) > 0 {
 		ub.priceDate = *priceDateF
@@ -51,8 +55,15 @@ func newURLBuilder() *urlBuilder {
 	return ub
 }
 
+func (ub *urlBuilder) optionType() string {
+	if ub.call {
+		return "C"
+	}
+	return "P"
+}
+
 func (ub *urlBuilder) makeURL() string {
-	return fmt.Sprintf(apiURL, ub.ticker, ub.endDate, ub.priceDate, ub.priceDate)
+	return fmt.Sprintf(apiURL, ub.ticker, ub.endDate, ub.optionType(), ub.priceDollars*1000, ub.priceDate, ub.priceDate)
 }
 
 func handlePolyResponse(res *http.Response) error {
