@@ -3,17 +3,23 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
 const (
 	apiToken = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
-	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s210903C00700000/range/1/day/%s/%s"
+	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s%sC00700000/range/1/day/%s/%s"
+)
+
+var (
+	tickerF = flag.String("ticker", "TSLA", "Ticker symbol.")
+	endDateF = flag.String("enddate", "221021", "Ending date of options.")
+	priceDateF = flag.String("pricedate", "", "Date to look up prices.")
 )
 
 // PolyAggregate is a model of the JSON returned by Polygon's 'aggs' endpoint.
@@ -24,7 +30,8 @@ type PolyAggregate struct {
 
 type urlBuilder struct {
 	ticker string
-	date string
+	priceDate string
+	endDate string
 }
 
 func todayString() string {
@@ -32,23 +39,20 @@ func todayString() string {
 	return fmt.Sprintf("%d-%02d-%d", year, int(month), day)
 }
 
-func newURLBuilder(args []string) *urlBuilder {
+func newURLBuilder() *urlBuilder {
 	ub := &urlBuilder{
-		ticker: "TSLA",
-		date: todayString(),
+		ticker: *tickerF,
+		priceDate: todayString(),
+		endDate: *endDateF,
 	}
-
-	if len(args) > 0 {
-		ub.ticker = args[0]
-	}
-	if len(args) > 1 {
-		ub.date = args[1]
+	if len(*priceDateF) > 0 {
+		ub.priceDate = *priceDateF
 	}
 	return ub
 }
 
 func (ub *urlBuilder) makeURL() string {
-	return fmt.Sprintf(apiURL, ub.ticker, ub.date, ub.date)
+	return fmt.Sprintf(apiURL, ub.ticker, ub.endDate, ub.priceDate, ub.priceDate)
 }
 
 func handlePolyResponse(res *http.Response) error {
@@ -76,7 +80,8 @@ func makeRequest(url string) (*http.Request, error) {
 }
 
 func main() {
-	urlBuilder := newURLBuilder(os.Args[1:])
+	flag.Parse()
+	urlBuilder := newURLBuilder()
 	req, err := makeRequest(urlBuilder.makeURL())
 	if err != nil {
 		log.Fatalf("Couldn't create request: %v", err)
