@@ -20,6 +20,7 @@ var (
 	tickerF = flag.String("ticker", "TSLA", "Ticker symbol.")
 	endDateF = flag.String("enddate", "221021", "Ending date of options.")
 	priceDateF = flag.String("pricedate", "", "Date to look up prices.")
+	strikeF = flag.Int("strike", 200, "Strike price in dollars.")
 )
 
 // PolyAggregate is a model of the JSON returned by Polygon's 'aggs' endpoint.
@@ -47,7 +48,7 @@ func newURLBuilder() *urlBuilder {
 		priceDate: todayString(),
 		endDate: *endDateF,
 		call: true,
-		priceDollars: 700,
+		priceDollars: *strikeF,
 	}
 	if len(*priceDateF) > 0 {
 		ub.priceDate = *priceDateF
