@@ -8,6 +8,7 @@ import (
 
 	"trading/fund"
 	"trading/polygon"
+	"trading/tools"
 )
 
 var (
@@ -27,7 +28,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	if err := polygon.Lookup(*tickerF, *endDateF, *priceDateF, *strikeF); err != nil {
+	opt := &tools.Option{
+		Ticker: *tickerF,
+		EndDate: *endDateF,
+		PriceDollars: *strikeF,
+		Call: true,
+	}
+	if err := polygon.Lookup(opt, *priceDateF); err != nil {
 		log.Fatalf("Error in lookup: %v", err)
 	}
 }

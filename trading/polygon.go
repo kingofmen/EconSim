@@ -7,25 +7,33 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"trading/tools"
 )
 
 const (
 	apiToken = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
-	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s%s%s%08d/range/1/day/%s/%s"
+	apiURL = "https://api.polygon.io/v2/aggs/ticker/O:%s/range/1/day/%s/%s"
 )
 
-// PolyAggregate is a model of the JSON returned by Polygon's 'aggs' endpoint.
-type PolyAggregate struct {
-	Ticker string `json:"ticker"`
-	Results []map[string]float64 `json:"results"`
+// PolygonAPI is a struct for talking to the Polygon finance API. It satisfies FinanceAPI.
+type PolygonAPI struct {
+
 }
 
-type urlBuilder struct {
-	ticker string
-	priceDate string
-	endDate string
-	call bool
-	priceDollars int
+func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, error) {
+	return nil, nil
+}
+
+func (p *PolygonAPI) LookupOption(ticker, priceDate, endDate string, strike int) (*tools.TickerPrices, error) {
+	return nil, nil
+}
+
+
+// polyAggregate is a model of the JSON returned by Polygon's 'aggs' endpoint.
+type polyAggregate struct {
+	Ticker string `json:"ticker"`
+	Results []map[string]float64 `json:"results"`
 }
 
 func todayString() string {
@@ -33,29 +41,11 @@ func todayString() string {
 	return fmt.Sprintf("%d-%02d-%d", year, int(month), day)
 }
 
-func newURLBuilder(ticker, priceDate, endDate string, strike int) *urlBuilder {
-	ub := &urlBuilder{
-		ticker: ticker,
-		priceDate: todayString(),
-		endDate: endDate,
-		call: true,
-		priceDollars: strike,
+func optionsURL(option, date string) string {
+	if len(date) == 0 {
+		date = todayString()
 	}
-	if len(priceDate) > 0 {
-		ub.priceDate = priceDate
-	}
-	return ub
-}
-
-func (ub *urlBuilder) optionType() string {
-	if ub.call {
-		return "C"
-	}
-	return "P"
-}
-
-func (ub *urlBuilder) makeURL() string {
-	return fmt.Sprintf(apiURL, ub.ticker, ub.endDate, ub.optionType(), ub.priceDollars*1000, ub.priceDate, ub.priceDate)
+	return fmt.Sprintf(apiURL, option, date, date)
 }
 
 func makeRequest(url string) (*http.Request, error) {
@@ -74,7 +64,7 @@ func printResponse(res *http.Response) error {
 	if err != nil {
 		return err
 	}
-	agg := &PolyAggregate{}
+	agg := &polyAggregate{}
 	if err := json.Unmarshal(b, agg); err != nil {
 		return err
 	}
@@ -84,9 +74,9 @@ func printResponse(res *http.Response) error {
 
 
 // Lookup prints information about the provided option.
-func Lookup(ticker, endDate, priceDate string, strike int) error {
-	urlBuilder := newURLBuilder(ticker, endDate, priceDate, strike)
-	req, err := makeRequest(urlBuilder.makeURL())
+func Lookup(opt *tools.Option, priceDate string) error {
+	url := optionsURL(opt.String(), priceDate)
+	req, err := makeRequest(url)
 	if err != nil {
 		return fmt.Errorf("Couldn't create request: %v", err)
 	}

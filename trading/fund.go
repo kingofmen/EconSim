@@ -34,5 +34,10 @@ func Analyse(ticker string) error {
 	if !Exists(ticker) {
 		return fmt.Errorf("Unknown fund %q", ticker)
 	}
+	fund := fundMap[ticker]
+	if len(fund.weights) == 0 {
+		return fmt.Errorf("%s has no weights")
+	}
+	//fund.prices = make(map[string]float64)
 	return nil
 }

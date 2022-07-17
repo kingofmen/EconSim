@@ -6,6 +6,7 @@ go_binary(
     deps = [
         ":fund",
         ":polygon",
+        ":tools",
     ],
 )
 
@@ -14,6 +15,7 @@ go_library(
     srcs = ["fund.go"],
     importpath = "trading/fund",
     deps = [
+        ":tools",
     ],
 )
 
@@ -21,6 +23,15 @@ go_library(
     name = "polygon",
     srcs = ["polygon.go"],
     importpath = "trading/polygon",
+    deps = [
+        ":tools",
+    ],
+)
+
+go_library(
+    name = "tools",
+    srcs = ["tools.go"],
+    importpath = "trading/tools",
     deps = [
     ],
 )
