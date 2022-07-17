@@ -13,8 +13,8 @@ import (
 
 var (
 	tickerF = flag.String("ticker", "TSLA", "Ticker symbol.")
-	endDateF = flag.String("enddate", "221021", "Ending date of options.")
-	priceDateF = flag.String("pricedate", "", "Date to look up prices.")
+	endDateF = flag.String("enddate", "221021", "Ending date of options, in the format '220115'.")
+	priceDateF = flag.String("pricedate", "", "Date to look up prices, in the format '2022-01-15'.")
 	strikeF = flag.Int("strike", 200, "Strike price in dollars.")
 )
 

@@ -36,14 +36,10 @@ type polyAggregate struct {
 	Results []map[string]float64 `json:"results"`
 }
 
-func todayString() string {
-	year, month, day := time.Now().Date()
-	return fmt.Sprintf("%d-%02d-%d", year, int(month), day)
-}
-
 func optionsURL(option, date string) string {
 	if len(date) == 0 {
-		date = todayString()
+		year, month, day := time.Now().Date()
+		date = fmt.Sprintf("%d-%02d-%d", year, int(month), day)
 	}
 	return fmt.Sprintf(apiURL, option, date, date)
 }

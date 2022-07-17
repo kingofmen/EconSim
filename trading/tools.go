@@ -26,7 +26,7 @@ func (opt *Option) GetType() string {
 	return "P"
 }
 
-// String returns a standard-format representation of the option, e.g. TSLA2022-09-03C00700000.
+// String returns a standard-format representation of the option, e.g. TSLA210903C00700000.
 func (opt *Option) String() string {
 	return fmt.Sprintf("%s%s%s%08d", opt.Ticker, opt.EndDate, opt.GetType(), opt.PriceDollars*1000)
 }
