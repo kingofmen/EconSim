@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	if fund.Exists(*tickerF) {
-		if err := fund.Analyse(*tickerF); err != nil {
+		if err := fund.Analyse(*tickerF, &polygon.PolygonAPI{}); err != nil {
 			log.Fatalf("Error analysing fund: %v", err)
 		}
 		os.Exit(0)

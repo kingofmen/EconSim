@@ -25,7 +25,7 @@ func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, erro
 	return nil, nil
 }
 
-func (p *PolygonAPI) LookupOption(ticker, priceDate, endDate string, strike int) (*tools.TickerPrices, error) {
+func (p *PolygonAPI) LookupOption(opt *tools.Option) (*tools.TickerPrices, error) {
 	return nil, nil
 }
 
