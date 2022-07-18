@@ -7,7 +7,11 @@ import (
 
 // TickerPrices holds price information for a ticker.
 type TickerPrices struct {
-	
+	Ticker string
+	CloseBP int32
+	HighestBP int32
+	LowestBP int32
+	Transactions int
 }
 
 // Option models an option contract. It satisfies Stringer.

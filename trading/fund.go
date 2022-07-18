@@ -12,8 +12,9 @@ var (
 	fundMap = map[string]*fund{
 		"OIH": &fund{
 			ticker: "OIH",
-			weights: map[string]float64{
-				"SLB": 19.54,
+			shares: map[string]int32{
+				"SLB": 14608675,
+				"HAL": 10610891,
 			},
 		},
 	}
@@ -21,7 +22,7 @@ var (
 
 type fund struct {
 	ticker string
-	weights map[string]float64
+	shares map[string]int32
 	prices map[string]float64
 }
 
@@ -54,8 +55,8 @@ func Analyse(ticker string, api tools.FinanceAPI) error {
 		return fmt.Errorf("Unknown fund %q", ticker)
 	}
 	fund := fundMap[ticker]
-	if len(fund.weights) == 0 {
-		return fmt.Errorf("%s has no weights")
+	if len(fund.shares) == 0 {
+		return fmt.Errorf("%s has no shares")
 	}
 	fund.prices = make(map[string]float64)
 	fundPrice, err := api.LookupStock(ticker, lookupDate())
