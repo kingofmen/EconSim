@@ -17,6 +17,13 @@ const (
 	apiURL = "https://api.polygon.io/v2/aggs/ticker/%s/range/1/day/%s/%s"
 )
 
+var (
+	timeStamp time.Time
+	// Rate-limit is five API calls per minute.
+	rateLimitSeconds = 12.0
+	rateLimitPause = time.Second
+)
+
 // PolygonAPI is a struct for talking to the Polygon finance API. It satisfies FinanceAPI.
 type PolygonAPI struct {
 
@@ -28,12 +35,29 @@ type polyAggregate struct {
 	Results []map[string]float64 `json:"results"`
 }
 
+// rateLimit implements a rate limitation.
+func rateLimit() {
+	if timeStamp.IsZero() {
+		return
+	}
+
+	for {
+		if d := time.Since(timeStamp); d.Seconds() > rateLimitSeconds {
+			break
+		}
+		time.Sleep(rateLimitPause)
+	}
+	timeStamp = time.Now()
+}
+
 func apiGet(ticker, date string) (*polyAggregate, error) {
 	url := tickerURL(ticker, date)
 	req, err := makeRequest(url)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't create request: %v", err)
 	}
+
+	rateLimit()
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("Bad response: %v", err)

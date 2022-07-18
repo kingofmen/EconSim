@@ -23,7 +23,7 @@ var (
 type fund struct {
 	ticker string
 	shares map[string]int32
-	prices map[string]float64
+	pricesBP map[string]int32
 }
 
 // tradingDay returns true if the time represents a weekday.
@@ -58,11 +58,18 @@ func Analyse(ticker string, api tools.FinanceAPI) error {
 	if len(fund.shares) == 0 {
 		return fmt.Errorf("%s has no shares")
 	}
-	fund.prices = make(map[string]float64)
-	fundPrice, err := api.LookupStock(ticker, lookupDate())
-	if err != nil {
-		return fmt.Errorf("Error looking up fund: %v", err)
+	fund.pricesBP = make(map[string]int32)
+	tickers := []string{ticker}
+	for t := range fund.shares {
+		tickers = append(tickers, t)
 	}
-	fmt.Printf("Fund price: %v\n", fundPrice)
+	for _, t := range tickers {
+		p, err := api.LookupStock(t, lookupDate())
+		if err != nil {
+			return fmt.Errorf("Error looking up %s price: %v", t, err)
+		}
+		fund.pricesBP[t] = p.CloseBP
+		fmt.Printf("%s close price: %d\n", t, p.CloseBP)
+	}
 	return nil
 }
