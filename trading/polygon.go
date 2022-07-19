@@ -2,11 +2,14 @@
 package polygon
 
 import (
+	"encoding/gob"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
 	"net/http"
+	"os"
 	"time"
 
 	"trading/tools"
@@ -23,7 +26,10 @@ var (
 	rateLimitPause = time.Minute
 
 	// Map from request to response for caching.
-	cacheMap = map[string]*http.Response{}
+	cacheMap = map[string]*polyAggregate{}
+
+	// True if cache needs updating.
+	cacheDirty = false
 )
 
 // PolygonAPI is a struct for talking to the Polygon finance API. It satisfies FinanceAPI.
@@ -53,7 +59,7 @@ func handleResponse(res *http.Response) (*polyAggregate, error) {
 func apiGet(ticker, date string) (*polyAggregate, error) {
 	url := tickerURL(ticker, date)
 	if cached, ok := cacheMap[url]; ok {
-		return handleResponse(cached)
+		return cached, nil
 	}
 	req, err := makeRequest(url)
 	if err != nil {
@@ -70,8 +76,13 @@ func apiGet(ticker, date string) (*polyAggregate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Bad response: %v", err)
 	}
-	cacheMap[url] = res
-	return handleResponse(res)
+	agg, err := handleResponse(res)
+	if err != nil {
+		return nil, err
+	}
+	cacheMap[url] = agg
+	cacheDirty = true
+	return agg, nil
 }
 
 func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, error) {
@@ -115,12 +126,38 @@ func makeRequest(url string) (*http.Request, error) {
 
 // LoadCache reads a cache map from file.
 func LoadCache() error {
+	f, err := os.Open(cacheFile)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			// Not a problem, just means nothing is cached.
+			return nil
+		}
+		return err
+	}
+	defer f.Close()
+	dec := gob.NewDecoder(f)
+	if err := dec.Decode(&cacheMap); err != nil {
+		if errors.Is(err, io.EOF) {
+			// Expected!
+			return nil
+		}
+		return err
+	}
 	return nil
 }
 
 // SaveCache writes the cache map to file.
 func SaveCache() error {
-	return nil
+	if !cacheDirty {
+		return nil
+	}
+	f, err := os.Create(cacheFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	cod := gob.NewEncoder(f)
+	return cod.Encode(cacheMap)
 }
 
 // Lookup prints information about the provided option.
