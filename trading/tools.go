@@ -7,6 +7,10 @@ import (
 
 type BP int32
 
+func (bp BP) String() string {
+	return fmt.Sprintf("%.2f", BPToDollars(bp))
+}
+
 // TickerPrices holds price information for a ticker.
 type TickerPrices struct {
 	Ticker string
@@ -20,7 +24,7 @@ type TickerPrices struct {
 type Option struct {
 	Ticker string
 	EndDate string
-	PriceDollars int
+	PriceDollars int32
 	Call bool
 }
 
@@ -46,7 +50,7 @@ func (opt *Option) String() string {
 // FinanceAPI defines an interface for talking to a finance API.
 type FinanceAPI interface {
 	LookupStock(ticker, date string) (*TickerPrices, error)
-	LookupOption(opt *Option) (*TickerPrices, error)
+	LookupOption(opt *Option, date string) (*TickerPrices, error)
 }
 
 

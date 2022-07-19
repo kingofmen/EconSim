@@ -80,19 +80,15 @@ func apiGet(ticker, date string) (*polyAggregate, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(agg.Results) == 0 {
+		return nil, fmt.Errorf("No results found for %s at %s (%s)", ticker, date, url)
+	}
 	cacheMap[url] = agg
 	cacheDirty = true
 	return agg, nil
 }
 
-func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, error) {
-	agg, err := apiGet(ticker, date)
-	if err != nil {
-		return nil, err
-	}
-	if len(agg.Results) == 0 {
-		return nil, fmt.Errorf("No results found for %s at %s", ticker, date)
-	}
+func convertAggregate(agg *polyAggregate) *tools.TickerPrices {
 	value := agg.Results[0]
 	return &tools.TickerPrices{
 		Ticker: agg.Ticker,
@@ -100,11 +96,23 @@ func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, erro
 		Highest: tools.BP(math.Round(value["h"]*1000)),
 		Lowest: tools.BP(math.Round(value["l"]*1000)),
 		Transactions: int(math.Round(value["n"])),
-	}, nil
+	}
 }
 
-func (p *PolygonAPI) LookupOption(opt *tools.Option) (*tools.TickerPrices, error) {
-	return nil, nil
+func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, error) {
+	agg, err := apiGet(ticker, date)
+	if err != nil {
+		return nil, err
+	}
+	return convertAggregate(agg), nil
+}
+
+func (p *PolygonAPI) LookupOption(opt *tools.Option, date string) (*tools.TickerPrices, error) {
+	agg, err := apiGet(opt.String(), date)
+	if err != nil {
+		return nil, err
+	}
+	return convertAggregate(agg), nil
 }
 
 func tickerURL(ticker, date string) string {

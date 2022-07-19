@@ -43,7 +43,7 @@ func main() {
 	opt := &tools.Option{
 		Ticker: *tickerF,
 		EndDate: *endDateF,
-		PriceDollars: *strikeF,
+		PriceDollars: int32(*strikeF),
 		Call: true,
 	}
 	if err := polygon.Lookup(opt, *priceDateF); err != nil {
