@@ -15,11 +15,15 @@ import (
 const (
 	apiToken = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
 	apiURL = "https://api.polygon.io/v2/aggs/ticker/%s/range/1/day/%s/%s"
+	cacheFile = "C:\\Users\\Rolf\\base\\bazel-out\\tradingCache"
 )
 
 var (
 	// Rate-limit is five API calls per minute.
 	rateLimitPause = time.Minute
+
+	// Map from request to response for caching.
+	cacheMap = map[string]*http.Response{}
 )
 
 // PolygonAPI is a struct for talking to the Polygon finance API. It satisfies FinanceAPI.
@@ -33,8 +37,24 @@ type polyAggregate struct {
 	Results []map[string]float64 `json:"results"`
 }
 
+func handleResponse(res *http.Response) (*polyAggregate, error) {
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't read response body: %v", err)
+	}
+	agg := &polyAggregate{}
+	if err := json.Unmarshal(b, agg); err != nil {
+		return nil, fmt.Errorf("Couldn't unmarshal response: %v", err)
+	}
+	return agg, nil
+}
+
 func apiGet(ticker, date string) (*polyAggregate, error) {
 	url := tickerURL(ticker, date)
+	if cached, ok := cacheMap[url]; ok {
+		return handleResponse(cached)
+	}
 	req, err := makeRequest(url)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't create request: %v", err)
@@ -50,16 +70,8 @@ func apiGet(ticker, date string) (*polyAggregate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Bad response: %v", err)
 	}
-	defer res.Body.Close()
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Couldn't read response body: %v", err)
-	}
-	agg := &polyAggregate{}
-	if err := json.Unmarshal(b, agg); err != nil {
-		return nil, fmt.Errorf("Couldn't unmarshal response: %v", err)
-	}
-	return agg, nil
+	cacheMap[url] = res
+	return handleResponse(res)
 }
 
 func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, error) {
@@ -99,6 +111,16 @@ func makeRequest(url string) (*http.Request, error) {
 	}
 	req.Header.Set("Authorization", "Bearer " + apiToken)
 	return req, nil
+}
+
+// LoadCache reads a cache map from file.
+func LoadCache() error {
+	return nil
+}
+
+// SaveCache writes the cache map to file.
+func SaveCache() error {
+	return nil
 }
 
 // Lookup prints information about the provided option.
