@@ -15,7 +15,32 @@ var (
 			shares: map[string]int32{
 				"SLB": 14608675,
 				"HAL": 10610891,
+				"BKR": 7153957,
+				"TS": 5340353,
+				"NOV": 8515430,
+				"HP": 3025141,
+				"CHX": 6422316,
+				"FTI": 19536477,
+				"PTEN": 8249831,
+				"WHD": 2837181,
+				"RIG": 33874052,
+				"LBRT": 6612919,
+				"NEX": 6947109,
+				"OII": 4936594,
+				"RES": 7661550,
+				"NBR": 448970,
+				"SLCA": 3750386,
+				"DRQ": 1585264,
+				"XPRO": 3877588,
+				"PUMP": 4159378,
+				"WTTR": 5465953,
+				"CLB": 1917481,
+				"HLX": 7877913,
+				"OIS": 2935513,
+				"BOOM": 557791,
 			},
+			outstanding: 11450000, // As of 7/13/22.
+			cash: 2822236,
 		},
 	}
 )
@@ -23,6 +48,8 @@ var (
 type fund struct {
 	ticker string
 	shares map[string]int32
+	outstanding float64
+	cash float64
 	pricesBP map[string]int32
 }
 
@@ -48,6 +75,11 @@ func Exists(ticker string) bool {
 	return exists
 }
 
+func bpToDollars(bp int32) float64 {
+	val := float64(bp)
+	return val*0.001
+}
+
 // Analyse does the arbitrage analysis.
 func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 	if !Exists(ticker) {
@@ -59,8 +91,7 @@ func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 	}
 	fund.pricesBP = make(map[string]int32)
 	tickers := []string{ticker}
-	var totalShares float64
-	var totalPrice float64
+	totalPrice := fund.cash
 	for t := range fund.shares {
 		tickers = append(tickers, t)
 	}
@@ -74,11 +105,12 @@ func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 			return fmt.Errorf("Error looking up %s price: %v", t, err)
 		}
 		fund.pricesBP[t] = p.CloseBP
-		fmt.Printf("%s close price: %d\n", t, p.CloseBP)
-		totalPrice += (0.001 * float64(p.CloseBP)) * float64(fund.shares[t])
-		totalShares += float64(fund.shares[t])
+		fmt.Printf("%s close price: %.2f\n", t, bpToDollars(p.CloseBP))
+		totalPrice += bpToDollars(p.CloseBP) * float64(fund.shares[t])
 	}
-	totalPrice /= totalShares
-	fmt.Printf("Predicted share price: %.2f", totalPrice)
+	totalPrice /= fund.outstanding
+	fmt.Printf("Predicted share price: %.2f\n", totalPrice)
+	diff := totalPrice - bpToDollars(fund.pricesBP[ticker])
+	fmt.Printf("Difference: %.2f (%.2f%%)\n", diff, 100*diff/totalPrice)
 	return nil
 }
