@@ -5,12 +5,14 @@ import (
 	"fmt"
 )
 
+type BP int32
+
 // TickerPrices holds price information for a ticker.
 type TickerPrices struct {
 	Ticker string
-	CloseBP int32
-	HighestBP int32
-	LowestBP int32
+	Close BP
+	Highest BP
+	Lowest BP
 	Transactions int
 }
 
@@ -20,6 +22,12 @@ type Option struct {
 	EndDate string
 	PriceDollars int
 	Call bool
+}
+
+// BPToDollars converts basis points to dollars.
+func BPToDollars(bp BP) float64 {
+	val := float64(bp)
+	return val*0.001
 }
 
 // GetType returns 'C' for a call and 'P' for a put.

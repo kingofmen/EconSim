@@ -45,12 +45,13 @@ var (
 	}
 )
 
+// fund contains data about an ETF.
 type fund struct {
 	ticker string
 	shares map[string]int32
 	outstanding float64
 	cash float64
-	pricesBP map[string]int32
+	prices map[string]tools.BP
 }
 
 // tradingDay returns true if the time represents a weekday.
@@ -75,9 +76,10 @@ func Exists(ticker string) bool {
 	return exists
 }
 
-func bpToDollars(bp int32) float64 {
-	val := float64(bp)
-	return val*0.001
+// guessNearestOptions returns estimates of the closest option strike prices
+// below and above the provided stock price.
+func guessNearestOptions(price tools.BP) (tools.BP, tools.BP) {
+	return price, price
 }
 
 // Analyse does the arbitrage analysis.
@@ -89,7 +91,7 @@ func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 	if len(fund.shares) == 0 {
 		return fmt.Errorf("%s has no shares")
 	}
-	fund.pricesBP = make(map[string]int32)
+	fund.prices = make(map[string]tools.BP)
 	tickers := []string{ticker}
 	totalPrice := fund.cash
 	for t := range fund.shares {
@@ -104,13 +106,13 @@ func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 		if err != nil {
 			return fmt.Errorf("Error looking up %s price: %v", t, err)
 		}
-		fund.pricesBP[t] = p.CloseBP
-		fmt.Printf("%s close price: %.2f\n", t, bpToDollars(p.CloseBP))
-		totalPrice += bpToDollars(p.CloseBP) * float64(fund.shares[t])
+		fund.prices[t] = p.Close
+		fmt.Printf("%s close price: %.2f\n", t, tools.BPToDollars(p.Close))
+		totalPrice += tools.BPToDollars(p.Close) * float64(fund.shares[t])
 	}
 	totalPrice /= fund.outstanding
 	fmt.Printf("Predicted share price: %.2f\n", totalPrice)
-	diff := totalPrice - bpToDollars(fund.pricesBP[ticker])
+	diff := totalPrice - tools.BPToDollars(fund.prices[ticker])
 	fmt.Printf("Difference: %.2f (%.2f%%)\n", diff, 100*diff/totalPrice)
 	return nil
 }

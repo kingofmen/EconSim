@@ -96,9 +96,9 @@ func (p *PolygonAPI) LookupStock(ticker, date string) (*tools.TickerPrices, erro
 	value := agg.Results[0]
 	return &tools.TickerPrices{
 		Ticker: agg.Ticker,
-		CloseBP: int32(math.Round(value["c"]*1000)),
-		HighestBP: int32(math.Round(value["h"]*1000)),
-		LowestBP: int32(math.Round(value["l"]*1000)),
+		Close: tools.BP(math.Round(value["c"]*1000)),
+		Highest: tools.BP(math.Round(value["h"]*1000)),
+		Lowest: tools.BP(math.Round(value["l"]*1000)),
 		Transactions: int(math.Round(value["n"])),
 	}, nil
 }
