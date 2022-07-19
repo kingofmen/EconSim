@@ -49,8 +49,7 @@ func Exists(ticker string) bool {
 }
 
 // Analyse does the arbitrage analysis.
-// Placeholder.
-func Analyse(ticker string, api tools.FinanceAPI) error {
+func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 	if !Exists(ticker) {
 		return fmt.Errorf("Unknown fund %q", ticker)
 	}
@@ -60,16 +59,26 @@ func Analyse(ticker string, api tools.FinanceAPI) error {
 	}
 	fund.pricesBP = make(map[string]int32)
 	tickers := []string{ticker}
+	var totalShares float64
+	var totalPrice float64
 	for t := range fund.shares {
 		tickers = append(tickers, t)
 	}
+	if len(priceDate) == 0 {
+		priceDate = lookupDate()
+	}
 	for _, t := range tickers {
-		p, err := api.LookupStock(t, lookupDate())
+		
+		p, err := api.LookupStock(t, priceDate)
 		if err != nil {
 			return fmt.Errorf("Error looking up %s price: %v", t, err)
 		}
 		fund.pricesBP[t] = p.CloseBP
 		fmt.Printf("%s close price: %d\n", t, p.CloseBP)
+		totalPrice += (0.001 * float64(p.CloseBP)) * float64(fund.shares[t])
+		totalShares += float64(fund.shares[t])
 	}
+	totalPrice /= totalShares
+	fmt.Printf("Predicted share price: %.2f", totalPrice)
 	return nil
 }

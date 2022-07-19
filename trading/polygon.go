@@ -47,7 +47,6 @@ func rateLimit() {
 		}
 		time.Sleep(rateLimitPause)
 	}
-	timeStamp = time.Now()
 }
 
 func apiGet(ticker, date string) (*polyAggregate, error) {
@@ -58,6 +57,7 @@ func apiGet(ticker, date string) (*polyAggregate, error) {
 	}
 
 	rateLimit()
+	timeStamp = time.Now()
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("Bad response: %v", err)
