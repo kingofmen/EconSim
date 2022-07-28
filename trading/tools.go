@@ -44,7 +44,7 @@ func (opt *Option) GetType() string {
 
 // String returns a standard-format representation of the option, e.g. TSLA210903C00700000.
 func (opt *Option) String() string {
-	return fmt.Sprintf("%s%s%s%08d", opt.Ticker, opt.EndDate, opt.GetType(), opt.PriceDollars*1000)
+	return fmt.Sprintf("O:%s%s%s%08d", opt.Ticker, opt.EndDate, opt.GetType(), opt.PriceDollars*1000)
 }
 
 // FinanceAPI defines an interface for talking to a finance API.

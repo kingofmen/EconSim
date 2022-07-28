@@ -170,7 +170,7 @@ func SaveCache() error {
 
 // Lookup prints information about the provided option.
 func Lookup(opt *tools.Option, priceDate string) error {
-	agg, err := apiGet(fmt.Sprintf("O:%s", opt.String()), priceDate)
+	agg, err := apiGet(opt.String(), priceDate)
 	if err != nil {
 		return err
 	}

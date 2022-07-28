@@ -111,7 +111,7 @@ func fridayThreeMonthsAhead() string {
 }
 
 // Analyse does the arbitrage analysis.
-func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
+func Analyse(ticker, priceDate, endDate string, api tools.FinanceAPI) error {
 	if !Exists(ticker) {
 		return fmt.Errorf("Unknown fund %q", ticker)
 	}
@@ -141,12 +141,15 @@ func Analyse(ticker, priceDate string, api tools.FinanceAPI) error {
 	fmt.Printf("Predicted share price: %.2f\n", totalPrice)
 	diff := totalPrice - tools.BPToDollars(fund.prices[ticker])
 	fmt.Printf("Difference: %.2f (%.2f%%)\n", diff, 100*diff/totalPrice)
+	if len(endDate) == 0 {
+		endDate = fridayThreeMonthsAhead()
+	}
 
 	for _, t := range tickers {
 		_, up := guessNearestOptions(fund.prices[t])
 		opt := &tools.Option{
 			Ticker: t,
-			EndDate: fridayThreeMonthsAhead(),
+			EndDate: endDate,
 			PriceDollars: up,
 			Call: true,
 		}

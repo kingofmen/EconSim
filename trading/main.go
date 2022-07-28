@@ -13,11 +13,12 @@ import (
 
 var (
 	tickerF = flag.String("ticker", "TSLA", "Ticker symbol.")
-	endDateF = flag.String("enddate", "221021", "Ending date of options, in the format '220115'.")
+	endDateF = flag.String("enddate", "", "Ending date of options, in the format '220115' (YYMMDD).")
 	priceDateF = flag.String("pricedate", "", "Date to look up prices, in the format '2022-01-15'.")
 	strikeF = flag.Int("strike", 200, "Strike price in dollars.")
 	loadCache = flag.Bool("load_cache", true, "If set, read existing API responses from file.")
 	writeCache = flag.Bool("write_cache", true, "If set, save new API results to cache file.")
+	lookupF = flag.Bool("lookup", false, "If set, skip fund analysis.")
 )
 
 func main() {
@@ -28,8 +29,8 @@ func main() {
 			log.Fatalf("Could not read cache: %v", err)
 		}
 	}
-	if fund.Exists(*tickerF) {
-		if err := fund.Analyse(*tickerF, *priceDateF, &polygon.PolygonAPI{}); err != nil {
+	if !*lookupF && fund.Exists(*tickerF) {
+		if err := fund.Analyse(*tickerF, *priceDateF, *endDateF, &polygon.PolygonAPI{}); err != nil {
 			log.Fatalf("Error analysing fund: %v", err)
 		}
 		if *writeCache {
