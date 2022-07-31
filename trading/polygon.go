@@ -81,7 +81,7 @@ func apiGet(ticker, date string) (*polyAggregate, error) {
 		return nil, err
 	}
 	if len(agg.Results) == 0 {
-		return nil, fmt.Errorf("No results found for %s at %s (%s)", ticker, date, url)
+		return nil, fmt.Errorf("%w for %s at %s (%s)", tools.NoResults, ticker, date, url)
 	}
 	cacheMap[url] = agg
 	cacheDirty = true

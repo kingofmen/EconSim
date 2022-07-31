@@ -2,7 +2,12 @@
 package tools
 
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	NoResults = errors.New("no results found")
 )
 
 type BP int32

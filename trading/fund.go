@@ -2,7 +2,9 @@
 package fund
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"trading/tools"
@@ -41,6 +43,7 @@ var (
 			},
 			outstanding: 11450000, // As of 7/13/22.
 			cash: 2822236,
+			optionDates: map[string]string{},
 		},
 	}
 )
@@ -52,6 +55,7 @@ type fund struct {
 	outstanding float64
 	cash float64
 	prices map[string]tools.BP
+	optionDates map[string]string
 }
 
 // dateString returns a year-month-day string.
@@ -61,7 +65,7 @@ func dateString(t time.Time, dashes bool) string {
 	if dashes {
 		sep = "-"
 	}
-	return fmt.Sprintf("%d%s%02d%s%d", year, sep, int(month), sep, day)
+	return fmt.Sprintf("%d%s%02d%s%02d", year, sep, int(month), sep, day)
 }
 
 // tradingDay returns true if the time represents a weekday.
@@ -110,6 +114,26 @@ func fridayThreeMonthsAhead() string {
 	return dateString(now, false)
 }
 
+func addWeeks(date string, weeks int) (string, error) {
+	if weeks == 0 {
+		return date, nil
+	}
+	year, err := strconv.Atoi(date[0:2])
+	if err != nil {
+		return "", err
+	}
+	month, err := strconv.Atoi(date[2:4])
+	if err != nil {
+		return "", err
+	}
+	day, err := strconv.Atoi(date[4:])
+	if err != nil {
+		return "", err
+	}
+	t := time.Date(year, time.Month(month), day, 1, 0, 0, 0, time.Local).AddDate(0, 0, 7*weeks)
+	return dateString(t, false), nil
+}
+
 // Analyse does the arbitrage analysis.
 func Analyse(ticker, priceDate, endDate string, api tools.FinanceAPI) error {
 	if !Exists(ticker) {
@@ -144,21 +168,41 @@ func Analyse(ticker, priceDate, endDate string, api tools.FinanceAPI) error {
 	if len(endDate) == 0 {
 		endDate = fridayThreeMonthsAhead()
 	}
-
 	for _, t := range tickers {
 		_, up := guessNearestOptions(fund.prices[t])
-		opt := &tools.Option{
-			Ticker: t,
-			EndDate: endDate,
-			PriceDollars: up,
-			Call: true,
+		attempt := 0
+		for {
+			attempt++
+			if attempt > 5 {
+				return fmt.Errorf("Could not find valid option for %s", t)
+			}
+			date := endDate
+			// Map 1, 2, 3... onto 0, 1, -1...
+			weeks := attempt / 2
+			if attempt % 2 == 1 {
+				weeks *= -1
+			}
+			var err error
+			date, err = addWeeks(date, weeks)
+			if err != nil {
+				return fmt.Errorf("Error attempting to add %d weeks to %s: %v", weeks, endDate, err)
+			}
+			opt := &tools.Option{
+				Ticker: t,
+				EndDate: date,
+				PriceDollars: up,
+				Call: true,
+			}
+			p, err := api.LookupOption(opt, priceDate)
+			if err != nil {
+				if errors.Is(err, tools.NoResults) {
+					continue
+				}
+				return fmt.Errorf("Error looking up option %v: %v", opt, err)
+			}
+			fmt.Printf("Price of call option (%s) on %s: %s\n", date, t, p.Close)
+			break;
 		}
-		p, err := api.LookupOption(opt, priceDate)
-		if err != nil {
-			return fmt.Errorf("Error looking up option %v: %v", opt, err)
-		}
-		fmt.Printf("Price of call option on %s: %s", t, p.Close)
 	}
-	
 	return nil
 }
