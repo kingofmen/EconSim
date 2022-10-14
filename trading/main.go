@@ -19,6 +19,7 @@ var (
 	loadCache = flag.Bool("load_cache", true, "If set, read existing API responses from file.")
 	writeCache = flag.Bool("write_cache", true, "If set, save new API results to cache file.")
 	lookupF = flag.Bool("lookup", false, "If set, skip fund analysis.")
+	findChain = flag.Bool("chain", false, "If set, search for an option chain.")
 )
 
 func main() {
@@ -30,6 +31,12 @@ func main() {
 		}
 	}
 	if !*lookupF && fund.Exists(*tickerF) {
+		if *findChain {
+			if err := fund.FindChains(*tickerF, &polygon.PolygonAPI{}); err != nil {
+				log.Fatalf("Error finding chains: %v", err)
+			}
+			os.Exit(0)
+		}
 		if err := fund.Analyse(*tickerF, *priceDateF, *endDateF, &polygon.PolygonAPI{}); err != nil {
 			log.Fatalf("Error analysing fund: %v", err)
 		}

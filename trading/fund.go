@@ -206,3 +206,27 @@ func Analyse(ticker, priceDate, endDate string, api tools.FinanceAPI) error {
 	}
 	return nil
 }
+
+// FindChains looks for dates on which all the components of the fund have options contracts.
+func FindChains(ticker string, api tools.FinanceAPI) error {
+	if !Exists(ticker) {
+		return fmt.Errorf("Unknown fund %q", ticker)
+	}
+
+	fund := fundMap[ticker]
+	if len(fund.shares) == 0 {
+		return fmt.Errorf("%s has no shares")
+	}
+	tickers := []string{ticker}
+	for t := range fund.shares {
+		tickers = append(tickers, t)
+	}
+	for _, t := range tickers {
+		_, err := api.OptionContracts(t)
+		if err != nil {
+			return fmt.Errorf("error looking up chains for %s: %v", t, err)
+		}
+	}
+
+	return nil
+}

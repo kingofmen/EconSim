@@ -56,6 +56,7 @@ func (opt *Option) String() string {
 type FinanceAPI interface {
 	LookupStock(ticker, date string) (*TickerPrices, error)
 	LookupOption(opt *Option, date string) (*TickerPrices, error)
+	OptionContracts(ticker string) ([]*Option, error)
 }
 
 
