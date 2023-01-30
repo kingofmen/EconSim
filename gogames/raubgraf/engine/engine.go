@@ -1,5 +1,9 @@
 package engine
 
+import (
+  "fmt"
+)
+
 type Direction int
 
 const (
@@ -11,8 +15,8 @@ const (
   NorthWest
 )
 
-func Clockwise(d Direction) Direction {
-  switch d{
+func (d Direction) Clockwise() Direction {
+  switch d {
     case North:
     return NorthEast
     case NorthEast:
@@ -26,10 +30,10 @@ func Clockwise(d Direction) Direction {
     case NorthWest:
     return North
   }
-  panic()
+  panic(fmt.Errorf("Clockwise received unknown direction %v", d))
 }
-func CounterClockwise(d Direction) Direction {
-  switch d{
+func (d Direction) CounterClockwise() Direction {
+  switch d {
     case North:
     return NorthWest
     case NorthWest:
@@ -43,7 +47,7 @@ func CounterClockwise(d Direction) Direction {
     case NorthEast:
     return North
   }
-  panic()
+  panic(fmt.Errorf("CounterClockwise received unknown direction %v", d))
 }
 
 type triangle struct {
