@@ -21,6 +21,8 @@ const (
 var tDirs = []Direction{North, NorthEast, SouthEast, South, SouthWest, NorthWest}
 var vDirs = []Direction{NorthWest, NorthEast, East, SouthEast, SouthWest, West}
 
+// String returns a human-readable string suitable for debugging.
+// It is not intended for display to users.
 func (d Direction) String() string {
   switch d {
   case North:
@@ -43,6 +45,7 @@ func (d Direction) String() string {
   return "BadDirection"
 }
 
+// Clockwise returns the direction one step clockwise from that provided.
 func (d Direction) Clockwise() Direction {
   switch d {
   case North:
@@ -64,6 +67,8 @@ func (d Direction) Clockwise() Direction {
   }
   panic(fmt.Errorf("Clockwise received unknown direction %v", d))
 }
+
+// CounterClockwise returns the direction one step counterclockwise from that provided.
 func (d Direction) CounterClockwise() Direction {
   switch d {
   case North:
@@ -91,8 +96,15 @@ type vertex struct {
   triangles [6]*triangle
 }
 
+// vCoord unambiguously identifies a vertex.
 type vCoord struct {
   x, y int
+}
+
+// tCoord unambiguously identifies a triangle.
+type tCoord struct {
+  vtx vCoord
+  dir Direction
 }
 
 // setT sets the triangle t in direction d.
