@@ -1,3 +1,4 @@
+# Diff: &"C:\Program Files\Git\usr\bin\diff.exe" --ignore-all-space file1 file2
 # Needed to build protobuf, see https://github.com/protocolbuffers/protobuf/issues/5051.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -37,7 +38,7 @@ http_archive(
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
-go_register_toolchains(version = "1.16.5")
+go_register_toolchains(version = "1.19.5")
 
 # Needed for Abseil.
 http_archive(
