@@ -228,3 +228,46 @@ func TestTrianglePops(t *testing.T) {
     })
   }
 }
+
+func TestFood(t *testing.T) {
+  tt := &Triangle{}
+  deltas := []struct{
+    add int
+    exp int
+    err string
+  } {
+      {
+        add: 1,
+        exp: 1,
+      },
+      {
+        add: 10,
+        exp: 11,
+      },
+      {
+        add: -1,
+        exp: 10,
+      },
+      {
+        add: -100,
+        exp: 0,
+        err: "subtract 100",
+      },
+    }
+
+  for _, d := range deltas {
+    err := tt.AddFood(d.add)
+    if d.err == "" {
+      if err != nil {
+        t.Errorf("AddFood(%d) => %v, want nil", d.add, err)
+      }
+    } else {
+      if err == nil || !strings.Contains(err.Error(), d.err) {
+        t.Errorf("AddFood(%d) => %v, want %q", d.add, err, d.err)
+      }
+    }
+    if got := tt.CountFood(); got != d.exp {
+      t.Errorf("GotFood(%d) => %d, want %d", d.add, got, d.exp)
+    }
+  }
+}

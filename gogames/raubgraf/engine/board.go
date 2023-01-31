@@ -197,6 +197,13 @@ func (t *Triangle) AddFood(a int) error {
   return nil
 }
 
+func (t* Triangle) CountFood() int {
+  if t == nil {
+    return 0
+  }
+  return t.food
+}
+
 // PopCount returns the number of k-type Pops in the triangle.
 func (t *Triangle) PopCount(k pop.Kind) int {
   if t == nil {
