@@ -95,7 +95,7 @@ func (d Direction) CounterClockwise() Direction {
   panic(fmt.Errorf("CounterClockwise received unknown direction %v", d))
 }
 
-type vertex struct {
+type Vertex struct {
   // At the map border some triangles may be nil.
   triangles [6]*Triangle
 }
@@ -112,7 +112,7 @@ type tCoord struct {
 }
 
 // setT sets the triangle t in direction d.
-func (v *vertex) setT(t *Triangle, d Direction) error {
+func (v *Vertex) setT(t *Triangle, d Direction) error {
   if v == nil || t == nil {
     return nil
   }
@@ -142,7 +142,7 @@ func (v *vertex) setT(t *Triangle, d Direction) error {
   return nil
 }
 
-func (v *vertex) getTriangle(d Direction) *Triangle {
+func (v *Vertex) getTriangle(d Direction) *Triangle {
   if v == nil {
     return nil
   }
@@ -168,7 +168,7 @@ type Triangle struct {
   population []*pop.Pop
 
   // Either N - SE - SW or NW - NE - S.
-  vertices [3]*vertex
+  vertices [3]*Vertex
 
   // Level of forest.
   overgrowth int
@@ -279,12 +279,12 @@ func (t *Triangle) ClearLand(pc int) {
 }
 
 type Board struct {
-  vertices [][]*vertex
+  vertices [][]*Vertex
   Triangles []*Triangle
 }
 
 // GetVertex returns the vertex at (x, y).
-func (b *Board) GetVertex(x, y int) *vertex {
+func (b *Board) GetVertex(x, y int) *Vertex {
   if b == nil {
     return nil
   }
@@ -301,13 +301,13 @@ func (b *Board) GetVertex(x, y int) *vertex {
 }
 
 // VertexAt returns the vertex at the coordinates vc.
-func (b *Board) VertexAt(vc *vCoord) *vertex {
+func (b *Board) VertexAt(vc *vCoord) *Vertex {
   return b.GetVertex(vc.x, vc.y)
 }
 
 // neighbour returns the neighbour of the vertex at (x, y)
 // in the direction d, if it exists.
-func (b *Board) neighbour(x, y int, d Direction) *vertex {
+func (b *Board) neighbour(x, y int, d Direction) *Vertex {
   if b == nil {
     return nil
   }
@@ -365,24 +365,24 @@ func New(width, height int) (*Board, error) {
     return nil, fmt.Errorf("NewBoard received bad (width, height) = (%d, %d)", width, height)
   }
   board := &Board{
-    vertices: make([][]*vertex, width),
+    vertices: make([][]*Vertex, width),
     Triangles: make([]*Triangle, 0, width*height),
   }
   for x := range board.vertices {
-    board.vertices[x] = make([]*vertex, height)
+    board.vertices[x] = make([]*Vertex, height)
     for y := range board.vertices[x] {
-      board.vertices[x][y] = &vertex{}
+      board.vertices[x][y] = &Vertex{}
     }
   }
 
   for x, verts := range board.vertices {
     // For each row, create northwards triangles.
-    for y, vertex := range verts[:len(verts)-1] {
+    for y, vtx := range verts[:len(verts)-1] {
       // Create North triangle if needed.
       if needN(width, height, x, y) {
         t := &Triangle{}
         board.Triangles = append(board.Triangles, t)
-        if err := vertex.setT(t, North); err != nil {
+        if err := vtx.setT(t, North); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) N: %w", x, y, err)
         }
         if nw := board.neighbour(x, y, NorthWest); nw != nil {
@@ -400,7 +400,7 @@ func New(width, height int) (*Board, error) {
       if needNE(width, height, x, y) {
         t := &Triangle{}
         board.Triangles = append(board.Triangles, t)
-        if err := vertex.setT(t, NorthEast); err != nil {
+        if err := vtx.setT(t, NorthEast); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW: %w", x, y, err)
         }
         if nw := board.neighbour(x, y, NorthEast); nw != nil {
