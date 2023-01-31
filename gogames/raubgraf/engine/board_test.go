@@ -151,10 +151,15 @@ func TestNewBoard(t *testing.T) {
         for _, d := range tDirs {
           tt := v.getTriangle(d)
           exist := (tt != nil)
-          if p.good[d] == exist {
+          if p.good[d] != exist {
+            t.Errorf("New(%d, %d) => vertex (%v) triangle %s is %v, expect %v", cc.w, cc.h, p.vc, d, exist, p.good[d])
+          }
+          if !exist {
             continue
           }
-          t.Errorf("New(%d, %d) => vertex (%v) triangle %s is %v, expect %v", cc.w, cc.h, p.vc, d, exist, p.good[d])
+          if vtx := tt.GetVertex(d.Opposite()); vtx != v {
+            t.Errorf("New(%d, %d) => vertex(%v)->triangle(%s)->vertex(%s) does not equal original vertex.", cc.w, cc.h, p.vc, d, d.Opposite())
+          }
         }
       }
     })

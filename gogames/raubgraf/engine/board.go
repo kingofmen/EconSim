@@ -95,6 +95,29 @@ func (d Direction) CounterClockwise() Direction {
   panic(fmt.Errorf("CounterClockwise received unknown direction %v", d))
 }
 
+// Opposite returns the 180-degrees-turned direction.
+func (d Direction) Opposite() Direction {
+  switch d {
+  case North:
+    return South
+  case NorthWest:
+    return SouthEast
+  case West:
+    return East
+  case SouthWest:
+    return NorthEast
+  case South:
+    return North
+  case SouthEast:
+    return NorthWest
+  case East:
+    return West
+  case NorthEast:
+    return SouthWest
+  }
+  panic(fmt.Errorf("Opposite received unknown direction %v", d))
+}
+
 type Vertex struct {
   // At the map border some triangles may be nil.
   triangles [6]*Triangle
@@ -178,6 +201,27 @@ type Triangle struct {
 
   // Capital improvements made.
   improvements int
+}
+
+func (t *Triangle) GetVertex(d Direction) *Vertex {
+  if t == nil {
+    return nil
+  }
+  switch d {
+  case North:
+    return t.vertices[0]
+  case NorthWest:
+    return t.vertices[0]
+  case SouthEast:
+    return t.vertices[1]
+  case NorthEast:
+    return t.vertices[1]
+  case SouthWest:
+    return t.vertices[2]
+  case South:
+    return t.vertices[2]
+  }
+  return nil
 }
 
 // AddFood adds the provided amount of food to the farm,
