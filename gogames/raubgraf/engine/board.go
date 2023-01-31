@@ -204,6 +204,13 @@ func (t* Triangle) CountFood() int {
   return t.food
 }
 
+func (t *Triangle) CountForest() int {
+  if t == nil {
+    return 0
+  }
+  return t.overgrowth  
+}
+
 // PopCount returns the number of k-type Pops in the triangle.
 func (t *Triangle) PopCount(k pop.Kind) int {
   if t == nil {

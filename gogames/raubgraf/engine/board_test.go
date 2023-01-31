@@ -275,3 +275,41 @@ func TestFood(t *testing.T) {
     }
   }
 }
+
+func TestLandClearing(t *testing.T) {
+  tt := &Triangle{
+    overgrowth: 5,
+  }
+  deltas := []struct{
+    pcs int
+    exp int
+  } {
+      {
+        pcs: 0,
+        exp: 6,
+      },
+      {
+        pcs: 1,
+        exp: 5,
+      },
+      {
+        pcs: 10,
+        exp: 0,
+      },
+      {
+        pcs: 0,
+        exp: 1,
+      },
+    }
+
+  for _, dd := range deltas {
+    tt.ClearLand(dd.pcs)
+    got := tt.CountForest()
+    if got != dd.exp {
+      t.Errorf("ClearLand(%d) => %d, want %d", dd.pcs, got, dd.exp)
+    }
+    if farm := tt.IsFarm(); farm != (dd.exp == 0) {
+      t.Errorf("ClearLand(%d): IsFarm() => %v, expect %d overgrowth", dd.pcs, farm, dd.exp)
+    }
+  }
+}
