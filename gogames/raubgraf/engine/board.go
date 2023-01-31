@@ -21,9 +21,10 @@ const (
   NorthWest
 )
 
-// Directions of triangles and vertices from a vertex.
-var tDirs = []Direction{North, NorthEast, SouthEast, South, SouthWest, NorthWest}
-var vDirs = []Direction{NorthWest, NorthEast, East, SouthEast, SouthWest, West}
+// Directions of triangles from a vertex (NB not vice-versa).
+var TriDirs = []Direction{North, NorthEast, SouthEast, South, SouthWest, NorthWest}
+// Directions of vertices from either vertex or triangle.
+var VtxDirs = []Direction{NorthWest, NorthEast, East, SouthEast, SouthWest, West}
 
 // String returns a human-readable string suitable for debugging.
 // It is not intended for display to users.
@@ -207,6 +208,7 @@ func (t *Triangle) GetVertex(d Direction) *Vertex {
   if t == nil {
     return nil
   }
+
   switch d {
   case North:
     return t.vertices[0]

@@ -118,14 +118,14 @@ func TestNewBoard(t *testing.T) {
             t.Errorf("New(%d, %d) => coordinates (%d, %d) do not exist", cc.w, cc.h, x, y)
             continue
           }
-          for _, td := range tDirs {
+          for _, td := range TriDirs {
             tt := v.GetTriangle(td)
             if tt == nil {
               continue
             }
             tCount[tt] = true
             uniq := map[*Vertex]bool{}
-            for _, vd := range tDirs {
+            for _, vd := range TriDirs {
               if vtx := tt.GetVertex(vd); vtx != nil {
                 uniq[vtx] = true
               }
@@ -146,7 +146,7 @@ func TestNewBoard(t *testing.T) {
           t.Errorf("New(%d, %d) => nil vertex (%v), expect full hex.", cc.w, cc.h, cc.full)
           return
         }
-        for _, d := range tDirs {
+        for _, d := range TriDirs {
           if tt := v.GetTriangle(d); tt == nil {
             t.Errorf("New(%d, %d) => vertex (%v) has nil triangle %v, expect non-nil", cc.w, cc.h, cc.full, d)
           }
@@ -159,7 +159,7 @@ func TestNewBoard(t *testing.T) {
           t.Errorf("New(%d, %d) => vertex (%v) is nil, expect partial %v", cc.w, cc.h, p.vc, p.good)
           continue
         }
-        for _, d := range tDirs {
+        for _, d := range TriDirs {
           tt := v.GetTriangle(d)
           exist := (tt != nil)
           if p.good[d] != exist {
