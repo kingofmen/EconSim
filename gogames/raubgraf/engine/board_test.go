@@ -237,6 +237,10 @@ func TestFood(t *testing.T) {
     err string
   } {
       {
+        add: 0,
+        exp: 0,
+      },
+      {
         add: 1,
         exp: 1,
       },
