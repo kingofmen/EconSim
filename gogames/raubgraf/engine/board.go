@@ -165,7 +165,7 @@ func (v *Vertex) setT(t *Triangle, d Direction) error {
   return nil
 }
 
-func (v *Vertex) getTriangle(d Direction) *Triangle {
+func (v *Vertex) GetTriangle(d Direction) *Triangle {
   if v == nil {
     return nil
   }

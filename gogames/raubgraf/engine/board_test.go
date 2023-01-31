@@ -118,9 +118,20 @@ func TestNewBoard(t *testing.T) {
             t.Errorf("New(%d, %d) => coordinates (%d, %d) do not exist", cc.w, cc.h, x, y)
             continue
           }
-          for _, t := range v.triangles {
-            if t != nil {
-              tCount[t] = true
+          for _, td := range tDirs {
+            tt := v.GetTriangle(td)
+            if tt == nil {
+              continue
+            }
+            tCount[tt] = true
+            uniq := map[*Vertex]bool{}
+            for _, vd := range tDirs {
+              if vtx := tt.GetVertex(vd); vtx != nil {
+                uniq[vtx] = true
+              }
+            }
+            if len(uniq) != 3 {
+              t.Errorf("New(%d, %d) => vertex(%d, %d)->triangle(%s) has %d vertices, want 3.", cc.w, cc.h, x, y, td, len(uniq))
             }
           }
         }
@@ -136,7 +147,7 @@ func TestNewBoard(t *testing.T) {
           return
         }
         for _, d := range tDirs {
-          if tt := v.getTriangle(d); tt == nil {
+          if tt := v.GetTriangle(d); tt == nil {
             t.Errorf("New(%d, %d) => vertex (%v) has nil triangle %v, expect non-nil", cc.w, cc.h, cc.full, d)
           }
         }
@@ -149,7 +160,7 @@ func TestNewBoard(t *testing.T) {
           continue
         }
         for _, d := range tDirs {
-          tt := v.getTriangle(d)
+          tt := v.GetTriangle(d)
           exist := (tt != nil)
           if p.good[d] != exist {
             t.Errorf("New(%d, %d) => vertex (%v) triangle %s is %v, expect %v", cc.w, cc.h, p.vc, d, exist, p.good[d])
