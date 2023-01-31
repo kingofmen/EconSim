@@ -4,7 +4,7 @@ import (
   "strings"
   "testing"
 
-  //"gogames/raubgraf/engine/board"
+  "gogames/raubgraf/engine/pop"
 )
 
 func TestNewBoard(t *testing.T) {
@@ -110,7 +110,7 @@ func TestNewBoard(t *testing.T) {
         return
       }
 
-      tCount := make(map[*triangle]bool)
+      tCount := make(map[*Triangle]bool)
       for x := 0; x < cc.w; x++ {
         for y := 0; y < cc.h; y++ {
           v := b.GetVertex(x, y)
@@ -155,6 +155,74 @@ func TestNewBoard(t *testing.T) {
             continue
           }
           t.Errorf("New(%d, %d) => vertex (%v) triangle %s is %v, expect %v", cc.w, cc.h, p.vc, d, exist, p.good[d])
+        }
+      }
+    })
+  }
+}
+
+func TestTrianglePops(t *testing.T) {
+  type delta struct {
+    k pop.Kind
+    add bool
+  }
+  cases := []struct {
+    desc string
+    deltas []delta
+  } {
+      {
+        desc: "Add and remove",
+        deltas: []delta{
+          {pop.Peasant, true},
+          {pop.Bandit, true},
+          {pop.Peasant, false},
+          {pop.Bandit, true},
+        },
+      },
+      {
+        desc: "Bad removes",
+        deltas: []delta{
+          {pop.Peasant, false},
+          {pop.Bandit, false},
+        },
+      },
+      {
+        desc: "Bad removes followed by good adds and removes",
+        deltas: []delta{
+          {pop.Peasant, false},
+          {pop.Bandit, false},
+          {pop.Peasant, true},
+          {pop.Bandit, true},
+          {pop.Peasant, false},
+        },
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      tt := &Triangle{}
+      for i, del := range cc.deltas {
+        exp := tt.PopCount(del.k)
+        before := exp
+        if del.add {
+          tt.AddPop(pop.New(del.k))
+          exp++
+        } else {
+          rm := tt.RemovePop(del.k)
+          expK := del.k
+          if before == 0 {
+            expK = pop.Null
+          }
+          if rmk := rm.GetKind(); rmk != expK {
+            t.Errorf("%s: %d RemovePop() => %s, want %s", cc.desc, i, rmk, expK)
+          }
+          exp--
+        }
+        if before == 0 && !del.add {
+          exp = 0
+        }
+        if after := tt.PopCount(del.k); after != exp {
+          t.Errorf("%s: PopCount(%s) => %d after delta (%v), want %d", cc.desc, del.k, after, del.add, exp)
         }
       }
     })

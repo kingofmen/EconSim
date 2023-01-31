@@ -7,6 +7,8 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/engine",
     deps = [
+      ":board",
+      ":pop",
     ],
 )
 
@@ -17,6 +19,7 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/board",
     deps = [
+      ":pop",
     ],
 )
 
@@ -27,4 +30,15 @@ go_test(
     embed = [
       ":board",
     ],
+    deps = [
+      ":pop",
+    ],
+)
+
+go_library(
+    name = "pop",
+    srcs = [
+      "pop.go",
+    ],
+    importpath = "gogames/raubgraf/engine/pop",
 )

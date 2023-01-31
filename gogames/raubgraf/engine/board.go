@@ -2,11 +2,15 @@ package board
 
 import (
   "fmt"
+
+  "gogames/raubgraf/engine/pop"
 )
 
 type Direction int
 
 const (
+  maxForest = 10
+  
   North Direction = iota
   NorthEast
   East
@@ -93,7 +97,7 @@ func (d Direction) CounterClockwise() Direction {
 
 type vertex struct {
   // At the map border some triangles may be nil.
-  triangles [6]*triangle
+  triangles [6]*Triangle
 }
 
 // vCoord unambiguously identifies a vertex.
@@ -108,7 +112,7 @@ type tCoord struct {
 }
 
 // setT sets the triangle t in direction d.
-func (v *vertex) setT(t *triangle, d Direction) error {
+func (v *vertex) setT(t *Triangle, d Direction) error {
   if v == nil || t == nil {
     return nil
   }
@@ -138,7 +142,7 @@ func (v *vertex) setT(t *triangle, d Direction) error {
   return nil
 }
 
-func (v *vertex) getTriangle(d Direction) *triangle {
+func (v *vertex) getTriangle(d Direction) *Triangle {
   if v == nil {
     return nil
   }
@@ -159,13 +163,110 @@ func (v *vertex) getTriangle(d Direction) *triangle {
   return nil
 }
 
-type triangle struct {
+type Triangle struct {
+  // Permanent inhabitants - peasants or bandits.
+  population []*pop.Pop
+
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*vertex
+
+  // Level of forest.
+  overgrowth int
+
+  // Surplus food available.
+  food int
+
+  // Capital improvements made.
+  improvements int
+}
+
+// AddFood adds the provided amount of food to the farm,
+// which may be negative. An error is returned if the farm
+// would end up with negative food.
+func (t *Triangle) AddFood(a int) error {
+  if t == nil {
+    return nil
+  }
+  t.food += a
+  if t.food < 0 {
+    err := fmt.Errorf("attempt to subtract %d food from stockpile %d", -a, t.food - a)
+    t.food = 0
+    return err
+  }
+
+  return nil
+}
+
+// PopCount returns the number of k-type Pops in the triangle.
+func (t *Triangle) PopCount(k pop.Kind) int {
+  if t == nil {
+    return 0
+  }
+  count := 0
+  for _, p := range t.population {
+    if p.GetKind() == k {
+      count++
+    }
+  }
+  return count
+}
+
+// AddPop adds the provided pop to the population.
+func (t *Triangle) AddPop(p *pop.Pop) {
+  if t == nil {
+    return
+  }
+  if p == nil {
+    return
+  }
+  t.population = append(t.population, p)
+}
+
+func (t *Triangle) RemovePop(k pop.Kind) *pop.Pop {
+  if t == nil {
+    return nil
+  }
+  for i := len(t.population) - 1; i >= 0; i-- {
+    curr := t.population[i]
+    if curr.GetKind() != k {
+      continue
+    }
+    t.population = append(t.population[:i], t.population[i+1:]...)
+    return curr
+  }
+  return nil
+}
+
+// IsFarm returns true if the triangle can be farmed.
+func (t *Triangle) IsFarm() bool {
+  if t == nil {
+    return false
+  }
+  return t.overgrowth == 0
+}
+
+// ClearLand removes overgrowth equal to pc, or if it is zero, increases overgrowth.
+func (t *Triangle) ClearLand(pc int) {
+  if t == nil {
+    return
+  }
+  if pc < 1 {
+    t.overgrowth++
+    if t.overgrowth > maxForest {
+      t.overgrowth = maxForest
+    }
+    return
+  }
+
+  t.overgrowth -= pc
+  if t.overgrowth <= 0 {
+    t.overgrowth = 0
+  }
 }
 
 type Board struct {
   vertices [][]*vertex
+  Triangles []*Triangle
 }
 
 // GetVertex returns the vertex at (x, y).
@@ -251,6 +352,7 @@ func New(width, height int) (*Board, error) {
   }
   board := &Board{
     vertices: make([][]*vertex, width),
+    Triangles: make([]*Triangle, 0, width*height),
   }
   for x := range board.vertices {
     board.vertices[x] = make([]*vertex, height)
@@ -264,7 +366,8 @@ func New(width, height int) (*Board, error) {
     for y, vertex := range verts[:len(verts)-1] {
       // Create North triangle if needed.
       if needN(width, height, x, y) {
-        t := &triangle{}
+        t := &Triangle{}
+        board.Triangles = append(board.Triangles, t)
         if err := vertex.setT(t, North); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) N: %w", x, y, err)
         }
@@ -281,7 +384,8 @@ func New(width, height int) (*Board, error) {
       }
       // Create NorthEast triangle if needed.
       if needNE(width, height, x, y) {
-        t := &triangle{}
+        t := &Triangle{}
+        board.Triangles = append(board.Triangles, t)
         if err := vertex.setT(t, NorthEast); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW: %w", x, y, err)
         }

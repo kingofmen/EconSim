@@ -1,17 +1,52 @@
-package engine
+package pop
 
-type PopType int
+type Kind int
 
 const (
-  Peasant PopType = iota
+  Null Kind = iota
+  Peasant
   Bandit
   Burgher
   Merchant
   Knight
-  Noble
+  Noble  
 )
 
 type Pop struct {
-  kind PopType
+  kind Kind
 }
 
+func (p *Pop) GetKind() Kind {
+  if p == nil {
+    return Null
+  }
+  return p.kind
+}
+
+// String returns a human-readable string suitable for debugging.
+// It is not intended for display to users.
+func (k Kind) String() string {
+  switch k {
+  case Null:
+    return "Null"
+  case Peasant:
+    return "Peasant"
+  case Bandit:
+    return "Bandit"
+  case Burgher:
+    return "Burgher"
+  case Merchant:
+    return "Merchant"
+  case Knight:
+    return "Knight"
+  case Noble:
+    return "Noble"
+  }
+  return "BadKind"
+}
+
+func New(k Kind) *Pop {
+  return &Pop{
+    kind: k,
+  }
+}
