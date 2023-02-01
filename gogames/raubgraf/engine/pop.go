@@ -14,6 +14,7 @@ const (
 
 type Pop struct {
   kind Kind
+  hungry int
 }
 
 func (p *Pop) GetKind() Kind {
@@ -21,6 +22,24 @@ func (p *Pop) GetKind() Kind {
     return Null
   }
   return p.kind
+}
+
+func (p *Pop) Eat(food bool) {
+  if p == nil {
+    return
+  }
+  if food {
+    p.hungry = 0
+  } else {
+    p.hungry++
+  }
+}
+
+func (p *Pop) GetHunger() int {
+  if p == nil {
+    return 0
+  }
+  return p.hungry
 }
 
 // String returns a human-readable string suitable for debugging.
@@ -48,5 +67,6 @@ func (k Kind) String() string {
 func New(k Kind) *Pop {
   return &Pop{
     kind: k,
+    hungry: 0,
   }
 }

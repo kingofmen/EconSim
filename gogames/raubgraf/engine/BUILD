@@ -55,3 +55,14 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/pop",
 )
+
+go_test(
+    name = "pop_test",
+    srcs = [
+      "pop_test.go",
+    ],
+    importpath = "gogames/raubgraf/engine/pop",
+    embed = [
+      ":pop",
+    ],
+)
