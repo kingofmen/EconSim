@@ -49,34 +49,33 @@ func TestProduceFood(t *testing.T) {
     desc string
     workers int
     forest int
-    surplus int
+    production int
   } {
       {
         desc: "One peasant",
         workers: 1,
-        surplus: 3,
+        production: 4,
       },
       {
         desc: "Too much forest",
         forest: 5,
         workers: 1,
-        surplus: 0,
+        production: 0,
       },
       {
         desc: "No workers",
-        forest: 0,
       },
       {
         desc: "Forest is cleared",
         forest: 5,
         workers: 5,
-        surplus: 5,
+        production: 10,
       },
       {
         desc: "Subsistence",
         forest: 5,
         workers: 10,
-        surplus: 0,
+        production: 10,
       },
     }
 
@@ -90,8 +89,8 @@ func TestProduceFood(t *testing.T) {
         t.Errorf("%s: produceFood() => %v, want nil", cc.desc, err)
         return
       }
-      if got := tt.CountFood(); got != cc.surplus {
-        t.Errorf("%s: produceFood() => %d, want %d", cc.desc, got, cc.surplus)
+      if got := tt.CountFood(); got != cc.production {
+        t.Errorf("%s: produceFood() => %d, want %d", cc.desc, got, cc.production)
       }
     })
   }

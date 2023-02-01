@@ -39,6 +39,7 @@ func (g *RaubgrafGame) processTriangles(desc string, f func(t *board.Triangle) e
   return nil
 }
 
+// produceFood creates surplus food and places it into storage.
 func produceFood(t *board.Triangle) error {
   if t == nil {
     return nil
@@ -49,10 +50,9 @@ func produceFood(t *board.Triangle) error {
     return nil
   }
   if pc >= len(foodProduction) {
-    // Error?
-    pc = len(foodProduction)-2
+    pc = len(foodProduction)-1
   }
-  surplus := foodProduction[pc]
+  surplus := pc + foodProduction[pc]
   // TODO: Effects of weather, improvements.
 
   if err := t.AddFood(surplus); err != nil {
@@ -61,3 +61,4 @@ func produceFood(t *board.Triangle) error {
 
   return nil
 }
+
