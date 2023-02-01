@@ -7,9 +7,13 @@ import (
   "gogames/raubgraf/engine/pop"
 )
 
+const(
+  maxProduction = 4
+)
+
 var (
   // TODO: Probably this should be in a config file.
-  foodProduction = []int{0, 3, 5, 6, 6, 5, 4, 3, 2, 1, 0}
+  surplusProduction = []int{3, 2, 1}
 )
 
 type RaubgrafGame struct {
@@ -39,7 +43,15 @@ func (g *RaubgrafGame) processTriangles(desc string, f func(t *board.Triangle) e
   return nil
 }
 
-// produceFood creates surplus food and places it into storage.
+// intMin returns the minimum of a and b.
+func intMin(a, b int) int {
+  if a < b {
+    return a
+  }
+  return b
+}
+
+// produceFood creates food and places it into storage.
 func produceFood(t *board.Triangle) error {
   if t == nil {
     return nil
@@ -49,16 +61,19 @@ func produceFood(t *board.Triangle) error {
   if !t.IsFarm() {
     return nil
   }
-  if pc >= len(foodProduction) {
-    pc = len(foodProduction)-1
-  }
-  surplus := pc + foodProduction[pc]
-  // TODO: Effects of weather, improvements.
 
-  if err := t.AddFood(surplus); err != nil {
-    return fmt.Errorf("produceFood error when adding surplus: %w", err)
+  // TODO: Effects of weather, improvements.
+  production := intMin(pc, maxProduction)
+  for i, extra := range surplusProduction {
+    if i >= pc {
+      break
+    }
+    production += extra
+  }
+
+  if err := t.AddFood(production); err != nil {
+    return fmt.Errorf("produceFood error when storing food: %w", err)
   }
 
   return nil
 }
-
