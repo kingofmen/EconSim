@@ -204,6 +204,12 @@ type Triangle struct {
   improvements int
 }
 
+func NewTriangle(forest int) *Triangle {
+  return &Triangle{
+    overgrowth: forest,
+  }
+}
+
 func (t *Triangle) GetVertex(d Direction) *Vertex {
   if t == nil {
     return nil

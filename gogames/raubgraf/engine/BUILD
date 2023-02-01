@@ -12,6 +12,19 @@ go_library(
     ],
 )
 
+go_test(
+    name = "engine_test",
+    srcs = ["engine_test.go"],
+    importpath = "gogames/raubgraf/engine/engine",
+    embed = [
+      ":engine",
+    ],
+    deps = [
+      ":board",
+      ":pop",
+    ],
+)
+
 go_library(
     name = "board",
     srcs = [
