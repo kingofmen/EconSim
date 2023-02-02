@@ -98,3 +98,17 @@ func consumeLocalFood(t *board.Triangle) error {
   return t.AddFood(-consumed)
 }
 
+// ResolveTurn runs one tick of the game model.
+func (g *RaubgrafGame) ResolveTurn() error {
+  if err := g.valid(); err != nil {
+    return fmt.Errorf("ResolveTurn() validity error: %w", err)
+  }
+
+  if err := g.processTriangles("Produce food", produceFood); err != nil {
+    return err
+  }
+  if err := g.processTriangles("Consume food", consumeLocalFood); err != nil {
+    return err
+  }
+  return nil
+}
