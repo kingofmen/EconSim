@@ -319,10 +319,8 @@ func (t *Triangle) CountPops(filters ...pop.Filter) int {
   }
   count := 0
   for _, p := range t.population {
-    for _, f := range filters {
-      if f(p) {
-        count++
-      }
+    if p.Pass(filters...) {
+      count++
     }
   }
   return count
@@ -348,8 +346,24 @@ func (t *Triangle) AddPop(p *pop.Pop) {
 
 // Population returns a slice of the Pops living in the triangle.
 func (t* Triangle) Population() []*pop.Pop {
+  if t == nil {
+    return nil
+  }
   ret := make([]*pop.Pop, 0, len(t.population))
   ret = append(ret, t.population...)
+  return ret;
+}
+
+func (t *Triangle) FilteredPopulation(filters ...pop.Filter) []*pop.Pop {
+  if t == nil {
+    return nil
+  }
+  ret := make([]*pop.Pop, 0, len(t.population))
+  for _, pp := range t.population {
+    if pp.Pass(filters...) {
+      ret = append(ret, pp)
+    }
+  }
   return ret;
 }
 
