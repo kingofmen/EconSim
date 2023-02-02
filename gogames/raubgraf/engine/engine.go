@@ -100,7 +100,33 @@ func consumeLocalFood(t *board.Triangle) error {
 
 // banditry checks whether bandits steal outside their own triangle.
 func banditry(t *board.Triangle) error {
-  // TODO: Implement this when we have triangle-neighbour code.
+  hungryBandits := t.FilteredPopulation(pop.BanditFilter, pop.HungryFilter)
+  if len(hungryBandits) < 1 {
+    return nil
+  }
+
+  eaten := 0
+  for _, d := range board.TriDirs {
+    neighbour := t.GetNeighbour(d)
+    fmt.Printf("%s: %v\n", d, neighbour)
+    food := intMin(neighbour.CountFood(), len(hungryBandits)-eaten)
+    if food < 1 {
+      continue
+    }
+    if err := neighbour.AddFood(-food); err != nil {
+      return fmt.Errorf("error when bandits in %v stole %d food from %v: %w", t, food, neighbour)
+    }
+    fmt.Printf("Eating %d from %s\n", food, d)
+    for _, b := range hungryBandits[eaten:eaten+food] {
+      b.Eat(true)
+    }
+    eaten += food
+    if len(hungryBandits) <= eaten {
+      fmt.Printf("Exiting (%d)\n", eaten)
+      break
+    }
+  }
+
   return nil
 }
 

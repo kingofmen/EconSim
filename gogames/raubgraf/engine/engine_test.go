@@ -157,3 +157,77 @@ func TestConsumeFood(t *testing.T) {
     })
   }
 }
+
+func TestBanditry(t *testing.T) {
+  cases := []struct{
+    desc string
+    bandits int
+    hungry int
+    food [3]int
+    exp int
+  } {
+      {
+        desc: "One bandit, no food",
+        bandits: 1,
+        hungry: 1,
+        food: [3]int{0, 0, 0},
+        exp: 1,
+      },
+      {
+        desc: "One bandit, one food",
+        bandits: 1,
+        hungry: 1,
+        food: [3]int{0, 0, 1},
+        exp: 0,
+      },
+      {
+        desc: "Three bandits, scattered food",
+        bandits: 3,
+        hungry: 3,
+        food: [3]int{1, 1, 1},
+        exp: 0,
+      },
+      {
+        desc: "Three bandits, two hungry, scattered food",
+        bandits: 3,
+        hungry: 2,
+        food: [3]int{1, 1, 1},
+        exp: 0,
+      },
+      {
+        desc: "Three bandits, two food",
+        bandits: 3,
+        hungry: 3,
+        food: [3]int{2, 0, 0},
+        exp: 1,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      bb, err := board.New(3, 3)
+      if err != nil {
+        t.Fatalf("%s: Could not construct board: %v", cc.desc, err)
+      }
+      cave := bb.Triangles[1]
+      farm1 := cave.GetNeighbour(board.North)
+      farm2 := cave.GetNeighbour(board.SouthWest)
+      farm3 := cave.GetNeighbour(board.SouthEast)
+      for i := 0; i < cc.bandits; i++ {
+        bn := pop.New(pop.Bandit)
+        bn.Eat(i >= cc.hungry)
+        cave.AddPop(bn)
+      }
+
+      farm1.AddFood(cc.food[0])
+      farm2.AddFood(cc.food[1])
+      farm3.AddFood(cc.food[2])
+      if err := banditry(cave); err != nil {
+        t.Errorf("%s: banditry() => %v, want nil", cc.desc, err)
+      }
+      if got := cave.CountPops(pop.BanditFilter, pop.HungryFilter); got != cc.exp {
+        t.Errorf("%s: banditry() left %d bandits hungry, expect %d", cc.desc, got, cc.exp)
+      }
+    })
+  }
+}
