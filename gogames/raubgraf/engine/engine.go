@@ -56,7 +56,7 @@ func produceFood(t *board.Triangle) error {
   if t == nil {
     return nil
   }
-  pc := t.PopCount(pop.Peasant)
+  pc := t.CountKind(pop.Peasant)
   t.ClearLand(pc)
   if !t.IsFarm() {
     return nil
@@ -86,9 +86,9 @@ func consumeLocalFood(t *board.Triangle) error {
   food := t.CountFood()
   pops := t.Population()
   available := make(map[pop.Kind]int)
-  available[pop.Bandit] = intMin(food, t.PopCount(pop.Bandit))
+  available[pop.Bandit] = intMin(food, t.CountKind(pop.Bandit))
   food -= available[pop.Bandit]
-  available[pop.Peasant] = intMin(food, t.PopCount(pop.Peasant))
+  available[pop.Peasant] = intMin(food, t.CountKind(pop.Peasant))
   consumed := available[pop.Bandit] + available[pop.Peasant]
 
   for _, p := range pops {
@@ -99,7 +99,7 @@ func consumeLocalFood(t *board.Triangle) error {
 }
 
 // banditry checks whether bandits steal outside their own triangle.
-func (g *RaubgrafGame) banditry(t *board.Triangle) error {
+func banditry(t *board.Triangle) error {
   // TODO: Implement this when we have triangle-neighbour code.
   return nil
 }

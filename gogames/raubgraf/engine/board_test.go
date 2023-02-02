@@ -250,7 +250,7 @@ func TestTrianglePops(t *testing.T) {
     t.Run(cc.desc, func(t *testing.T) {
       tt := &Triangle{}
       for i, del := range cc.deltas {
-        exp := tt.PopCount(del.k)
+        exp := tt.CountKind(del.k)
         before := exp
         if del.add {
           tt.AddPop(pop.New(del.k))
@@ -269,8 +269,8 @@ func TestTrianglePops(t *testing.T) {
         if before == 0 && !del.add {
           exp = 0
         }
-        if after := tt.PopCount(del.k); after != exp {
-          t.Errorf("%s: PopCount(%s) => %d after delta (%v), want %d", cc.desc, del.k, after, del.add, exp)
+        if after := tt.CountKind(del.k); after != exp {
+          t.Errorf("%s: CountKind(%s) => %d after delta (%v), want %d", cc.desc, del.k, after, del.add, exp)
         }
       }
     })

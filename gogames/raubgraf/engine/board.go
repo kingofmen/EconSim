@@ -312,18 +312,27 @@ func (t *Triangle) CountForest() int {
   return t.overgrowth  
 }
 
-// PopCount returns the number of k-type Pops in the triangle.
-func (t *Triangle) PopCount(k pop.Kind) int {
+// CountPops returns the number of pops that pass all the filters.
+func (t *Triangle) CountPops(filters ...pop.Filter) int {
   if t == nil {
     return 0
   }
   count := 0
   for _, p := range t.population {
-    if p.GetKind() == k {
-      count++
+    for _, f := range filters {
+      if f(p) {
+        count++
+      }
     }
   }
   return count
+}
+
+// CountKind returns the number of k-type Pops in the triangle.
+func (t *Triangle) CountKind(k pop.Kind) int {
+  return CountPops(func(p *Pop) bool {
+    return p.GetKind() == k
+  })
 }
 
 // AddPop adds the provided pop to the population.
