@@ -98,16 +98,25 @@ func consumeLocalFood(t *board.Triangle) error {
   return t.AddFood(-consumed)
 }
 
+// banditry checks whether bandits steal outside their own triangle.
+func (g *RaubgrafGame) banditry(t *board.Triangle) error {
+  // TODO: Implement this when we have triangle-neighbour code.
+  return nil
+}
+
 // ResolveTurn runs one tick of the game model.
 func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.valid(); err != nil {
-    return fmt.Errorf("ResolveTurn() validity error: %w", err)
+    return fmt.Errorf("ResolveTurn validity error: %w", err)
   }
 
   if err := g.processTriangles("Produce food", produceFood); err != nil {
     return err
   }
   if err := g.processTriangles("Consume food", consumeLocalFood); err != nil {
+    return err
+  }
+  if err := g.processTriangles("Banditry", banditry); err != nil {
     return err
   }
   return nil
