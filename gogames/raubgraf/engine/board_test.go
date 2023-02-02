@@ -173,6 +173,38 @@ func TestNewBoard(t *testing.T) {
           }
         }
       }
+
+      upDirs := map[Direction]bool{NorthWest: true, NorthEast: true, South: true}
+      dnDirs := map[Direction]bool{SouthWest: true, SouthEast: true, North: true}
+      for idx, tt := range b.Triangles {
+        nCount := make(map[*Triangle]bool)
+        for _, d := range TriDirs {
+          n := tt.GetNeighbour(d)
+          if n == nil {
+            continue
+          }
+          if tt.pointsUp() {
+            if !upDirs[d] {
+              t.Errorf("New(%d, %d) => triangle(%d) (up) has unexpected neighbour %s", cc.w, cc.h, idx, d)
+            }
+          } else {
+            if !dnDirs[d] {
+              t.Errorf("New(%d, %d) => triangle(%d) (down) has unexpected neighbour %s", cc.w, cc.h, idx, d)
+            }
+          }
+          if nCount[n] {
+            t.Errorf("New(%d, %d) => triangle(%d) has duplicate neighbour %v", cc.w, cc.h, idx, n)
+          }
+          nCount[n] = true
+          opp := d.Opposite()
+          if back := n.GetNeighbour(opp); back != tt {
+            t.Errorf("New(%d, %d) => triangle(%d)->neighbour(%s)->neighbour(%s) is %v, expect original %v", cc.w, cc.h, idx, d, opp, back, tt)
+          }
+        }
+        if ns := len(nCount); ns < 1 || ns > 3 {
+          t.Errorf("New(%d, %d) => triangle(%d) has %d neighbours, expect 1-3", cc.w, cc.h, idx, ns)
+        }
+      }
     })
   }
 }

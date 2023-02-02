@@ -21,9 +21,9 @@ const (
   NorthWest
 )
 
-// Directions of triangles from a vertex (NB not vice-versa).
+// Directions of triangles from a vertex or triangle.
 var TriDirs = []Direction{North, NorthEast, SouthEast, South, SouthWest, NorthWest}
-// Directions of vertices from either vertex or triangle.
+// Directions of vertices from a vertex or triangle.
 var VtxDirs = []Direction{NorthWest, NorthEast, East, SouthEast, SouthWest, West}
 
 // String returns a human-readable string suitable for debugging.
@@ -194,6 +194,9 @@ type Triangle struct {
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
 
+  // Opposite of vertices.
+  neighbours [3]*Triangle
+
   // Level of forest.
   overgrowth int
 
@@ -202,11 +205,15 @@ type Triangle struct {
 
   // Capital improvements made.
   improvements int
+
+  // Points up or down?
+  points Direction
 }
 
-func NewTriangle(forest int) *Triangle {
+func NewTriangle(forest int, d Direction) *Triangle {
   return &Triangle{
     overgrowth: forest,
+    points: d,
   }
 }
 
@@ -215,23 +222,65 @@ func (t *Triangle) GetVertex(d Direction) *Vertex {
     return nil
   }
 
+  if t.pointsUp() {
+    switch d {
+    case North:
+      return t.vertices[0]
+    case SouthEast:
+      return t.vertices[1]
+    case SouthWest:
+      return t.vertices[2]
+    }
+    return nil
+  }
+
   switch d {
-  case North:
-    return t.vertices[0]
   case NorthWest:
     return t.vertices[0]
-  case SouthEast:
-    return t.vertices[1]
   case NorthEast:
     return t.vertices[1]
-  case SouthWest:
-    return t.vertices[2]
   case South:
     return t.vertices[2]
   }
   return nil
 }
 
+func (t *Triangle) GetNeighbour(d Direction) *Triangle {
+  if t == nil {
+    return nil
+  }
+
+  if t.pointsUp() {
+    switch d {
+    case NorthWest:
+      return t.neighbours[0]
+    case NorthEast:
+      return t.neighbours[1]
+    case South:
+      return t.neighbours[2]
+    }
+    return nil
+  }
+
+  switch d {
+  case North:
+    return t.neighbours[0]
+  case SouthEast:
+    return t.neighbours[1]
+  case SouthWest:
+    return t.neighbours[2]
+  }
+  return nil
+}
+
+// pointsUp returns true if the triangle is north-pointing.
+func (t *Triangle) pointsUp() bool {
+  if t == nil {
+    return false
+  }
+  return t.points == North
+}
+  
 // AddFood adds the provided amount of food to the farm,
 // which may be negative. An error is returned if the farm
 // would end up with negative food.
@@ -439,7 +488,7 @@ func New(width, height int) (*Board, error) {
     for y, vtx := range verts[:len(verts)-1] {
       // Create North triangle if needed.
       if needN(width, height, x, y) {
-        t := &Triangle{}
+        t := NewTriangle(0, South)
         board.Triangles = append(board.Triangles, t)
         if err := vtx.setT(t, North); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) N: %w", x, y, err)
@@ -454,10 +503,14 @@ func New(width, height int) (*Board, error) {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) N-NE: %w", x, y, err)
           }
         }
+        if nwt := vtx.GetTriangle(NorthWest); nwt != nil {
+          nwt.neighbours[1] = t
+          t.neighbours[2] = nwt
+        }
       }
       // Create NorthEast triangle if needed.
       if needNE(width, height, x, y) {
-        t := &Triangle{}
+        t := NewTriangle(0, North)
         board.Triangles = append(board.Triangles, t)
         if err := vtx.setT(t, NorthEast); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW: %w", x, y, err)
@@ -471,6 +524,14 @@ func New(width, height int) (*Board, error) {
           if err := e.setT(t, NorthWest); err != nil {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW-E: %w", x, y, err)
           }
+        }
+        if nt := vtx.GetTriangle(North); nt != nil {
+          nt.neighbours[1] = t
+          t.neighbours[0] = nt
+        }
+        if set := vtx.GetTriangle(SouthEast); set != nil {
+          set.neighbours[0] = t
+          t.neighbours[2] = set
         }
       }
     }

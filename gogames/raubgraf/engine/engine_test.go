@@ -81,7 +81,7 @@ func TestProduceFood(t *testing.T) {
 
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
-      tt := board.NewTriangle(cc.forest)
+      tt := board.NewTriangle(cc.forest, board.North)
       for w := 0; w < cc.workers; w++ {
         tt.AddPop(pop.New(pop.Peasant))
       }
@@ -130,7 +130,7 @@ func TestConsumeFood(t *testing.T) {
 
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
-      tt := board.NewTriangle(0)
+      tt := board.NewTriangle(0, board.North)
       if err := tt.AddFood(cc.food); err != nil {
         t.Fatalf("%s: AddFood(%d) => %v, want nil", cc.desc, cc.food, err)
         return
