@@ -18,6 +18,10 @@ func BanditFilter(p *Pop) bool {
   return p.GetKind() == Bandit
 }
 
+func PeasantFilter(p *Pop) bool {
+  return p.GetKind() == Peasant
+}
+
 func HungryFilter(p *Pop) bool {
   return p.GetHunger() > 0
 }
@@ -25,6 +29,19 @@ func HungryFilter(p *Pop) bool {
 type Pop struct {
   kind Kind
   hungry int
+}
+
+// Pass returns true if the pop passes all the filters.
+func (p *Pop) Pass(filters ...Filter) bool {
+  if p == nil {
+    return false
+  }
+  for _, f := range filters {
+    if !f(p) {
+      return false
+    }
+  }
+  return true
 }
 
 func (p *Pop) GetKind() Kind {

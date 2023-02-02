@@ -39,3 +39,69 @@ func TestHunger(t *testing.T) {
     }
   }
 }
+
+func TestFilters(t *testing.T) {
+  cases := []struct{
+    desc string
+    pp *Pop
+    filters []Filter
+    exp bool
+  } {
+      {
+        desc: "Empty pop, no filters",
+        pp: &Pop{},
+        filters: []Filter{},
+        exp: true,
+      },
+      {
+        desc: "Empty pop, bandit filter",
+        pp: &Pop{},
+        filters: []Filter{BanditFilter},
+        exp: false,
+      },
+      {
+        desc: "Hungry bandit",
+        pp: &Pop{
+          kind: Bandit,
+          hungry: 1,
+        },
+        filters: []Filter{BanditFilter, HungryFilter},
+        exp: true,
+      },
+      {
+        desc: "Hungry peasant",
+        pp: &Pop{
+          kind: Peasant,
+          hungry: 1,
+        },
+        filters: []Filter{BanditFilter, HungryFilter},
+        exp: false,
+      },
+      {
+        desc: "Peasant, bandit filter",
+        pp: &Pop{
+          kind: Peasant,
+          hungry: 1,
+        },
+        filters: []Filter{BanditFilter},
+        exp: false,
+      },
+      {
+        desc: "Peasant, peasant filter",
+        pp: &Pop{
+          kind: Peasant,
+          hungry: 1,
+        },
+        filters: []Filter{PeasantFilter},
+        exp: true,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      if got := cc.pp.Pass(cc.filters...); got != cc.exp {
+        t.Errorf("%s: Pass() => %v, want %v", cc.desc, got, cc.exp)
+      }
+    })
+  }
+}
