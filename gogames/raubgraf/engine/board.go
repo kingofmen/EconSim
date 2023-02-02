@@ -288,6 +288,13 @@ func (t *Triangle) AddPop(p *pop.Pop) {
   t.population = append(t.population, p)
 }
 
+// Population returns a slice of the Pops living in the triangle.
+func (t* Triangle) Population() []*pop.Pop {
+  ret := make([]*pop.Pop, 0, len(t.population))
+  ret = append(ret, t.population...)
+  return ret;
+}
+
 func (t *Triangle) RemovePop(k pop.Kind) *pop.Pop {
   if t == nil {
     return nil

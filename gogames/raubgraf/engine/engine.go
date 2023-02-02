@@ -77,3 +77,24 @@ func produceFood(t *board.Triangle) error {
 
   return nil
 }
+
+// consumeLocalFood uses stored food to feed the local Pops.
+func consumeLocalFood(t *board.Triangle) error {
+  if t == nil {
+    return nil
+  }
+  food := t.CountFood()
+  pops := t.Population()
+  available := make(map[pop.Kind]int)
+  available[pop.Bandit] = intMin(food, t.PopCount(pop.Bandit))
+  food -= available[pop.Bandit]
+  available[pop.Peasant] = intMin(food, t.PopCount(pop.Peasant))
+  consumed := available[pop.Bandit] + available[pop.Peasant]
+
+  for _, p := range pops {
+    p.Eat(available[p.GetKind()] > 0)
+    available[p.GetKind()]--
+  }
+  return t.AddFood(-consumed)
+}
+

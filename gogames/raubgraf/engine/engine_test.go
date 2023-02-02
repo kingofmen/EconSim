@@ -95,3 +95,65 @@ func TestProduceFood(t *testing.T) {
     })
   }
 }
+
+func TestConsumeFood(t *testing.T) {
+  cases := []struct{
+    desc string
+    food int
+    peasants int
+    bandits int
+    surplus int
+    hungry int
+  } {
+      {
+        desc: "basic peasants",
+        food: 5,
+        peasants: 4,
+        surplus: 1,
+      },
+      {
+        desc: "add bandits",
+        food: 5,
+        peasants: 4,
+        bandits: 1,
+        surplus: 0,
+      },
+      {
+        desc: "someone goes hungry",
+        food: 5,
+        peasants: 4,
+        bandits: 2,
+        surplus: 0,
+        hungry: 1,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      tt := board.NewTriangle(0)
+      if err := tt.AddFood(cc.food); err != nil {
+        t.Fatalf("%s: AddFood(%d) => %v, want nil", cc.desc, cc.food, err)
+        return
+      }
+      for i := 0; i < cc.peasants; i++ {
+        tt.AddPop(pop.New(pop.Peasant))
+      }
+      for i := 0; i < cc.bandits; i++ {
+        tt.AddPop(pop.New(pop.Bandit))
+      }
+      if err := consumeLocalFood(tt); err != nil {
+        t.Errorf("%s: consumeLocalFood() => %v, want nil", cc.desc, err)
+      }
+      if got := tt.CountFood(); got != cc.surplus {
+        t.Errorf("%s: consumeLocalFood() => surplus %d, want %d", cc.desc, got, cc.surplus)
+      }
+      hunger := 0
+      for _, pp := range tt.Population() {
+        hunger += pp.GetHunger()
+      }
+      if hunger != cc.hungry {
+        t.Errorf("%s: consumeLocalFood() => left %d hungry, want %d", cc.desc, hunger, cc.hungry)
+      }
+    })
+  }
+}
