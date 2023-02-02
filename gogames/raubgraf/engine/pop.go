@@ -12,6 +12,16 @@ const (
   Noble  
 )
 
+type Filter func(p *Pop) bool
+
+func BanditFilter(p *Pop) bool {
+  return p.GetKind() == Bandit
+}
+
+func HungryFilter(p *Pop) bool {
+  return p.GetHunger() > 0
+}
+
 type Pop struct {
   kind Kind
   hungry int
