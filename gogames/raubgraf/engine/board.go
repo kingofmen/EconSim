@@ -330,7 +330,7 @@ func (t *Triangle) CountPops(filters ...pop.Filter) int {
 
 // CountKind returns the number of k-type Pops in the triangle.
 func (t *Triangle) CountKind(k pop.Kind) int {
-  return CountPops(func(p *Pop) bool {
+  return t.CountPops(func(p *pop.Pop) bool {
     return p.GetKind() == k
   })
 }
