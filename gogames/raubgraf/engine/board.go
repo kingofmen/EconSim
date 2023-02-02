@@ -506,9 +506,10 @@ func New(width, height int) (*Board, error) {
     }
   }
 
-  for x, verts := range board.vertices {
-    // For each row, create northwards triangles.
-    for y, vtx := range verts[:len(verts)-1] {
+  for y := 0; y < height; y++ {
+    for x := 0; x < width; x++ {
+      // For each row, create northwards triangles.
+      vtx := board.vertices[x][y]
       // Create North triangle if needed.
       if needN(width, height, x, y) {
         t := NewTriangle(0, South)
