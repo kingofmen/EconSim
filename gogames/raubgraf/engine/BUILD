@@ -49,6 +49,25 @@ go_test(
 )
 
 go_library(
+    name = "econ",
+    srcs = [
+      "econ.go",
+    ],
+    importpath = "gogames/raubgraf/engine/econ",
+    deps = [
+    ],
+)
+
+go_test(
+    name = "econ_test",
+    srcs = ["econ_test.go"],
+    importpath = "gogames/raubgraf/engine/econ",
+    embed = [
+      ":econ",
+    ],
+)
+
+go_library(
     name = "pop",
     srcs = [
       "pop.go",
