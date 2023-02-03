@@ -173,5 +173,8 @@ func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.processTriangles("Banditry", banditry); err != nil {
     return err
   }
+  if err := g.processTriangles("Demographics", demographics); err != nil {
+    return err
+  }
   return nil
 }
