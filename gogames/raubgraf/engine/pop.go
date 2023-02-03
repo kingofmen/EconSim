@@ -26,9 +26,24 @@ func HungryFilter(p *Pop) bool {
   return p.GetHunger() > 0
 }
 
+func NotHungryFilter(p *Pop) bool {
+  return p.GetHunger() == 0
+}
+
 type Pop struct {
   kind Kind
   hungry int
+}
+
+// Copy returns a copy of the Pop.
+func (p *Pop) Copy() *Pop {
+  if p == nil {
+    return nil
+  }
+  return &Pop{
+    kind: p.kind,
+    hungry: p.hungry,
+  }
 }
 
 // Pass returns true if the pop passes all the filters.
