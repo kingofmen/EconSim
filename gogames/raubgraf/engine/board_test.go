@@ -256,13 +256,13 @@ func TestTrianglePops(t *testing.T) {
           tt.AddPop(pop.New(del.k))
           exp++
         } else {
-          rm := tt.RemovePop(del.k)
+          rm := tt.RemoveKind(del.k)
           expK := del.k
           if before == 0 {
             expK = pop.Null
           }
           if rmk := rm.GetKind(); rmk != expK {
-            t.Errorf("%s: %d RemovePop() => %s, want %s", cc.desc, i, rmk, expK)
+            t.Errorf("%s: %d RemoveKind() => %s, want %s", cc.desc, i, rmk, expK)
           }
           exp--
         }
@@ -359,5 +359,76 @@ func TestLandClearing(t *testing.T) {
     if farm := tt.IsFarm(); farm != (dd.exp == 0) {
       t.Errorf("ClearLand(%d): IsFarm() => %v, expect %d overgrowth", dd.pcs, farm, dd.exp)
     }
+  }
+}
+
+func TestPopFilters(t *testing.T) {
+  cases := []struct{
+    desc string
+    pops []*pop.Pop
+    filters []pop.Filter
+    first int
+    all []int
+  } {
+      {
+        desc: "No filters",
+        pops: []*pop.Pop{pop.New(pop.Peasant), pop.New(pop.Bandit)},
+        filters: []pop.Filter{},
+        first: 0,
+        all: []int{0, 1},
+      },
+      {
+        desc: "Hungry filter",
+        pops: []*pop.Pop{pop.New(pop.Peasant), pop.New(pop.Bandit)},
+        filters: []pop.Filter{pop.HungryFilter},
+        first: -1,
+        all: []int{},
+      },
+      {
+        desc: "Peasant",
+        pops: []*pop.Pop{pop.New(pop.Peasant), pop.New(pop.Peasant), pop.New(pop.Bandit)},
+        filters: []pop.Filter{pop.PeasantFilter},
+        first: 0,
+        all: []int{0, 1},
+      },
+      {
+        desc: "Bandit",
+        pops: []*pop.Pop{pop.New(pop.Peasant), pop.New(pop.Peasant), pop.New(pop.Bandit), pop.New(pop.Bandit)},
+        filters: []pop.Filter{pop.BanditFilter},
+        first: 2,
+        all: []int{2, 3},
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      tt := NewTriangle(0, North)
+      for _, p := range cc.pops {
+        tt.AddPop(p)
+      }
+
+      first := tt.FirstPop(cc.filters...)
+      if cc.first != -1 {
+        if first == nil || first != cc.pops[cc.first] {
+          t.Errorf("%s: FirstPop() => %v, expect pop %d", cc.desc, first, cc.first)
+        }
+      } else if first != nil {
+        t.Errorf("%s: FirstPop() => %v, expect nil", cc.desc, first)
+      }
+
+      got := tt.FilteredPopulation(cc.filters...)
+      if len(got) != len(cc.all) {
+        t.Errorf("%s: FilteredPopulation() => %d pops, expected %d: %v", cc.desc, len(got), len(cc.all), cc.all)
+      }
+      for idx, g := range got {
+        if idx >= len(cc.all) {
+          break
+        }
+        exp := cc.pops[cc.all[idx]]
+        if exp != g {
+          t.Errorf("%s: FilteredPopulation()[%d] => %v, expect index %d", cc.desc, idx, got, cc.all[idx])
+        }
+      }
+    })
   }
 }

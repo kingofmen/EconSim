@@ -354,6 +354,7 @@ func (t* Triangle) Population() []*pop.Pop {
   return ret;
 }
 
+// FilteredPopulation returns a slice of the Pops that pass the filters.
 func (t *Triangle) FilteredPopulation(filters ...pop.Filter) []*pop.Pop {
   if t == nil {
     return nil
@@ -367,7 +368,39 @@ func (t *Triangle) FilteredPopulation(filters ...pop.Filter) []*pop.Pop {
   return ret;
 }
 
-func (t *Triangle) RemovePop(k pop.Kind) *pop.Pop {
+// FirstPop returns the first Pop that passes the filters, if any.
+func (t *Triangle) FirstPop(filters ...pop.Filter) *pop.Pop {
+  if t == nil {
+    return nil
+  }
+  for _, pp := range t.population {
+    if pp.Pass(filters...) {
+      return pp
+    }
+  }
+  return nil
+}
+
+// RemovePop removes the provided pop, returning it if found.
+func (t *Triangle) RemovePop(p *pop.Pop) *pop.Pop {
+  if t == nil {
+    return nil
+  }
+
+  for i := len(t.population) - 1; i >= 0; i-- {
+    curr := t.population[i]
+    if curr != p {
+      continue
+    }
+    t.population = append(t.population[:i], t.population[i+1:]...)
+    return curr
+  }
+
+  return nil
+}
+
+// RemoveKind removes and returns the first pop of the given kind from the triangle.
+func (t *Triangle) RemoveKind(k pop.Kind) *pop.Pop {
   if t == nil {
     return nil
   }
