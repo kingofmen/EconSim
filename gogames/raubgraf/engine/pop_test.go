@@ -95,6 +95,24 @@ func TestFilters(t *testing.T) {
         filters: []Filter{PeasantFilter},
         exp: true,
       },
+      {
+        desc: "Hungry peasant, not-hungry filter",
+        pp: &Pop{
+          kind: Peasant,
+          hungry: 1,
+        },
+        filters: []Filter{NotHungryFilter},
+        exp: false,
+      },
+      {
+        desc: "Peasant, not-hungry filter",
+        pp: &Pop{
+          kind: Peasant,
+          hungry: 0,
+        },
+        filters: []Filter{NotHungryFilter},
+        exp: true,
+      },
     }
 
   for _, cc := range cases {
@@ -105,3 +123,4 @@ func TestFilters(t *testing.T) {
     })
   }
 }
+
