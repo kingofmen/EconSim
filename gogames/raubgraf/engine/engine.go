@@ -14,6 +14,8 @@ const(
 var (
   // TODO: Probably this should be in a config file.
   surplusProduction = []int{3, 2, 1}
+  starveLevel = 3
+  newPopFood = 2
 )
 
 type RaubgrafGame struct {
@@ -124,6 +126,35 @@ func banditry(t *board.Triangle) error {
     }
   }
 
+  return nil
+}
+
+// demographics removes starving pops and breeds well-fed ones.
+func demographics(t *board.Triangle) error {
+  if t == nil {
+    return nil
+  }
+
+  hungry := t.FilteredPopulation(pop.HungryFilter)
+  for _, pp := range hungry {
+    if pp.GetHunger() < starveLevel {
+      continue
+    }
+    t.RemovePop(pp)
+  }
+
+  if t.CountFood() < newPopFood {
+    return nil
+  }
+
+  cand := t.FirstPop(pop.PeasantFilter, pop.NotHungryFilter)
+  if cand == nil {
+    return nil
+  }
+  if err := t.AddFood(-newPopFood); err != nil {
+    return err
+  }
+  t.AddPop(cand.Copy())
   return nil
 }
 

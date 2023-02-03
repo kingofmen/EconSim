@@ -231,3 +231,71 @@ func TestBanditry(t *testing.T) {
     })
   }
 }
+
+func TestDemographics(t *testing.T) {
+  cases := []struct {
+    desc string
+    pops []pop.Kind
+    hunger []int
+    food int
+    change map[pop.Kind]int
+  } {
+      {
+        desc: "No change (hungry)",
+        pops: []pop.Kind{pop.Peasant, pop.Peasant},
+        hunger: []int{1, 1},
+        food: 5,
+        change: map[pop.Kind]int{pop.Peasant: 0},
+      },
+      {
+        desc: "No change (not enough food)",
+        pops: []pop.Kind{pop.Peasant, pop.Peasant},
+        hunger: []int{0, 0},
+        food: 0,
+        change: map[pop.Kind]int{pop.Peasant: 0},
+      },
+      {
+        desc: "Increase with bandits",
+        pops: []pop.Kind{pop.Bandit, pop.Peasant, pop.Peasant},
+        hunger: []int{1, 1, 0},
+        food: 5,
+        change: map[pop.Kind]int{pop.Peasant: 1, pop.Bandit: 0},
+      },
+      {
+        desc: "Drastic starvation",
+        pops: []pop.Kind{pop.Peasant, pop.Peasant, pop.Bandit, pop.Bandit},
+        hunger: []int{3, 1, 3, 1},
+        food: 5,
+        change: map[pop.Kind]int{pop.Peasant: -1, pop.Bandit: -1},
+      },
+    }
+
+  for _, cc := range cases {
+    if len(cc.pops) != len(cc.hunger) {
+      t.Fatalf("%s: Bad test case, %v mismatches %v", cc.desc, cc.pops, cc.hunger)
+    }
+    tt := board.NewTriangle(0, board.North)
+    if err := tt.AddFood(cc.food); err != nil {
+      t.Fatalf("%s: AddFood() => %v, require nil", cc.desc, err)
+    }
+    start := make(map[pop.Kind]int)
+    for idx, k := range cc.pops {
+      start[k]++
+      pp := pop.New(k)
+      for i := 0; i < cc.hunger[idx]; i++ {
+        pp.Eat(false)
+      }
+      tt.AddPop(pp)
+    }
+    if err := demographics(tt); err != nil {
+      t.Errorf("%s: demographics() => %v, want nil", cc.desc, err)
+    }
+    for k, s := range start {
+      exp := s + cc.change[k]
+      got := tt.CountKind(k)
+      if exp != got {
+        t.Errorf("%s: demographics() => %d %ss, want %d", cc.desc, got, k, exp)
+      }
+    }
+  }
+}
