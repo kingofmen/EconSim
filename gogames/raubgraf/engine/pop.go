@@ -14,22 +14,27 @@ const (
 
 type Filter func(p *Pop) bool
 
+// BanditFilter passes pops that are bandits.
 func BanditFilter(p *Pop) bool {
   return p.GetKind() == Bandit
 }
 
+// PeasantFilter passes pops that are peasants.
 func PeasantFilter(p *Pop) bool {
   return p.GetKind() == Peasant
 }
 
+// HungryFilter passes pops that are hungry.
 func HungryFilter(p *Pop) bool {
   return p.GetHunger() > 0
 }
 
+// NotHungryFilter passes pops that are not hungry.
 func NotHungryFilter(p *Pop) bool {
   return p.GetHunger() == 0
 }
 
+// Pop models a group of several dozen humans.
 type Pop struct {
   kind Kind
   hungry int
@@ -59,6 +64,7 @@ func (p *Pop) Pass(filters ...Filter) bool {
   return true
 }
 
+// GetKind returns the pop's kind.
 func (p *Pop) GetKind() Kind {
   if p == nil {
     return Null
@@ -66,6 +72,8 @@ func (p *Pop) GetKind() Kind {
   return p.kind
 }
 
+// Eat either resets the hunger level of the pop to zero, or increases it,
+// depending on whether it's eating food or not.
 func (p *Pop) Eat(food bool) {
   if p == nil {
     return
@@ -77,6 +85,7 @@ func (p *Pop) Eat(food bool) {
   }
 }
 
+// GetHunger returns the hunger level of the pop.
 func (p *Pop) GetHunger() int {
   if p == nil {
     return 0
@@ -106,6 +115,7 @@ func (k Kind) String() string {
   return "BadKind"
 }
 
+// New returns a pop of the provided kind.
 func New(k Kind) *Pop {
   return &Pop{
     kind: k,
