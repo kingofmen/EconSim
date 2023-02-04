@@ -120,6 +120,7 @@ func (d Direction) Opposite() Direction {
   panic(fmt.Errorf("Opposite received unknown direction %v", d))
 }
 
+// Vertex is one point of a triangle; it may contain a castle or city.
 type Vertex struct {
   // At the map border some triangles may be nil.
   triangles [6]*Triangle
@@ -167,6 +168,8 @@ func (v *Vertex) setT(t *Triangle, d Direction) error {
   return nil
 }
 
+// GetTriangle returns the triangle in the given direction from the vertex,
+// if any. Note that vertices have between one and six triangles.
 func (v *Vertex) GetTriangle(d Direction) *Triangle {
   if v == nil {
     return nil
@@ -188,6 +191,7 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
   return nil
 }
 
+// Triangle models a board segment defined by three vertices. It implements FoodStore.
 type Triangle struct {
   // Permanent inhabitants - peasants or bandits.
   population []*pop.Pop
@@ -201,7 +205,7 @@ type Triangle struct {
   // Level of forest.
   overgrowth int
 
-  // Surplus food available.
+  // Stored food.
   food int
 
   // Capital improvements made.
@@ -214,6 +218,7 @@ type Triangle struct {
   contract *econ.Contract
 }
 
+// NewTriangle returns a new triangle with the provided growth and pointing.
 func NewTriangle(forest int, d Direction) *Triangle {
   return &Triangle{
     overgrowth: forest,
@@ -221,6 +226,7 @@ func NewTriangle(forest int, d Direction) *Triangle {
   }
 }
 
+// GetContract returns the rent agreement for the triangle, if any.
 func (t *Triangle) GetContract() *econ.Contract {
   if t == nil {
     return nil
@@ -228,6 +234,7 @@ func (t *Triangle) GetContract() *econ.Contract {
   return t.contract
 }
 
+// SetContract sets the rent.
 func (t *Triangle) SetContract(c *econ.Contract) {
   if t == nil {
     return
@@ -235,6 +242,8 @@ func (t *Triangle) SetContract(c *econ.Contract) {
   t.contract = c
 }
 
+// GetVertex returns the vertex in the given direction, if any.
+// Note that all triangles have exactly three vertices.
 func (t *Triangle) GetVertex(d Direction) *Vertex {
   if t == nil {
     return nil
@@ -263,6 +272,8 @@ func (t *Triangle) GetVertex(d Direction) *Vertex {
   return nil
 }
 
+// GetNeighbour returns the triangle in the given direction, if any.
+// All triangles have at least one and at most three neighbours.
 func (t *Triangle) GetNeighbour(d Direction) *Triangle {
   if t == nil {
     return nil
@@ -316,6 +327,7 @@ func (t *Triangle) AddFood(a int) error {
   return nil
 }
 
+// CountFood returns the amount of stored food in the triangle.
 func (t* Triangle) CountFood() int {
   if t == nil {
     return 0
@@ -323,6 +335,7 @@ func (t* Triangle) CountFood() int {
   return t.food
 }
 
+// CountForest returns the overgrowth level of the triangle.
 func (t *Triangle) CountForest() int {
   if t == nil {
     return 0
@@ -460,6 +473,7 @@ func (t *Triangle) ClearLand(pc int) {
   }
 }
 
+// Board is a container for the game surface, consisting of triangles and vertices.
 type Board struct {
   vertices [][]*Vertex
   Triangles []*Triangle
@@ -516,6 +530,7 @@ func (b *Board) neighbour(x, y int, d Direction) *Vertex {
   return nil
 }
 
+// needN returns true if the vertex at (x, y) should construct a triangle to its North.
 func needN(width, height, x, y int) bool {
   if y >= height-1 {
     return false
@@ -529,6 +544,7 @@ func needN(width, height, x, y int) bool {
   return true
 }
 
+// needNE returns true if the vertex at (x, y) should construct a triangle to its NorthEast.
 func needNE(width, height, x, y int) bool {
   if y >= height-1 {
     return false
