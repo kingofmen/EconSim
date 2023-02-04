@@ -32,6 +32,7 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/board",
     deps = [
+      ":econ",
       ":pop",
     ],
 )
@@ -64,6 +65,9 @@ go_test(
     importpath = "gogames/raubgraf/engine/econ",
     embed = [
       ":econ",
+    ],
+    deps = [
+      ":board",
     ],
 )
 
