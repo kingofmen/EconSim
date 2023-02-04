@@ -80,6 +80,35 @@ func produceFood(t *board.Triangle) error {
   return nil
 }
 
+// move processes Pop movement.
+func move(t *board.Triangle) error {
+  // TODO: Implement
+  return nil
+}
+
+// fight resolves any battles in the triangle.
+func fight(t *board.Triangle) error {
+  // TODO: Implement
+  return nil
+}
+
+// payRent makes peasants pay castles for protection.
+func payRent(t *board.Triangle) error {
+  if t == nil {
+    return nil
+  }
+
+  con := t.GetContract()
+  if con == nil {
+    return nil
+  }
+  if err := con.Execute(); err != nil {
+    // TODO: Probably the landlord should do something about this.
+    return nil
+  }
+  return nil
+}
+
 // consumeLocalFood uses stored food to feed the local Pops.
 func consumeLocalFood(t *board.Triangle) error {
   if t == nil {
@@ -158,23 +187,6 @@ func demographics(t *board.Triangle) error {
   return nil
 }
 
-// payRent makes peasants pay castles for protection.
-func payRent(t *board.Triangle) error {
-  if t == nil {
-    return nil
-  }
-
-  con := t.GetContract()
-  if con == nil {
-    return nil
-  }
-  if err := con.Execute(); err != nil {
-    // TODO: Probably the landlord should do something about this.
-    return nil
-  }
-  return nil
-}
-
 // ResolveTurn runs one tick of the game model.
 func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.valid(); err != nil {
@@ -182,6 +194,12 @@ func (g *RaubgrafGame) ResolveTurn() error {
   }
 
   if err := g.processTriangles("Produce food", produceFood); err != nil {
+    return err
+  }
+  if err := g.processTriangles("Move", move); err != nil {
+    return err
+  }
+  if err := g.processTriangles("Fight!", fight); err != nil {
     return err
   }
   if err := g.processTriangles("Pay rent", payRent); err != nil {
