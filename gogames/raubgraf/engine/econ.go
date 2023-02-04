@@ -15,6 +15,34 @@ type Contract struct {
   fAmount int
 }
 
+func NewContract() *Contract{
+  return &Contract{}
+}
+
+func (c *Contract) WithFoodSource(fs FoodStore) *Contract {
+  if c == nil {
+    c = NewContract()
+  }
+  c.fSource = fs
+  return c
+}
+
+func (c *Contract) WithFoodTarget(fs FoodStore) *Contract {
+  if c == nil {
+    c = NewContract()
+  }
+  c.fTarget = fs
+  return c
+}
+
+func (c *Contract) WithFoodAmount(am int) *Contract {
+  if c == nil {
+    c = NewContract()
+  }
+  c.fAmount = am
+  return c
+}
+
 func (c *Contract) Execute() error {
   if c == nil {
     return nil

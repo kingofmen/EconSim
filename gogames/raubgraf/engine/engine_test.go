@@ -5,6 +5,7 @@ import (
   "testing"
 
   "gogames/raubgraf/engine/board"
+  "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
 )
 
@@ -297,5 +298,49 @@ func TestDemographics(t *testing.T) {
         t.Errorf("%s: demographics() => %d %ss, want %d", cc.desc, got, k, exp)
       }
     }
+  }
+}
+
+func TestPayRent(t *testing.T) {
+  cases := []struct {
+    desc string
+    start int
+    transfer int
+    end int
+  } {
+      {
+        desc: "No food",
+        start: 0,
+        transfer: 1,
+        end: 0,
+      },
+      {
+        desc: "Food",
+        start: 1,
+        transfer: 1,
+        end: 1,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func (t *testing.T) {
+      b, err := board.New(2, 2)
+      if err != nil {
+        t.Fatalf("%s: Could not create board: %v", cc.desc, err)
+      }
+      rich := b.Triangles[0]
+      poor := b.Triangles[1]
+      poor.AddFood(cc.start)
+      poor.SetContract(econ.NewContract().WithFoodSource(poor).WithFoodTarget(rich).WithFoodAmount(cc.transfer))
+      if err := payRent(poor); err != nil {
+        t.Errorf("%s: payRent() => %v, expect nil", cc.desc, err)
+      }
+      if f := poor.CountFood(); f != 0 {
+        t.Errorf("%s: payRent() => poor triangle has %d food, expect 0", cc.desc, f)
+      }
+      if f := rich.CountFood(); f != cc.end {
+        t.Errorf("%s payRent() => rich triangle has %d food, expect %d", cc.desc, f, cc.end)
+      }
+    })
   }
 }

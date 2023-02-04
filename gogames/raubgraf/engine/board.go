@@ -3,6 +3,7 @@ package board
 import (
   "fmt"
 
+  "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
 )
 
@@ -208,6 +209,9 @@ type Triangle struct {
 
   // Points up or down?
   points Direction
+
+  // Feudal obligations.
+  contract *econ.Contract
 }
 
 func NewTriangle(forest int, d Direction) *Triangle {
@@ -215,6 +219,20 @@ func NewTriangle(forest int, d Direction) *Triangle {
     overgrowth: forest,
     points: d,
   }
+}
+
+func (t *Triangle) GetContract() *econ.Contract {
+  if t == nil {
+    return nil
+  }
+  return t.contract
+}
+
+func (t *Triangle) SetContract(c *econ.Contract) {
+  if t == nil {
+    return
+  }
+  t.contract = c
 }
 
 func (t *Triangle) GetVertex(d Direction) *Vertex {

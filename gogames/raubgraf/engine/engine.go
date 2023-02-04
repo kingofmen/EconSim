@@ -158,6 +158,23 @@ func demographics(t *board.Triangle) error {
   return nil
 }
 
+// payRent makes peasants pay castles for protection.
+func payRent(t *board.Triangle) error {
+  if t == nil {
+    return nil
+  }
+
+  con := t.GetContract()
+  if con == nil {
+    return nil
+  }
+  if err := con.Execute(); err != nil {
+    // TODO: Probably the landlord should do something about this.
+    return nil
+  }
+  return nil
+}
+
 // ResolveTurn runs one tick of the game model.
 func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.valid(); err != nil {
@@ -165,6 +182,9 @@ func (g *RaubgrafGame) ResolveTurn() error {
   }
 
   if err := g.processTriangles("Produce food", produceFood); err != nil {
+    return err
+  }
+  if err := g.processTriangles("Pay rent", payRent); err != nil {
     return err
   }
   if err := g.processTriangles("Consume food", consumeLocalFood); err != nil {

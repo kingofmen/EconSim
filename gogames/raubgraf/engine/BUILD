@@ -21,6 +21,7 @@ go_test(
     ],
     deps = [
       ":board",
+      ":econ",
       ":pop",
     ],
 )
