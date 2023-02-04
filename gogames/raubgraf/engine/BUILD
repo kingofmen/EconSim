@@ -101,3 +101,17 @@ go_library(
       ":pop",
     ],
 )
+
+go_test(
+    name = "war_test",
+    srcs = [
+      "war_test.go",
+    ],
+    importpath = "gogames/raubgraf/engine/war",
+    embed = [
+      ":war",
+    ],
+    deps = [
+      ":pop",
+    ],
+)
