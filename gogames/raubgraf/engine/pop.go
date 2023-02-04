@@ -1,6 +1,7 @@
 package pop
 
 type Kind int
+type Action int
 
 const (
   Null Kind = iota
@@ -9,7 +10,12 @@ const (
   Burgher
   Merchant
   Knight
-  Noble  
+  Noble
+
+  Unknown Action = iota
+  Banditry
+  Labour
+  Levy
 )
 
 type Filter func(p *Pop) bool
@@ -22,6 +28,25 @@ func AvailableFilter(p *Pop) bool {
 // BanditFilter passes pops that are bandits.
 func BanditFilter(p *Pop) bool {
   return p.GetKind() == Bandit
+}
+
+// FightingFilter passes pops that will fight this turn.
+func FightingFilter(p *Pop) bool {
+  if p == nil {
+    return false
+  }
+
+  switch p.GetKind() {
+  case Peasant:
+    // Peasants fight only if they are raised as militia.
+    return p.action == Levy
+  default:
+    // All other pops fight at all times.
+    // TODO: Probably not!
+    return true
+  }
+
+  return false
 }
 
 // HungryFilter passes pops that are hungry.
@@ -44,6 +69,14 @@ type Pop struct {
   kind Kind
   hungry int
   busy bool
+  action Action
+}
+
+func (p *Pop) Activity() Action {
+  if p == nil {
+    return Unknown
+  }
+  return p.action
 }
 
 // Busy returns true if the Pop has acted.
@@ -61,6 +94,20 @@ func (p *Pop) Clear() {
     return
   }
   p.busy = false
+  p.action = defaultAction(p.kind)
+}
+
+// defaultAction returns the default activity for the pop type.
+func defaultAction(k Kind) Action {
+  switch k {
+  case Peasant:
+    return Labour
+  case Bandit:
+    return Banditry
+  default:
+    return Unknown
+  }
+  return Unknown  
 }
 
 // Copy returns a copy of the Pop.
@@ -114,6 +161,14 @@ func (p *Pop) GetHunger() int {
     return 0
   }
   return p.hungry
+}
+
+// SetAction sets the pop's activity for the turn.
+func (p *Pop) SetAction(act Action) {
+  if p == nil {
+    return
+  }
+  p.action = act
 }
 
 // Work sets the pop's busy state, returning false if it was already busy.
