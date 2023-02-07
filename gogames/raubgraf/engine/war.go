@@ -63,6 +63,43 @@ type FieldUnit struct {
   state UnitState
 }
 
+// NewUnit returns a new default unit.
+func NewUnit() *FieldUnit {
+  return &FieldUnit{
+    drill: 0,
+    equip: 0,
+    mount: 0,
+    state: Fresh,
+  }
+}
+
+// WithDrill sets the unit's drill level.
+func (u *FieldUnit) WithDrill(d int) *FieldUnit {
+  if u == nil {
+    u = NewUnit()
+  }
+  u.drill = d
+  return u
+}
+
+// WithEquipment sets the unit's equipment.
+func (u *FieldUnit) WithEquipment(e int) *FieldUnit {
+  if u == nil {
+    u = NewUnit()
+  }
+  u.equip = e
+  return u
+}
+
+// WithMount sets the unit's mount.
+func (u *FieldUnit) WithMount(m int) *FieldUnit {
+  if u == nil {
+    u = NewUnit()
+  }
+  u.mount = m
+  return u
+}
+
 // modifier returns a combat-power modifier.
 func (s UnitState) modifier() float64 {
   switch s {
