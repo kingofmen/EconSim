@@ -1,5 +1,9 @@
 package pop
 
+import(
+  "gogames/raubgraf/engine/war"
+)
+
 type Kind int
 type Action int
 
@@ -74,6 +78,8 @@ type Pop struct {
   hungry int
   busy bool
   action Action
+
+  levy *war.FieldUnit
 }
 
 func (p *Pop) Activity() Action {
@@ -175,6 +181,15 @@ func (p *Pop) SetAction(act Action) {
   p.action = act
 }
 
+// Mobilise returns the pop's levy.
+func (p *Pop) Mobilise() *war.FieldUnit {
+  if p == nil {
+    return nil
+  }
+  // TODO: Add WithFoo calls depending on Pop state.
+  return p.levy
+}
+
 // Work sets the pop's busy state, returning false if it was already busy.
 func (p *Pop) Work() bool {
   if p == nil {
@@ -213,5 +228,6 @@ func New(k Kind) *Pop {
     kind: k,
     hungry: 0,
     busy: false,
+    levy: war.NewUnit(),
   }
 }

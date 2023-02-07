@@ -78,6 +78,9 @@ go_library(
       "pop.go",
     ],
     importpath = "gogames/raubgraf/engine/pop",
+    deps = [
+      ":war",
+    ],
 )
 
 go_test(
