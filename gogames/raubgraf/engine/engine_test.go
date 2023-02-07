@@ -344,3 +344,73 @@ func TestPayRent(t *testing.T) {
     })
   }
 }
+
+func TestFight(t *testing.T) {
+  cases := []struct {
+    desc string
+    pops []*pop.Pop
+    levies int
+    busy int
+  } {
+      {
+        desc: "One bandit, no levies, raid succeeds",
+        pops: []*pop.Pop{
+          pop.New(pop.Bandit),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+        },
+        levies: 0,
+        busy: 0,
+      },
+      {
+        desc: "One bandit, full levies, raid driven off",
+        pops: []*pop.Pop{
+          pop.New(pop.Bandit),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+        },
+        levies: 4,
+        busy: 1,
+      },
+      {
+        desc: "Bandits and levies evenly matched, partial success",
+        pops: []*pop.Pop{
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+        },
+        levies: 2,
+        busy: 1,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      tt := board.NewTriangle(0, board.North)
+      for _, p := range cc.pops {
+        tt.AddPop(p)
+      }
+      peasants := tt.FilteredPopulation(pop.PeasantFilter)
+      for idx, p := range peasants {
+        if idx < cc.levies {
+          p.SetAction(pop.Levy)
+        }
+      }
+      if err := fight(tt); err != nil {
+        t.Errorf("%s: fight() => %v, want nil", cc.desc, err)
+      }
+      got := tt.FilteredPopulation(pop.BanditFilter, pop.BusyFilter)
+      if len(got) != cc.busy {
+        t.Errorf("%s: fight() made %d bandits busy, expect %d", cc.desc, len(got), cc.busy)
+      }
+    })
+  }
+
+}

@@ -5,6 +5,7 @@ import (
 
   "gogames/raubgraf/engine/board"
   "gogames/raubgraf/engine/pop"
+  "gogames/raubgraf/engine/war"
 )
 
 const(
@@ -16,6 +17,20 @@ var (
   surplusProduction = []int{3, 2, 1}
   starveLevel = 3
   newPopFood = 2
+
+  // Slightly off from precise fractions so that we don't rely on, e.g.,
+  // 0.5*2 equalling 1 in floating-points.
+  banditSuccess = map[war.BattleResult]float64{
+    war.Standoff: -0.001,
+    war.BreakContact: 1.0,
+    war.Disaster: -0.001,
+    war.Loss: 0.199,
+    war.MinorLoss: 0.333,
+    war.Draw: 0.499,
+    war.MinorVictory: 1.01,
+    war.Victory: 1.01,
+    war.Overrun: 1.01,
+  }
 )
 
 type RaubgrafGame struct {
@@ -86,9 +101,37 @@ func move(t *board.Triangle) error {
   return nil
 }
 
+// mobilise returns the levies of the provided Pops.
+func mobilise(pops []*pop.Pop) []*war.FieldUnit {
+  ret := make([]*war.FieldUnit, 0, len(pops))
+  for _, p := range pops {
+    if u := p.Mobilise(); u != nil {
+      ret = append(ret, u)
+    }
+  }
+  return ret
+}
+
 // fight resolves any battles in the triangle.
 func fight(t *board.Triangle) error {
-  // TODO: Implement
+  // Check for bandit raiding.
+  bandits := t.FilteredPopulation(pop.BanditFilter, pop.AvailableFilter)
+  peasants := t.FilteredPopulation(pop.PeasantFilter, pop.FightingFilter)
+
+  if len(bandits) * len(peasants) > 0 {
+    raiders, militia := mobilise(bandits), mobilise(peasants)
+    // TODO: Casualties.
+    // Battle result decides how many bandits get food.
+    result := war.Battle(raiders, militia)
+    hungryFrac := banditSuccess[result]
+    for idx, b := range bandits {
+      if float64(idx) >= hungryFrac*float64(len(bandits)) {
+        break
+      }
+      b.Work()
+    }
+  }
+
   return nil
 }
 
@@ -117,7 +160,8 @@ func consumeLocalFood(t *board.Triangle) error {
   food := t.CountFood()
   pops := t.Population()
   available := make(map[pop.Kind]int)
-  available[pop.Bandit] = intMin(food, t.CountKind(pop.Bandit))
+  // Bandits marked 'busy' are the ones who were defeated in battle earlier.
+  available[pop.Bandit] = intMin(food, t.CountPops(pop.BanditFilter, pop.AvailableFilter))
   food -= available[pop.Bandit]
   available[pop.Peasant] = intMin(food, t.CountKind(pop.Peasant))
   consumed := available[pop.Bandit] + available[pop.Peasant]

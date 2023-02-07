@@ -9,6 +9,7 @@ go_library(
     deps = [
       ":board",
       ":pop",
+      ":war",
     ],
 )
 

@@ -34,6 +34,11 @@ func BanditFilter(p *Pop) bool {
   return p.GetKind() == Bandit
 }
 
+// BusyFilter passes pops that cannot act.
+func BusyFilter(p *Pop) bool {
+  return p.Busy()
+}
+
 // FightingFilter passes pops that are able to fight.
 func FightingFilter(p *Pop) bool {
   if p == nil {
