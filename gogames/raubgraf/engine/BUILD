@@ -97,9 +97,6 @@ go_library(
       "war.go",
     ],
     importpath = "gogames/raubgraf/engine/war",
-    deps = [
-      ":pop",
-    ],
 )
 
 go_test(
@@ -110,8 +107,5 @@ go_test(
     importpath = "gogames/raubgraf/engine/war",
     embed = [
       ":war",
-    ],
-    deps = [
-      ":pop",
     ],
 )
