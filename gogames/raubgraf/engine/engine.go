@@ -18,18 +18,20 @@ var (
   starveLevel = 3
   newPopFood = 2
 
+  // banditryFail gives the fraction of bandits that cannot steal food
+  // after each battle result.
   // Slightly off from precise fractions so that we don't rely on, e.g.,
   // 0.5*2 equalling 1 in floating-points.
-  banditSuccess = map[war.BattleResult]float64{
-    war.Standoff: -0.001,
-    war.BreakContact: 1.0,
-    war.Disaster: -0.001,
-    war.Loss: 0.199,
-    war.MinorLoss: 0.333,
+  banditryFail = map[war.BattleResult]float64{
+    war.Standoff: 1.01,
+    war.BreakContact: 1.01,
+    war.Disaster: 1.01,
+    war.Loss: 0.799,
+    war.MinorLoss: 0.667,
     war.Draw: 0.499,
-    war.MinorVictory: 1.01,
-    war.Victory: 1.01,
-    war.Overrun: 1.01,
+    war.MinorVictory: -0.01,
+    war.Victory: -0.01,
+    war.Overrun: -0.01,
   }
 )
 
@@ -123,7 +125,8 @@ func fight(t *board.Triangle) error {
     // TODO: Casualties.
     // Battle result decides how many bandits get food.
     result := war.Battle(raiders, militia)
-    hungryFrac := banditSuccess[result]
+    hungryFrac := banditryFail[result]
+    fmt.Printf("Battle result: %s => %.2f\n", result, hungryFrac)
     for idx, b := range bandits {
       if float64(idx) >= hungryFrac*float64(len(bandits)) {
         break
