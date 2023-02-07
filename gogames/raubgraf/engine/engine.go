@@ -75,7 +75,7 @@ func produceFood(t *board.Triangle) error {
   if t == nil {
     return nil
   }
-  pc := t.CountKind(pop.Peasant)
+  pc := t.CountPops(pop.PeasantFilter, pop.AvailableFilter)
   t.ClearLand(pc)
   if !t.IsFarm() {
     return nil

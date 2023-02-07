@@ -51,6 +51,7 @@ func TestProduceFood(t *testing.T) {
     workers int
     forest int
     production int
+    busy int
   } {
       {
         desc: "One peasant",
@@ -78,13 +79,33 @@ func TestProduceFood(t *testing.T) {
         workers: 10,
         production: 10,
       },
+      {
+        desc: "Baseline for two workers",
+        workers: 2,
+        production: 7,
+      },
+      {
+        desc: "Some busy workers",
+        workers: 2,
+        production: 4,
+        busy: 1,
+      },
+      {
+        desc: "All busy",
+        workers: 2,
+        busy: 2,
+      },
     }
 
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
       tt := board.NewTriangle(cc.forest, board.North)
       for w := 0; w < cc.workers; w++ {
-        tt.AddPop(pop.New(pop.Peasant))
+        p := pop.New(pop.Peasant)
+        if w < cc.busy {
+          p.Work()
+        }
+        tt.AddPop(p)
       }
       if err := produceFood(tt); err != nil {
         t.Errorf("%s: produceFood() => %v, want nil", cc.desc, err)
