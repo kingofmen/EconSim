@@ -30,9 +30,13 @@ func BanditFilter(p *Pop) bool {
   return p.GetKind() == Bandit
 }
 
-// FightingFilter passes pops that will fight this turn.
+// FightingFilter passes pops that are able to fight.
 func FightingFilter(p *Pop) bool {
   if p == nil {
+    return false
+  }
+
+  if p.Busy() {
     return false
   }
 
@@ -41,7 +45,7 @@ func FightingFilter(p *Pop) bool {
     // Peasants fight only if they are raised as militia.
     return p.action == Levy
   default:
-    // All other pops fight at all times.
+    // All other pops fight at all times if they can.
     // TODO: Probably not!
     return true
   }
