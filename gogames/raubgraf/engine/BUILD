@@ -28,12 +28,24 @@ go_test(
 )
 
 go_library(
+    name = "building",
+    srcs = [
+      "building.go",
+    ],
+    importpath = "gogames/raubgraf/engine/building",
+    deps = [
+      ":pop",
+    ],
+)
+
+go_library(
     name = "board",
     srcs = [
       "board.go",
     ],
     importpath = "gogames/raubgraf/engine/board",
     deps = [
+      ":building",
       ":econ",
       ":pop",
     ],

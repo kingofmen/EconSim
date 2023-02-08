@@ -3,6 +3,7 @@ package board
 import (
   "fmt"
 
+  "gogames/raubgraf/engine/building"
   "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
 )
@@ -122,6 +123,9 @@ func (d Direction) Opposite() Direction {
 
 // Vertex is one point of a triangle; it may contain a castle or city.
 type Vertex struct {
+  // A castle or city.
+  settlement *building.Building
+
   // At the map border some triangles may be nil.
   triangles [6]*Triangle
 }
