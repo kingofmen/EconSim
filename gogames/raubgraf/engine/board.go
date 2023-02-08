@@ -191,7 +191,8 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
   return nil
 }
 
-// Triangle models a board segment defined by three vertices. It implements FoodStore.
+// Triangle models a board segment defined by three vertices.
+// It implements FoodStore and embeds Dwelling.
 type Triangle struct {
   *pop.Dwelling
   
