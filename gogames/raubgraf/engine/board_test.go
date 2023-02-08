@@ -248,7 +248,7 @@ func TestTrianglePops(t *testing.T) {
 
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
-      tt := &Triangle{}
+      tt := NewTriangle(0, North)
       for i, del := range cc.deltas {
         exp := tt.CountKind(del.k)
         before := exp

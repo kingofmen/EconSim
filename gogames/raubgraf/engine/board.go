@@ -193,9 +193,8 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 
 // Triangle models a board segment defined by three vertices. It implements FoodStore.
 type Triangle struct {
-  // Permanent inhabitants - peasants or bandits.
-  population pop.List
-
+  *pop.Dwelling
+  
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
 
@@ -221,6 +220,7 @@ type Triangle struct {
 // NewTriangle returns a new triangle with the provided growth and pointing.
 func NewTriangle(forest int, d Direction) *Triangle {
   return &Triangle{
+    Dwelling: pop.NewDwelling(),
     overgrowth: forest,
     points: d,
   }
@@ -341,92 +341,6 @@ func (t *Triangle) CountForest() int {
     return 0
   }
   return t.overgrowth  
-}
-
-// CountPops returns the number of pops that pass all the filters.
-func (t *Triangle) CountPops(filters ...pop.Filter) int {
-  if t == nil {
-    return 0
-  }
-  return t.population.Count(filters...)
-}
-
-// CountKind returns the number of k-type Pops in the triangle.
-func (t *Triangle) CountKind(k pop.Kind) int {
-  return t.CountPops(func(p *pop.Pop) bool {
-    return p.GetKind() == k
-  })
-}
-
-// AddPop adds the provided pop to the population.
-func (t *Triangle) AddPop(p *pop.Pop) {
-  if t == nil {
-    return
-  }
-  if p == nil {
-    return
-  }
-  t.population = append(t.population, p)
-}
-
-// Population returns a slice of the Pops living in the triangle.
-func (t* Triangle) Population() pop.List {
-  if t == nil {
-    return nil
-  }
-  ret := make(pop.List, 0, len(t.population))
-  ret = append(ret, t.population...)
-  return ret;
-}
-
-// FilteredPopulation returns a slice of the Pops that pass the filters.
-func (t *Triangle) FilteredPopulation(filters ...pop.Filter) pop.List {
-  if t == nil {
-    return nil
-  }
-  return t.population.Filter(filters...)
-}
-
-// FirstPop returns the first Pop that passes the filters, if any.
-func (t *Triangle) FirstPop(filters ...pop.Filter) *pop.Pop {
-  if t == nil {
-    return nil
-  }
-  return t.population.First(filters...)
-}
-
-// RemovePop removes the provided pop, returning it if found.
-func (t *Triangle) RemovePop(p *pop.Pop) *pop.Pop {
-  if t == nil {
-    return nil
-  }
-
-  for i := len(t.population) - 1; i >= 0; i-- {
-    curr := t.population[i]
-    if curr != p {
-      continue
-    }
-    t.population = append(t.population[:i], t.population[i+1:]...)
-    return curr
-  }
-
-  return nil
-}
-
-// RemoveKind removes and returns the first pop of the given kind from the triangle.
-func (t *Triangle) RemoveKind(k pop.Kind) *pop.Pop {
-  if t == nil {
-    return nil
-  }
-  for i := len(t.population) - 1; i >= 0; i-- {
-    curr := t.population[i]
-    if curr.GetKind() != k {
-      continue
-    }
-    t.population = append(t.population[:i], t.population[i+1:]...)
-    return curr
-  }
-  return nil
 }
 
 // IsFarm returns true if the triangle can be farmed.

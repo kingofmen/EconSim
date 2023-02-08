@@ -24,6 +24,9 @@ const (
 
 type Filter func(p *Pop) bool
 type List []*Pop
+type Dwelling struct {
+  pops List
+}
 
 // AvailableFilter passes pops that have not acted this turn.
 func AvailableFilter(p *Pop) bool {
@@ -78,6 +81,13 @@ func PeasantFilter(p *Pop) bool {
   return p.GetKind() == Peasant
 }
 
+// NewDwelling returns an empty Dwelling object.
+func NewDwelling() *Dwelling {
+  return &Dwelling{
+    pops: List{},
+  }
+}
+
 // Count returns the number of Pops that pass the provided filters.
 func (l List) Count(filters ...Filter) int {
   count := 0
@@ -107,6 +117,92 @@ func (l List) First(filters ...Filter) *Pop {
       return pp
     }
   }
+  return nil
+}
+
+// AddPop adds the provided pop to the population.
+func (d *Dwelling) AddPop(p *Pop) {
+  if d == nil {
+    return
+  }
+  if p == nil {
+    return
+  }
+  d.pops = append(d.pops, p)
+}
+
+// CountKind returns the number of k-type Pops.
+func (d *Dwelling) CountKind(k Kind) int {
+  return d.CountPops(func(p *Pop) bool {
+    return p.GetKind() == k
+  })
+}
+
+// CountPops returns the number of pops that pass all the filters.
+func (d *Dwelling) CountPops(filters ...Filter) int {
+  if d == nil {
+    return 0
+  }
+  return d.pops.Count(filters...)
+}
+
+// FirstPop returns the first Pop that passes the filters, if any.
+func (d *Dwelling) FirstPop(filters ...Filter) *Pop {
+  if d == nil {
+    return nil
+  }
+  return d.pops.First(filters...)
+}
+
+// FilteredPopulation returns a slice of the Pops that pass the filters.
+func (d *Dwelling) FilteredPopulation(filters ...Filter) List {
+  if d == nil {
+    return nil
+  }
+  return d.pops.Filter(filters...)
+}
+
+// Population returns a slice of the Pops.
+func (d *Dwelling) Population() List {
+  if d == nil {
+    return nil
+  }
+  ret := make(List, 0, len(d.pops))
+  ret = append(ret, d.pops...)
+  return ret;
+}
+
+// RemoveKind removes and returns the first Pop of the given kind.
+func (d *Dwelling) RemoveKind(k Kind) *Pop {
+  if d == nil {
+    return nil
+  }
+  for i := len(d.pops) - 1; i >= 0; i-- {
+    curr := d.pops[i]
+    if curr.GetKind() != k {
+      continue
+    }
+    d.pops = append(d.pops[:i], d.pops[i+1:]...)
+    return curr
+  }
+  return nil
+}
+
+// RemovePop removes the provided pop, returning it if found.
+func (d *Dwelling) RemovePop(p *Pop) *Pop {
+  if d == nil {
+    return nil
+  }
+
+  for i := len(d.pops) - 1; i >= 0; i-- {
+    curr := d.pops[i]
+    if curr != p {
+      continue
+    }
+    d.pops = append(d.pops[:i], d.pops[i+1:]...)
+    return curr
+  }
+
   return nil
 }
 
@@ -203,7 +299,7 @@ func (p *Pop) Eat(food bool) {
   }
 }
 
-// GetHunger returns the hunger level of the pop.
+// GetHunger returns the hunger level of the Pop.
 func (p *Pop) GetHunger() int {
   if p == nil {
     return 0
