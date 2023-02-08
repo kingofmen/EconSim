@@ -23,6 +23,7 @@ const (
 )
 
 type Filter func(p *Pop) bool
+type List []*Pop
 
 // AvailableFilter passes pops that have not acted this turn.
 func AvailableFilter(p *Pop) bool {
@@ -75,6 +76,38 @@ func NotHungryFilter(p *Pop) bool {
 // PeasantFilter passes pops that are peasants.
 func PeasantFilter(p *Pop) bool {
   return p.GetKind() == Peasant
+}
+
+// Count returns the number of Pops that pass the provided filters.
+func (l List) Count(filters ...Filter) int {
+  count := 0
+  for _, pp := range l {
+    if pp.Pass(filters...) {
+      count++
+    }
+  }
+  return count
+}
+
+// Filter returns those Pops that pass the provided filters.
+func (l List) Filter(filters ...Filter) List {
+  ret := make(List, 0, len(l))
+  for _, pp := range l {
+    if pp.Pass(filters...) {
+      ret = append(ret, pp)
+    }
+  }
+  return ret;
+}
+
+// First returns the first Pop that passes the filters, if any.
+func (l List) First(filters ...Filter) *Pop {
+  for _, pp := range l {
+    if pp.Pass(filters...) {
+      return pp
+    }
+  }
+  return nil
 }
 
 // Pop models a group of several dozen humans.

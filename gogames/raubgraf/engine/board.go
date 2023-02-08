@@ -194,7 +194,7 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 // Triangle models a board segment defined by three vertices. It implements FoodStore.
 type Triangle struct {
   // Permanent inhabitants - peasants or bandits.
-  population []*pop.Pop
+  population pop.List
 
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
@@ -348,13 +348,7 @@ func (t *Triangle) CountPops(filters ...pop.Filter) int {
   if t == nil {
     return 0
   }
-  count := 0
-  for _, p := range t.population {
-    if p.Pass(filters...) {
-      count++
-    }
-  }
-  return count
+  return t.population.Count(filters...)
 }
 
 // CountKind returns the number of k-type Pops in the triangle.
@@ -376,27 +370,21 @@ func (t *Triangle) AddPop(p *pop.Pop) {
 }
 
 // Population returns a slice of the Pops living in the triangle.
-func (t* Triangle) Population() []*pop.Pop {
+func (t* Triangle) Population() pop.List {
   if t == nil {
     return nil
   }
-  ret := make([]*pop.Pop, 0, len(t.population))
+  ret := make(pop.List, 0, len(t.population))
   ret = append(ret, t.population...)
   return ret;
 }
 
 // FilteredPopulation returns a slice of the Pops that pass the filters.
-func (t *Triangle) FilteredPopulation(filters ...pop.Filter) []*pop.Pop {
+func (t *Triangle) FilteredPopulation(filters ...pop.Filter) pop.List {
   if t == nil {
     return nil
   }
-  ret := make([]*pop.Pop, 0, len(t.population))
-  for _, pp := range t.population {
-    if pp.Pass(filters...) {
-      ret = append(ret, pp)
-    }
-  }
-  return ret;
+  return t.population.Filter(filters...)
 }
 
 // FirstPop returns the first Pop that passes the filters, if any.
@@ -404,12 +392,7 @@ func (t *Triangle) FirstPop(filters ...pop.Filter) *pop.Pop {
   if t == nil {
     return nil
   }
-  for _, pp := range t.population {
-    if pp.Pass(filters...) {
-      return pp
-    }
-  }
-  return nil
+  return t.population.First(filters...)
 }
 
 // RemovePop removes the provided pop, returning it if found.
