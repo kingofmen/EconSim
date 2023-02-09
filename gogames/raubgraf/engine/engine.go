@@ -35,6 +35,9 @@ var (
   }
 )
 
+type vFunc func(v *board.Vertex) error
+type tFunc func(t *board.Triangle) error
+
 type RaubgrafGame struct {
   world *board.Board
 }
@@ -49,8 +52,26 @@ func (g *RaubgrafGame) valid() error {
   return nil
 }
 
+// processBoard applies the provided functions to every vertex and triangle.
+func (g *RaubgrafGame) processBoard(desc string, vf vFunc, tf tFunc, tFirst bool) error {
+  if tFirst {
+    if err := g.processTriangles(desc, tf); err != nil {
+      return err
+    }
+  }
+  if err := g.processVertices(desc, vf); err != nil {
+    return err
+  }
+  if !tFirst {
+    if err := g.processTriangles(desc, tf); err != nil {
+      return err
+    }
+  }
+  return nil
+}
+
 // processTriangles applies the provided function to every triangle.
-func (g *RaubgrafGame) processTriangles(desc string, f func(t *board.Triangle) error) error {
+func (g *RaubgrafGame) processTriangles(desc string, f tFunc) error {
   if err := g.valid(); err != nil {
     return fmt.Errorf("processTriangles(%s) validity error: %w", desc, err)
   }
@@ -63,7 +84,7 @@ func (g *RaubgrafGame) processTriangles(desc string, f func(t *board.Triangle) e
 }
 
 // processVertices applies the provided function to every vertex.
-func (g *RaubgrafGame) processVertices(desc string, f func(v *board.Vertex) error) error {
+func (g *RaubgrafGame) processVertices(desc string, f vFunc) error {
   if err := g.valid(); err != nil {
     return fmt.Errorf("processTriangles(%s) validity error: %w", desc, err)
   }
@@ -83,6 +104,32 @@ func intMin(a, b int) int {
     return a
   }
   return b
+}
+
+// clearT makes the triangle ready for a new turn.
+func clearT(t *board.Triangle) error {
+  // TODO: Implement.
+  return nil
+}
+
+// clearT makes the vertex ready for a new turn.
+func clearV(v *board.Vertex) error {
+  // TODO: Implement.
+  return nil
+}
+
+// popsThinkT runs the Pop AI (for Triangle denizens) where not
+// overridden by incoming commands.
+func popsThinkT(t *board.Triangle) error {
+  // TODO: Implement.
+  return nil
+}
+
+// popsThinkV runs the Pop AI (for Vertex inhabitants) where not
+// overridden by incoming commands.
+func popsThinkV(v *board.Vertex) error {
+  // TODO: Implement.
+  return nil
 }
 
 // produceFood creates food and places it into storage.
@@ -255,6 +302,12 @@ func (g *RaubgrafGame) ResolveTurn() error {
     return fmt.Errorf("ResolveTurn validity error: %w", err)
   }
 
+  if err := g.processBoard("Clear state", clearV, clearT, false); err != nil {
+    return err
+  }
+  if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
+    return err
+  }
   if err := g.processTriangles("Produce food", produceFood); err != nil {
     return err
   }
