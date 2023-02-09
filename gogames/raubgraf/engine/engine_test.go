@@ -410,6 +410,20 @@ func TestFight(t *testing.T) {
         levies: 2,
         busy: 1,
       },
+      {
+        desc: "Bandits opposed by a knight",
+        pops: []*pop.Pop{
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Knight),
+        },
+        busy: 3,
+      },
     }
 
   for _, cc := range cases {

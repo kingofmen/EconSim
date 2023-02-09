@@ -338,6 +338,10 @@ func (p *Pop) Mobilise() *war.FieldUnit {
     return nil
   }
   // TODO: Add WithFoo calls depending on Pop state.
+  if p.GetKind() == Knight {
+    // TODO: This is a placeholder for an Actual Model of mobilisation.
+    p.levy = p.levy.WithMount(6).WithDrill(1)
+  }
   return p.levy
 }
 

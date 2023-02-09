@@ -117,8 +117,9 @@ func mobilise(pops []*pop.Pop) []*war.FieldUnit {
 // fight resolves any battles in the triangle.
 func fight(t *board.Triangle) error {
   // Check for bandit raiding.
-  bandits := t.FilteredPopulation(pop.BanditFilter, pop.AvailableFilter)
-  peasants := t.FilteredPopulation(pop.PeasantFilter, pop.FightingFilter)
+  bandits := t.FilteredPopulation(pop.BanditFilter, pop.FightingFilter)
+  // Peasants are joined by any knights who have decided to defend this farm.
+  peasants := t.FilteredPopulation(pop.KindsFilter(pop.Peasant, pop.Knight), pop.FightingFilter)
 
   if len(bandits) * len(peasants) > 0 {
     raiders, militia := mobilise(bandits), mobilise(peasants)
@@ -126,7 +127,6 @@ func fight(t *board.Triangle) error {
     // Battle result decides how many bandits get food.
     result := war.Battle(raiders, militia)
     hungryFrac := banditryFail[result]
-    fmt.Printf("Battle result: %s => %.2f\n", result, hungryFrac)
     for idx, b := range bandits {
       if float64(idx) >= hungryFrac*float64(len(bandits)) {
         break
