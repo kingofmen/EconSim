@@ -265,6 +265,8 @@ func defaultAction(k Kind) Action {
     return Labour
   case Bandit:
     return Banditry
+  case Knight:
+    return Levy
   default:
     return Unknown
   }
