@@ -71,6 +71,23 @@ func HungryFilter(p *Pop) bool {
   return p.GetHunger() > 0
 }
 
+// KindsFilter returns a filter that passes the given kinds.
+func KindsFilter(kinds ...Kind) Filter {
+  return func(p *Pop) bool {
+    for _, k := range kinds {
+      if p.GetKind() == k {
+        return true
+      }
+    }
+    return false
+  }
+}
+
+// KnightFilter passes pops that are knights.
+func KnightFilter(p *Pop) bool {
+  return p.GetKind() == Knight
+}
+
 // NotHungryFilter passes pops that are not hungry.
 func NotHungryFilter(p *Pop) bool {
   return p.GetHunger() == 0

@@ -113,6 +113,22 @@ func TestFilters(t *testing.T) {
         filters: []Filter{NotHungryFilter},
         exp: true,
       },
+      {
+        desc: "Noble, KindsFilter with noble",
+        pp: &Pop{
+          kind: Noble,
+        },
+        filters: []Filter{KindsFilter(Peasant, Knight, Noble)},
+        exp: true,
+      },
+      {
+        desc: "Noble, KindsFilter without",
+        pp: &Pop{
+          kind: Noble,
+        },
+        filters: []Filter{KindsFilter(Peasant, Knight)},
+        exp: false,
+      },
     }
 
   for _, cc := range cases {
