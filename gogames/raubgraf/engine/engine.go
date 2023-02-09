@@ -54,9 +54,24 @@ func (g *RaubgrafGame) processTriangles(desc string, f func(t *board.Triangle) e
   if err := g.valid(); err != nil {
     return fmt.Errorf("processTriangles(%s) validity error: %w", desc, err)
   }
-  for _, t := range g.world.Triangles {
+  for i, t := range g.world.Triangles {
     if err := f(t); err != nil {
-      return fmt.Errorf("while processing (%s) triangles: %w", desc, err)
+      return fmt.Errorf("while processing (%s) triangle %d: %w", desc, i, err)
+    }
+  }
+  return nil
+}
+
+// processVertices applies the provided function to every vertex.
+func (g *RaubgrafGame) processVertices(desc string, f func(v *board.Vertex) error) error {
+  if err := g.valid(); err != nil {
+    return fmt.Errorf("processTriangles(%s) validity error: %w", desc, err)
+  }
+  for x, verts := range g.world.Vertices {
+    for y, v := range verts {
+      if err := f(v); err != nil {
+        return fmt.Errorf("while processing (%s) vertex (%d, %d): %w", desc, x, y, err)
+      }
     }
   }
   return nil
