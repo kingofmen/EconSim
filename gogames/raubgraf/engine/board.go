@@ -377,7 +377,7 @@ func (t *Triangle) ClearLand(pc int) {
 
 // Board is a container for the game surface, consisting of triangles and vertices.
 type Board struct {
-  vertices [][]*Vertex
+  Vertices [][]*Vertex
   Triangles []*Triangle
 }
 
@@ -389,13 +389,13 @@ func (b *Board) GetVertex(x, y int) *Vertex {
   if x < 0 || y < 0 {
     return nil
   }
-  if x >= len(b.vertices) {
+  if x >= len(b.Vertices) {
     return nil
   }
-  if y >= len(b.vertices[x]) {
+  if y >= len(b.Vertices[x]) {
     return nil
   }
-  return b.vertices[x][y]
+  return b.Vertices[x][y]
 }
 
 // VertexAt returns the vertex at the coordinates vc.
@@ -464,34 +464,34 @@ func New(width, height int) (*Board, error) {
   if width < 2 || height < 2 {
     return nil, fmt.Errorf("NewBoard received bad (width, height) = (%d, %d)", width, height)
   }
-  board := &Board{
-    vertices: make([][]*Vertex, width),
+  brd := &Board{
+    Vertices: make([][]*Vertex, width),
     Triangles: make([]*Triangle, 0, width*height),
   }
-  for x := range board.vertices {
-    board.vertices[x] = make([]*Vertex, height)
-    for y := range board.vertices[x] {
-      board.vertices[x][y] = &Vertex{}
+  for x := range brd.Vertices {
+    brd.Vertices[x] = make([]*Vertex, height)
+    for y := range brd.Vertices[x] {
+      brd.Vertices[x][y] = &Vertex{}
     }
   }
 
   for y := 0; y < height; y++ {
     for x := 0; x < width; x++ {
       // For each row, create northwards triangles.
-      vtx := board.vertices[x][y]
+      vtx := brd.Vertices[x][y]
       // Create North triangle if needed.
       if needN(width, height, x, y) {
         t := NewTriangle(0, South)
-        board.Triangles = append(board.Triangles, t)
+        brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, North); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) N: %w", x, y, err)
         }
-        if nw := board.neighbour(x, y, NorthWest); nw != nil {
+        if nw := brd.neighbour(x, y, NorthWest); nw != nil {
           if err := nw.setT(t, SouthEast); err != nil {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) N-NW: %w", x, y, err)
           }
         }
-        if nw := board.neighbour(x, y, NorthEast); nw != nil {
+        if nw := brd.neighbour(x, y, NorthEast); nw != nil {
           if err := nw.setT(t, SouthWest); err != nil {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) N-NE: %w", x, y, err)
           }
@@ -504,16 +504,16 @@ func New(width, height int) (*Board, error) {
       // Create NorthEast triangle if needed.
       if needNE(width, height, x, y) {
         t := NewTriangle(0, North)
-        board.Triangles = append(board.Triangles, t)
+        brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, NorthEast); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW: %w", x, y, err)
         }
-        if nw := board.neighbour(x, y, NorthEast); nw != nil {
+        if nw := brd.neighbour(x, y, NorthEast); nw != nil {
           if err := nw.setT(t, South); err != nil {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW-S: %w", x, y, err)
           }
         }
-        if e := board.neighbour(x, y, East); e != nil {
+        if e := brd.neighbour(x, y, East); e != nil {
           if err := e.setT(t, NorthWest); err != nil {
             return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW-E: %w", x, y, err)
           }
@@ -530,5 +530,5 @@ func New(width, height int) (*Board, error) {
     }
   }
   
-  return board, nil
+  return brd, nil
 }
