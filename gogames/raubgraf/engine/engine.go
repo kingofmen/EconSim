@@ -52,7 +52,43 @@ func (g *RaubgrafGame) valid() error {
   return nil
 }
 
+// processPops applies the provided function to every Pop.
+// This may occur in any order.
+func (g *RaubgrafGame) processPops(desc string, f func(p *pop.Pop) error) error {
+  if err := g.valid(); err != nil {
+    return fmt.Errorf("processPops(%s) validity error: %w", desc, err)
+  }
+
+  count := 0
+  for ti, t := range g.world.Triangles {
+    tPops := t.Population()
+    for pi, p := range tPops {
+      count++
+      if err := f(p); err != nil {
+        return fmt.Errorf("while processing (%s) pop %d (%d in triangle %d): %w", desc, count, pi, ti, err)
+      }
+    }
+  }
+  for x, vtxs := range g.world.Vertices {
+    for y, vtx := range vtxs {
+      s := vtx.GetSettlement()
+      if s == nil {
+        continue
+      }
+      vPops := s.Population()
+      for pi, p := range vPops {
+        count++
+        if err := f(p); err != nil {
+          return fmt.Errorf("while processing (%s) pop %d (%d in vertex (%d, %d)): %w", desc, count, pi, x, y, err)
+        }
+      }
+    }
+  }
+  return nil
+}
+
 // processBoard applies the provided functions to every vertex and triangle.
+// If tFirst is set, triangles are processed before vertices.
 func (g *RaubgrafGame) processBoard(desc string, vf vFunc, tf tFunc, tFirst bool) error {
   if tFirst {
     if err := g.processTriangles(desc, tf); err != nil {
@@ -104,18 +140,6 @@ func intMin(a, b int) int {
     return a
   }
   return b
-}
-
-// clearT makes the triangle ready for a new turn.
-func clearT(t *board.Triangle) error {
-  // TODO: Implement.
-  return nil
-}
-
-// clearT makes the vertex ready for a new turn.
-func clearV(v *board.Vertex) error {
-  // TODO: Implement.
-  return nil
 }
 
 // popsThinkT runs the Pop AI (for Triangle denizens) where not
@@ -302,7 +326,10 @@ func (g *RaubgrafGame) ResolveTurn() error {
     return fmt.Errorf("ResolveTurn validity error: %w", err)
   }
 
-  if err := g.processBoard("Clear state", clearV, clearT, false); err != nil {
+  if err := g.processPops("Clear pops", func(p *pop.Pop) error {
+    p.Clear()
+    return nil
+  }); err != nil {
     return err
   }
   if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {

@@ -141,6 +141,14 @@ type tCoord struct {
   dir Direction
 }
 
+// GetSettlement returns the settlement in the vertex, if any.
+func (v *Vertex) GetSettlement() *building.Building {
+  if v == nil {
+    return nil
+  }
+  return v.settlement
+}
+
 // setT sets the triangle t in direction d.
 func (v *Vertex) setT(t *Triangle, d Direction) error {
   if v == nil || t == nil {
