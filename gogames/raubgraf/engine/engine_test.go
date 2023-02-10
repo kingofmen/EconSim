@@ -449,3 +449,93 @@ func TestFight(t *testing.T) {
   }
 
 }
+
+func TestTrianglePopThinking(t *testing.T) {
+  cases := []struct{
+    desc string
+    pops []*pop.Pop
+    forest int
+    workers int
+    levy int
+  } {
+      {
+        desc: "No bandits, max workers",
+        pops: []*pop.Pop{
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+        },
+        forest: 3,
+        workers: 6,
+      },
+      {
+        desc: "One bandit, six peasants",
+        pops: []*pop.Pop{
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Bandit),
+        },
+        workers: 4,
+        levy: 2,
+      },
+      {
+        desc: "One bandit, two peasants",
+        pops: []*pop.Pop{
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Bandit),
+        },
+        workers: 2,
+      },
+      {
+        desc: "Bandit horde, fighting hopeless",
+        pops: []*pop.Pop{
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Peasant),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+          pop.New(pop.Bandit),
+        },
+        workers: 6,
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      tt := board.NewTriangle(cc.forest, board.North)
+      for _, p := range cc.pops {
+        p.Clear()
+        tt.AddPop(p)
+      }
+      if ps := tt.CountPops(pop.PeasantFilter); ps != cc.workers + cc.levy {
+        t.Fatalf("%s: Found %d peasants after setup, expect %d workers and %d levy", cc.desc, ps, cc.workers, cc.levy)
+      }
+      if err := popsThinkT(tt); err != nil {
+        t.Fatalf("%s: popsThinkT() => %v, want nil", cc.desc, err)
+      }
+      if gotL := tt.CountPops(pop.PeasantFilter, pop.FightingFilter); gotL != cc.levy {
+        t.Errorf("%s: popsThinkT() gave %d levies, want %d", cc.desc, gotL, cc.levy)
+      }
+      if gotW := tt.CountPops(pop.PeasantFilter, pop.LabourFilter); gotW != cc.workers {
+        t.Errorf("%s: popsThinkT() gave %d workers, want %d", cc.desc, gotW, cc.workers)
+      }
+    })
+  }
+}

@@ -2,6 +2,7 @@ package engine
 
 import (
   "fmt"
+  "math"
 
   "gogames/raubgraf/engine/board"
   "gogames/raubgraf/engine/pop"
@@ -145,7 +146,38 @@ func intMin(a, b int) int {
 // popsThinkT runs the Pop AI (for Triangle denizens) where not
 // overridden by incoming commands.
 func popsThinkT(t *board.Triangle) error {
-  // TODO: Implement.
+  // Peasants decide whether to work or defend against bandit raids.
+  peasants := t.FilteredPopulation(pop.PeasantFilter)
+  bandits := t.FilteredPopulation(pop.BanditFilter)
+
+  // Peasants want to maximise effective food production.
+  // They will assume that a militia unit is roughly equal
+  // to a bandit unit.
+  // TODO: More precise levy-power estimates, but also, less precise
+  // knowledge of bandit strength!
+  nBandits := len(bandits)
+  banditStr := float64(nBandits)
+  nWorkers := len(peasants)
+  maxProd := 0
+  for work := range peasants {
+    currProd := foodAmount(work+1)
+    peasantStr := float64(len(peasants) - (work+1))
+    res := war.Result(banditStr, banditStr, peasantStr, peasantStr)
+    stolen := nBandits - beatenBandits(nBandits, res)
+    currProd -= stolen
+    if currProd < maxProd {
+      continue
+    }
+    maxProd = currProd
+    nWorkers = work+1
+  }
+  for _, p := range peasants[nWorkers:] {
+    p.SetAction(pop.Levy)
+  }
+
+  // TODO: Appeal to nearby buildings for help.
+  // TODO: Go elsewhere if losing badly - also applies to bandits.
+
   return nil
 }
 
@@ -154,6 +186,18 @@ func popsThinkT(t *board.Triangle) error {
 func popsThinkV(v *board.Vertex) error {
   // TODO: Implement.
   return nil
+}
+
+// foodAmount returns the amount of food created by the given number of peasants.
+func foodAmount(pc int) int {
+  production := intMin(pc, maxProduction)
+  for i, extra := range surplusProduction {
+    if i >= pc {
+      break
+    }
+    production += extra
+  }
+  return production
 }
 
 // produceFood creates food and places it into storage.
@@ -168,14 +212,7 @@ func produceFood(t *board.Triangle) error {
   }
 
   // TODO: Effects of weather, improvements.
-  production := intMin(pc, maxProduction)
-  for i, extra := range surplusProduction {
-    if i >= pc {
-      break
-    }
-    production += extra
-  }
-
+  production := foodAmount(pc)
   if err := t.AddFood(production); err != nil {
     return fmt.Errorf("produceFood error when storing food: %w", err)
   }
@@ -200,6 +237,12 @@ func mobilise(pops []*pop.Pop) []*war.FieldUnit {
   return ret
 }
 
+// beatenBandits returns the number of bandits who cannot steal
+// food because they were driven off by defenders.
+func beatenBandits(nb int, res war.BattleResult) int {
+  return int(math.Round(banditryFail[res] * float64(nb)))
+}
+
 // fight resolves any battles in the triangle.
 func fight(t *board.Triangle) error {
   // Check for bandit raiding.
@@ -212,11 +255,8 @@ func fight(t *board.Triangle) error {
     // TODO: Casualties.
     // Battle result decides how many bandits get food.
     result := war.Battle(raiders, militia)
-    hungryFrac := banditryFail[result]
-    for idx, b := range bandits {
-      if float64(idx) >= hungryFrac*float64(len(bandits)) {
-        break
-      }
+    beaten := beatenBandits(len(bandits), result)
+    for _, b := range bandits[:beaten] {
       b.Work()
     }
   }

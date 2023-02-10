@@ -98,6 +98,11 @@ func PeasantFilter(p *Pop) bool {
   return p.GetKind() == Peasant
 }
 
+// LabourFilter passes pops currently working.
+func LabourFilter(p *Pop) bool {
+  return p.Activity() == Labour
+}
+
 // NewDwelling returns an empty Dwelling object.
 func NewDwelling() *Dwelling {
   return &Dwelling{
