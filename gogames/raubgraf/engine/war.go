@@ -258,28 +258,8 @@ func scoutModifier(hi, lo float64) float64 {
   return 1.1
 }
 
-// Battle returns true if the attackers win.
-// TODO: Take terrain into account. Leadership even?
-// TODO: Insert randomness here?
-func Battle(attackers, defenders []*FieldUnit) BattleResult {
-  if len(attackers) == 0 {
-    return Standoff
-  }
-  if len(defenders) == 0 {
-    return Standoff
-  }
-
-  attC, attS := power(attackers)
-  defC, defS := power(defenders)
-  scoutMod := scoutModifier(attS, defS)
-  if attS > defS {
-    attC *= scoutMod
-  } else {
-    defC *= scoutMod
-  }
-
-  // TODO: Calculate casualties.
-  // TODO: Take aggression/desperation into account.
+// Result returns the result of a battle between the given strengths.
+func Result(attC, attS, defC, defS float64) BattleResult {
   if attC > 2*defC {
     // Defenders attempt retreat.
     if defS > 1.5*attS {
@@ -315,4 +295,29 @@ func Battle(attackers, defenders []*FieldUnit) BattleResult {
   }
 
   return Disaster
+}
+
+// Battle returns true if the attackers win.
+// TODO: Take terrain into account. Leadership even?
+// TODO: Insert randomness here?
+func Battle(attackers, defenders []*FieldUnit) BattleResult {
+  if len(attackers) == 0 {
+    return Standoff
+  }
+  if len(defenders) == 0 {
+    return Standoff
+  }
+
+  attC, attS := power(attackers)
+  defC, defS := power(defenders)
+  scoutMod := scoutModifier(attS, defS)
+  if attS > defS {
+    attC *= scoutMod
+  } else {
+    defC *= scoutMod
+  }
+
+  // TODO: Calculate casualties.
+  // TODO: Take aggression/desperation into account.
+  return Result(attC, attS, defC, defS)
 }
