@@ -87,3 +87,104 @@ func TestContract(t *testing.T) {
     })
   }
 }
+
+func TestStore(t *testing.T) {
+  deltas := []struct{
+    add int
+    exp int
+    err string
+  } {
+      {
+        add: 0,
+        exp: 0,
+      },
+      {
+        add: 1,
+        exp: 1,
+      },
+      {
+        add: 10,
+        exp: 11,
+      },
+      {
+        add: -1,
+        exp: 10,
+      },
+      {
+        add: -100,
+        exp: 0,
+        err: "subtract 100",
+      },
+    }
+
+  ss := &Store{
+    food: 0,
+    wealth: 0,
+  }
+  for _, d := range deltas {
+    err := ss.AddFood(d.add)
+    if d.err == "" {
+      if err != nil {
+        t.Errorf("AddFood(%d) => %v, want nil", d.add, err)
+      }
+    } else {
+      if err == nil || !strings.Contains(err.Error(), d.err) {
+        t.Errorf("AddFood(%d) => %v, want %q", d.add, err, d.err)
+      }
+    }
+    if got := ss.CountFood(); got != d.exp {
+      t.Errorf("CountFood(%d) => %d, want %d", d.add, got, d.exp)
+    }
+    if got := ss.Count(Food); got != d.exp {
+      t.Errorf("Count(Food (%d)) => %d, want %d", d.add, got, d.exp)
+    }
+    err = ss.AddWealth(d.add)
+    if d.err == "" {
+      if err != nil {
+        t.Errorf("AddWealth(%d) => %v, want nil", d.add, err)
+      }
+    } else {
+      if err == nil || !strings.Contains(err.Error(), d.err) {
+        t.Errorf("AddWealth(%d) => %v, want %q", d.add, err, d.err)
+      }
+    }
+    if got := ss.CountWealth(); got != d.exp {
+      t.Errorf("CountWealth(%d) => %d, want %d", d.add, got, d.exp)
+    }
+    if got := ss.Count(Wealth); got != d.exp {
+      t.Errorf("Count(Wealth (%d)) => %d, want %d", d.add, got, d.exp)
+    }
+  }
+  ss = &Store{
+    food: 0,
+    wealth: 0,
+  }
+  for _, d := range deltas {
+    err := ss.Add(Food, d.add)
+    if d.err == "" {
+      if err != nil {
+        t.Errorf("Add(Food, %d) => %v, want nil", d.add, err)
+      }
+    } else {
+      if err == nil || !strings.Contains(err.Error(), d.err) {
+        t.Errorf("Add(Food, %d) => %v, want %q", d.add, err, d.err)
+      }
+    }
+    if got := ss.CountFood(); got != d.exp {
+      t.Errorf("CountFood(%d) => %d, want %d", d.add, got, d.exp)
+    }
+    err = ss.Add(Wealth, d.add)
+    if d.err == "" {
+      if err != nil {
+        t.Errorf("Add(Wealth, %d) => %v, want nil", d.add, err)
+      }
+    } else {
+      if err == nil || !strings.Contains(err.Error(), d.err) {
+        t.Errorf("Add(Wealth, %d) => %v, want %q", d.add, err, d.err)
+      }
+    }
+    if got := ss.CountWealth(); got != d.exp {
+      t.Errorf("CountWealth(%d) => %d, want %d", d.add, got, d.exp)
+    }
+  }
+}
