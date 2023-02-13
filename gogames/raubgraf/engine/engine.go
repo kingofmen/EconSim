@@ -15,7 +15,8 @@ const(
 
 var (
   // TODO: Probably this should be in a config file.
-  surplusProduction = []int{3, 2, 1}
+  surplusFood = []int{3, 2, 1}
+  wealthProduction = []int{5, 10}
   starveLevel = 3
   newPopFood = 2
 
@@ -191,7 +192,7 @@ func popsThinkV(v *board.Vertex) error {
 // foodAmount returns the amount of food created by the given number of peasants.
 func foodAmount(pc int) int {
   production := intMin(pc, maxProduction)
-  for i, extra := range surplusProduction {
+  for i, extra := range surplusFood {
     if i >= pc {
       break
     }
@@ -200,8 +201,21 @@ func foodAmount(pc int) int {
   return production
 }
 
-// produceFood creates food and places it into storage.
-func produceFood(t *board.Triangle) error {
+// wealthAmount returns the amount of wealth the given number
+// of working peasants creates.
+func wealthAmount(pc int) int {
+  amount := 0
+  for _, threshold := range wealthProduction {
+    if pc < threshold {
+      break
+    }
+    amount++
+  }
+  return amount
+}
+
+// produce creates food and places it into storage.
+func produce(t *board.Triangle) error {
   if t == nil {
     return nil
   }
@@ -212,9 +226,14 @@ func produceFood(t *board.Triangle) error {
   }
 
   // TODO: Effects of weather, improvements.
-  production := foodAmount(pc)
-  if err := t.AddFood(production); err != nil {
-    return fmt.Errorf("produceFood error when storing food: %w", err)
+  food := foodAmount(pc)
+  if err := t.AddFood(food); err != nil {
+    return fmt.Errorf("produce error when storing food: %w", err)
+  }
+
+  wealth := wealthAmount(pc)
+  if err := t.AddWealth(wealth); err != nil {
+    return fmt.Errorf("produce error when storing wealth: %w", err)
   }
 
   return nil
@@ -378,7 +397,7 @@ func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
     return err
   }
-  if err := g.processTriangles("Produce food", produceFood); err != nil {
+  if err := g.processTriangles("Production", produce); err != nil {
     return err
   }
   if err := g.processTriangles("Move", move); err != nil {

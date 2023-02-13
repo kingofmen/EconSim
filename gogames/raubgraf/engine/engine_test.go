@@ -50,19 +50,20 @@ func TestProduceFood(t *testing.T) {
     desc string
     workers int
     forest int
-    production int
+    food int
+    wealth int
     busy int
   } {
       {
         desc: "One peasant",
         workers: 1,
-        production: 4,
+        food: 4,
       },
       {
         desc: "Too much forest",
         forest: 5,
         workers: 1,
-        production: 0,
+        food: 0,
       },
       {
         desc: "No workers",
@@ -71,23 +72,31 @@ func TestProduceFood(t *testing.T) {
         desc: "Forest is cleared",
         forest: 5,
         workers: 5,
-        production: 10,
+        food: 10,
+        wealth: 1,
       },
       {
         desc: "Subsistence",
         forest: 5,
         workers: 10,
-        production: 10,
+        food: 10,
+        wealth: 2,
       },
       {
         desc: "Baseline for two workers",
         workers: 2,
-        production: 7,
+        food: 7,
+      },
+      {
+        desc: "Blacksmith",
+        workers: 5,
+        food: 10,
+        wealth: 1,
       },
       {
         desc: "Some busy workers",
         workers: 2,
-        production: 4,
+        food: 4,
         busy: 1,
       },
       {
@@ -107,12 +116,15 @@ func TestProduceFood(t *testing.T) {
         }
         tt.AddPop(p)
       }
-      if err := produceFood(tt); err != nil {
-        t.Errorf("%s: produceFood() => %v, want nil", cc.desc, err)
+      if err := produce(tt); err != nil {
+        t.Errorf("%s: produce() => %v, want nil", cc.desc, err)
         return
       }
-      if got := tt.CountFood(); got != cc.production {
-        t.Errorf("%s: produceFood() => %d, want %d", cc.desc, got, cc.production)
+      if got := tt.CountFood(); got != cc.food {
+        t.Errorf("%s: produce() => %d food, want %d", cc.desc, got, cc.food)
+      }
+      if got := tt.CountWealth(); got != cc.wealth {
+        t.Errorf("%s: produce() => %d wealth, want %d", cc.desc, got, cc.wealth)
       }
     })
   }
