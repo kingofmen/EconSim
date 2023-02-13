@@ -101,6 +101,15 @@ type Contract struct {
   fAmount int
 }
 
+// NewStore returns an empty Store.
+func NewStore() *Store {
+  return &Store{
+    food: 0,
+    wealth: 0,
+  }
+}
+
+// NewContract returns a blank Contract.
 func NewContract() *Contract{
   return &Contract{}
 }

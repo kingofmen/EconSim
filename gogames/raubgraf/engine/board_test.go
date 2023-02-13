@@ -278,7 +278,7 @@ func TestTrianglePops(t *testing.T) {
 }
 
 func TestFood(t *testing.T) {
-  tt := &Triangle{}
+  tt := NewTriangle(0, North)
   deltas := []struct{
     add int
     exp int

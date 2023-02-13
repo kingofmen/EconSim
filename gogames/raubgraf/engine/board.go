@@ -207,6 +207,7 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 // It implements FoodStore and embeds Dwelling.
 type Triangle struct {
   *pop.Dwelling
+  *econ.Store
   
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
@@ -234,6 +235,7 @@ type Triangle struct {
 func NewTriangle(forest int, d Direction) *Triangle {
   return &Triangle{
     Dwelling: pop.NewDwelling(),
+    Store: econ.NewStore(),
     overgrowth: forest,
     points: d,
   }
@@ -323,31 +325,6 @@ func (t *Triangle) pointsUp() bool {
   return t.points == North
 }
   
-// AddFood adds the provided amount of food to the farm,
-// which may be negative. An error is returned if the farm
-// would end up with negative food.
-func (t *Triangle) AddFood(a int) error {
-  if t == nil {
-    return nil
-  }
-  t.food += a
-  if t.food < 0 {
-    err := fmt.Errorf("attempt to subtract %d food from stockpile %d", -a, t.food - a)
-    t.food = 0
-    return err
-  }
-
-  return nil
-}
-
-// CountFood returns the amount of stored food in the triangle.
-func (t* Triangle) CountFood() int {
-  if t == nil {
-    return 0
-  }
-  return t.food
-}
-
 // CountForest returns the overgrowth level of the triangle.
 func (t *Triangle) CountForest() int {
   if t == nil {

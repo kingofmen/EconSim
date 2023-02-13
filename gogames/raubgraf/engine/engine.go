@@ -312,6 +312,9 @@ func banditry(t *board.Triangle) error {
   eaten := 0
   for _, d := range board.TriDirs {
     neighbour := t.GetNeighbour(d)
+    if neighbour == nil {
+      continue
+    }
     food := intMin(neighbour.CountFood(), len(hungryBandits)-eaten)
     if food < 1 {
       continue
