@@ -86,25 +86,6 @@ go_test(
 )
 
 go_library(
-    name = "flags",
-    srcs = [
-      "flags.go",
-    ],
-    importpath = "gogames/raubgraf/engine/flags",
-    deps = [
-    ],
-)
-
-go_test(
-    name = "flags_test",
-    srcs = ["flags_test.go"],
-    importpath = "gogames/raubgraf/engine/flags",
-    embed = [
-      ":flags",
-    ],
-)
-
-go_library(
     name = "pop",
     srcs = [
       "pop.go",
