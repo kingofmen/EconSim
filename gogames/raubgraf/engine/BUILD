@@ -48,6 +48,7 @@ go_library(
       ":building",
       ":econ",
       ":pop",
+      "//gogames/util:flags",
     ],
 )
 

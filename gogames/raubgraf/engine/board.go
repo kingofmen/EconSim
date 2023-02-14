@@ -6,6 +6,7 @@ import (
   "gogames/raubgraf/engine/building"
   "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
+  "gogames/util/flags"
 )
 
 type Direction int
@@ -208,6 +209,7 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 type Triangle struct {
   *pop.Dwelling
   *econ.Store
+  *flags.Holder
   
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
@@ -236,6 +238,7 @@ func NewTriangle(forest int, d Direction) *Triangle {
   return &Triangle{
     Dwelling: pop.NewDwelling(),
     Store: econ.NewStore(),
+    Holder: flags.New(),
     overgrowth: forest,
     points: d,
   }
