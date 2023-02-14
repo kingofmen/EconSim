@@ -5,7 +5,7 @@ go_library(
     srcs = [
       "flags.go",
     ],
-    importpath = "gogames/raubgraf/util/flags",
+    importpath = "gogames/util/flags",
     deps = [
     ],
 )
@@ -13,7 +13,7 @@ go_library(
 go_test(
     name = "flags_test",
     srcs = ["flags_test.go"],
-    importpath = "gogames/raubgraf/util/flags",
+    importpath = "gogames/util/flags",
     embed = [
       ":flags",
     ],
