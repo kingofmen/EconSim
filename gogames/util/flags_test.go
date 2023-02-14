@@ -7,19 +7,19 @@ import(
 func TestCRUD(t *testing.T) {
   cases := []struct {
     desc string
-    op func(fh *FlagHolder)
+    op func(fh *Holder)
     exp map[string]int
   } {
       {
         desc: "Create one flag",
-        op: func(fh *FlagHolder) {
+        op: func(fh *Holder) {
           fh.AddFlag("test", 2)
         },
         exp: map[string]int{"test": 2},
       },
       {
         desc: "Create and increment",
-        op: func(fh *FlagHolder) {
+        op: func(fh *Holder) {
           fh.AddFlag("test", 2)
           fh.IncFlag("test")
         },
@@ -27,7 +27,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Create, update, clear",
-        op: func(fh *FlagHolder) {
+        op: func(fh *Holder) {
           fh.AddFlag("test", 2)
           fh.IncFlag("test")
           fh.ClearFlag("test")
@@ -36,7 +36,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Multiple flags",
-        op: func(fh *FlagHolder) {
+        op: func(fh *Holder) {
           fh.AddFlag("foo", 2)
           fh.IncFlag("bar")
           fh.IncFlag("foo")
@@ -47,7 +47,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Multiple flags, clear all",
-        op: func(fh *FlagHolder) {
+        op: func(fh *Holder) {
           fh.AddFlag("foo", 2)
           fh.IncFlag("bar")
           fh.IncFlag("foo")
