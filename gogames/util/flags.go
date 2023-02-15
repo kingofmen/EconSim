@@ -32,6 +32,16 @@ func (fh *Holder) AddFlag(f string, a int) int {
   return nval
 }
 
+// Add increases the value of all flags by those in the provided holder.
+func (fh *Holder) Add(o *Holder) {
+  if fh == nil || o == nil {
+    return
+  }
+  for k, v := range o.values {
+    fh.AddFlag(k, v)
+  }
+}
+
 // Clear clears all flags.
 func (fh *Holder) Clear() {
   fh.values = make(map[string]int)

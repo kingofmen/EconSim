@@ -7,19 +7,19 @@ import(
 func TestCRUD(t *testing.T) {
   cases := []struct {
     desc string
-    op func(fh *Holder)
+    setup func(fh *Holder)
     exp map[string]int
   } {
       {
         desc: "Create one flag",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("test", 2)
         },
         exp: map[string]int{"test": 2},
       },
       {
         desc: "Create and increment",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("test", 2)
           fh.IncFlag("test")
         },
@@ -27,7 +27,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Create, update, clear",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("test", 2)
           fh.IncFlag("test")
           fh.ClearFlag("test")
@@ -36,7 +36,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Multiple flags",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("foo", 2)
           fh.IncFlag("bar")
           fh.IncFlag("foo")
@@ -47,7 +47,7 @@ func TestCRUD(t *testing.T) {
       },
       {
         desc: "Multiple flags, clear all",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("foo", 2)
           fh.IncFlag("bar")
           fh.IncFlag("foo")
@@ -62,7 +62,7 @@ func TestCRUD(t *testing.T) {
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
       fh := New()
-      cc.op(fh)
+      cc.setup(fh)
       for k, v := range cc.exp {
         if got := fh.Value(k); got != v {
           t.Errorf("%s: Value(%s) => %d, want %d", cc.desc, k, got, v)
@@ -79,14 +79,14 @@ func TestCRUD(t *testing.T) {
 func TestLimits(t *testing.T) {
   cases := []struct {
     desc string
-    op func(fh *Holder)
+    setup func(fh *Holder)
     exp map[string]int
     ceil map[string]int
     flr map[string]int
   } {
       {
         desc: "Ceiling then value",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.SetCeiling("test", 3)
           fh.AddFlag("test", 4)
         },
@@ -95,7 +95,7 @@ func TestLimits(t *testing.T) {
       },
       {
         desc: "Floor then value",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.SetFloor("test", -3)
           fh.AddFlag("test", -4)
         },
@@ -104,7 +104,7 @@ func TestLimits(t *testing.T) {
       },
       {
         desc: "Ceiling caps value",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("test", 4)
           fh.SetCeiling("test", 3)
         },
@@ -113,7 +113,7 @@ func TestLimits(t *testing.T) {
       },
       {
         desc: "Floor caps value",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.AddFlag("test", 1)
           fh.SetFloor("test", 2)
         },
@@ -122,7 +122,7 @@ func TestLimits(t *testing.T) {
       },
       {
         desc: "Floor limits ceiling",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.SetFloor("test", -1)
           fh.SetCeiling("test", -2)
         },
@@ -132,7 +132,7 @@ func TestLimits(t *testing.T) {
       },
       {
         desc: "Ceiling caps floor",
-        op: func(fh *Holder) {
+        setup: func(fh *Holder) {
           fh.SetCeiling("test", 2)
           fh.SetFloor("test", 3)
         },
@@ -145,7 +145,7 @@ func TestLimits(t *testing.T) {
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
       fh := New()
-      cc.op(fh)
+      cc.setup(fh)
       for k, v := range cc.exp {
         if got := fh.Value(k); got != v {
           t.Errorf("%s: Value(%s) => %d, want %d", cc.desc, k, got, v)
@@ -172,6 +172,64 @@ func TestLimits(t *testing.T) {
       }
       if len(fh.floors) > 0 {
         t.Errorf("%s: Unexpected flag floors %v", cc.desc, fh.floors)
+      }
+    })
+  }
+}
+
+func TestCopy(t *testing.T) {
+  cases := []struct {
+    desc string
+    setup func(fh *Holder)
+    add map[string]int
+    exp map[string]int
+  } {
+      {
+        desc: "Copy into empty holder",
+        setup: func(fh *Holder) {},
+        add: map[string]int{"foo": 1, "bar": 2, "baz": 3},
+        exp: map[string]int{"foo": 1, "bar": 2, "baz": 3},
+      },
+      {
+        desc: "Addition",
+        setup: func(fh *Holder) {
+          fh.AddFlag("foo", 1)
+          fh.AddFlag("bar", 1)
+        },
+        add: map[string]int{"foo": 1, "bar": -2, "baz": 3},
+        exp: map[string]int{"foo": 2, "bar": -1, "baz": 3},
+      },
+      {
+        desc: "Addition with floor and ceiling",
+        setup: func(fh *Holder) {
+          fh.AddFlag("foo", 1)
+          fh.AddFlag("bar", -1)
+          fh.SetCeiling("foo", 1)
+          fh.SetFloor("bar", -1)
+        },
+        add: map[string]int{"foo": 1, "bar": -1, "baz": 3},
+        exp: map[string]int{"foo": 1, "bar": -1, "baz": 3},
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      fh := New()
+      cc.setup(fh)
+      toAdd := New()
+      for k, v := range cc.add {
+        toAdd.AddFlag(k, v)
+      }
+      fh.Add(toAdd)
+
+      for k, v := range cc.exp {
+        if got := fh.Value(k); got != v {
+          t.Errorf("%s: Value(%s) => %d, want %d", cc.desc, k, got, v)
+        }
+        delete(fh.values, k)
+      }
+      if len(fh.values) > 0 {
+        t.Errorf("%s: Unexpected flag values %v", cc.desc, fh.values)
       }
     })
   }
