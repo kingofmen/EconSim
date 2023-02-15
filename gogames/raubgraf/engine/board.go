@@ -12,6 +12,7 @@ import (
 type Direction int
 
 const (
+  BeaconFlag = "call_for_aid"
   maxForest = 10
   
   North Direction = iota

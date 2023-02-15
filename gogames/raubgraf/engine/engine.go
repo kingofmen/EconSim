@@ -159,24 +159,27 @@ func popsThinkT(t *board.Triangle) error {
   nBandits := len(bandits)
   banditStr := float64(nBandits)
   nWorkers := len(peasants)
-  maxProd := 0
+  bestProd := 0
   for work := range peasants {
     currProd := foodAmount(work+1)
     peasantStr := float64(len(peasants) - (work+1))
     res := war.Result(banditStr, banditStr, peasantStr, peasantStr)
     stolen := nBandits - beatenBandits(nBandits, res)
     currProd -= stolen
-    if currProd < maxProd {
+    if currProd < bestProd {
       continue
     }
-    maxProd = currProd
+    bestProd = currProd
     nWorkers = work+1
   }
   for _, p := range peasants[nWorkers:] {
     p.SetAction(pop.Levy)
   }
 
-  // TODO: Appeal to nearby buildings for help.
+  if bestProd < foodAmount(len(peasants)) / 2 {
+    // Losing badly. Appeal for help.
+    t.IncFlag(board.BeaconFlag)
+  }
   // TODO: Go elsewhere if losing badly - also applies to bandits.
 
   return nil

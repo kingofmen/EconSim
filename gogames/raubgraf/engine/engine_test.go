@@ -469,6 +469,7 @@ func TestTrianglePopThinking(t *testing.T) {
     forest int
     workers int
     levy int
+    beacon bool
   } {
       {
         desc: "No bandits, max workers",
@@ -526,6 +527,7 @@ func TestTrianglePopThinking(t *testing.T) {
           pop.New(pop.Bandit),
         },
         workers: 6,
+        beacon: true,
       },
     }
 
@@ -547,6 +549,10 @@ func TestTrianglePopThinking(t *testing.T) {
       }
       if gotW := tt.CountPops(pop.PeasantFilter, pop.LabourFilter); gotW != cc.workers {
         t.Errorf("%s: popsThinkT() gave %d workers, want %d", cc.desc, gotW, cc.workers)
+      }
+      val := tt.Value(board.BeaconFlag)
+      if lit := val > 0; lit != cc.beacon {
+        t.Errorf("%s: popsThinkT() => beacon value %d, want %v", cc.desc, val, cc.beacon)
       }
     })
   }
