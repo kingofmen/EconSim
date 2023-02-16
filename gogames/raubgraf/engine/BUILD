@@ -10,6 +10,7 @@ go_library(
       ":board",
       ":pop",
       ":war",
+      "//gogames/util:flags",
     ],
 )
 
@@ -24,6 +25,7 @@ go_test(
       ":board",
       ":econ",
       ":pop",
+      "//gogames/util:flags",
     ],
 )
 

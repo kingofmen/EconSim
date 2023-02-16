@@ -29,9 +29,7 @@ func TestProcessTriangles(t *testing.T) {
   if err != nil {
     t.Fatalf("Could not create board: %v", err)
   }
-  game := &RaubgrafGame{
-    world: b,
-  }
+  game := NewGame(b)
 
   if err := game.processTriangles("test", countFunc); err != nil {
     t.Errorf("processTriangles(countFunc) => %v, want nil", err)
@@ -553,6 +551,48 @@ func TestTrianglePopThinking(t *testing.T) {
       val := tt.Value(board.BeaconFlag)
       if lit := val > 0; lit != cc.beacon {
         t.Errorf("%s: popsThinkT() => beacon value %d, want %v", cc.desc, val, cc.beacon)
+      }
+    })
+  }
+}
+
+func TestCleanBoard(t *testing.T) {
+  cases := []struct{
+    desc string
+    inputs map[string]int
+    exp map[string]int
+  } {
+      {
+        desc: "Known decays",
+        inputs: map[string]int{board.BeaconFlag: 4},
+        exp: map[string]int{board.BeaconFlag: 3},
+      },
+      {
+        desc: "Known floors",
+        inputs: map[string]int{board.BeaconFlag: 0},
+        exp: map[string]int{board.BeaconFlag: 0},
+      },
+      {
+        desc: "Random flags",
+        inputs: map[string]int{"foo": 1, "bar": 2, "baz": 3},
+        exp: map[string]int{"foo": 1, "bar": 2, "baz": 3},
+      },
+    }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      gg := NewGame(nil)
+      tt := board.NewTriangle(0, board.North)
+      for k, v := range cc.inputs {
+        tt.AddFlag(k, v)
+      }
+      if err := gg.clearT(tt); err != nil {
+        t.Errorf("%s: clearT() => %v, want nil", cc.desc, err)
+      }
+      for k, want := range cc.exp {
+        if got := tt.Value(k); got != want {
+          t.Errorf("%s: clearT() => {%s : %d}, want %d", cc.desc, k, got, want)
+        }
       }
     })
   }

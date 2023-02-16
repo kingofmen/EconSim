@@ -236,13 +236,15 @@ type Triangle struct {
 
 // NewTriangle returns a new triangle with the provided growth and pointing.
 func NewTriangle(forest int, d Direction) *Triangle {
-  return &Triangle{
+  tt := &Triangle{
     Dwelling: pop.NewDwelling(),
     Store: econ.NewStore(),
     Holder: flags.New(),
     overgrowth: forest,
     points: d,
   }
+  tt.Holder.SetFloor(BeaconFlag, 0)
+  return tt
 }
 
 // GetContract returns the rent agreement for the triangle, if any.

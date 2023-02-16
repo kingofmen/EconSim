@@ -7,6 +7,7 @@ import (
   "gogames/raubgraf/engine/board"
   "gogames/raubgraf/engine/pop"
   "gogames/raubgraf/engine/war"
+  "gogames/util/flags"
 )
 
 const(
@@ -35,6 +36,11 @@ var (
     war.Victory: -0.01,
     war.Overrun: -0.01,
   }
+
+  // flagDecay gives the amount each flag changes by per turn.
+  flagDecay = map[string]int{
+    board.BeaconFlag: -1,
+  }
 )
 
 type vFunc func(v *board.Vertex) error
@@ -42,6 +48,19 @@ type tFunc func(t *board.Triangle) error
 
 type RaubgrafGame struct {
   world *board.Board
+  decay *flags.Holder
+}
+
+// NewGame returns a new game object.
+func NewGame(w *board.Board) *RaubgrafGame {
+  g := &RaubgrafGame{
+    world: w,
+    decay: flags.New(),
+  }
+  for k, v := range flagDecay {
+    g.decay.AddFlag(k, v)
+  }
+  return g
 }
 
 func (g *RaubgrafGame) valid() error {
@@ -50,6 +69,9 @@ func (g *RaubgrafGame) valid() error {
   }
   if g.world == nil {
     return fmt.Errorf("gameboard not created")
+  }
+  if g.decay == nil {
+    return fmt.Errorf("flag decay not configured")
   }
   return nil
 }
@@ -142,6 +164,15 @@ func intMin(a, b int) int {
     return a
   }
   return b
+}
+
+func (g *RaubgrafGame) clearT(t *board.Triangle) error {
+  t.Add(g.decay)
+  return nil
+}
+
+func (g *RaubgrafGame) clearV(v *board.Vertex) error {
+  return nil
 }
 
 // popsThinkT runs the Pop AI (for Triangle denizens) where not
@@ -395,6 +426,9 @@ func (g *RaubgrafGame) ResolveTurn() error {
     p.Clear()
     return nil
   }); err != nil {
+    return err
+  }
+  if err := g.processBoard("Clear board", g.clearV, g.clearT, true); err != nil {
     return err
   }
   if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
