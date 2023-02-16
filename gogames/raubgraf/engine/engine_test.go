@@ -362,7 +362,9 @@ func TestPayRent(t *testing.T) {
       rich := b.Triangles[0]
       poor := b.Triangles[1]
       poor.AddFood(cc.start)
-      poor.SetContract(econ.NewContract().WithFoodSource(poor).WithFoodTarget(rich).WithFoodAmount(cc.transfer))
+      amount := econ.NewStore()
+      amount.AddFood(cc.transfer)
+      poor.SetContract(econ.NewContract().WithSource(poor.Store).WithTarget(rich.Store).WithAmount(amount))
       if err := payRent(poor); err != nil {
         t.Errorf("%s: payRent() => %v, expect nil", cc.desc, err)
       }
