@@ -11,14 +11,21 @@ const (
   Wealth
 )
 
-type FoodStore interface {
-  CountFood() int
-  AddFood(int) error
-}
-
 type Store struct {
   food int
   wealth int
+}
+
+// String returns a human-readable string suitable for debugging.
+// It is not intended to be seen by the user.
+func (r Resource) String() string {
+  switch r {
+  case Food:
+    return "Food"
+  case Wealth:
+    return "Wealth"
+  }
+  return "Unknown resource"
 }
 
 // AddFood adds the provided amount of food to the store,
@@ -96,9 +103,9 @@ func (s *Store) Count(r Resource) int {
 }
 
 type Contract struct {
-  fSource FoodStore
-  fTarget FoodStore
-  fAmount int
+  Source *Store
+  Target *Store
+  Amount *Store
 }
 
 // NewStore returns an empty Store.
@@ -114,27 +121,27 @@ func NewContract() *Contract{
   return &Contract{}
 }
 
-func (c *Contract) WithFoodSource(fs FoodStore) *Contract {
+func (c *Contract) WithSource(fs *Store) *Contract {
   if c == nil {
     c = NewContract()
   }
-  c.fSource = fs
+  c.Source = fs
   return c
 }
 
-func (c *Contract) WithFoodTarget(fs FoodStore) *Contract {
+func (c *Contract) WithTarget(fs *Store) *Contract {
   if c == nil {
     c = NewContract()
   }
-  c.fTarget = fs
+  c.Target = fs
   return c
 }
 
-func (c *Contract) WithFoodAmount(am int) *Contract {
+func (c *Contract) WithAmount(am *Store) *Contract {
   if c == nil {
     c = NewContract()
   }
-  c.fAmount = am
+  c.Amount = am
   return c
 }
 
@@ -142,15 +149,21 @@ func (c *Contract) Execute() error {
   if c == nil {
     return nil
   }
-  if c.fAmount > 0 {
-    if av := c.fSource.CountFood(); av < c.fAmount {
-      return fmt.Errorf("contract error: not enough food, have %d want %d", av, c.fAmount)
+
+  for _, res := range []Resource{Food, Wealth} {
+    amount := c.Amount.Count(res)
+    if amount == 0 {
+      continue
     }
-    if err := c.fSource.AddFood(-c.fAmount); err != nil {
-      return fmt.Errorf("contract error in source AddFood(): %w", err)
+    available := c.Source.Count(res)
+    if amount > available {
+      return fmt.Errorf("contract error: not enough %s, have %d want %d", res, available, amount)
     }
-    if err := c.fTarget.AddFood(c.fAmount); err != nil {
-      return fmt.Errorf("contract error in target AddFood(): %w", err)
+    if err := c.Source.AddResource(res, -amount); err != nil {
+      return fmt.Errorf("contract error in source AddResource(%s): %w", res, err)
+    }
+    if err := c.Target.AddResource(res, amount); err != nil {
+      return fmt.Errorf("contract error in target AddResource(%s): %w", res, err)
     }
   }
 

@@ -1,70 +1,47 @@
 package econ
 
 import (
-  "fmt"
   "strings"
   "testing"
 )
 
-type testFoodStore struct{
-  food int
-}
-
-func (fs *testFoodStore) CountFood() int {
-  if fs == nil {
-    return 0
-  }
-  return fs.food
-}
-
-func (fs *testFoodStore) AddFood(a int) error {
-  if fs == nil {
-    return nil
-  }
-  fs.food += a
-  if fs.food < 0 {
-    fs.food -= a
-    return fmt.Errorf("not enough: %d < %d", fs.food, -a)
-  }
-  return nil
-}
-
-
 func TestContract(t *testing.T) {
   cases := []struct{
     desc string
-    contract *Contract
-    source int
-    target int
-    transfer int
+    start map[Resource]int
+    transfer map[Resource]int
     err string
   } {
       {
-        desc: "Insufficient",
-        source: 0,
-        transfer: 1,
-        err: "not enough food, have 0",
+        desc: "Insufficient food",
+        start: map[Resource]int{},
+        transfer: map[Resource]int{Food: 1},
+        err: "not enough Food, have 0",
+      },
+      {
+        desc: "Insufficient wealth",
+        start: map[Resource]int{},
+        transfer: map[Resource]int{Wealth: 1},
+        err: "not enough Wealth, have 0",
       },
       {
         desc: "Works",
-        source: 1,
-        transfer: 1,
-        target: 0,
+        start: map[Resource]int{Wealth: 1, Food: 1},
+        transfer: map[Resource]int{Wealth: 1, Food: 1},
       },
     }
 
   for _, cc := range cases {
     t.Run(cc.desc, func(t *testing.T) {
-      lord := &testFoodStore{
-        food: cc.target,
+      source := NewStore()
+      target := NewStore()
+      amount := NewStore()
+      contract := NewContract().WithSource(source).WithAmount(amount).WithTarget(target)
+      for r, v := range cc.start {
+        source.AddResource(r, v)
       }
-      tenant := &testFoodStore{
-        food: cc.source,
-      }
-      contract := &Contract{
-        fSource: tenant,
-        fTarget: lord,
-        fAmount: cc.transfer,
+      for r, v := range cc.transfer {
+        amount.AddResource(r, v)
       }
       err := contract.Execute()
       if len(cc.err) != 0 {
@@ -78,11 +55,13 @@ func TestContract(t *testing.T) {
           t.Errorf("%s: Execute() => %v, want nil", cc.desc, err)
       }
 
-      if exp := cc.target + cc.transfer; lord.food != exp {
-        t.Errorf("%s: Execute() => target has %d food, expect %d", cc.desc, lord.food, exp)
-      }
-      if exp := cc.source - cc.transfer; tenant.food != exp {
-        t.Errorf("%s: Execute() => target has %d food, expect %d", cc.desc, tenant.food, exp)
+      for _, res := range []Resource{Food, Wealth} {
+        if exp, got := cc.transfer[res], target.Count(res); exp != got {
+          t.Errorf("%s: Execute() => target has %d %s, expect %d", cc.desc, got, res, exp)
+        }
+        if exp, got := cc.start[res] - cc.transfer[res], source.Count(res); exp != got {
+          t.Errorf("%s: Execute() => source has %d %s, expect %d", cc.desc, got, res, exp)
+        }
       }
     })
   }
@@ -117,10 +96,7 @@ func TestStore(t *testing.T) {
       },
     }
 
-  ss := &Store{
-    food: 0,
-    wealth: 0,
-  }
+  ss := NewStore()
   for _, d := range deltas {
     err := ss.AddFood(d.add)
     if d.err == "" {
@@ -155,10 +131,7 @@ func TestStore(t *testing.T) {
       t.Errorf("Count(Wealth (%d)) => %d, want %d", d.add, got, d.exp)
     }
   }
-  ss = &Store{
-    food: 0,
-    wealth: 0,
-  }
+  ss = NewStore()
   for _, d := range deltas {
     err := ss.AddResource(Food, d.add)
     if d.err == "" {
