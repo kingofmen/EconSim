@@ -206,7 +206,6 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 }
 
 // Triangle models a board segment defined by three vertices.
-// It implements FoodStore and embeds Dwelling.
 type Triangle struct {
   *pop.Dwelling
   *econ.Store
@@ -220,9 +219,6 @@ type Triangle struct {
 
   // Level of forest.
   overgrowth int
-
-  // Stored food.
-  food int
 
   // Capital improvements made.
   improvements int
