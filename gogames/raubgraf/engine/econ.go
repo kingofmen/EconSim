@@ -74,7 +74,7 @@ func (s *Store) CountWealth() int {
 // Add adds the provided amount of food or wealth to the store,
 // which may be negative. An error is returned if the stockpile
 // would end up negative.
-func (s *Store) Add(r Resource, am int) error {
+func (s *Store) AddResource(r Resource, am int) error {
   if r == Food {
     return s.AddFood(am)
   }

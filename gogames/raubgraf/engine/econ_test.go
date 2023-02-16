@@ -160,27 +160,27 @@ func TestStore(t *testing.T) {
     wealth: 0,
   }
   for _, d := range deltas {
-    err := ss.Add(Food, d.add)
+    err := ss.AddResource(Food, d.add)
     if d.err == "" {
       if err != nil {
-        t.Errorf("Add(Food, %d) => %v, want nil", d.add, err)
+        t.Errorf("AddResource(Food, %d) => %v, want nil", d.add, err)
       }
     } else {
       if err == nil || !strings.Contains(err.Error(), d.err) {
-        t.Errorf("Add(Food, %d) => %v, want %q", d.add, err, d.err)
+        t.Errorf("AddResource(Food, %d) => %v, want %q", d.add, err, d.err)
       }
     }
     if got := ss.CountFood(); got != d.exp {
       t.Errorf("CountFood(%d) => %d, want %d", d.add, got, d.exp)
     }
-    err = ss.Add(Wealth, d.add)
+    err = ss.AddResource(Wealth, d.add)
     if d.err == "" {
       if err != nil {
-        t.Errorf("Add(Wealth, %d) => %v, want nil", d.add, err)
+        t.Errorf("AddResource(Wealth, %d) => %v, want nil", d.add, err)
       }
     } else {
       if err == nil || !strings.Contains(err.Error(), d.err) {
-        t.Errorf("Add(Wealth, %d) => %v, want %q", d.add, err, d.err)
+        t.Errorf("AddResource(Wealth, %d) => %v, want %q", d.add, err, d.err)
       }
     }
     if got := ss.CountWealth(); got != d.exp {
