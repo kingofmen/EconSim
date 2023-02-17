@@ -4,12 +4,13 @@ import (
   "strings"
   "testing"
 
+  "gogames/util/coords"
   "gogames/raubgraf/engine/pop"
 )
 
 func TestNewBoard(t *testing.T) {
   type part struct {
-      vc *vCoord
+      vc coords.Point
       good map[Direction]bool
   }
   
@@ -18,7 +19,7 @@ func TestNewBoard(t *testing.T) {
     w, h int
     err string
     expT int
-    full *vCoord
+    full coords.Point
     partial []part
   } {
       {
@@ -40,19 +41,19 @@ func TestNewBoard(t *testing.T) {
         expT: 2,
         partial: []part{
           {
-            vc: &vCoord{0, 0},
+            vc: coords.Point{0, 0},
             good: map[Direction]bool{NorthEast: true},
           },
           {
-            vc: &vCoord{1, 0},
+            vc: coords.Point{1, 0},
             good: map[Direction]bool{NorthWest: true, North: true},
           },
           {
-            vc: &vCoord{0, 1},
+            vc: coords.Point{0, 1},
             good: map[Direction]bool{SouthEast: true, South: true},
           },
           {
-            vc: &vCoord{1, 1},
+            vc: coords.Point{1, 1},
             good: map[Direction]bool{SouthWest: true},
           },
         },
@@ -62,30 +63,30 @@ func TestNewBoard(t *testing.T) {
         w: 5,
         h: 5,
         expT: 32,
-        full: &vCoord{1, 2},
+        full: coords.Point{1, 2},
         partial: []part{
           {
-            vc: &vCoord{1, 0},
+            vc: coords.Point{1, 0},
             good: map[Direction]bool{NorthEast: true, North: true, NorthWest: true},
           },
           {
-            vc: &vCoord{0, 1},
+            vc: coords.Point{0, 1},
             good: map[Direction]bool{South: true, SouthEast: true, NorthEast: true, North: true},
           },
           {
-            vc: &vCoord{0, 2},
+            vc: coords.Point{0, 2},
             good: map[Direction]bool{SouthEast: true, NorthEast: true},
           },
           {
-            vc: &vCoord{0, 4},
+            vc: coords.Point{0, 4},
             good: map[Direction]bool{SouthEast: true},
           },
           {
-            vc: &vCoord{4, 1},
+            vc: coords.Point{4, 1},
             good: map[Direction]bool{SouthWest: true, NorthWest: true},
           },
           {
-            vc: &vCoord{4, 0},
+            vc: coords.Point{4, 0},
             good: map[Direction]bool{North: true, NorthWest: true},
           },
         },
@@ -140,7 +141,7 @@ func TestNewBoard(t *testing.T) {
         t.Errorf("New(%d, %d) => %d triangles, expect %d", cc.w, cc.h, len(tCount), cc.expT)
       }
 
-      if cc.full != nil {
+      if cc.full.X() + cc.full.Y() > 0 {
         v := b.VertexAt(cc.full)
         if v == nil {
           t.Errorf("New(%d, %d) => nil vertex (%v), expect full hex.", cc.w, cc.h, cc.full)

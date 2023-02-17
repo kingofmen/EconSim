@@ -51,6 +51,7 @@ go_library(
       ":econ",
       ":pop",
       ":war",
+      "//gogames/util:coords",
       "//gogames/util:flags",
     ],
 )

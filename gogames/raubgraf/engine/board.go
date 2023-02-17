@@ -7,6 +7,7 @@ import (
   "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
   "gogames/raubgraf/engine/war"
+  "gogames/util/coords"
   "gogames/util/flags"
 )
 
@@ -131,17 +132,6 @@ type Vertex struct {
 
   // At the map border some triangles may be nil.
   triangles [6]*Triangle
-}
-
-// vCoord unambiguously identifies a vertex.
-type vCoord struct {
-  x, y int
-}
-
-// tCoord unambiguously identifies a triangle.
-type tCoord struct {
-  vtx vCoord
-  dir Direction
 }
 
 // GetSettlement returns the settlement in the vertex, if any.
@@ -428,8 +418,8 @@ func (b *Board) GetVertex(x, y int) *Vertex {
 }
 
 // VertexAt returns the vertex at the coordinates vc.
-func (b *Board) VertexAt(vc *vCoord) *Vertex {
-  return b.GetVertex(vc.x, vc.y)
+func (b *Board) VertexAt(vc coords.Point) *Vertex {
+  return b.GetVertex(vc.X(), vc.Y())
 }
 
 // neighbour returns the neighbour of the vertex at (x, y)
