@@ -19,3 +19,13 @@ go_test(
       ":flags",
     ],
 )
+
+go_library(
+    name = "coords",
+    srcs = [
+      "coords.go",
+    ],
+    importpath = "gogames/util/coords",
+    deps = [
+    ],
+)
