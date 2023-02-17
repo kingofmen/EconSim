@@ -18,6 +18,7 @@ const (
 
   Unknown Action = iota
   Banditry
+  Drill
   Labour
   Levy
 )
@@ -271,7 +272,7 @@ func defaultAction(k Kind) Action {
   case Bandit:
     return Banditry
   case Knight:
-    return Levy
+    return Drill
   default:
     return Unknown
   }
