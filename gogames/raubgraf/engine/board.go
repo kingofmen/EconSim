@@ -6,6 +6,7 @@ import (
   "gogames/raubgraf/engine/building"
   "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
+  "gogames/raubgraf/engine/war"
   "gogames/util/flags"
 )
 
@@ -228,6 +229,9 @@ type Triangle struct {
 
   // Feudal obligations.
   contract *econ.Contract
+
+  // Units currently in the triangle.
+  units []*war.FieldUnit
 }
 
 // NewTriangle returns a new triangle with the provided growth and pointing.
@@ -317,6 +321,15 @@ func (t *Triangle) GetNeighbour(d Direction) *Triangle {
     return t.neighbours[2]
   }
   return nil
+}
+
+// GetUnits returns a slice of units in the Triangle.
+func (t *Triangle) GetUnits() []*war.FieldUnit {
+  if t == nil {
+    return nil
+  }
+  ret := make([]*war.FieldUnit, 0, len(t.units))
+  return append(ret, t.units...)
 }
 
 // pointsUp returns true if the triangle is north-pointing.
