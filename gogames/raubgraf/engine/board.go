@@ -247,6 +247,21 @@ func NewTriangle(forest int, d Direction) *Triangle {
   return tt
 }
 
+// AddUnits adds the provided units to the triangle.
+func (t *Triangle) AddUnits(ul []*war.FieldUnit) {
+  for _, u := range ul {
+    t.AddUnit(u)
+  }
+}
+
+// AddUnit adds the provided unit to the triangle.
+func (t *Triangle) AddUnit(u *war.FieldUnit) {
+  if t == nil {
+    return
+  }
+  t.units = append(t.units, u)
+}
+
 // GetContract returns the rent agreement for the triangle, if any.
 func (t *Triangle) GetContract() *econ.Contract {
   if t == nil {
