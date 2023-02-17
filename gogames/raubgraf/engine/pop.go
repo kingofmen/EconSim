@@ -104,6 +104,11 @@ func LabourFilter(p *Pop) bool {
   return p.Activity() == Labour
 }
 
+// LevyFilter passes mobilised Pops.
+func LevyFilter(p *Pop) bool {
+  return p.Activity() == Levy
+}
+
 // NewDwelling returns an empty Dwelling object.
 func NewDwelling() *Dwelling {
   return &Dwelling{
