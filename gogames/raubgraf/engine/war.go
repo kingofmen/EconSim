@@ -1,6 +1,7 @@
 package war
 
 import (
+  "fmt"
   "math"
   "sort"
 )
@@ -61,6 +62,7 @@ type FieldUnit struct {
   equip int
   mount int
   state UnitState
+  movement int
 }
 
 // NewUnit returns a new default unit.
@@ -70,6 +72,7 @@ func NewUnit() *FieldUnit {
     equip: 0,
     mount: 0,
     state: Fresh,
+    movement: 50,
   }
 }
 
@@ -100,6 +103,14 @@ func (u *FieldUnit) WithMount(m int) *FieldUnit {
   return u
 }
 
+func (u *FieldUnit) WithState(s UnitState) *FieldUnit {
+  if u == nil {
+    u = NewUnit()
+  }
+  u.state = s
+  return u
+}
+
 // modifier returns a combat-power modifier.
 func (s UnitState) modifier() float64 {
   switch s {
@@ -117,6 +128,17 @@ func (s UnitState) modifier() float64 {
     return 0.0
   }
   return 0.0
+}
+
+func (u *FieldUnit) Move(cost int) error {
+  if u == nil {
+    return fmt.Errorf("attempt to move nil unit")
+  }
+  if cost > u.movement {
+    return fmt.Errorf("unit with %d movement cannot move distance %d", u.movement, cost)
+  }
+  u.movement -= cost
+  return nil
 }
 
 // unitPower returns the combat power of the unit.
