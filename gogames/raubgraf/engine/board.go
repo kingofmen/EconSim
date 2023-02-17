@@ -127,6 +127,8 @@ func (d Direction) Opposite() Direction {
 
 // Vertex is one point of a triangle; it may contain a castle or city.
 type Vertex struct {
+  coords.Point
+
   // A castle or city.
   settlement *building.Building
 
@@ -198,6 +200,7 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 
 // Triangle models a board segment defined by three vertices.
 type Triangle struct {
+  coords.Point
   *pop.Dwelling
   *econ.Store
   *flags.Holder
@@ -227,6 +230,7 @@ type Triangle struct {
 // NewTriangle returns a new triangle with the provided growth and pointing.
 func NewTriangle(forest int, d Direction) *Triangle {
   tt := &Triangle{
+    Point: coords.Point{0, 0},
     Dwelling: pop.NewDwelling(),
     Store: econ.NewStore(),
     Holder: flags.New(),
@@ -235,6 +239,15 @@ func NewTriangle(forest int, d Direction) *Triangle {
   }
   tt.Holder.SetFloor(BeaconFlag, 0)
   return tt
+}
+
+// withLoc sets the triangle's coordinates.
+func (t *Triangle) withLoc(x, y int) *Triangle {
+  if t == nil {
+    t = NewTriangle(0, North)
+  }
+  t.Point = coords.Point{x, y}
+  return t
 }
 
 // AddUnits adds the provided units to the triangle.
@@ -384,6 +397,8 @@ func (t *Triangle) ClearLand(pc int) {
 type Board struct {
   Vertices [][]*Vertex
   Triangles []*Triangle
+
+  triangleMap map[coords.Point]*Triangle
 }
 
 // GetAllPops returns a slice of all Pops on the board.
@@ -417,9 +432,25 @@ func (b *Board) GetVertex(x, y int) *Vertex {
   return b.Vertices[x][y]
 }
 
+// GetTriangle returns the triangle at (x, y).
+func (b *Board) GetTriangle(x, y int) *Triangle {
+  return b.TriangleAt(coords.Point{x, y})
+}
+
 // VertexAt returns the vertex at the coordinates vc.
 func (b *Board) VertexAt(vc coords.Point) *Vertex {
   return b.GetVertex(vc.X(), vc.Y())
+}
+
+// TriangleAt returns the triangle at the coordinates tc.
+func (b *Board) TriangleAt(tc coords.Point) *Triangle {
+  if b == nil {
+    return nil
+  }
+  if tc.X() < 0 || tc.Y() < 0 {
+    return nil
+  }
+  return b.triangleMap[tc]
 }
 
 // neighbour returns the neighbour of the vertex at (x, y)
@@ -476,7 +507,6 @@ func needNE(width, height, x, y int) bool {
   return true
 }
 
-
 // New creates and returns a Board with width*height vertices
 // and the attendant triangles.
 func New(width, height int) (*Board, error) {
@@ -486,21 +516,27 @@ func New(width, height int) (*Board, error) {
   brd := &Board{
     Vertices: make([][]*Vertex, width),
     Triangles: make([]*Triangle, 0, width*height),
+    triangleMap: make(map[coords.Point]*Triangle),
   }
   for x := range brd.Vertices {
     brd.Vertices[x] = make([]*Vertex, height)
     for y := range brd.Vertices[x] {
-      brd.Vertices[x][y] = &Vertex{}
+      brd.Vertices[x][y] = &Vertex{
+        Point: coords.Point{x, y},
+      }
     }
   }
 
   for y := 0; y < height; y++ {
+    tIdx := 0
     for x := 0; x < width; x++ {
       // For each row, create northwards triangles.
       vtx := brd.Vertices[x][y]
       // Create North triangle if needed.
       if needN(width, height, x, y) {
-        t := NewTriangle(0, South)
+        t := NewTriangle(0, South).withLoc(tIdx, y)
+        brd.triangleMap[t.Point] = t
+        tIdx++
         brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, North); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) N: %w", x, y, err)
@@ -522,7 +558,9 @@ func New(width, height int) (*Board, error) {
       }
       // Create NorthEast triangle if needed.
       if needNE(width, height, x, y) {
-        t := NewTriangle(0, North)
+        t := NewTriangle(0, North).withLoc(tIdx, y)
+        brd.triangleMap[t.Point] = t
+        tIdx++
         brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, NorthEast); err != nil {
           return nil, fmt.Errorf("Error constructing vertex (%d, %d) NW: %w", x, y, err)

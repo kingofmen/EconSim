@@ -114,10 +114,14 @@ func TestNewBoard(t *testing.T) {
       tCount := make(map[*Triangle]bool)
       for x := 0; x < cc.w; x++ {
         for y := 0; y < cc.h; y++ {
+          vc := coords.Point{x, y}
           v := b.GetVertex(x, y)
           if v == nil {
             t.Errorf("New(%d, %d) => coordinates (%d, %d) do not exist", cc.w, cc.h, x, y)
             continue
+          }
+          if v.Point != vc {
+            t.Errorf("New(%d, %d) => coordinates (%d, %d) have location %v", cc.w, cc.h, x, y, v.Point)
           }
           for _, td := range TriDirs {
             tt := v.GetTriangle(td)
@@ -178,6 +182,9 @@ func TestNewBoard(t *testing.T) {
       upDirs := map[Direction]bool{NorthWest: true, NorthEast: true, South: true}
       dnDirs := map[Direction]bool{SouthWest: true, SouthEast: true, North: true}
       for idx, tt := range b.Triangles {
+        if cand := b.TriangleAt(tt.Point); cand != tt {
+          t.Errorf("New(%d, %d) => TriangleAt(%v) returned %v", cc.w, cc.h, tt.Point, cand.Point)
+        }
         nCount := make(map[*Triangle]bool)
         for _, d := range TriDirs {
           n := tt.GetNeighbour(d)
