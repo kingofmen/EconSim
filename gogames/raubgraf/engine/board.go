@@ -381,6 +381,20 @@ type Board struct {
   Triangles []*Triangle
 }
 
+// GetAllPops returns a slice of all Pops on the board.
+func (b *Board) GetAllPops() pop.List {
+  ret := make(pop.List, 0, len(b.Triangles) + len(b.Vertices)*len(b.Vertices))
+  for _, tt := range b.Triangles {
+    ret = append(ret, tt.Population()...)
+  }
+  for _, col := range b.Vertices {
+    for _, vtx := range col {
+      ret = append(ret, vtx.GetSettlement().Population()...)
+    }
+  }
+  return ret
+}
+
 // GetVertex returns the vertex at (x, y).
 func (b *Board) GetVertex(x, y int) *Vertex {
   if b == nil {
