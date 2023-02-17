@@ -219,7 +219,32 @@ func popsThinkT(t *board.Triangle) error {
 // popsThinkV runs the Pop AI (for Vertex inhabitants) where not
 // overridden by incoming commands.
 func popsThinkV(v *board.Vertex) error {
-  // TODO: Implement.
+  // Knights can decide to train, or to defend against bandits.
+  knights := v.GetSettlement().FilteredPopulation(pop.KnightFilter, pop.AvailableFilter)
+  triangles := make(map[*board.Triangle]int)
+  for _, d := range board.TriDirs {
+    tt := v.GetTriangle(d)
+    if tt == nil {
+      continue
+    }
+    // TODO: Also prioritise triangles that pay rent!
+    triangles[tt] = tt.Value(board.BeaconFlag)
+  }
+
+  for _, k := range knights {
+    var best *board.Triangle
+    for tt, val := range triangles {
+      if val < triangles[best] {
+        continue
+      }
+      best = tt
+    }
+    if triangles[best] < 1 {
+      break
+    }
+    triangles[best]--
+    k.SetAction(pop.Levy)
+  }
   return nil
 }
 
