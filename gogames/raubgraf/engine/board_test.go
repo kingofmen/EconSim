@@ -115,16 +115,21 @@ func TestNewBoard(t *testing.T) {
       for x := 0; x < cc.w; x++ {
         for y := 0; y < cc.h; y++ {
           vc := coords.Point{x, y}
-          v := b.GetVertex(x, y)
-          if v == nil {
+          v1 := b.GetVertex(x, y)
+          if v1 == nil {
             t.Errorf("New(%d, %d) => coordinates (%d, %d) do not exist", cc.w, cc.h, x, y)
             continue
           }
-          if v.Point != vc {
-            t.Errorf("New(%d, %d) => coordinates (%d, %d) have location %v", cc.w, cc.h, x, y, v.Point)
+          vcOffset := coords.Point{x + b.vtxOffset, y + b.vtxOffset}
+          v2 := b.VertexAt(vcOffset)
+          if v1 != v2 {
+            t.Errorf("New(%d, %d) => coords %s do not give same vertex as offset coords %s", cc.w, cc.h, vc, vcOffset)
+          }
+          if v1.Point != vcOffset {
+            t.Errorf("New(%d, %d) => coordinates %s (%s) have location %s", cc.w, cc.h, vc, vcOffset, v1.Point)
           }
           for _, td := range TriDirs {
-            tt := v.GetTriangle(td)
+            tt := v1.GetTriangle(td)
             if tt == nil {
               continue
             }

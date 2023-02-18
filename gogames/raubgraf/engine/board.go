@@ -399,6 +399,7 @@ type Board struct {
   Triangles []*Triangle
 
   triangleMap map[coords.Point]*Triangle
+  vtxOffset int
 }
 
 // GetAllPops returns a slice of all Pops on the board.
@@ -422,6 +423,12 @@ func (b *Board) GetVertex(x, y int) *Vertex {
   }
   if x < 0 || y < 0 {
     return nil
+  }
+  if x >= b.vtxOffset {
+    x -= b.vtxOffset
+  }
+  if y >= b.vtxOffset {
+    y -= b.vtxOffset
   }
   if x >= len(b.Vertices) {
     return nil
@@ -517,12 +524,13 @@ func New(width, height int) (*Board, error) {
     Vertices: make([][]*Vertex, width),
     Triangles: make([]*Triangle, 0, width*height),
     triangleMap: make(map[coords.Point]*Triangle),
+    vtxOffset: (2 + width) * (2 + height),
   }
   for x := range brd.Vertices {
     brd.Vertices[x] = make([]*Vertex, height)
     for y := range brd.Vertices[x] {
       brd.Vertices[x][y] = &Vertex{
-        Point: coords.Point{x, y},
+        Point: coords.Point{x + brd.vtxOffset, y + brd.vtxOffset},
       }
     }
   }
