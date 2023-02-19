@@ -140,6 +140,9 @@ go_library(
       "war.go",
     ],
     importpath = "gogames/raubgraf/engine/war",
+    deps = [
+      ":mobile",
+    ],
 )
 
 go_test(

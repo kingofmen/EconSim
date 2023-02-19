@@ -13,6 +13,7 @@ func TestSanity(t *testing.T) {
     op func(m *Mobile) error
     err string
     mob *Mobile
+    loc coords.Point
   } {
       {
         desc: "Nil",
@@ -20,6 +21,24 @@ func TestSanity(t *testing.T) {
           return m.Move(0, coords.New(0, 0))
         },
         err: "nil mobile",
+      },
+      {
+        desc: "Too costly",
+        op: func(m *Mobile) error {
+          m.ResetMove(12)
+          return m.Move(50, coords.New(0, 0))
+        },
+        err: "cannot move distance",
+        mob: New(),
+      },
+      {
+        desc: "Success",
+        op: func(m *Mobile) error {
+          m.ResetMove(100)
+          return m.Move(50, coords.New(1, 1))
+        },
+        mob: New(),
+        loc: coords.New(1, 1),
       },
     }
 
@@ -34,6 +53,9 @@ func TestSanity(t *testing.T) {
       }
       if err != nil {
         t.Errorf("%s: Got error %v, want nil", cc.desc, err)
+      }
+      if cc.mob.Point != cc.loc {
+        t.Errorf("%s: Final location %s, expected %s", cc.desc, cc.mob.Point, cc.loc)
       }
     })
   }

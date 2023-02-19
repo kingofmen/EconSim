@@ -1,9 +1,10 @@
 package war
 
 import (
-  "fmt"
   "math"
   "sort"
+
+  "gogames/raubgraf/engine/mobile"
 )
 
 type UnitState int
@@ -58,21 +59,21 @@ func (b BattleResult) String() string {
 
 // FieldUnit models a Pop mobilised for war.
 type FieldUnit struct {
+  *mobile.Mobile
   drill int
   equip int
   mount int
   state UnitState
-  movement int
 }
 
 // NewUnit returns a new default unit.
 func NewUnit() *FieldUnit {
   return &FieldUnit{
+    Mobile: mobile.New(),
     drill: 0,
     equip: 0,
     mount: 0,
     state: Fresh,
-    movement: 50,
   }
 }
 
@@ -128,17 +129,6 @@ func (s UnitState) modifier() float64 {
     return 0.0
   }
   return 0.0
-}
-
-func (u *FieldUnit) Move(cost int) error {
-  if u == nil {
-    return fmt.Errorf("attempt to move nil unit")
-  }
-  if cost > u.movement {
-    return fmt.Errorf("unit with %d movement cannot move distance %d", u.movement, cost)
-  }
-  u.movement -= cost
-  return nil
 }
 
 // unitPower returns the combat power of the unit.
