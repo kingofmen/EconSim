@@ -21,3 +21,7 @@ func (p Point) Y() int {
 func (p Point) String() string {
   return fmt.Sprintf("(%d, %d)", p.X(), p.Y())
 }
+
+func New(x, y int) Point {
+  return Point{x, y}
+}
