@@ -91,6 +91,28 @@ go_test(
 )
 
 go_library(
+    name = "mobile",
+    srcs = [
+      "mobile.go",
+    ],
+    importpath = "gogames/raubgraf/engine/mobile",
+    deps = [
+      "//gogames/util:coords",
+    ],
+)
+
+go_test(
+    name = "mobile_test",
+    srcs = [
+      "mobile_test.go",
+    ],
+    importpath = "gogames/raubgraf/engine/mobile",
+    embed = [
+      ":mobile",
+    ],
+)
+
+go_library(
     name = "pop",
     srcs = [
       "pop.go",
