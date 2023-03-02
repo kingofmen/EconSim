@@ -187,8 +187,8 @@ func TestNewBoard(t *testing.T) {
       upDirs := map[Direction]bool{NorthWest: true, NorthEast: true, South: true}
       dnDirs := map[Direction]bool{SouthWest: true, SouthEast: true, North: true}
       for idx, tt := range b.Triangles {
-        if cand := b.TriangleAt(tt.Point); cand != tt {
-          t.Errorf("New(%d, %d) => TriangleAt(%v) returned %v", cc.w, cc.h, tt.Point, cand.Point)
+        if cand := b.TriangleAt(tt.Node.Point); cand != tt {
+          t.Errorf("New(%d, %d) => TriangleAt(%v) returned %v", cc.w, cc.h, tt.Node.Point, cand.Node.Point)
         }
         nCount := make(map[*Triangle]bool)
         for _, d := range TriDirs {

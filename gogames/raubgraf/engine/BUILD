@@ -49,8 +49,8 @@ go_library(
     deps = [
       ":building",
       ":econ",
+      ":graph",
       ":pop",
-      ":war",
       "//gogames/util:coords",
       "//gogames/util:flags",
     ],
@@ -87,6 +87,18 @@ go_test(
     ],
     deps = [
       ":board",
+    ],
+)
+
+go_library(
+    name = "graph",
+    srcs = [
+      "graph.go",
+    ],
+    importpath = "gogames/raubgraf/engine/graph",
+    deps = [
+      ":war",
+      "//gogames/util:coords",
     ],
 )
 

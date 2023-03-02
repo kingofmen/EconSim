@@ -5,8 +5,8 @@ import (
 
   "gogames/raubgraf/engine/building"
   "gogames/raubgraf/engine/econ"
+  "gogames/raubgraf/engine/graph"
   "gogames/raubgraf/engine/pop"
-  "gogames/raubgraf/engine/war"
   "gogames/util/coords"
   "gogames/util/flags"
 )
@@ -127,7 +127,7 @@ func (d Direction) Opposite() Direction {
 
 // Vertex is one point of a triangle; it may contain a castle or city.
 type Vertex struct {
-  coords.Point
+  *graph.Node
 
   // A castle or city.
   settlement *building.Building
@@ -204,6 +204,7 @@ type Triangle struct {
   *pop.Dwelling
   *econ.Store
   *flags.Holder
+  *graph.Node
   
   // Either N - SE - SW or NW - NE - S.
   vertices [3]*Vertex
@@ -222,18 +223,15 @@ type Triangle struct {
 
   // Feudal obligations.
   contract *econ.Contract
-
-  // Units currently in the triangle.
-  units []*war.FieldUnit
 }
 
 // NewTriangle returns a new triangle with the provided growth and pointing.
 func NewTriangle(forest int, d Direction) *Triangle {
   tt := &Triangle{
-    Point: coords.Point{0, 0},
     Dwelling: pop.NewDwelling(),
     Store: econ.NewStore(),
     Holder: flags.New(),
+    Node: graph.New(),
     overgrowth: forest,
     points: d,
   }
@@ -246,23 +244,8 @@ func (t *Triangle) withLoc(x, y int) *Triangle {
   if t == nil {
     t = NewTriangle(0, North)
   }
-  t.Point = coords.Point{x, y}
+  t.Node.Point = coords.Point{x, y}
   return t
-}
-
-// AddUnits adds the provided units to the triangle.
-func (t *Triangle) AddUnits(ul []*war.FieldUnit) {
-  for _, u := range ul {
-    t.AddUnit(u)
-  }
-}
-
-// AddUnit adds the provided unit to the triangle.
-func (t *Triangle) AddUnit(u *war.FieldUnit) {
-  if t == nil {
-    return
-  }
-  t.units = append(t.units, u)
 }
 
 // GetContract returns the rent agreement for the triangle, if any.
@@ -339,15 +322,6 @@ func (t *Triangle) GetNeighbour(d Direction) *Triangle {
     return t.neighbours[2]
   }
   return nil
-}
-
-// GetUnits returns a slice of units in the Triangle.
-func (t *Triangle) GetUnits() []*war.FieldUnit {
-  if t == nil {
-    return nil
-  }
-  ret := make([]*war.FieldUnit, 0, len(t.units))
-  return append(ret, t.units...)
 }
 
 // pointsUp returns true if the triangle is north-pointing.
@@ -530,8 +504,9 @@ func New(width, height int) (*Board, error) {
     brd.Vertices[x] = make([]*Vertex, height)
     for y := range brd.Vertices[x] {
       brd.Vertices[x][y] = &Vertex{
-        Point: coords.Point{x + brd.vtxOffset, y + brd.vtxOffset},
+        Node: graph.New(),
       }
+      brd.Vertices[x][y].Node.Point = coords.Point{x + brd.vtxOffset, y + brd.vtxOffset}
     }
   }
 
@@ -543,7 +518,7 @@ func New(width, height int) (*Board, error) {
       // Create North triangle if needed.
       if needN(width, height, x, y) {
         t := NewTriangle(0, South).withLoc(tIdx, y)
-        brd.triangleMap[t.Point] = t
+        brd.triangleMap[t.Node.Point] = t
         tIdx++
         brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, North); err != nil {
@@ -567,7 +542,7 @@ func New(width, height int) (*Board, error) {
       // Create NorthEast triangle if needed.
       if needNE(width, height, x, y) {
         t := NewTriangle(0, North).withLoc(tIdx, y)
-        brd.triangleMap[t.Point] = t
+        brd.triangleMap[t.Node.Point] = t
         tIdx++
         brd.Triangles = append(brd.Triangles, t)
         if err := vtx.setT(t, NorthEast); err != nil {
