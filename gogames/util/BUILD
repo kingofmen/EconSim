@@ -29,3 +29,12 @@ go_library(
     deps = [
     ],
 )
+
+go_test(
+    name = "coords_test",
+    srcs = ["coords_test.go"],
+    importpath = "gogames/util/coords",
+    embed = [
+      ":coords",
+    ],
+)
