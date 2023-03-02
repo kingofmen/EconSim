@@ -27,7 +27,7 @@ func (m *Mobile) Move(cost int, loc coords.Point) error {
   return nil
 }
 
-// GetNext return the next point on the Mobile's path.
+// GetNext returns the next point on the Mobile's path.
 func (m* Mobile) GetNext() *coords.Point {
   if m == nil || len(m.path) < 1 {
     return nil
