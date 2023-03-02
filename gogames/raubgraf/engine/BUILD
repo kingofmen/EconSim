@@ -120,6 +120,7 @@ go_library(
     importpath = "gogames/raubgraf/engine/pop",
     deps = [
       ":war",
+      "//gogames/util:coords",
     ],
 )
 

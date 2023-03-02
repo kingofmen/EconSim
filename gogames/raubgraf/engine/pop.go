@@ -2,6 +2,7 @@ package pop
 
 import(
   "gogames/raubgraf/engine/war"
+  "gogames/util/coords"
 )
 
 type Kind int
@@ -240,6 +241,7 @@ type Pop struct {
   hungry int
   busy bool
   action Action
+  target coords.Point
 
   levy *war.FieldUnit
 }
@@ -267,6 +269,7 @@ func (p *Pop) Clear() {
   }
   p.busy = false
   p.action = defaultAction(p.kind)
+  p.target = coords.Nil()
 }
 
 // defaultAction returns the default activity for the pop type.
@@ -292,6 +295,9 @@ func (p *Pop) Copy() *Pop {
   return &Pop{
     kind: p.kind,
     hungry: p.hungry,
+    busy: p.busy,
+    action: p.action,
+    target: p.target,
   }
 }
 
@@ -343,6 +349,14 @@ func (p *Pop) SetAction(act Action) {
     return
   }
   p.action = act
+}
+
+// SetTarget sets the desired location for the Pop's action.
+func (p *Pop) SetTarget(loc coords.Point) {
+  if p == nil {
+    return
+  }
+  p.target = loc
 }
 
 // Mobilise returns the pop's levy.
@@ -397,5 +411,6 @@ func New(k Kind) *Pop {
     hungry: 0,
     busy: false,
     levy: war.NewUnit(),
+    target: coords.Nil(),
   }
 }
