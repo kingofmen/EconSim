@@ -322,6 +322,13 @@ func (p *Pop) GetKind() Kind {
   return p.kind
 }
 
+func (p *Pop) GetTarget() coords.Point {
+  if p == nil {
+    return coords.Nil()
+  }
+  return p.target
+}
+
 // Eat either resets the hunger level of the pop to zero, or increases it,
 // depending on whether it's eating food or not.
 func (p *Pop) Eat(food bool) {
