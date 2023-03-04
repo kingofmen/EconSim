@@ -231,7 +231,7 @@ func NewTriangle(forest int, d Direction) *Triangle {
     Dwelling: pop.NewDwelling(),
     Store: econ.NewStore(),
     Holder: flags.New(),
-    Node: graph.New(),
+    Node: graph.New(0, 0),
     overgrowth: forest,
     points: d,
   }
@@ -504,9 +504,8 @@ func New(width, height int) (*Board, error) {
     brd.Vertices[x] = make([]*Vertex, height)
     for y := range brd.Vertices[x] {
       brd.Vertices[x][y] = &Vertex{
-        Node: graph.New(),
+        Node: graph.New(x + brd.vtxOffset, y + brd.vtxOffset),
       }
-      brd.Vertices[x][y].Node.Point = coords.Point{x + brd.vtxOffset, y + brd.vtxOffset}
     }
   }
 

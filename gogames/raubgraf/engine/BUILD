@@ -102,6 +102,17 @@ go_library(
     ],
 )
 
+go_test(
+    name = "graph_test",
+    srcs = ["graph_test.go"],
+    importpath = "gogames/raubgraf/engine/graph",
+    embed = [
+      ":graph",
+    ],
+    deps = [
+    ],
+)
+
 go_library(
     name = "mobile",
     srcs = [
