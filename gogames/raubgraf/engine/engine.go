@@ -5,6 +5,7 @@ import (
   "math"
 
   "gogames/raubgraf/engine/board"
+  "gogames/raubgraf/engine/graph"
   "gogames/raubgraf/engine/pop"
   "gogames/raubgraf/engine/war"
   "gogames/util/flags"
@@ -175,6 +176,34 @@ func (g *RaubgrafGame) clearV(v *board.Vertex) error {
   return nil
 }
 
+// mobV places FieldUnits from Vertex-dwelling Pops that Levy.
+func (g *RaubgrafGame) mobV(v *board.Vertex) error {
+  if v == nil {
+    return nil
+  }
+  knights := v.GetSettlement().FilteredPopulation(pop.KnightFilter, pop.LevyFilter)
+  for _, knight := range knights {
+    k := knight.Mobilise()
+    v.AddUnit(k)
+    target := g.world.NodeAt(knight.GetTarget())
+    k.Mobile.SetPath(graph.FindPath(v.Node, target, g.world.Distance, graph.DefaultCost))
+  }
+
+  return nil
+}
+
+// mobT places FieldUnits from Triangle-dwelling Pops that Levy.
+func (g *RaubgrafGame) mobT(t *board.Triangle) error {
+  if t == nil {
+    return nil
+  }
+
+  mobs := t.FilteredPopulation(pop.PeasantFilter, pop.LevyFilter)
+  mobs = append(mobs, t.FilteredPopulation(pop.BanditFilter, pop.FightingFilter)...)
+  t.AddUnits(mobilise(mobs))
+  return nil
+}
+
 // popsThinkT runs the Pop AI (for Triangle denizens) where not
 // overridden by incoming commands.
 func popsThinkT(t *board.Triangle) error {
@@ -244,6 +273,7 @@ func popsThinkV(v *board.Vertex) error {
     }
     triangles[best]--
     k.SetAction(pop.Levy)
+    k.SetTarget(best.Node.Point)
   }
   return nil
 }
@@ -298,9 +328,12 @@ func produce(t *board.Triangle) error {
   return nil
 }
 
-// move processes Pop movement.
-func move(t *board.Triangle) error {
-  // TODO: Implement
+// moveUnits processes FieldUnit movement.
+func (g *RaubgrafGame) moveUnits() error {
+  if err := g.valid(); err != nil {
+    return err
+  }
+  // TODO: Implement.
   return nil
 }
 
@@ -459,10 +492,13 @@ func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
     return err
   }
+  if err := g.processBoard("Mobilise", g.mobV, g.mobT, true); err != nil {
+    return err
+  }
   if err := g.processTriangles("Production", produce); err != nil {
     return err
   }
-  if err := g.processTriangles("Move", move); err != nil {
+  if err := g.moveUnits(); err != nil {
     return err
   }
   if err := g.processTriangles("Fight!", fight); err != nil {
