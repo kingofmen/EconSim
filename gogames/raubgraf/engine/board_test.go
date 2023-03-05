@@ -1,6 +1,7 @@
 package board
 
 import (
+  "math"
   "strings"
   "testing"
 
@@ -115,7 +116,7 @@ func TestNewBoard(t *testing.T) {
       for x := 0; x < cc.w; x++ {
         for y := 0; y < cc.h; y++ {
           vc := coords.Point{x, y}
-          v1 := b.GetVertex(x, y)
+          v1 := b.getVertex(x, y)
           if v1 == nil {
             t.Errorf("New(%d, %d) => coordinates (%d, %d) do not exist", cc.w, cc.h, x, y)
             continue
@@ -151,7 +152,7 @@ func TestNewBoard(t *testing.T) {
       }
 
       if cc.full.X() + cc.full.Y() > 0 {
-        v := b.VertexAt(cc.full)
+        v := b.getVertex(cc.full.X(), cc.full.Y())
         if v == nil {
           t.Errorf("New(%d, %d) => nil vertex (%v), expect full hex.", cc.w, cc.h, cc.full)
           return
@@ -164,7 +165,7 @@ func TestNewBoard(t *testing.T) {
       }
 
       for _, p := range cc.partial {
-        v := b.VertexAt(p.vc)
+        v := b.getVertex(p.vc.X(), p.vc.Y())
         if v == nil {
           t.Errorf("New(%d, %d) => vertex (%v) is nil, expect partial %v", cc.w, cc.h, p.vc, p.good)
           continue
@@ -441,6 +442,57 @@ func TestPopFilters(t *testing.T) {
         if exp != g {
           t.Errorf("%s: FilteredPopulation()[%d] => %v, expect index %d", cc.desc, idx, got, cc.all[idx])
         }
+      }
+    })
+  }
+}
+
+func TestDistance(t *testing.T) {
+  bb, err := New(5, 5)
+  if err != nil {
+    t.Fatalf("Could not create board: %v", err)
+  }
+  cases := []struct{
+    desc string
+    src coords.Point
+    dst coords.Point
+    exp float64
+  } {
+    {
+      desc: "Two vertices",
+      src: coords.New(0+bb.vtxOffset, 0+bb.vtxOffset),
+      dst: coords.New(3+bb.vtxOffset, 3+bb.vtxOffset),
+      exp: math.Sqrt(18.0),
+    },
+    {
+      desc: "Two triangles",
+      src: coords.New(0, 0),
+      dst: coords.New(3, 3),
+      exp: math.Sqrt(18.0),
+    },
+    {
+      desc: "Triangle and vertex",
+      src: coords.New(0, 0),
+      dst: coords.New(3+bb.vtxOffset, 3+bb.vtxOffset),
+      exp: math.Sqrt(13.0) + 0.5,
+    },
+    {
+      desc: "Bad vertex",
+      src: coords.New(0, 0),
+      dst: coords.New(1000, 1000),
+      exp: math.MaxFloat64,
+    },
+  }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func(t *testing.T) {
+      got1 := bb.Distance(cc.src, cc.dst)
+      got2 := bb.Distance(cc.dst, cc.src)
+      if got1 != got2 {
+        t.Errorf("%s: Asymmetric distances %f <=> %f", cc.desc, got1, got2)
+      }
+      if got1 != cc.exp {
+        t.Errorf("%s: Distance(%s, %s) => %f, want %f", cc.desc, cc.src.String(), cc.dst.String(), got1, cc.exp)
       }
     })
   }

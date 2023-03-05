@@ -2,6 +2,7 @@ package board
 
 import (
   "fmt"
+  "math"
 
   "gogames/raubgraf/engine/building"
   "gogames/raubgraf/engine/econ"
@@ -390,19 +391,13 @@ func (b *Board) GetAllPops() pop.List {
   return ret
 }
 
-// GetVertex returns the vertex at (x, y).
-func (b *Board) GetVertex(x, y int) *Vertex {
+// getVertex returns the vertex at (x, y).
+func (b *Board) getVertex(x, y int) *Vertex {
   if b == nil {
     return nil
   }
   if x < 0 || y < 0 {
     return nil
-  }
-  if x >= b.vtxOffset {
-    x -= b.vtxOffset
-  }
-  if y >= b.vtxOffset {
-    y -= b.vtxOffset
   }
   if x >= len(b.Vertices) {
     return nil
@@ -420,7 +415,10 @@ func (b *Board) GetTriangle(x, y int) *Triangle {
 
 // VertexAt returns the vertex at the coordinates vc.
 func (b *Board) VertexAt(vc coords.Point) *Vertex {
-  return b.GetVertex(vc.X(), vc.Y())
+  if b == nil {
+    return nil
+  }
+  return b.getVertex(vc.X() - b.vtxOffset, vc.Y() - b.vtxOffset)
 }
 
 // TriangleAt returns the triangle at the coordinates tc.
@@ -434,6 +432,78 @@ func (b *Board) TriangleAt(tc coords.Point) *Triangle {
   return b.triangleMap[tc]
 }
 
+// NodeAt returns the Node at the given point, whether it
+// is a vertex or a triangle.
+func (b *Board) NodeAt(tc coords.Point) *graph.Node {
+  if b == nil {
+    return nil
+  }
+  if vtx := b.VertexAt(tc); vtx != nil {
+    return vtx.Node
+  }
+  if tt := b.TriangleAt(tc); tt != nil {
+    return tt.Node
+  }
+  return nil
+}
+
+// nonNilVtx returns the first non-nil vertex.
+func nonNilVtx(vs ...*Vertex) *Vertex {
+  for _, v := range vs {
+    if v != nil {
+      return v
+    }
+  }
+  return nil
+}
+
+// nonNilTriangle returns the first non-nil triangle.
+func nonNilTriangle(ts ...*Triangle) *Triangle {
+  for _, t := range ts {
+    if t != nil {
+      return t
+    }
+  }
+  return nil
+}
+
+// Distance returns the distance between the objects at the
+// two points. Note that this is not the simple Cartesian
+// distance if one is a vertex and the other a triangle.
+func (b *Board) Distance(src, dst coords.Point) float64 {
+  if b == nil {
+    return math.MaxFloat64
+  }
+  vtx1, vtx2 := b.VertexAt(src), b.VertexAt(dst)
+  if vtx1 != nil && vtx2 != nil {
+    return graph.DefaultDistance(src, dst)
+  }
+  tt1, tt2 := b.TriangleAt(src), b.TriangleAt(dst)
+  if tt1 != nil && tt2 != nil {
+    return graph.DefaultDistance(src, dst)
+  }
+
+  vtx := nonNilVtx(vtx1, vtx2)
+  if vtx == nil {
+    return math.MaxFloat64
+  }
+
+  tt := nonNilTriangle(tt1, tt2)
+  if tt == nil {
+    return math.MaxFloat64
+  }
+  least := math.MaxFloat64
+  for _, cvtx := range tt.vertices {
+    if cvtx == nil {
+      continue
+    }
+    if dist := graph.DefaultDistance(vtx.Node.Point, cvtx.Node.Point); dist < least {
+      least = dist
+    }
+  }
+  return least + 0.5
+}
+
 // neighbour returns the neighbour of the vertex at (x, y)
 // in the direction d, if it exists.
 func (b *Board) neighbour(x, y int, d Direction) *Vertex {
@@ -444,21 +514,21 @@ func (b *Board) neighbour(x, y int, d Direction) *Vertex {
   w := 1 - e
   switch d {
   case North:
-    return b.GetVertex(x+0, y+2)
+    return b.getVertex(x+0, y+2)
   case NorthEast:
-    return b.GetVertex(x+e, y+1)
+    return b.getVertex(x+e, y+1)
   case East:
-    return b.GetVertex(x+1, y+0)
+    return b.getVertex(x+1, y+0)
   case SouthEast:
-    return b.GetVertex(x+e, y-1)
+    return b.getVertex(x+e, y-1)
   case South:
-    return b.GetVertex(x+0, y-2)
+    return b.getVertex(x+0, y-2)
   case SouthWest:
-    return b.GetVertex(x-w, y-1)
+    return b.getVertex(x-w, y-1)
   case West:
-    return b.GetVertex(x-1, y+0)
+    return b.getVertex(x-1, y+0)
   case NorthWest:
-    return b.GetVertex(x-w, y+1)
+    return b.getVertex(x-w, y+1)
   }
   return nil
 }
