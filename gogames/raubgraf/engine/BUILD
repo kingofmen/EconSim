@@ -5,6 +5,7 @@ go_library(
     srcs = [
       "engine.go",
     ],
+    visibility = ["//visibility:public"],
     importpath = "gogames/raubgraf/engine/engine",
     deps = [
       ":board",
