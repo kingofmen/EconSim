@@ -7,6 +7,8 @@ import (
   "gogames/raubgraf/engine/board"
   "gogames/raubgraf/engine/econ"
   "gogames/raubgraf/engine/pop"
+  "gogames/raubgraf/engine/war"
+  "gogames/util/coords"
 )
 
 func TestProcessTriangles(t *testing.T) {
@@ -595,6 +597,58 @@ func TestCleanBoard(t *testing.T) {
         if got := tt.Value(k); got != want {
           t.Errorf("%s: clearT() => {%s : %d}, want %d", cc.desc, k, got, want)
         }
+      }
+    })
+  }
+}
+
+func TestMoveUnits(t *testing.T) {
+  bb, err := board.New(3, 3)
+  if err != nil {
+    t.Fatalf("Could not create board: %v", err)
+  }
+  game := NewGame(bb)
+
+  cases := []struct{
+    desc string
+    start coords.Point
+    end coords.Point
+    exp coords.Point
+  } {
+    {
+      desc: "Move one unit",
+      start: coords.New(0, 0),
+      end: coords.New(1, 0),
+      exp: coords.New(1, 0),
+    },
+  }
+
+  for _, cc := range cases {
+    t.Run(cc.desc, func (t *testing.T) {
+      unit := war.NewUnit()
+      unit.SetLocation(cc.start)
+      unit.SetPath([]coords.Point{cc.end})
+      unit.ResetMove(10)
+      game.units = append(game.units, unit)
+      sNode := bb.NodeAt(cc.start)
+      if sNode == nil {
+        t.Fatalf("%s: Could not find start node at %s", cc.desc, cc.start.String())
+      }
+      eNode := bb.NodeAt(cc.end)
+      if eNode == nil {
+        t.Fatalf("%s: Could not find end node at %s", cc.desc, cc.end.String())
+      }
+      if err := game.moveUnits(); err != nil {
+        t.Errorf("%s: moveUnits() => %v, want nil", cc.desc, err)
+      }
+      if got := unit.Mobile.Point; got != cc.exp {
+        t.Errorf("%s: moveUnits() moved unit to %s, want %s", cc.desc, got.String(), cc.exp.String())
+      }
+      if sUnits := sNode.GetUnits(); len(sUnits) != 0 {
+        t.Errorf("%s: Found %d units in start node %s, expect 0", cc.desc, len(sUnits), sNode.Point.String())
+      }
+      if eUnits := eNode.GetUnits(); len(eUnits) != 1 {
+        t.Errorf("%s: Found %d units in end node %s, expect 0", cc.desc, len(eUnits), eNode.Point.String())
       }
     })
   }

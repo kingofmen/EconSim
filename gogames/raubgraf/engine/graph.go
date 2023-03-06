@@ -57,6 +57,9 @@ func (n *Node) AddNeighbour(nb *Node) {
 
 // AddUnits adds the provided units to the node.
 func (n *Node) AddUnits(ul []*war.FieldUnit) {
+  if n == nil {
+    return
+  }
   for _, u := range ul {
     n.AddUnit(u)
   }
@@ -67,8 +70,31 @@ func (n *Node) AddUnit(u *war.FieldUnit) {
   if n == nil {
     return
   }
-  u.Mobile.SetLocation(n.Point)
+  // Make sure we do not double-add.
+  for _, c := range n.units {
+    if c == u {
+      return
+    }
+  }
   n.units = append(n.units, u)
+}
+
+func (n *Node) RemoveUnit(u *war.FieldUnit) {
+  if n == nil {
+    return
+  }
+  idx := -1
+  for i, c := range n.units {
+    if c != u {
+      continue
+    }
+    idx = i
+    break
+  }
+  if idx < 0 {
+    return
+  }
+  n.units = append(n.units[:idx], n.units[idx+1:]...)
 }
 
 // makePath returns the path from start to end given

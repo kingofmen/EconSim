@@ -27,8 +27,17 @@ func (m *Mobile) Move(cost int, loc coords.Point) error {
   return nil
 }
 
+// GetMovePoints returns the remaining movement points.
+func (m *Mobile) GetMovePoints() int {
+  if m == nil {
+    return 0
+  }
+  return m.movement
+}
+
 // GetNext returns the next point on the Mobile's path.
-func (m* Mobile) GetNext() *coords.Point {
+// TODO: Why pointer?
+func (m *Mobile) GetNext() *coords.Point {
   if m == nil || len(m.path) < 1 {
     return nil
   }

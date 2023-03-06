@@ -26,6 +26,7 @@ go_test(
       ":board",
       ":econ",
       ":pop",
+      "//gogames/util:coords",
       "//gogames/util:flags",
     ],
 )

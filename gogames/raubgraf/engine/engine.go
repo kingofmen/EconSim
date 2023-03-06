@@ -3,6 +3,7 @@ package engine
 import (
   "fmt"
   "math"
+  "math/rand"
 
   "gogames/raubgraf/engine/board"
   "gogames/raubgraf/engine/graph"
@@ -48,13 +49,16 @@ type vFunc func(v *board.Vertex) error
 type tFunc func(t *board.Triangle) error
 
 type RaubgrafGame struct {
+  dice *rand.Rand
   world *board.Board
   decay *flags.Holder
+  units []*war.FieldUnit
 }
 
 // NewGame returns a new game object.
 func NewGame(w *board.Board) *RaubgrafGame {
   g := &RaubgrafGame{
+    dice: rand.New(rand.NewSource(3)),
     world: w,
     decay: flags.New(),
   }
@@ -185,6 +189,7 @@ func (g *RaubgrafGame) mobV(v *board.Vertex) error {
   for _, knight := range knights {
     k := knight.Mobilise()
     v.AddUnit(k)
+    g.units = append(g.units, k)
     target := g.world.NodeAt(knight.GetTarget())
     k.Mobile.SetPath(graph.FindPath(v.Node, target, g.world.Distance, graph.DefaultCost))
   }
@@ -200,7 +205,9 @@ func (g *RaubgrafGame) mobT(t *board.Triangle) error {
 
   mobs := t.FilteredPopulation(pop.PeasantFilter, pop.LevyFilter)
   mobs = append(mobs, t.FilteredPopulation(pop.BanditFilter, pop.FightingFilter)...)
-  t.AddUnits(mobilise(mobs))
+  levies := mobilise(mobs)
+  t.AddUnits(levies)
+  g.units = append(g.units, levies...)
   return nil
 }
 
@@ -328,12 +335,53 @@ func produce(t *board.Triangle) error {
   return nil
 }
 
+// movingUnits returns those units that still have movement points.
+func movingUnits(cands []*war.FieldUnit) []*war.FieldUnit {
+  ret := make([]*war.FieldUnit, 0, len(cands))
+  for _, cc := range cands {
+    if cc.GetNext() == nil {
+      continue
+    }
+    if cc.GetMovePoints() < 1 {
+      continue
+    }
+    ret = append(ret, cc)
+  }
+  return ret
+}
+
 // moveUnits processes FieldUnit movement.
 func (g *RaubgrafGame) moveUnits() error {
   if err := g.valid(); err != nil {
     return err
   }
-  // TODO: Implement.
+  movers := movingUnits(g.units)
+  for len(movers) > 0 {
+    g.dice.Shuffle(len(movers), func(i, j int) {
+      movers[i], movers[j] = movers[j], movers[i]
+    })
+
+    for _, mob := range movers {
+      cNode := g.world.NodeAt(mob.Point)
+      if cNode != nil {
+        cNode.RemoveUnit(mob)
+      }
+      loc := mob.GetNext()
+      if loc == nil {
+        continue
+      }
+      // TODO: Actually calculate movement cost here.
+      mob.Move(1, *loc)
+      // TODO: Check whether this starts any battles that
+      // will prevent other units from moving.
+      nNode := g.world.NodeAt(mob.Point)
+      if nNode == nil {
+        return fmt.Errorf("cannot find node at %s", mob.Point.String())
+      }
+      nNode.AddUnit(mob)
+    }
+    movers = movingUnits(movers)
+  }
   return nil
 }
 
@@ -516,5 +564,6 @@ func (g *RaubgrafGame) ResolveTurn() error {
   if err := g.processTriangles("Demographics", demographics); err != nil {
     return err
   }
+  // TODO: Demobilise.
   return nil
 }
