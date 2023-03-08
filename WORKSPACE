@@ -35,10 +35,10 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_go/releases/download/v0.28.0/rules_go-v0.28.0.zip",
 )
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
 
 go_rules_dependencies()
-go_register_toolchains(version = "1.16.5")
+go_register_toolchains(version = "1.18.10")
 
 # Needed for Abseil.
 http_archive(
@@ -80,12 +80,6 @@ new_local_repository(
 local_repository(
     name = "com_google_absl",
     path = "C:\\Users\\Rolf\\base\\third_party\\abseil-cpp",
-)
-
-new_local_repository(
-    name = "ogre",
-    path = "C:\\Users\\Rolf\\base\\third_party\\ogre",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\\ogre\\ogre.BUILD",
 )
 
 new_local_repository(
