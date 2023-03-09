@@ -23,6 +23,7 @@ func main() {
 	var err error
 	for {
 		handler.Display()
+		clientlib.Flip()
 		scanner.Scan()
 		if err := scanner.Err(); err != nil {
 			log.Printf("Error during input scan: %v", err)
