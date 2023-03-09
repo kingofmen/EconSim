@@ -2,16 +2,29 @@
 // It is intended for development and debugging.
 package clientlib
 
-import ()
+import (
+	"fmt"
+)
 
-// Display writes the game state to the shell.
-func Display() error {
-	// TODO: Implement.
-	return nil
+type Handler interface {
+	Display()
+	Parse(inp string) (Handler, error)
 }
 
-// Parse parses a user command.
-func Parse() error {
-	// TODO: Implement.
-	return nil
+type startHandler struct {
+}
+
+func (h *startHandler) Display() {
+	fmt.Printf("\033[H")
+}
+
+func (h *startHandler) Parse(inp string) (Handler, error) {
+	if inp == "quit" {
+		return h, fmt.Errorf("Quit command received")
+	}
+	return h, nil
+}
+
+func StartScreenHandler() Handler {
+	return &startHandler{}
 }
