@@ -11,3 +11,13 @@ go_library(
     ],
 )
 
+go_binary(
+    name = "devgraf",
+    srcs = [
+      "dev_main.go",
+    ],
+    deps = [
+      ":client_lib",
+      "//third_party/golang.org/windows:windows",
+    ],
+)
