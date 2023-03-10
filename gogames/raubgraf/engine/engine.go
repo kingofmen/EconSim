@@ -55,8 +55,8 @@ type RaubgrafGame struct {
 	units []*war.FieldUnit
 }
 
-// NewGame returns a new game object.
-func NewGame(w *board.Board) *RaubgrafGame {
+// newGame returns a new game object using the provided board.
+func newGame(w *board.Board) *RaubgrafGame {
 	g := &RaubgrafGame{
 		dice:  rand.New(rand.NewSource(3)),
 		world: w,
@@ -66,6 +66,15 @@ func NewGame(w *board.Board) *RaubgrafGame {
 		g.decay.AddFlag(k, v)
 	}
 	return g
+}
+
+// NewGame creates a new board and returns a game object that uses it.
+func NewGame(w, h int) (*RaubgrafGame, error) {
+	bb, err := board.New(w, h)
+	if err != nil {
+		return nil, err
+	}
+	return newGame(bb), nil
 }
 
 func (g *RaubgrafGame) valid() error {
