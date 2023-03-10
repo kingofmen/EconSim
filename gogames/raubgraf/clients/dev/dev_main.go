@@ -10,32 +10,55 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func main() {
-	var outMode uint32
-	out := windows.Handle(os.Stdout.Fd())
-	if err := windows.GetConsoleMode(out, &outMode); err == nil {
-		outMode |= windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING
-		_ = windows.SetConsoleMode(out, outMode)
+func runGame() error {
+	var origOutMode, origInMode uint32
+	outHandle := windows.Handle(os.Stdout.Fd())
+	if err := windows.GetConsoleMode(outHandle, &origOutMode); err != nil {
+		return err
 	}
+	defer windows.SetConsoleMode(outHandle, origOutMode)
+	outMode := origOutMode | windows.ENABLE_PROCESSED_OUTPUT | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING
+	_ = windows.SetConsoleMode(outHandle, outMode)
+
+	inHandle := windows.Handle(os.Stdin.Fd())
+	if err := windows.GetConsoleMode(inHandle, &origInMode); err != nil {
+		return err
+	}
+	inMode := origInMode &^ windows.ENABLE_LINE_INPUT
+	_ = windows.SetConsoleMode(inHandle, inMode)
+	defer windows.SetConsoleMode(inHandle, origInMode)
 
 	handler := clientlib.StartScreenHandler()
-	scanner := bufio.NewScanner(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 	var err error
 	for {
 		handler.Display()
 		clientlib.Flip()
-		scanner.Scan()
-		if err := scanner.Err(); err != nil {
-			log.Printf("Error during input scan: %v", err)
-			break
+		var input string
+		switch handler.Format() {
+		case clientlib.IFString:
+			input, err = reader.ReadString('\n')
+			if err != nil {
+				return err
+			}
+		case clientlib.IFChar:
+			c, err := reader.ReadByte()
+			if err != nil {
+				return err
+			}
+			input = string(c)
 		}
-		inp := scanner.Text()
-		handler, err = handler.Parse(inp)
+		handler, err = handler.Parse(input)
 		if err != nil {
-			log.Printf("Error parsing input %q: %v", inp, err)
-			break
+			return err
 		}
 	}
+	return nil
+}
 
+func main() {
+	if err := runGame(); err != nil {
+		log.Printf("Exit due to error: %v", err)
+	}
 	os.Exit(0)
 }

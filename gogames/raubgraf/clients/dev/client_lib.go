@@ -7,9 +7,14 @@ import (
 	"strings"
 )
 
+type InputFormat int
+
 const (
 	width  = 256
 	height = 64
+
+	IFString InputFormat = iota
+	IFChar
 )
 
 var (
@@ -19,6 +24,7 @@ var (
 type Handler interface {
 	Display()
 	Parse(inp string) (Handler, error)
+	Format() InputFormat
 }
 
 type startHandler struct {
@@ -35,6 +41,10 @@ func Flip() {
 	for _, l := range lines {
 		fmt.Println(l)
 	}
+}
+
+func (h *startHandler) Format() InputFormat {
+	return IFChar
 }
 
 func (h *startHandler) Display() {
@@ -64,7 +74,7 @@ func (h *startHandler) Display() {
 }
 
 func (h *startHandler) Parse(inp string) (Handler, error) {
-	if inp == "quit" {
+	if inp == "q" {
 		return h, fmt.Errorf("Quit command received")
 	}
 	return h, nil
