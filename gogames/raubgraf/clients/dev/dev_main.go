@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
 
@@ -50,6 +51,9 @@ func runGame() error {
 		}
 		handler, err = handler.Parse(input)
 		if err != nil {
+			if errors.Is(err, clientlib.QuitSignal) {
+				break
+			}
 			return err
 		}
 	}

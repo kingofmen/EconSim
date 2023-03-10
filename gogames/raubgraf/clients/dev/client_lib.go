@@ -3,6 +3,7 @@
 package clientlib
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -18,7 +19,8 @@ const (
 )
 
 var (
-	lines []string
+	QuitSignal = errors.New("quit")
+	lines      []string
 )
 
 type Handler interface {
@@ -74,8 +76,8 @@ func (h *startHandler) Display() {
 }
 
 func (h *startHandler) Parse(inp string) (Handler, error) {
-	if inp == "q" {
-		return h, fmt.Errorf("Quit command received")
+	if strings.ToLower(inp) == "q" {
+		return h, QuitSignal
 	}
 	return h, nil
 }
