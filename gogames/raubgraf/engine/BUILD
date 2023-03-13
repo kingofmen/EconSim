@@ -5,7 +5,6 @@ go_library(
     srcs = [
       "engine.go",
     ],
-    visibility = ["//visibility:public"],
     importpath = "gogames/raubgraf/engine/engine",
     deps = [
       ":board",
@@ -113,6 +112,22 @@ go_test(
       ":graph",
     ],
     deps = [
+    ],
+)
+
+go_library(
+    name = "handler",
+    srcs = [
+      "handler.go",
+    ],
+    visibility = ["//visibility:public"],
+    importpath = "gogames/raubgraf/engine/handler",
+    deps = [
+      ":board",
+      ":engine",
+      ":graph",
+      ":pop",
+      ":war",
     ],
 )
 

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gogames/raubgraf/engine/engine"
+	"gogames/raubgraf/engine/handler"
 )
 
 type InputFormat int
@@ -36,7 +36,7 @@ type startHandler struct {
 }
 
 type gameHandler struct {
-	game *engine.RaubgrafGame
+	gameID int
 }
 
 func clear() {
@@ -62,6 +62,7 @@ func (h *gameHandler) Format() InputFormat {
 
 func (h *gameHandler) Display() {
 	clear()
+
 }
 
 func (h *gameHandler) Parse(inp string) (Handler, error) {
@@ -117,11 +118,11 @@ func (h *startHandler) Parse(inp string) (Handler, error) {
 		if size < 5 {
 			size *= 10
 		}
-		game, err := engine.NewGame(size, size)
+		gid, err := handler.CreateGame(size, size)
 		if err != nil {
 			return h, err
 		}
-		return &gameHandler{game: game}, nil
+		return &gameHandler{gameID: gid}, nil
 	}
 	if strings.ToLower(inp) == "l" {
 		return h, fmt.Errorf("Game loading not implemented.")

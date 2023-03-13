@@ -7,7 +7,7 @@ go_library(
     ],
     importpath = "gogames/raubgraf/clients/dev/clientlib",
     deps = [
-      "//gogames/raubgraf/engine:engine",
+      "//gogames/raubgraf/engine:handler",
     ],
 )
 
