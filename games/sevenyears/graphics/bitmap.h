@@ -1,6 +1,8 @@
 #ifndef GAMES_SEVENYEARS_GRAPHICS_BITMAP_H
 #define GAMES_SEVENYEARS_GRAPHICS_BITMAP_H
 
+// TODO: Upgrade to C++17
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 
 #include "util/status/status.h"

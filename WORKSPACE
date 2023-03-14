@@ -4,14 +4,14 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Protobuf dependencies that it doesn't load for itself, probably because of the indirection.
 # Copied from https://github.com/protocolbuffers/protobuf/blob/main/protobuf_deps.bzl.
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-    ],
-)
+#http_archive(
+#    name = "bazel_skylib",
+#    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
+#    urls = [
+#        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+#        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+#    ],
+#)
 http_archive(
     name = "rules_pkg",
     urls = [
@@ -27,8 +27,6 @@ http_archive(
 )
 
 # Golang rules.
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 http_archive(
     name = "io_bazel_rules_go",
     sha256 = "56d8c5a5c91e1af73eca71a6fab2ced959b67c86d12ba37feedb0a2dfea441a6",
@@ -50,49 +48,50 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
 )
 
-# Needed to let proto_library rules find protoc.
-# Known issue: https://github.com/google/protobuf/issues/3766
-local_repository(
+# Protobuf support.
+http_archive(
     name = "com_google_protobuf",
-    path = "C:\\Users\\Rolf\\base\\protobuf\\",
+    sha256 = "d0f5f605d0d656007ce6c8b5a82df3037e1d8fe8b121ed42e536f569dec16113",
+    strip_prefix = "protobuf-3.14.0",
+    urls = [
+        "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
+    ],
 )
-
-local_repository(
-    name = "com_google_protobuf_cc",
-    path = "C:\\Users\\Rolf\\base\\protobuf\\",
-)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
 new_local_repository(
     name = "gtest",
-    path = "C:\\Users\\Rolf\\base\\protobuf\\",
+    path = "C:\\users\\rolfa\\base\\protobuf\\",
     build_file = "gmock.BUILD",
 )
 
 new_local_repository(
     name = "freetype",
-    path = "C:\\Users\\Rolf\\base\\third_party\\freetype\\",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\\freetype\\BUILD",
+    path = "C:\\users\\rolfa\\base\\third_party\\freetype\\",
+    build_file = "C:\\users\\rolfa\\base\\third_party\\freetype\\BUILD",
 )
 
 new_local_repository(
     name = "sdl_ttf",
-    path = "C:\\Users\\Rolf\\base\\third_party\\SDL_TTF\\",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\\SDL_TTF\\BUILD",
+    path = "C:\\users\\rolfa\\base\\third_party\\SDL_TTF\\",
+    build_file = "C:\\users\\rolfa\\base\\third_party\\SDL_TTF\\BUILD",
 )
 
 local_repository(
     name = "com_google_absl",
-    path = "C:\\Users\\Rolf\\base\\third_party\\abseil-cpp",
+    path = "C:\\users\\rolfa\\base\\third_party\\abseil-cpp",
 )
 
 new_local_repository(
     name = "horde3d",
-    path = "C:\\Users\\Rolf\\base\\third_party\\Horde3D",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\\Horde3D\\horde3d.BUILD",
+    path = "C:\\users\\rolfa\\base\\third_party\\Horde3D",
+    build_file = "C:\\users\\rolfa\\base\\third_party\\Horde3D\\horde3d.BUILD",
 )
 
 new_local_repository(
     name = "sdl2",
-    path = "C:\\Users\\Rolf\\base\\third_party\\sdl2",
-    build_file = "C:\\Users\\Rolf\\base\\third_party\\sdl2\\BUILD.bazel",
+    path = "C:\\users\\rolfa\\base\\third_party\\sdl2",
+    build_file = "C:\\users\\rolfa\\base\\third_party\\sdl2\\BUILD.bazel",
 )

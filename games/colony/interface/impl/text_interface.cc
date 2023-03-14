@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cstdlib>
 #include <conio.h>
+// TODO: Upgrade to C++17
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 #include <fstream>
 #include <functional>
@@ -115,7 +117,8 @@ TextInterface::InputArea next(TextInterface::InputArea a) {
 }  // namespace
 
 TextInterface::TextInterface(controller::GameControl* c)
-    : display_(rows, std::string(columns, ' ')), colours_(rows, {}),
+    : display_(rows, std::string(columns, ' ')),
+      colours_(rows, std::vector<std::tuple<int, int>>{}),
       quit_(false), selected_input_area_(IA_POP) {
   // TODO: Get this from actual input.
   player_faction_id_ = 1;

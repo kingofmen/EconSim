@@ -1,5 +1,7 @@
 #include "games/sevenyears/test_utils.h"
 
+// TODO: Upgrade to C++17
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 
 #include "absl/strings/substitute.h"

@@ -1,5 +1,7 @@
 #include "games/setup/setup.h"
 
+// TODO: Upgrade to C++17
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 
 #include "games/actions/strategy.h"

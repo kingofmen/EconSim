@@ -42,7 +42,7 @@ cc_test(
         "//util/status:status",
         "@gtest//:gtest",
         "@gtest//:gtest_main",
-        "@com_google_protobuf_cc//:protobuf",
+        "@com_google_protobuf//:protobuf",
     ],
     data = [":testdata"],
 )
