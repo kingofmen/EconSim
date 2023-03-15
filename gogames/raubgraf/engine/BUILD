@@ -128,6 +128,8 @@ go_library(
       ":graph",
       ":pop",
       ":war",
+      "//gogames/raubgraf/proto:state_go_proto",
+      "@com_github_golang_protobuf//proto:proto",
     ],
 )
 

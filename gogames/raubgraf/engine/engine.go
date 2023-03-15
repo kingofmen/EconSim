@@ -77,6 +77,13 @@ func NewGame(w, h int) (*RaubgrafGame, error) {
 	return newGame(bb), nil
 }
 
+func (g *RaubgrafGame) GetBoard() *board.Board {
+	if g == nil {
+		return nil
+	}
+	return g.world
+}
+
 func (g *RaubgrafGame) valid() error {
 	if g == nil {
 		return fmt.Errorf("nil game object")
