@@ -1,0 +1,7 @@
+syntax = "proto2";
+package raubgraf.state.proto;
+
+message Board {
+  optional uint32 width = 1;
+  optional uint32 height = 2;
+}
