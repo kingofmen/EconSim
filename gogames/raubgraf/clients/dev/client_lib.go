@@ -14,8 +14,9 @@ import (
 type InputFormat int
 
 const (
-	width  = 256
-	height = 64
+	width    = 256
+	height   = 64
+	msgLines = 8
 
 	IFString InputFormat = iota
 	IFChar
@@ -24,6 +25,7 @@ const (
 var (
 	QuitSignal = errors.New("quit")
 	lines      []string
+	messages   []string
 )
 
 type Handler interface {
@@ -45,10 +47,38 @@ func clear() {
 	}
 }
 
+// message adds a string to the message log.
+func message(msg string) {
+	if len(messages) < msgLines {
+		messages = append(messages, msg)
+		return
+	}
+
+	// Don't append-and-reslice here as it may extend the
+	// underlying array indefinitely.
+	for idx := 0; idx < msgLines-1; idx++ {
+		messages[idx] = messages[idx+1]
+	}
+	messages[msgLines-1] = msg
+}
+
+// messagef adds a formatted message to the log.
+func messagef(format string, args ...interface{}) {
+	message(fmt.Sprintf(format, args...))
+}
+
+// Flip prints the display lines to screen.
 func Flip() {
 	fmt.Printf("\033[H")
 	for _, l := range lines {
 		fmt.Println(l)
+	}
+}
+
+// printMessages blits the message log into the display lines.
+func printMessages() {
+	for idx, msg := range messages {
+		lines[height-msgLines+idx] = msg
 	}
 }
 
@@ -62,7 +92,12 @@ func (h *gameHandler) Format() InputFormat {
 
 func (h *gameHandler) Display() {
 	clear()
-
+	board, err := handler.GetGameState(h.gameID)
+	if err != nil {
+		messagef("Error getting game state %d: %v", h.gameID, err)
+	}
+	messagef("Game %d has size (%d, %d)", h.gameID, board.GetWidth(), board.GetHeight())
+	printMessages()
 }
 
 func (h *gameHandler) Parse(inp string) (Handler, error) {
