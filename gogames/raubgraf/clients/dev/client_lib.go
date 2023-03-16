@@ -14,9 +14,11 @@ import (
 type InputFormat int
 
 const (
-	width    = 256
-	height   = 64
-	msgLines = 8
+	width          = 256
+	height         = 64
+	msgLines       = 8
+	vtxSep         = 6
+	viewPortBottom = height - msgLines
 
 	IFString InputFormat = iota
 	IFChar
@@ -38,7 +40,17 @@ type startHandler struct {
 }
 
 type gameHandler struct {
-	gameID int
+	gameID      int
+	viewOffsetX int
+	viewOffsetY int
+}
+
+func newGameHandler(gid int) *gameHandler {
+	return &gameHandler{
+		gameID:      gid,
+		viewOffsetX: 0,
+		viewOffsetY: 0,
+	}
 }
 
 func clear() {
@@ -78,8 +90,26 @@ func Flip() {
 // printMessages blits the message log into the display lines.
 func printMessages() {
 	for idx, msg := range messages {
-		lines[height-msgLines+idx] = msg
+		lines[height-msgLines+idx] = fmt.Sprintf("%s%s", msg, strings.Repeat(" ", width-len(msg)))
 	}
+}
+
+// show inserts 'val' at (x, y).
+func show(x, y int, val string) {
+	if x+len(val) < 0 || y < 0 {
+		return
+	}
+	if x >= width || y >= height-msgLines {
+		return
+	}
+	if x < 0 {
+		val = val[-x:]
+		x = 0
+	}
+	if x+len(val) > width {
+		val = val[:width-x]
+	}
+	lines[y] = lines[y][:x] + val + lines[y][x+len(val):]
 }
 
 func (h *startHandler) Format() InputFormat {
@@ -96,13 +126,31 @@ func (h *gameHandler) Display() {
 	if err != nil {
 		messagef("Error getting game state %d: %v", h.gameID, err)
 	}
-	messagef("Game %d has size (%d, %d)", h.gameID, board.GetWidth(), board.GetHeight())
+	for row := 0; row < int(board.GetHeight()); row++ {
+		yloc := row*vtxSep + h.viewOffsetY
+		for col := 0; col < int(board.GetWidth()); col++ {
+			xloc := col*vtxSep + (row%2)*(vtxSep/2) + h.viewOffsetX
+			show(xloc, viewPortBottom-yloc, "vtx")
+		}
+	}
 	printMessages()
 }
 
 func (h *gameHandler) Parse(inp string) (Handler, error) {
-	if strings.ToLower(inp) == "q" {
+	switch strings.ToLower(inp) {
+	case "q":
+		// Quit.
 		return h, QuitSignal
+	case "\r":
+	// TODO: Next turn.
+	case "a":
+		h.viewOffsetX += 1
+	case "d":
+		h.viewOffsetX -= 1
+	case "s":
+		h.viewOffsetY += 1
+	case "w":
+		h.viewOffsetY -= 1
 	}
 	return h, nil
 }
@@ -157,7 +205,7 @@ func (h *startHandler) Parse(inp string) (Handler, error) {
 		if err != nil {
 			return h, err
 		}
-		return &gameHandler{gameID: gid}, nil
+		return newGameHandler(gid), nil
 	}
 	if strings.ToLower(inp) == "l" {
 		return h, fmt.Errorf("Game loading not implemented.")
