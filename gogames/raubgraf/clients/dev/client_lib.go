@@ -17,7 +17,8 @@ const (
 	width          = 256
 	height         = 64
 	msgLines       = 8
-	vtxSep         = 60
+	vtxSepX        = 52
+	vtxSepY        = 20
 	viewPortBottom = height - msgLines
 
 	IFString InputFormat = iota
@@ -120,14 +121,29 @@ func (h *gameHandler) Format() InputFormat {
 	return IFChar
 }
 
-func (h *gameHandler) drawVertex(row, col int) {
-	yloc := viewPortBottom - (row * vtxSep / 3) + h.viewOffsetY
-	xloc := col*vtxSep + (row%2)*(vtxSep/2) + h.viewOffsetX
+func (h *gameHandler) drawVertex(row, col int, rEdge bool) {
+	yloc := viewPortBottom - (row * vtxSepY) + h.viewOffsetY
+	xloc := col*vtxSepX + (row%2)*(vtxSepX/2) + h.viewOffsetX
 	show(xloc-2, yloc-2, ".....")
 	show(xloc-3, yloc-1, ".     .")
 	show(xloc-3, yloc-0, ".     .")
 	show(xloc-3, yloc+1, ".     .")
 	show(xloc-2, yloc+2, ".....")
+
+	if col > 0 {
+		show(xloc-vtxSepX+4, yloc, strings.Repeat("_", vtxSepX-7))
+	}
+	odd := row%2 == 1
+	if row > 0 {
+		for idx := 0; idx < vtxSepY-3; idx++ {
+			if col > 0 || odd {
+				show(xloc-5-idx, yloc+2+idx, "/")
+			}
+			if !rEdge || !odd {
+				show(xloc+5+idx, yloc+2+idx, "\\")
+			}
+		}
+	}
 }
 
 func (h *gameHandler) Display() {
@@ -136,9 +152,10 @@ func (h *gameHandler) Display() {
 	if err != nil {
 		messagef("Error getting game state %d: %v", h.gameID, err)
 	}
-	for row := 0; row < int(board.GetHeight()); row++ {
-		for col := 0; col < int(board.GetWidth()); col++ {
-			h.drawVertex(row, col)
+	height, width := int(board.GetHeight()), int(board.GetWidth())
+	for row := 0; row < height; row++ {
+		for col := 0; col < width; col++ {
+			h.drawVertex(row, col, col == width-1)
 		}
 	}
 	printMessages()
