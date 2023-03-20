@@ -17,7 +17,7 @@ const (
 	width          = 256
 	height         = 64
 	msgLines       = 8
-	vtxSep         = 6
+	vtxSep         = 60
 	viewPortBottom = height - msgLines
 
 	IFString InputFormat = iota
@@ -120,6 +120,16 @@ func (h *gameHandler) Format() InputFormat {
 	return IFChar
 }
 
+func (h *gameHandler) drawVertex(row, col int) {
+	yloc := viewPortBottom - (row * vtxSep / 3) + h.viewOffsetY
+	xloc := col*vtxSep + (row%2)*(vtxSep/2) + h.viewOffsetX
+	show(xloc-2, yloc-2, ".....")
+	show(xloc-3, yloc-1, ".     .")
+	show(xloc-3, yloc-0, ".     .")
+	show(xloc-3, yloc+1, ".     .")
+	show(xloc-2, yloc+2, ".....")
+}
+
 func (h *gameHandler) Display() {
 	clear()
 	board, err := handler.GetGameState(h.gameID)
@@ -127,10 +137,8 @@ func (h *gameHandler) Display() {
 		messagef("Error getting game state %d: %v", h.gameID, err)
 	}
 	for row := 0; row < int(board.GetHeight()); row++ {
-		yloc := row*vtxSep + h.viewOffsetY
 		for col := 0; col < int(board.GetWidth()); col++ {
-			xloc := col*vtxSep + (row%2)*(vtxSep/2) + h.viewOffsetX
-			show(xloc, viewPortBottom-yloc, "vtx")
+			h.drawVertex(row, col)
 		}
 	}
 	printMessages()
