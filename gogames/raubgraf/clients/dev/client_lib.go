@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"gogames/raubgraf/engine/handler"
+	"gogames/util/coords"
 )
 
 type InputFormat int
@@ -44,6 +45,7 @@ type gameHandler struct {
 	gameID      int
 	viewOffsetX int
 	viewOffsetY int
+	selectedVtx coords.Point
 }
 
 func newGameHandler(gid int) *gameHandler {
@@ -51,6 +53,7 @@ func newGameHandler(gid int) *gameHandler {
 		gameID:      gid,
 		viewOffsetX: 0,
 		viewOffsetY: 0,
+		selectedVtx: coords.Nil(),
 	}
 }
 
@@ -122,14 +125,16 @@ func (h *gameHandler) Format() InputFormat {
 }
 
 func (h *gameHandler) drawVertex(row, col int, rEdge bool) {
-	yloc := viewPortBottom - (row * vtxSepY) + h.viewOffsetY
+	yloc := viewPortBottom - (row * vtxSepY) - h.viewOffsetY
 	xloc := col*vtxSepX + (row%2)*(vtxSepX/2) + h.viewOffsetX
 	show(xloc-2, yloc-2, ".....")
 	show(xloc-3, yloc-1, ".     .")
 	show(xloc-3, yloc-0, ".     .")
 	show(xloc-3, yloc+1, ".     .")
 	show(xloc-2, yloc+2, ".....")
-
+	if h.selectedVtx.X() == col && h.selectedVtx.Y() == row {
+		show(xloc, yloc, ".")
+	}
 	if col > 0 {
 		show(xloc-vtxSepX+4, yloc, strings.Repeat("_", vtxSepX-7))
 	}
@@ -146,6 +151,7 @@ func (h *gameHandler) drawVertex(row, col int, rEdge bool) {
 	}
 }
 
+// Display draws the board state into the buffer.
 func (h *gameHandler) Display() {
 	clear()
 	board, err := handler.GetGameState(h.gameID)
@@ -153,6 +159,23 @@ func (h *gameHandler) Display() {
 		messagef("Error getting game state %d: %v", h.gameID, err)
 	}
 	height, width := int(board.GetHeight()), int(board.GetWidth())
+	if h.selectedVtx.IsNil() {
+		h.selectedVtx = coords.New(height/2, width/2)
+	}
+	if h.selectedVtx.X() < 0 {
+		h.selectedVtx[0] = 0
+	}
+	if h.selectedVtx.X() >= width {
+		h.selectedVtx[0] = width - 1
+	}
+	if h.selectedVtx.Y() < 0 {
+		h.selectedVtx[1] = 0
+	}
+	if h.selectedVtx.Y() >= height {
+		h.selectedVtx[1] = height - 1
+	}
+	h.calcOffsets()
+
 	for row := 0; row < height; row++ {
 		for col := 0; col < width; col++ {
 			h.drawVertex(row, col, col == width-1)
@@ -161,6 +184,13 @@ func (h *gameHandler) Display() {
 	printMessages()
 }
 
+// calcOffsets recalculates the viewport offsets.
+func (h *gameHandler) calcOffsets() {
+	h.viewOffsetX = width/2 - h.selectedVtx.X()*vtxSepX
+	h.viewOffsetY = height/2 - h.selectedVtx.Y()*vtxSepY
+}
+
+// Parse handles the input string.
 func (h *gameHandler) Parse(inp string) (Handler, error) {
 	switch strings.ToLower(inp) {
 	case "q":
@@ -169,13 +199,13 @@ func (h *gameHandler) Parse(inp string) (Handler, error) {
 	case "\r":
 	// TODO: Next turn.
 	case "a":
-		h.viewOffsetX += 1
+		h.selectedVtx[0] -= 1
 	case "d":
-		h.viewOffsetX -= 1
+		h.selectedVtx[0] += 1
 	case "s":
-		h.viewOffsetY += 1
+		h.selectedVtx[1] -= 1
 	case "w":
-		h.viewOffsetY -= 1
+		h.selectedVtx[1] += 1
 	}
 	return h, nil
 }
