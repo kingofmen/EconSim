@@ -4,4 +4,17 @@ package raubgraf.state.proto;
 message Board {
   optional uint32 width = 1;
   optional uint32 height = 2;
+  repeated Vertex vertices = 3;
+  repeated Triangle triangles = 4;
+}
+
+message Vertex {
+  optional uint32 xpos = 1;
+  optional uint32 ypos = 2;
+}
+
+message Triangle {
+  optional uint32 xpos = 1;
+  optional uint32 ypos = 2;
+  optional uint32 forest = 3;
 }
