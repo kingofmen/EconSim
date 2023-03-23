@@ -1,17 +1,7 @@
 # Diff: &"C:\Program Files\Git\usr\bin\diff.exe" --ignore-all-space file1 file2
-# Needed to build protobuf, see https://github.com/protocolbuffers/protobuf/issues/5051.
+# Needed for Internet repos.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Protobuf dependencies that it doesn't load for itself, probably because of the indirection.
-# Copied from https://github.com/protocolbuffers/protobuf/blob/main/protobuf_deps.bzl.
-#http_archive(
-#    name = "bazel_skylib",
-#    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
-#    urls = [
-#        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-#        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-#    ],
-#)
 http_archive(
     name = "rules_pkg",
     urls = [
@@ -36,10 +26,22 @@ http_archive(
     ],
 )
 
+# Gazelle for go_repository support.
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "ecba0f04f96b4960a5b250c8e8eeec42281035970aa8852dda73098274d14a1d",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
+    ],
+)
+
 load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 
 go_rules_dependencies()
 go_register_toolchains(version = "1.18.10")
+gazelle_dependencies()
 
 # Needed for Abseil.
 http_archive(
@@ -60,6 +62,13 @@ http_archive(
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
+
+go_repository(
+    name = "com_github_google_go_cmp",
+    importpath = "github.com/google/go-cmp",
+    sum = "h1:pJfrTSHC+QpCQplFZqzlwihfc+0Oty0ViHPHPxXj0SI=",
+    version = "v0.5.3-0.20201020212313-ab46b8bd0abd",
+)
 
 new_local_repository(
     name = "gtest",
