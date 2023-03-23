@@ -53,8 +53,10 @@ go_library(
       ":econ",
       ":graph",
       ":pop",
+      "//gogames/raubgraf/proto:state_go_proto",
       "//gogames/util:coords",
       "//gogames/util:flags",
+      "@org_golang_google_protobuf//proto:proto",
     ],
 )
 
@@ -67,6 +69,8 @@ go_test(
     ],
     deps = [
       ":pop",
+      "@org_golang_google_protobuf//testing/protocmp:protocmp",
+      "@com_github_google_go_cmp//cmp:cmp",
     ],
 )
 
@@ -123,13 +127,11 @@ go_library(
     visibility = ["//visibility:public"],
     importpath = "gogames/raubgraf/engine/handler",
     deps = [
-      ":board",
       ":engine",
       ":graph",
       ":pop",
       ":war",
       "//gogames/raubgraf/proto:state_go_proto",
-      "@com_github_golang_protobuf//proto:proto",
     ],
 )
 

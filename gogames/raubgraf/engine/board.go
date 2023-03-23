@@ -10,6 +10,9 @@ import (
 	"gogames/raubgraf/engine/pop"
 	"gogames/util/coords"
 	"gogames/util/flags"
+	"google.golang.org/protobuf/proto"
+
+	spb "gogames/raubgraf/protos/state_proto"
 )
 
 type Direction int
@@ -202,7 +205,6 @@ func (v *Vertex) GetTriangle(d Direction) *Triangle {
 
 // Triangle models a board segment defined by three vertices.
 type Triangle struct {
-	coords.Point
 	*pop.Dwelling
 	*econ.Store
 	*flags.Holder
@@ -587,7 +589,7 @@ func New(width, height int) (*Board, error) {
 			vtx := brd.Vertices[x][y]
 			// Create North triangle if needed.
 			if needN(width, height, x, y) {
-				t := NewTriangle(0, South).withLoc(tIdx, y)
+				t := NewTriangle(maxForest, South).withLoc(tIdx, y)
 				brd.triangleMap[t.Node.Point] = t
 				tIdx++
 				brd.Triangles = append(brd.Triangles, t)
@@ -611,7 +613,7 @@ func New(width, height int) (*Board, error) {
 			}
 			// Create NorthEast triangle if needed.
 			if needNE(width, height, x, y) {
-				t := NewTriangle(0, North).withLoc(tIdx, y)
+				t := NewTriangle(maxForest, North).withLoc(tIdx, y)
 				brd.triangleMap[t.Node.Point] = t
 				tIdx++
 				brd.Triangles = append(brd.Triangles, t)
@@ -641,4 +643,52 @@ func New(width, height int) (*Board, error) {
 	}
 
 	return brd, nil
+}
+
+// FromProto creates a new Board from the proto representation.
+func FromProto(bp *spb.Board) (*Board, error) {
+	bb, err := New(int(bp.GetWidth()), int(bp.GetHeight()))
+	if err != nil {
+		return nil, err
+	}
+	for _, tp := range bp.GetTriangles() {
+		xp, yp := int(tp.GetXpos()), int(tp.GetYpos())
+		tt := bb.GetTriangle(xp, yp)
+		if tt == nil {
+			return nil, fmt.Errorf("could not find triangle at (%d, %d)", xp, yp)
+		}
+		tt.overgrowth = int(tp.GetForest())
+	}
+	return bb, nil
+}
+
+// ToProto translates an in-memory board to its protobuf representation.
+func (bb *Board) ToProto() (*spb.Board, error) {
+	bw := uint32(len(bb.Vertices))
+	if bw == 0 {
+		return nil, fmt.Errorf("bad board state: No vertices")
+	}
+	bh := uint32(len(bb.Vertices[0]))
+	if bh == 0 {
+		return nil, fmt.Errorf("bad board state: Empty first column")
+	}
+
+	bp := &spb.Board{
+		Width:     proto.Uint32(bw),
+		Height:    proto.Uint32(bh),
+		Triangles: make([]*spb.Triangle, 0, len(bb.Triangles)),
+	}
+
+	for _, tt := range bb.Triangles {
+		if tt.overgrowth == maxForest {
+			continue
+		}
+		bp.Triangles = append(bp.Triangles, &spb.Triangle{
+			Xpos:   proto.Uint32(uint32(tt.X())),
+			Ypos:   proto.Uint32(uint32(tt.Y())),
+			Forest: proto.Uint32(uint32(tt.overgrowth)),
+		})
+	}
+
+	return bp, nil
 }

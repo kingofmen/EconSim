@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
-	"gogames/raubgraf/engine/board"
 	"gogames/raubgraf/engine/engine"
 
 	spb "gogames/raubgraf/protos/state_proto"
@@ -19,25 +17,6 @@ var (
 
 	mu sync.Mutex
 )
-
-// toProto translates an in-memory board to its protobuf representation.
-func toProto(bb *board.Board) (*spb.Board, error) {
-	bw := uint32(len(bb.Vertices))
-	if bw == 0 {
-		return nil, fmt.Errorf("bad board state: No vertices")
-	}
-	bh := uint32(len(bb.Vertices[0]))
-	if bh == 0 {
-		return nil, fmt.Errorf("bad board state: Empty first column")
-	}
-
-	bp := &spb.Board{
-		Width:  proto.Uint32(bw),
-		Height: proto.Uint32(bh),
-	}
-
-	return bp, nil
-}
 
 // CreateGame creates a new game and returns its ID.
 func CreateGame(width, height int) (int, error) {
@@ -62,5 +41,5 @@ func GetGameState(gid int) (*spb.Board, error) {
 	if bb == nil {
 		return nil, fmt.Errorf("bad state: Game %d has no board", gid)
 	}
-	return toProto(bb)
+	return bb.ToProto()
 }

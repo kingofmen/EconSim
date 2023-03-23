@@ -5,8 +5,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"gogames/raubgraf/engine/pop"
 	"gogames/util/coords"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/testing/protocmp"
+
+	spb "gogames/raubgraf/protos/state_proto"
 )
 
 func TestNewBoard(t *testing.T) {
@@ -493,6 +498,44 @@ func TestDistance(t *testing.T) {
 			}
 			if got1 != cc.exp {
 				t.Errorf("%s: Distance(%s, %s) => %f, want %f", cc.desc, cc.src.String(), cc.dst.String(), got1, cc.exp)
+			}
+		})
+	}
+}
+
+func TestProtoConversion(t *testing.T) {
+	cases := []struct {
+		desc string
+		bp   *spb.Board
+	}{
+		{
+			desc: "Basic board",
+			bp: &spb.Board{
+				Width:  proto.Uint32(3),
+				Height: proto.Uint32(3),
+				Triangles: []*spb.Triangle{
+					&spb.Triangle{
+						Xpos:   proto.Uint32(1),
+						Ypos:   proto.Uint32(1),
+						Forest: proto.Uint32(5),
+					},
+				},
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			bb, err := FromProto(cc.bp)
+			if err != nil {
+				t.Errorf("%s: FromProto() => %v, want nil", cc.desc, err)
+			}
+			nbp, err := bb.ToProto()
+			if err != nil {
+				t.Errorf("%s: ToProto() => %v, want nil", cc.desc, err)
+			}
+			if diff := cmp.Diff(nbp, cc.bp, protocmp.Transform()); len(diff) > 0 {
+				t.Errorf("%s: ToProto(FromProto()) => %s", cc.desc, diff)
 			}
 		})
 	}
