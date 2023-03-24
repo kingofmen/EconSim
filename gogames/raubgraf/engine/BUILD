@@ -127,6 +127,7 @@ go_library(
     visibility = ["//visibility:public"],
     importpath = "gogames/raubgraf/engine/handler",
     deps = [
+      ":board",
       ":engine",
       ":graph",
       ":pop",

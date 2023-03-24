@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"gogames/raubgraf/engine/board"
 	"gogames/raubgraf/engine/engine"
 
 	spb "gogames/raubgraf/protos/state_proto"
@@ -22,8 +23,22 @@ var (
 func CreateGame(width, height int) (int, error) {
 	game, err := engine.NewGame(width, height)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
+	mu.Lock()
+	defer mu.Unlock()
+	idx := len(memGames)
+	memGames[idx] = game
+	return idx, nil
+}
+
+// LoadGame loads a game from protobuf and returns its ID.
+func LoadGame(bp *spb.Board) (int, error) {
+	bb, err := board.FromProto(bp)
+	if err != nil {
+		return -1, fmt.Errorf("error loading from proto: %w", err)
+	}
+	game := engine.FromBoard(bb)
 	mu.Lock()
 	defer mu.Unlock()
 	idx := len(memGames)

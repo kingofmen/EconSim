@@ -31,7 +31,7 @@ func TestProcessTriangles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not create board: %v", err)
 	}
-	game := newGame(b)
+	game := FromBoard(b)
 
 	if err := game.processTriangles("test", countFunc); err != nil {
 		t.Errorf("processTriangles(countFunc) => %v, want nil", err)
@@ -584,7 +584,7 @@ func TestCleanBoard(t *testing.T) {
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			gg := newGame(nil)
+			gg := FromBoard(nil)
 			tt := board.NewTriangle(0, board.North)
 			for k, v := range cc.inputs {
 				tt.AddFlag(k, v)
@@ -606,7 +606,7 @@ func TestMoveUnits(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not create board: %v", err)
 	}
-	game := newGame(bb)
+	game := FromBoard(bb)
 
 	cases := []struct {
 		desc  string
