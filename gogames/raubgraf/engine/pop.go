@@ -350,6 +350,14 @@ func (p *Pop) GetHunger() int {
 	return p.hungry
 }
 
+func (p *Pop) WithHunger(h int) *Pop {
+	if p == nil {
+		p = New(Null)
+	}
+	p.hungry = h
+	return p
+}
+
 // SetAction sets the pop's activity for the turn.
 func (p *Pop) SetAction(act Action) {
 	if p == nil {

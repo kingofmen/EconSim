@@ -651,15 +651,82 @@ func FromProto(bp *spb.Board) (*Board, error) {
 	if err != nil {
 		return nil, err
 	}
+	seen := make(map[coords.Point]bool)
 	for _, tp := range bp.GetTriangles() {
 		xp, yp := int(tp.GetXpos()), int(tp.GetYpos())
+		point := coords.New(xp, yp)
+		if seen[point] {
+			return nil, fmt.Errorf("double definition of triangle %s", point.String())
+		}
+		seen[point] = true
 		tt := bb.GetTriangle(xp, yp)
 		if tt == nil {
 			return nil, fmt.Errorf("could not find triangle at (%d, %d)", xp, yp)
 		}
 		tt.overgrowth = int(tp.GetForest())
+		for _, pp := range tp.GetPops() {
+			pkind := pp.GetKind()
+			if pkind == spb.Pop_PK_UNKNOWN {
+				continue
+			}
+			tt.AddPop(pop.New(memoryKind(pkind)).WithHunger(int(pp.GetHunger())))
+		}
 	}
 	return bb, nil
+}
+
+// interesting returns true if the Triangle cannot be left to
+// default creation.
+func interesting(tt *Triangle) bool {
+	if tt.overgrowth != maxForest {
+		return true
+	}
+	if tt.CountPops() > 0 {
+		return true
+	}
+	return false
+}
+
+// memoryKind returns the corresponding in-memory enum.
+func memoryKind(k spb.Pop_Kind) pop.Kind {
+	switch k {
+	case spb.Pop_PK_UNKNOWN:
+		return pop.Null
+	case spb.Pop_PK_PEASANT:
+		return pop.Peasant
+	case spb.Pop_PK_BANDIT:
+		return pop.Bandit
+	case spb.Pop_PK_BURGHER:
+		return pop.Burgher
+	case spb.Pop_PK_MERCHANT:
+		return pop.Merchant
+	case spb.Pop_PK_KNIGHT:
+		return pop.Knight
+	case spb.Pop_PK_NOBLE:
+		return pop.Noble
+	}
+	return pop.Null
+}
+
+// protoKind returns the corresponding proto enum.
+func protoKind(k pop.Kind) spb.Pop_Kind {
+	switch k {
+	case pop.Null:
+		return spb.Pop_PK_UNKNOWN
+	case pop.Peasant:
+		return spb.Pop_PK_PEASANT
+	case pop.Bandit:
+		return spb.Pop_PK_BANDIT
+	case pop.Burgher:
+		return spb.Pop_PK_BURGHER
+	case pop.Merchant:
+		return spb.Pop_PK_MERCHANT
+	case pop.Knight:
+		return spb.Pop_PK_KNIGHT
+	case pop.Noble:
+		return spb.Pop_PK_NOBLE
+	}
+	return spb.Pop_PK_UNKNOWN
 }
 
 // ToProto translates an in-memory board to its protobuf representation.
@@ -680,14 +747,29 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 	}
 
 	for _, tt := range bb.Triangles {
-		if tt.overgrowth == maxForest {
+		if !interesting(tt) {
 			continue
 		}
-		bp.Triangles = append(bp.Triangles, &spb.Triangle{
+		tp := &spb.Triangle{
 			Xpos:   proto.Uint32(uint32(tt.X())),
 			Ypos:   proto.Uint32(uint32(tt.Y())),
 			Forest: proto.Uint32(uint32(tt.overgrowth)),
-		})
+			Pops:   make([]*spb.Pop, 0, tt.CountPops()),
+		}
+		for _, pp := range tt.Population() {
+			pkind := protoKind(pp.GetKind())
+			if pkind == spb.Pop_PK_UNKNOWN {
+				continue
+			}
+			pr := &spb.Pop{
+				Kind: pkind.Enum(),
+			}
+			if h := pp.GetHunger(); h > 0 {
+				pr.Hunger = proto.Uint32(uint32(h))
+			}
+			tp.Pops = append(tp.Pops, pr)
+		}
+		bp.Triangles = append(bp.Triangles, tp)
 	}
 
 	return bp, nil

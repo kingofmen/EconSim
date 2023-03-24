@@ -17,4 +17,19 @@ message Triangle {
   optional uint32 xpos = 1;
   optional uint32 ypos = 2;
   optional uint32 forest = 3;
+  repeated Pop pops = 4;
+}
+
+message Pop {
+  enum Kind {
+    PK_UNKNOWN = 0;
+    PK_PEASANT = 1;
+    PK_BANDIT = 2;
+    PK_BURGHER = 3;
+    PK_MERCHANT = 4;
+    PK_KNIGHT = 5;
+    PK_NOBLE = 6;
+  }
+  optional Kind kind = 1;
+  optional uint32 hunger = 2;
 }

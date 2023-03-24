@@ -515,9 +515,18 @@ func TestProtoConversion(t *testing.T) {
 				Height: proto.Uint32(3),
 				Triangles: []*spb.Triangle{
 					&spb.Triangle{
-						Xpos:   proto.Uint32(1),
-						Ypos:   proto.Uint32(1),
+						Xpos:   proto.Uint32(0),
+						Ypos:   proto.Uint32(0),
 						Forest: proto.Uint32(5),
+					},
+					&spb.Triangle{
+						Xpos:   proto.Uint32(0),
+						Ypos:   proto.Uint32(1),
+						Forest: proto.Uint32(10),
+						Pops: []*spb.Pop{
+							&spb.Pop{Kind: spb.Pop_PK_PEASANT.Enum(), Hunger: proto.Uint32(3)},
+							&spb.Pop{Kind: spb.Pop_PK_NOBLE.Enum()},
+						},
 					},
 				},
 			},
