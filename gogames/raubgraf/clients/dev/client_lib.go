@@ -5,6 +5,7 @@ package clientlib
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -38,7 +39,10 @@ type Handler interface {
 	Format() InputFormat
 }
 
-type startHandler struct {
+type startHandler struct{}
+type loadGameHandler struct {
+	fileList []string
+	page     int
 }
 
 type gameHandler struct {
@@ -48,13 +52,28 @@ type gameHandler struct {
 	selectedVtx coords.Point
 }
 
-func newGameHandler(gid int) *gameHandler {
+func newGameHandler(gid int) Handler {
 	return &gameHandler{
 		gameID:      gid,
 		viewOffsetX: 0,
 		viewOffsetY: 0,
 		selectedVtx: coords.Nil(),
 	}
+}
+
+func newLoadGameHandler() Handler {
+	lgh := &loadGameHandler{
+		fileList: make([]string, 0, 10),
+		page:     0,
+	}
+	var err error
+	dir := filepath.FromSlash("C:/Users/rolfa/Documents/Raubgraf/*prototext")
+	lgh.fileList, err = filepath.Glob(dir)
+	if err != nil {
+		messagef("Could not patternise %q", dir)
+		return StartScreenHandler()
+	}
+	return lgh
 }
 
 func clear() {
@@ -116,11 +135,19 @@ func show(x, y int, val string) {
 	lines[y] = lines[y][:x] + val + lines[y][x+len(val):]
 }
 
+func showf(x, y int, format string, args ...interface{}) {
+	show(x, y, fmt.Sprintf(format, args...))
+}
+
 func (h *startHandler) Format() InputFormat {
 	return IFChar
 }
 
 func (h *gameHandler) Format() InputFormat {
+	return IFChar
+}
+
+func (h *loadGameHandler) Format() InputFormat {
 	return IFChar
 }
 
@@ -190,6 +217,55 @@ func (h *gameHandler) calcOffsets() {
 	h.viewOffsetY = height/2 - h.selectedVtx.Y()*vtxSepY
 }
 
+func (h *loadGameHandler) Display() {
+	clear()
+	show(100, 20, "(p)rev, (n)ext, (b)ack")
+	defer printMessages()
+	if len(h.fileList) < 1 {
+		show(104, 22, "No files found")
+		return
+	}
+	start := h.page * 10
+	end := start + 10
+	if end > len(h.fileList) {
+		end = len(h.fileList)
+	}
+
+	showf(101, 22, "Page %d / %d", h.page+1, h.numPages()+1)
+	for idx, f := range h.fileList[start:end] {
+		showf(101, 24+idx, "%d) %s", idx, f)
+	}
+}
+
+// numPages calculates the number of pages of save files.
+func (h *loadGameHandler) numPages() int {
+	return (len(h.fileList) - 1) / 10
+}
+
+// Parse handles the input string, selecting the file to load.
+func (h *loadGameHandler) Parse(inp string) (Handler, error) {
+	if selected, err := strconv.Atoi(inp); err == nil {
+		// TODO: Actually load and parse the file!
+		messagef("Selected file %d", selected)
+		return h, nil
+	}
+	switch strings.ToLower(inp) {
+	case "b":
+		return StartScreenHandler(), nil
+	case "n":
+		h.page++
+	case "p":
+		h.page--
+	}
+	if h.page < 0 {
+		h.page = 0
+	}
+	if pages := h.numPages(); h.page > pages {
+		h.page = pages
+	}
+	return h, nil
+}
+
 // Parse handles the input string.
 func (h *gameHandler) Parse(inp string) (Handler, error) {
 	switch strings.ToLower(inp) {
@@ -232,7 +308,7 @@ func (h *startHandler) Display() {
 	lines[31] = strings.Repeat(" ", 100) + "New game (5)x5"
 	lines[32] = strings.Repeat(" ", 100) + "New game (1)0x10"
 	lines[33] = strings.Repeat(" ", 100) + "New game (2)0x20"
-	lines[34] = strings.Repeat(" ", 100) + "(L)oad game (not implemented)"
+	lines[34] = strings.Repeat(" ", 100) + "(L)oad game"
 
 	for idx := range lines {
 		ll := len(lines[idx])
@@ -242,6 +318,7 @@ func (h *startHandler) Display() {
 		}
 		lines[idx] += strings.Repeat(" ", width-ll)
 	}
+	printMessages()
 }
 
 func (h *startHandler) Parse(inp string) (Handler, error) {
@@ -263,7 +340,7 @@ func (h *startHandler) Parse(inp string) (Handler, error) {
 		return newGameHandler(gid), nil
 	}
 	if strings.ToLower(inp) == "l" {
-		return h, fmt.Errorf("Game loading not implemented.")
+		return newLoadGameHandler(), nil
 	}
 
 	return h, nil
