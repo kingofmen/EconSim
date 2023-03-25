@@ -5,12 +5,16 @@ package clientlib
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"gogames/raubgraf/engine/handler"
 	"gogames/util/coords"
+	"google.golang.org/protobuf/encoding/prototext"
+
+	spb "gogames/raubgraf/protos/state_proto"
 )
 
 type InputFormat int
@@ -245,9 +249,28 @@ func (h *loadGameHandler) numPages() int {
 // Parse handles the input string, selecting the file to load.
 func (h *loadGameHandler) Parse(inp string) (Handler, error) {
 	if selected, err := strconv.Atoi(inp); err == nil {
-		// TODO: Actually load and parse the file!
-		messagef("Selected file %d", selected)
-		return h, nil
+		fnum := selected + h.page*10
+		if fnum >= len(h.fileList) {
+			messagef("Cannot select file %d on page %d (%d/%d)", selected, h.page, fnum, len(h.fileList))
+			return h, nil
+		}
+		fname := h.fileList[fnum]
+		text, err := os.ReadFile(fname)
+		if err != nil {
+			messagef("Could not open file %q: %v", fname, err)
+			return h, nil
+		}
+		bp := &spb.Board{}
+		if err := prototext.Unmarshal(text, bp); err != nil {
+			messagef("Could not parse data from %q: %v", fname, err)
+			return h, nil
+		}
+		gid, err := handler.LoadGame(bp)
+		if err != nil {
+			messagef("Could not load parsed proto: %v", err)
+			return h, nil
+		}
+		return newGameHandler(gid), nil
 	}
 	switch strings.ToLower(inp) {
 	case "b":

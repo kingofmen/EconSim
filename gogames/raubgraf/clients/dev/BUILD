@@ -9,6 +9,8 @@ go_library(
     deps = [
       "//gogames/raubgraf/engine:handler",
       "//gogames/util:coords",
+      "//gogames/raubgraf/proto:state_go_proto",
+      "@org_golang_google_protobuf//encoding/prototext:prototext",
     ],
 )
 
