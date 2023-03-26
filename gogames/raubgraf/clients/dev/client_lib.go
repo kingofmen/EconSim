@@ -182,6 +182,16 @@ func (h *gameHandler) drawVertex(row, col int, rEdge bool) {
 	}
 }
 
+func (h *gameHandler) drawTriangle(xpos, ypos int, tp *spb.Triangle) {
+	xloc := (xpos+1)*(vtxSepX/2) + h.viewOffsetX - 5
+	yloc := viewPortBottom - (ypos*vtxSepY + vtxSepY/2) - h.viewOffsetY - 5
+	forest := 10
+	if tp != nil {
+		forest = int(tp.GetForest())
+	}
+	show(xloc, yloc, strings.Repeat("F", forest))
+}
+
 // Display draws the board state into the buffer.
 func (h *gameHandler) Display() {
 	clear()
@@ -210,6 +220,18 @@ func (h *gameHandler) Display() {
 	for row := 0; row < height; row++ {
 		for col := 0; col < width; col++ {
 			h.drawVertex(row, col, col == width-1)
+		}
+	}
+
+	tmap := make(map[coords.Point]*spb.Triangle)
+	for _, tp := range board.GetTriangles() {
+		loc := coords.New(int(tp.GetXpos()), int(tp.GetYpos()))
+		tmap[loc] = tp
+	}
+	for xi := 0; xi < 2*(width-1); xi++ {
+		for yi := 0; yi < height-1; yi++ {
+			tp := tmap[coords.New(xi, yi)]
+			h.drawTriangle(xi, yi, tp)
 		}
 	}
 	printMessages()
