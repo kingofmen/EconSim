@@ -182,6 +182,26 @@ func (h *gameHandler) drawVertex(row, col int, rEdge bool) {
 	}
 }
 
+func popLetter(k spb.Pop_Kind) string {
+	switch k {
+	case spb.Pop_PK_UNKNOWN:
+		return ""
+	case spb.Pop_PK_PEASANT:
+		return "P"
+	case spb.Pop_PK_BANDIT:
+		return "B"
+	case spb.Pop_PK_BURGHER:
+		return "C"
+	case spb.Pop_PK_MERCHANT:
+		return "M"
+	case spb.Pop_PK_KNIGHT:
+		return "K"
+	case spb.Pop_PK_NOBLE:
+		return "N"
+	}
+	return ""
+}
+
 func (h *gameHandler) drawTriangle(xpos, ypos int, tp *spb.Triangle) {
 	xloc := (xpos+1)*(vtxSepX/2) + h.viewOffsetX - 5
 	yloc := viewPortBottom - (ypos*vtxSepY + vtxSepY/2) - h.viewOffsetY - 5
@@ -190,6 +210,13 @@ func (h *gameHandler) drawTriangle(xpos, ypos int, tp *spb.Triangle) {
 		forest = int(tp.GetForest())
 	}
 	show(xloc, yloc, strings.Repeat("F", forest))
+	popStr := ""
+	for _, pop := range tp.GetPops() {
+		popStr += popLetter(pop.GetKind())
+	}
+	if len(popStr) > 0 {
+		show(xloc, yloc+1, popStr)
+	}
 }
 
 // Display draws the board state into the buffer.
