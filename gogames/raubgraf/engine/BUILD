@@ -97,6 +97,26 @@ go_test(
 )
 
 go_library(
+    name = "faction",
+    srcs = [
+      "faction.go",
+    ],
+    importpath = "gogames/raubgraf/engine/faction",
+    deps = [
+    ],
+)
+
+go_test(
+    name = "faction_test",
+    srcs = ["faction_test.go"],
+    embed = [
+      ":faction",
+    ],
+    deps = [
+    ],
+)
+
+go_library(
     name = "graph",
     srcs = [
       "graph.go",
