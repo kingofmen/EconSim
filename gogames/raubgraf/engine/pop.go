@@ -242,6 +242,7 @@ type Pop struct {
 	busy   bool
 	action Action
 	target coords.Point
+	popid  uint32
 
 	levy *war.FieldUnit
 }
@@ -356,6 +357,20 @@ func (p *Pop) WithHunger(h int) *Pop {
 	}
 	p.hungry = h
 	return p
+}
+
+func (p *Pop) SetID(pid uint32) {
+	if p == nil {
+		return
+	}
+	p.popid = pid
+}
+
+func (p *Pop) ID() uint32 {
+	if p == nil {
+		return 0
+	}
+	return p.popid
 }
 
 // SetAction sets the pop's activity for the turn.
