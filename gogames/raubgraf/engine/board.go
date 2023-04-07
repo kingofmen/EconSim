@@ -652,6 +652,7 @@ func FromProto(bp *spb.Board) (*Board, error) {
 		return nil, err
 	}
 	seen := make(map[coords.Point]bool)
+	pids := make(map[uint32]coords.Point)
 	for _, tp := range bp.GetTriangles() {
 		xp, yp := int(tp.GetXpos()), int(tp.GetYpos())
 		point := coords.New(xp, yp)
@@ -669,7 +670,17 @@ func FromProto(bp *spb.Board) (*Board, error) {
 			if pkind == spb.Pop_PK_UNKNOWN {
 				continue
 			}
-			tt.AddPop(pop.New(memoryKind(pkind)).WithHunger(int(pp.GetHunger())))
+			mpop := pop.New(memoryKind(pkind)).WithHunger(int(pp.GetHunger()))
+			pid := pp.GetPopId()
+			if pid == 0 {
+				return nil, fmt.Errorf("Pop with invalid ID 0 in triangle %s", point.String())
+			}
+			if pos, ok := pids[pid]; ok {
+				return nil, fmt.Errorf("Duplicate pop ID %d in triangle %s, previously in %s", pid, point.String(), pos.String())
+			}
+			pids[pid] = point
+			mpop.SetID(pid)
+			tt.AddPop(mpop)
 		}
 	}
 	return bb, nil
@@ -762,7 +773,8 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 				continue
 			}
 			pr := &spb.Pop{
-				Kind: pkind.Enum(),
+				Kind:  pkind.Enum(),
+				PopId: proto.Uint32(pp.ID()),
 			}
 			if h := pp.GetHunger(); h > 0 {
 				pr.Hunger = proto.Uint32(uint32(h))

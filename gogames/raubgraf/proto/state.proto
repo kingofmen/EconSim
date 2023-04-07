@@ -32,4 +32,5 @@ message Pop {
   }
   optional Kind kind = 1;
   optional uint32 hunger = 2;
+  optional uint32 pop_id = 3;
 }

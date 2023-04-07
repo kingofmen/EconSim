@@ -524,8 +524,8 @@ func TestProtoConversion(t *testing.T) {
 						Ypos:   proto.Uint32(1),
 						Forest: proto.Uint32(10),
 						Pops: []*spb.Pop{
-							&spb.Pop{Kind: spb.Pop_PK_PEASANT.Enum(), Hunger: proto.Uint32(3)},
-							&spb.Pop{Kind: spb.Pop_PK_NOBLE.Enum()},
+							&spb.Pop{Kind: spb.Pop_PK_PEASANT.Enum(), Hunger: proto.Uint32(3), PopId: proto.Uint32(1)},
+							&spb.Pop{Kind: spb.Pop_PK_NOBLE.Enum(), PopId: proto.Uint32(2)},
 						},
 					},
 				},
