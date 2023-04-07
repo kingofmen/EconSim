@@ -31,7 +31,10 @@ func TestProcessTriangles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not create board: %v", err)
 	}
-	game := FromBoard(b)
+	game, err := FromBoard(b)
+	if err != nil {
+		t.Fatalf("FromBoard() => %v, want nil", err)
+	}
 
 	if err := game.processTriangles("test", countFunc); err != nil {
 		t.Errorf("processTriangles(countFunc) => %v, want nil", err)
@@ -590,8 +593,11 @@ func TestCleanBoard(t *testing.T) {
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			gg := FromBoard(nil)
-			tt := board.NewTriangle(0, board.North)
+			gg, err := NewGame(2, 2)
+			if err != nil {
+				t.Fatalf("%s: FromBoard() => %v, want nil", cc.desc, err)
+			}
+			tt := gg.world.GetTriangle(0, 0)
 			for k, v := range cc.inputs {
 				tt.AddFlag(k, v)
 			}
@@ -612,7 +618,10 @@ func TestMoveUnits(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not create board: %v", err)
 	}
-	game := FromBoard(bb)
+	game, err := FromBoard(bb)
+	if err != nil {
+		t.Fatalf("FromBoard() => %v, want nil", err)
+	}
 
 	cases := []struct {
 		desc  string

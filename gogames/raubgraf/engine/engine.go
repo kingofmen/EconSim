@@ -57,7 +57,7 @@ type RaubgrafGame struct {
 }
 
 // FromBoard returns a new game object using the provided board.
-func FromBoard(w *board.Board) *RaubgrafGame {
+func FromBoard(w *board.Board) (*RaubgrafGame, error) {
 	g := &RaubgrafGame{
 		dice:   rand.New(rand.NewSource(3)),
 		world:  w,
@@ -67,7 +67,21 @@ func FromBoard(w *board.Board) *RaubgrafGame {
 	for k, v := range flagDecay {
 		g.decay.AddFlag(k, v)
 	}
-	return g
+	if err := g.processPops("Check Pop IDs", func(p *pop.Pop) error {
+		pid := p.ID()
+		if pid == 0 {
+			pid = uint32(1 + len(g.popMap))
+			p.SetID(pid)
+		}
+		if g.popMap[pid] != nil {
+			return fmt.Errorf("Duplicate Pop ID %d", pid)
+		}
+		g.popMap[pid] = p
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return g, nil
 }
 
 // NewGame creates a new board and returns a game object that uses it.
@@ -76,7 +90,7 @@ func NewGame(w, h int) (*RaubgrafGame, error) {
 	if err != nil {
 		return nil, err
 	}
-	return FromBoard(bb), nil
+	return FromBoard(bb)
 }
 
 func (g *RaubgrafGame) GetBoard() *board.Board {

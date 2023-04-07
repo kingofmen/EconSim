@@ -44,7 +44,10 @@ func LoadGame(bp *spb.Board) (int, error) {
 	if err != nil {
 		return -1, fmt.Errorf("error loading from proto: %w", err)
 	}
-	game := engine.FromBoard(bb)
+	game, err := engine.FromBoard(bb)
+	if err != nil {
+		return -1, fmt.Errorf("error creating game from proto: %w", err)
+	}
 	mu.Lock()
 	defer mu.Unlock()
 	idx := len(memGames)
