@@ -49,18 +49,20 @@ type vFunc func(v *board.Vertex) error
 type tFunc func(t *board.Triangle) error
 
 type RaubgrafGame struct {
-	dice  *rand.Rand
-	world *board.Board
-	decay *flags.Holder
-	units []*war.FieldUnit
+	dice   *rand.Rand
+	world  *board.Board
+	decay  *flags.Holder
+	units  []*war.FieldUnit
+	popMap map[uint32]*pop.Pop
 }
 
 // FromBoard returns a new game object using the provided board.
 func FromBoard(w *board.Board) *RaubgrafGame {
 	g := &RaubgrafGame{
-		dice:  rand.New(rand.NewSource(3)),
-		world: w,
-		decay: flags.New(),
+		dice:   rand.New(rand.NewSource(3)),
+		world:  w,
+		decay:  flags.New(),
+		popMap: make(map[uint32]*pop.Pop),
 	}
 	for k, v := range flagDecay {
 		g.decay.AddFlag(k, v)
@@ -510,7 +512,7 @@ func banditry(t *board.Triangle) error {
 }
 
 // demographics removes starving pops and breeds well-fed ones.
-func demographics(t *board.Triangle) error {
+func (g *RaubgrafGame) demographics(t *board.Triangle) error {
 	if t == nil {
 		return nil
 	}
@@ -534,7 +536,10 @@ func demographics(t *board.Triangle) error {
 	if err := t.AddFood(-newPopFood); err != nil {
 		return err
 	}
-	t.AddPop(cand.Copy())
+	np := cand.Copy()
+	np.SetID(uint32(1 + len(g.popMap)))
+	g.popMap[np.ID()] = np
+	t.AddPop(np)
 	return nil
 }
 
@@ -577,9 +582,14 @@ func (g *RaubgrafGame) ResolveTurn() error {
 	if err := g.processTriangles("Banditry", banditry); err != nil {
 		return err
 	}
-	if err := g.processTriangles("Demographics", demographics); err != nil {
+	if err := g.processTriangles("Demographics", g.demographics); err != nil {
 		return err
 	}
 	// TODO: Demobilise.
 	return nil
+}
+
+// PopByID returns the Pop with the given ID.
+func (g *RaubgrafGame) PopByID(pid uint32) *pop.Pop {
+	return g.popMap[pid]
 }

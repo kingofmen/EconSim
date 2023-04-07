@@ -304,32 +304,38 @@ func TestDemographics(t *testing.T) {
 	}
 
 	for _, cc := range cases {
-		if len(cc.pops) != len(cc.hunger) {
-			t.Fatalf("%s: Bad test case, %v mismatches %v", cc.desc, cc.pops, cc.hunger)
-		}
-		tt := board.NewTriangle(0, board.North)
-		if err := tt.AddFood(cc.food); err != nil {
-			t.Fatalf("%s: AddFood() => %v, require nil", cc.desc, err)
-		}
-		start := make(map[pop.Kind]int)
-		for idx, k := range cc.pops {
-			start[k]++
-			pp := pop.New(k)
-			for i := 0; i < cc.hunger[idx]; i++ {
-				pp.Eat(false)
+		t.Run(cc.desc, func(t *testing.T) {
+			if len(cc.pops) != len(cc.hunger) {
+				t.Fatalf("%s: Bad test case, %v mismatches %v", cc.desc, cc.pops, cc.hunger)
 			}
-			tt.AddPop(pp)
-		}
-		if err := demographics(tt); err != nil {
-			t.Errorf("%s: demographics() => %v, want nil", cc.desc, err)
-		}
-		for k, s := range start {
-			exp := s + cc.change[k]
-			got := tt.CountKind(k)
-			if exp != got {
-				t.Errorf("%s: demographics() => %d %ss, want %d", cc.desc, got, k, exp)
+			game, err := NewGame(2, 2)
+			if err != nil {
+				t.Fatalf("%s: NewGame() => %v, want nil", cc.desc, err)
 			}
-		}
+			tt := game.world.GetTriangle(0, 0)
+			if err := tt.AddFood(cc.food); err != nil {
+				t.Fatalf("%s: AddFood() => %v, require nil", cc.desc, err)
+			}
+			start := make(map[pop.Kind]int)
+			for idx, k := range cc.pops {
+				start[k]++
+				pp := pop.New(k)
+				for i := 0; i < cc.hunger[idx]; i++ {
+					pp.Eat(false)
+				}
+				tt.AddPop(pp)
+			}
+			if err := game.demographics(tt); err != nil {
+				t.Errorf("%s: demographics() => %v, want nil", cc.desc, err)
+			}
+			for k, s := range start {
+				exp := s + cc.change[k]
+				got := tt.CountKind(k)
+				if exp != got {
+					t.Errorf("%s: demographics() => %d %ss, want %d", cc.desc, got, k, exp)
+				}
+			}
+		})
 	}
 }
 
