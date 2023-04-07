@@ -4,5 +4,5 @@ package raubgraf.state.proto;
 // Action encapsulates a Pop order.
 message Action {
   // The target Pop.
-  int32 pop_id = 1;
+  uint32 pop_id = 1;
 }

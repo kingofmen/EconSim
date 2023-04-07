@@ -7,6 +7,7 @@ import (
 
 	"gogames/raubgraf/engine/board"
 	"gogames/raubgraf/engine/engine"
+	"google.golang.org/protobuf/encoding/prototext"
 
 	spb "gogames/raubgraf/protos/state_proto"
 )
@@ -18,6 +19,11 @@ var (
 
 	mu sync.Mutex
 )
+
+// getGame returns the game with ID gid, if it exists.
+func getGame(gid int) *engine.RaubgrafGame {
+	return memGames[gid]
+}
 
 // CreateGame creates a new game and returns its ID.
 func CreateGame(width, height int) (int, error) {
@@ -48,13 +54,29 @@ func LoadGame(bp *spb.Board) (int, error) {
 
 // GetGameState returns the protobuf encoding of the given game.
 func GetGameState(gid int) (*spb.Board, error) {
-	game, ok := memGames[gid]
-	if !ok {
-		return nil, fmt.Errorf("not found: Game %d is not in memory", gid)
+	game := getGame(gid)
+	if game == nil {
+		return nil, fmt.Errorf("cannot return game state: Game %d is not in memory", gid)
 	}
 	bb := game.GetBoard()
 	if bb == nil {
 		return nil, fmt.Errorf("bad state: Game %d has no board", gid)
 	}
 	return bb.ToProto()
+}
+
+// PlayerActions accepts game actions from a player.
+func PlayerActions(gid, fnum int, orders []*spb.Action) error {
+	game := getGame(gid)
+	if game == nil {
+		return fmt.Errorf("cannot receive player actions: Game %d is not in memory", gid)
+	}
+	for _, order := range orders {
+		pid := order.GetPopId()
+		target := game.PopByID(pid)
+		if target == nil {
+			return fmt.Errorf("cannot execute order %s: No Pop with ID %d found", prototext.Format(order), pid)
+		}
+	}
+	return nil
 }

@@ -153,6 +153,7 @@ go_library(
       ":pop",
       ":war",
       "//gogames/raubgraf/proto:state_go_proto",
+      "@org_golang_google_protobuf//encoding/prototext:prototext",
     ],
 )
 
