@@ -8,6 +8,7 @@ go_library(
     importpath = "gogames/raubgraf/engine/engine",
     deps = [
       ":board",
+      ":faction",
       ":graph",
       ":pop",
       ":war",

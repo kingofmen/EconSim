@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sync"
 
 	"gogames/raubgraf/engine/board"
+	"gogames/raubgraf/engine/faction"
 	"gogames/raubgraf/engine/graph"
 	"gogames/raubgraf/engine/pop"
 	"gogames/raubgraf/engine/war"
@@ -54,6 +56,9 @@ type RaubgrafGame struct {
 	decay  *flags.Holder
 	units  []*war.FieldUnit
 	popMap map[uint32]*pop.Pop
+	dnaMap map[string]*faction.Faction
+	done   map[string]bool
+	mu     sync.Mutex
 }
 
 // FromBoard returns a new game object using the provided board.
@@ -63,6 +68,8 @@ func FromBoard(w *board.Board) (*RaubgrafGame, error) {
 		world:  w,
 		decay:  flags.New(),
 		popMap: make(map[uint32]*pop.Pop),
+		dnaMap: make(map[string]*faction.Faction),
+		done:   make(map[string]bool),
 	}
 	for k, v := range flagDecay {
 		g.decay.AddFlag(k, v)
@@ -562,7 +569,19 @@ func (g *RaubgrafGame) ResolveTurn() error {
 	if err := g.valid(); err != nil {
 		return fmt.Errorf("ResolveTurn validity error: %w", err)
 	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
 
+	g.done = make(map[string]bool)
+	for _, fcn := range g.dnaMap {
+		if fcn.IsHuman() {
+			// TODO: Run AI here.
+			continue
+		}
+	}
+
+	// TODO: Run this in a transaction or on a copy, so it can be rolled
+	// back if it fails halfway through.
 	if err := g.processPops("Clear pops", func(p *pop.Pop) error {
 		p.Clear()
 		return nil
@@ -606,4 +625,32 @@ func (g *RaubgrafGame) ResolveTurn() error {
 // PopByID returns the Pop with the given ID.
 func (g *RaubgrafGame) PopByID(pid uint32) *pop.Pop {
 	return g.popMap[pid]
+}
+
+// TurnReady returns true if all humans have submitted orders.
+func (g *RaubgrafGame) TurnReady() bool {
+	if g == nil {
+		return false
+	}
+	allHumans := true
+	for dna, fcn := range g.dnaMap {
+		if !fcn.IsHuman() || g.done[dna] {
+			continue
+		}
+		allHumans = false
+		break
+	}
+	return allHumans
+}
+
+// EndPlayerTurn sets the player's readiness to end the turn.
+func (g *RaubgrafGame) EndPlayerTurn(dna string) error {
+	fcn := g.dnaMap[dna]
+	if fcn == nil {
+		return fmt.Errorf("faction %q does not exist", dna)
+	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.done[dna] = true
+	return nil
 }

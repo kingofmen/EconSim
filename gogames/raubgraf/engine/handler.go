@@ -68,17 +68,38 @@ func GetGameState(gid int) (*spb.Board, error) {
 	return bb.ToProto()
 }
 
+func handlePopOrder(game *engine.RaubgrafGame, fdna string, order *spb.Action) error {
+	pid := order.GetPopId()
+	target := game.PopByID(pid)
+	if target == nil {
+		return fmt.Errorf("cannot execute order %s: No Pop with ID %d found", prototext.Format(order), pid)
+	}
+	return nil
+}
+
 // PlayerActions accepts game actions from a player.
-func PlayerActions(gid, fnum int, orders []*spb.Action) error {
+func PlayerActions(gid int, fdna string, orders []*spb.Action) error {
 	game := getGame(gid)
 	if game == nil {
 		return fmt.Errorf("cannot receive player actions: Game %d is not in memory", gid)
 	}
+	endTurn := false
 	for _, order := range orders {
-		pid := order.GetPopId()
-		target := game.PopByID(pid)
-		if target == nil {
-			return fmt.Errorf("cannot execute order %s: No Pop with ID %d found", prototext.Format(order), pid)
+		switch order.GetKind() {
+		case spb.Action_AK_UNKNOWN:
+			return fmt.Errorf("cannot execute order with UNKNOWN action")
+		case spb.Action_AK_POP_ORDER:
+			if err := handlePopOrder(game, fdna, order); err != nil {
+				return err
+			}
+		case spb.Action_AK_PLAYER_DONE:
+			// Do this after all other orders are processed.
+			endTurn = true
+		}
+	}
+	if endTurn {
+		if err := game.EndPlayerTurn(fdna); err != nil {
+			return fmt.Errorf("cannot end turn of faction %q: %w", fdna, err)
 		}
 	}
 	return nil

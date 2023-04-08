@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+type FactionState int
+
+const (
+	Ghost FactionState = iota
+	Computer
+	Human
+)
+
 // Faction models a clan descended from a male-female pair
 // with uniquely identifying Y-chromosome and mitochondrial
 // DNA.
@@ -15,6 +23,8 @@ type Faction struct {
 	// lines of descent.
 	ydna  string
 	mtdna string
+
+	state FactionState
 }
 
 // GetDNA returns the full DNA string of the faction,
@@ -39,6 +49,14 @@ func (f *Faction) Command(dna string) bool {
 	}
 	// Give orders only to patrilineally descended entities.
 	return strings.HasPrefix(dna, f.ydna)
+}
+
+// IsHuman returns true if the faction is being played by a human.
+func (f *Faction) IsHuman() bool {
+	if f == nil {
+		return false
+	}
+	return f.state == Human
 }
 
 // Score returns the contribution weight of an entity with
