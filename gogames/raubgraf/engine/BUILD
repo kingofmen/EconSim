@@ -57,7 +57,6 @@ go_library(
       "//gogames/raubgraf/proto:state_go_proto",
       "//gogames/util:coords",
       "//gogames/util:flags",
-      "@org_golang_google_protobuf//proto:proto",
     ],
 )
 

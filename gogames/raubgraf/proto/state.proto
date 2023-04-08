@@ -1,29 +1,29 @@
-syntax = "proto2";
+syntax = "proto3";
 package raubgraf.state.proto;
 
 // GameState carries the state of a game, possibly as seen by
 // one faction, i.e. not including other factions' orders or
 // other information hidden by fog of war.
 message GameState {
-  optional Board board = 1;
+  Board board = 1;
 }
 
 message Board {
-  optional uint32 width = 1;
-  optional uint32 height = 2;
+  uint32 width = 1;
+  uint32 height = 2;
   repeated Vertex vertices = 3;
   repeated Triangle triangles = 4;
 }
 
 message Vertex {
-  optional uint32 xpos = 1;
-  optional uint32 ypos = 2;
+  uint32 xpos = 1;
+  uint32 ypos = 2;
 }
 
 message Triangle {
-  optional uint32 xpos = 1;
-  optional uint32 ypos = 2;
-  optional uint32 forest = 3;
+  uint32 xpos = 1;
+  uint32 ypos = 2;
+  uint32 forest = 3;
   repeated Pop pops = 4;
 }
 
@@ -37,7 +37,7 @@ message Pop {
     PK_KNIGHT = 5;
     PK_NOBLE = 6;
   }
-  optional Kind kind = 1;
-  optional uint32 hunger = 2;
-  optional uint32 pop_id = 3;
+  Kind kind = 1;
+  uint32 hunger = 2;
+  uint32 pop_id = 3;
 }

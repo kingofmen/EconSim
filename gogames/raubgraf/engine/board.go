@@ -10,7 +10,6 @@ import (
 	"gogames/raubgraf/engine/pop"
 	"gogames/util/coords"
 	"gogames/util/flags"
-	"google.golang.org/protobuf/proto"
 
 	spb "gogames/raubgraf/protos/state_proto"
 )
@@ -752,8 +751,8 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 	}
 
 	bp := &spb.Board{
-		Width:     proto.Uint32(bw),
-		Height:    proto.Uint32(bh),
+		Width:     bw,
+		Height:    bh,
 		Triangles: make([]*spb.Triangle, 0, len(bb.Triangles)),
 	}
 
@@ -762,9 +761,9 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 			continue
 		}
 		tp := &spb.Triangle{
-			Xpos:   proto.Uint32(uint32(tt.X())),
-			Ypos:   proto.Uint32(uint32(tt.Y())),
-			Forest: proto.Uint32(uint32(tt.overgrowth)),
+			Xpos:   uint32(tt.X()),
+			Ypos:   uint32(tt.Y()),
+			Forest: uint32(tt.overgrowth),
 			Pops:   make([]*spb.Pop, 0, tt.CountPops()),
 		}
 		for _, pp := range tt.Population() {
@@ -773,11 +772,11 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 				continue
 			}
 			pr := &spb.Pop{
-				Kind:  pkind.Enum(),
-				PopId: proto.Uint32(pp.ID()),
+				Kind:  pkind,
+				PopId: pp.ID(),
 			}
 			if h := pp.GetHunger(); h > 0 {
-				pr.Hunger = proto.Uint32(uint32(h))
+				pr.Hunger = uint32(h)
 			}
 			tp.Pops = append(tp.Pops, pr)
 		}

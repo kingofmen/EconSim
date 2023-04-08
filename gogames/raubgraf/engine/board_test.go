@@ -8,7 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"gogames/raubgraf/engine/pop"
 	"gogames/util/coords"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 
 	spb "gogames/raubgraf/protos/state_proto"
@@ -511,21 +510,21 @@ func TestProtoConversion(t *testing.T) {
 		{
 			desc: "Basic board",
 			bp: &spb.Board{
-				Width:  proto.Uint32(3),
-				Height: proto.Uint32(3),
+				Width:  3,
+				Height: 3,
 				Triangles: []*spb.Triangle{
 					&spb.Triangle{
-						Xpos:   proto.Uint32(0),
-						Ypos:   proto.Uint32(0),
-						Forest: proto.Uint32(5),
+						Xpos:   0,
+						Ypos:   0,
+						Forest: 5,
 					},
 					&spb.Triangle{
-						Xpos:   proto.Uint32(0),
-						Ypos:   proto.Uint32(1),
-						Forest: proto.Uint32(10),
+						Xpos:   0,
+						Ypos:   1,
+						Forest: 10,
 						Pops: []*spb.Pop{
-							&spb.Pop{Kind: spb.Pop_PK_PEASANT.Enum(), Hunger: proto.Uint32(3), PopId: proto.Uint32(1)},
-							&spb.Pop{Kind: spb.Pop_PK_NOBLE.Enum(), PopId: proto.Uint32(2)},
+							&spb.Pop{Kind: spb.Pop_PK_PEASANT, Hunger: 3, PopId: 1},
+							&spb.Pop{Kind: spb.Pop_PK_NOBLE, PopId: 2},
 						},
 					},
 				},
