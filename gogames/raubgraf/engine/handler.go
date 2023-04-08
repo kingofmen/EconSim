@@ -56,7 +56,7 @@ func LoadGame(bp *spb.Board) (int, error) {
 }
 
 // GetGameState returns the protobuf encoding of the given game.
-func GetGameState(gid int) (*spb.Board, error) {
+func GetGameState(gid int) (*spb.GameState, error) {
 	game := getGame(gid)
 	if game == nil {
 		return nil, fmt.Errorf("cannot return game state: Game %d is not in memory", gid)
@@ -65,12 +65,18 @@ func GetGameState(gid int) (*spb.Board, error) {
 	if bb == nil {
 		return nil, fmt.Errorf("bad state: Game %d has no board", gid)
 	}
-	return bb.ToProto()
+	bp, err := bb.ToProto()
+	if err != nil {
+		return nil, err
+	}
+	return &spb.GameState{
+		Board: bp,
+	}, nil
 }
 
 // PollForUpdate runs a turn of the game if it is ready, and returns
 // the resulting board state; otherwise it returns an error.
-func PollForUpdate(gid int) (*spb.Board, error) {
+func PollForUpdate(gid int) (*spb.GameState, error) {
 	game := getGame(gid)
 	if game == nil {
 		return nil, fmt.Errorf("cannot run turn: Game %d is not in memory", gid)

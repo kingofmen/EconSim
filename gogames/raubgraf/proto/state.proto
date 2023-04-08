@@ -1,6 +1,13 @@
 syntax = "proto2";
 package raubgraf.state.proto;
 
+// GameState carries the state of a game, possibly as seen by
+// one faction, i.e. not including other factions' orders or
+// other information hidden by fog of war.
+message GameState {
+  optional Board board = 1;
+}
+
 message Board {
   optional uint32 width = 1;
   optional uint32 height = 2;

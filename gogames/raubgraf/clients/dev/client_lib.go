@@ -222,10 +222,11 @@ func (h *gameHandler) drawTriangle(xpos, ypos int, tp *spb.Triangle) {
 // Display draws the board state into the buffer.
 func (h *gameHandler) Display() {
 	clear()
-	board, err := handler.GetGameState(h.gameID)
+	game, err := handler.GetGameState(h.gameID)
 	if err != nil {
 		messagef("Error getting game state %d: %v", h.gameID, err)
 	}
+	board := game.GetBoard()
 	height, width := int(board.GetHeight()), int(board.GetWidth())
 	if h.selectedVtx.IsNil() {
 		h.selectedVtx = coords.New(height/2, width/2)
