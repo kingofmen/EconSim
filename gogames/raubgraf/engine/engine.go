@@ -627,20 +627,23 @@ func (g *RaubgrafGame) PopByID(pid uint32) *pop.Pop {
 	return g.popMap[pid]
 }
 
-// TurnReady returns true if all humans have submitted orders.
-func (g *RaubgrafGame) TurnReady() bool {
+// TurnReady returns players who have not submitted orders.
+func (g *RaubgrafGame) TurnReady() []string {
 	if g == nil {
-		return false
+		return nil
 	}
-	allHumans := true
+
+	waiting := make([]string, 0, len(g.dnaMap))
 	for dna, fcn := range g.dnaMap {
-		if !fcn.IsHuman() || g.done[dna] {
+		if !fcn.IsHuman() {
 			continue
 		}
-		allHumans = false
-		break
+		if g.done[dna] {
+			continue
+		}
+		waiting = append(waiting, dna)
 	}
-	return allHumans
+	return waiting
 }
 
 // EndPlayerTurn sets the player's readiness to end the turn.

@@ -68,6 +68,25 @@ func GetGameState(gid int) (*spb.Board, error) {
 	return bb.ToProto()
 }
 
+// PollForUpdate runs a turn of the game if it is ready, and returns
+// the resulting board state; otherwise it returns an error.
+func PollForUpdate(gid int) (*spb.Board, error) {
+	game := getGame(gid)
+	if game == nil {
+		return nil, fmt.Errorf("cannot run turn: Game %d is not in memory", gid)
+	}
+
+	if waiting := game.TurnReady(); len(waiting) > 0 {
+		return nil, fmt.Errorf("cannot run turn: Waiting for players %v", waiting)
+	}
+
+	if err := game.ResolveTurn(); err != nil {
+		return nil, fmt.Errorf("error resolving turn in game %d: %w", gid, err)
+	}
+
+	return GetGameState(gid)
+}
+
 func handlePopOrder(game *engine.RaubgrafGame, fdna string, order *spb.Action) error {
 	pid := order.GetPopId()
 	target := game.PopByID(pid)
