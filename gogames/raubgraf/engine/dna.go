@@ -34,11 +34,38 @@ func Make(pat, mat string) string {
 	return fmt.Sprintf("%s %s", pat, mat)
 }
 
+// String returns the full sequence.
 func (s *Sequence) String() string {
 	if s == nil {
 		return "unknown"
 	}
 	return Make(s.ydna, s.mtdna)
+}
+
+// Partial returns the requested part of the sequence.
+func (s *Sequence) Partial(lin Lineage) string {
+	if s == nil {
+		return ""
+	}
+	switch lin {
+	case Paternal:
+		return s.ydna
+	case Maternal:
+		return s.mtdna
+	case Full:
+		return s.String()
+	}
+	return ""
+}
+
+// Pat returns the paternal DNA.
+func (s *Sequence) Pat() string {
+	return s.Partial(Paternal)
+}
+
+// Mat returns the maternal DNA.
+func (s *Sequence) Mat() string {
+	return s.Partial(Maternal)
 }
 
 // Match returns true if the sequence matches.
