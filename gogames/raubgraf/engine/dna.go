@@ -3,7 +3,6 @@ package dna
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Lineage int
@@ -29,11 +28,6 @@ func New(pat, mat string) *Sequence {
 	}
 }
 
-// Make returns the paternal and maternal DNA in a single string.
-func Make(pat, mat string) string {
-	return fmt.Sprintf("%s %s", pat, mat)
-}
-
 func (s *Sequence) Copy() *Sequence {
 	if s == nil {
 		return nil
@@ -43,10 +37,10 @@ func (s *Sequence) Copy() *Sequence {
 
 // String returns the full sequence.
 func (s *Sequence) String() string {
-	if s == nil {
-		return "unknown"
+	if err := s.Valid(); err != nil {
+		return err.Error()
 	}
-	return Make(s.ydna, s.mtdna)
+	return fmt.Sprintf("%s %s", s.ydna, s.mtdna)
 }
 
 // Partial returns the requested part of the sequence.
@@ -76,14 +70,14 @@ func (s *Sequence) Mat() string {
 }
 
 // Match returns true if the sequence matches.
-func (s *Sequence) Match(seq string, lin Lineage) bool {
+func (s *Sequence) Match(seq *Sequence, lin Lineage) bool {
 	switch lin {
 	case Paternal:
-		return strings.HasPrefix(seq, s.ydna)
+		return seq.ydna == s.ydna
 	case Maternal:
-		return strings.HasSuffix(seq, s.mtdna)
+		return seq.mtdna == s.mtdna
 	case Full:
-		return seq == s.String()
+		return seq.mtdna == s.mtdna && seq.ydna == s.ydna
 	}
 	return false
 }

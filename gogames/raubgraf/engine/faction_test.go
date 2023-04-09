@@ -11,26 +11,26 @@ func TestCommand(t *testing.T) {
 	other := "bbbb"
 	cases := []struct {
 		desc string
-		pdna string
+		pdna *dna.Sequence
 		exp  bool
 	}{
 		{
 			desc: "Full faction DNA",
-			pdna: dna.Make(fdna, fdna),
+			pdna: dna.New(fdna, fdna),
 			exp:  true,
 		},
 		{
 			desc: "Paternal only",
-			pdna: dna.Make(fdna, other),
+			pdna: dna.New(fdna, other),
 			exp:  true,
 		},
 		{
 			desc: "Maternal only",
-			pdna: dna.Make(other, fdna),
+			pdna: dna.New(other, fdna),
 		},
 		{
 			desc: "Neither",
-			pdna: dna.Make(other, other),
+			pdna: dna.New(other, other),
 		},
 	}
 
@@ -47,27 +47,27 @@ func TestScore(t *testing.T) {
 	other := "bbbb"
 	cases := []struct {
 		desc string
-		pdna string
+		pdna *dna.Sequence
 		exp  int
 	}{
 		{
 			desc: "Full faction DNA",
-			pdna: dna.Make(fdna, fdna),
+			pdna: dna.New(fdna, fdna),
 			exp:  2,
 		},
 		{
 			desc: "Paternal only",
-			pdna: dna.Make(fdna, other),
+			pdna: dna.New(fdna, other),
 			exp:  1,
 		},
 		{
 			desc: "Maternal only",
-			pdna: dna.Make(other, fdna),
+			pdna: dna.New(other, fdna),
 			exp:  1,
 		},
 		{
 			desc: "Neither",
-			pdna: dna.Make(other, other),
+			pdna: dna.New(other, other),
 			exp:  0,
 		},
 	}

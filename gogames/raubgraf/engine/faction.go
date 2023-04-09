@@ -41,7 +41,7 @@ func (f *Faction) GetDNA() string {
 
 // Command returns true if the Faction is allowed to give orders
 // to an entity with the provided DNA.
-func (f *Faction) Command(seq string) bool {
+func (f *Faction) Command(seq *dna.Sequence) bool {
 	if f == nil {
 		return false
 	}
@@ -59,7 +59,7 @@ func (f *Faction) IsHuman() bool {
 
 // Score returns the contribution weight of an entity with
 // the provided DNA to the faction's score.
-func (f *Faction) Score(seq string) int {
+func (f *Faction) Score(seq *dna.Sequence) int {
 	if f == nil {
 		return 0
 	}
