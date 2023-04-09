@@ -523,8 +523,23 @@ func TestProtoConversion(t *testing.T) {
 						Ypos:   1,
 						Forest: 10,
 						Pops: []*spb.Pop{
-							&spb.Pop{Kind: spb.Pop_PK_PEASANT, Hunger: 3, PopId: 1},
-							&spb.Pop{Kind: spb.Pop_PK_NOBLE, PopId: 2},
+							&spb.Pop{
+								Kind:   spb.Pop_PK_PEASANT,
+								Hunger: 3,
+								PopId:  1,
+								Sequence: &spb.Dna{
+									Paternal: "aaa",
+									Maternal: "aaa",
+								},
+							},
+							&spb.Pop{
+								Kind:  spb.Pop_PK_NOBLE,
+								PopId: 2,
+								Sequence: &spb.Dna{
+									Paternal: "aaa",
+									Maternal: "aaa",
+								},
+							},
 						},
 					},
 				},

@@ -8,6 +8,11 @@ message GameState {
   Board board = 1;
 }
 
+message Dna {
+  string paternal = 1;
+  string maternal = 2;
+}
+
 message Board {
   uint32 width = 1;
   uint32 height = 2;
@@ -40,4 +45,5 @@ message Pop {
   Kind kind = 1;
   uint32 hunger = 2;
   uint32 pop_id = 3;
+  Dna sequence = 4;
 }

@@ -87,3 +87,17 @@ func (s *Sequence) Match(seq string, lin Lineage) bool {
 	}
 	return false
 }
+
+// Valid returns an error if the sequence is not valid.
+func (s *Sequence) Valid() error {
+	if s == nil {
+		return fmt.Errorf("nil sequence")
+	}
+	if s.Pat() == "" {
+		return fmt.Errorf("sequence %q has no paternal DNA", s.String())
+	}
+	if s.Mat() == "" {
+		return fmt.Errorf("sequence %q has no maternal DNA", s.String())
+	}
+	return nil
+}

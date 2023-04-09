@@ -51,6 +51,7 @@ go_library(
     importpath = "gogames/raubgraf/engine/board",
     deps = [
       ":building",
+      ":dna",
       ":econ",
       ":graph",
       ":pop",

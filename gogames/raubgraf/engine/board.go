@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"gogames/raubgraf/engine/building"
+	"gogames/raubgraf/engine/dna"
 	"gogames/raubgraf/engine/econ"
 	"gogames/raubgraf/engine/graph"
 	"gogames/raubgraf/engine/pop"
@@ -669,11 +670,15 @@ func FromProto(bp *spb.Board) (*Board, error) {
 			if pkind == spb.Pop_PK_UNKNOWN {
 				continue
 			}
-			mpop := pop.New(memoryKind(pkind)).WithHunger(int(pp.GetHunger()))
 			pid := pp.GetPopId()
 			if pid == 0 {
 				return nil, fmt.Errorf("Pop with invalid ID 0 in triangle %s", point.String())
 			}
+			seq := dna.New(pp.GetSequence().GetPaternal(), pp.GetSequence().GetMaternal())
+			if err := seq.Valid(); err != nil {
+				return nil, fmt.Errorf("Pop with ID %d in triangle %s is invalid: %w", pid, point.String(), err)
+			}
+			mpop := pop.New(memoryKind(pkind)).WithHunger(int(pp.GetHunger())).WithDNA(seq)
 			if pos, ok := pids[pid]; ok {
 				return nil, fmt.Errorf("Duplicate pop ID %d in triangle %s, previously in %s", pid, point.String(), pos.String())
 			}
@@ -774,6 +779,10 @@ func (bb *Board) ToProto() (*spb.Board, error) {
 			pr := &spb.Pop{
 				Kind:  pkind,
 				PopId: pp.ID(),
+				Sequence: &spb.Dna{
+					Paternal: pp.Pat(),
+					Maternal: pp.Mat(),
+				},
 			}
 			if h := pp.GetHunger(); h > 0 {
 				pr.Hunger = uint32(h)
