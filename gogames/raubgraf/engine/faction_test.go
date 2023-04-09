@@ -2,6 +2,8 @@ package faction
 
 import (
 	"testing"
+
+	"gogames/raubgraf/engine/dna"
 )
 
 func TestCommand(t *testing.T) {
@@ -14,29 +16,26 @@ func TestCommand(t *testing.T) {
 	}{
 		{
 			desc: "Full faction DNA",
-			pdna: MakeDNA(fdna, fdna),
+			pdna: dna.Make(fdna, fdna),
 			exp:  true,
 		},
 		{
 			desc: "Paternal only",
-			pdna: MakeDNA(fdna, other),
+			pdna: dna.Make(fdna, other),
 			exp:  true,
 		},
 		{
 			desc: "Maternal only",
-			pdna: MakeDNA(other, fdna),
+			pdna: dna.Make(other, fdna),
 		},
 		{
 			desc: "Neither",
-			pdna: MakeDNA(other, other),
+			pdna: dna.Make(other, other),
 		},
 	}
 
 	for _, cc := range cases {
-		f := &Faction{
-			ydna:  fdna,
-			mtdna: fdna,
-		}
+		f := New(fdna, fdna)
 		if got := f.Command(cc.pdna); got != cc.exp {
 			t.Errorf("%s: (%s).Command(%s) => %t, want %t", cc.desc, f.GetDNA(), cc.pdna, got, cc.exp)
 		}
@@ -53,31 +52,28 @@ func TestScore(t *testing.T) {
 	}{
 		{
 			desc: "Full faction DNA",
-			pdna: MakeDNA(fdna, fdna),
+			pdna: dna.Make(fdna, fdna),
 			exp:  2,
 		},
 		{
 			desc: "Paternal only",
-			pdna: MakeDNA(fdna, other),
+			pdna: dna.Make(fdna, other),
 			exp:  1,
 		},
 		{
 			desc: "Maternal only",
-			pdna: MakeDNA(other, fdna),
+			pdna: dna.Make(other, fdna),
 			exp:  1,
 		},
 		{
 			desc: "Neither",
-			pdna: MakeDNA(other, other),
+			pdna: dna.Make(other, other),
 			exp:  0,
 		},
 	}
 
 	for _, cc := range cases {
-		f := &Faction{
-			ydna:  fdna,
-			mtdna: fdna,
-		}
+		f := New(fdna, fdna)
 		if got := f.Score(cc.pdna); got != cc.exp {
 			t.Errorf("%s: (%s).Score(%s) => %d, want %d", cc.desc, f.GetDNA(), cc.pdna, got, cc.exp)
 		}

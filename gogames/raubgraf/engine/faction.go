@@ -3,8 +3,7 @@
 package faction
 
 import (
-	"fmt"
-	"strings"
+	"gogames/raubgraf/engine/dna"
 )
 
 type FactionState int
@@ -19,12 +18,16 @@ const (
 // with uniquely identifying Y-chromosome and mitochondrial
 // DNA.
 type Faction struct {
-	// DNA tags that define the male and female
-	// lines of descent.
-	ydna  string
-	mtdna string
+	*dna.Sequence
 
 	state FactionState
+}
+
+// New returns a new Faction.
+func New(pat, mat string) *Faction {
+	return &Faction{
+		Sequence: dna.New(pat, mat),
+	}
 }
 
 // GetDNA returns the full DNA string of the faction,
@@ -33,22 +36,17 @@ func (f *Faction) GetDNA() string {
 	if f == nil {
 		return ""
 	}
-	return MakeDNA(f.ydna, f.mtdna)
-}
-
-// MakeDNA returns the paternal and maternal DNA in a single string.
-func MakeDNA(pat, mat string) string {
-	return fmt.Sprintf("%s %s", pat, mat)
+	return f.Sequence.String()
 }
 
 // Command returns true if the Faction is allowed to give orders
 // to an entity with the provided DNA.
-func (f *Faction) Command(dna string) bool {
+func (f *Faction) Command(seq string) bool {
 	if f == nil {
 		return false
 	}
 	// Give orders only to patrilineally descended entities.
-	return strings.HasPrefix(dna, f.ydna)
+	return f.Sequence.Match(seq, dna.Paternal)
 }
 
 // IsHuman returns true if the faction is being played by a human.
@@ -61,15 +59,15 @@ func (f *Faction) IsHuman() bool {
 
 // Score returns the contribution weight of an entity with
 // the provided DNA to the faction's score.
-func (f *Faction) Score(dna string) int {
+func (f *Faction) Score(seq string) int {
 	if f == nil {
 		return 0
 	}
 	w := 0
-	if strings.HasPrefix(dna, f.ydna) {
+	if f.Sequence.Match(seq, dna.Paternal) {
 		w++
 	}
-	if strings.HasSuffix(dna, f.mtdna) {
+	if f.Sequence.Match(seq, dna.Maternal) {
 		w++
 	}
 	return w

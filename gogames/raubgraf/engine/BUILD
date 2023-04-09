@@ -75,6 +75,16 @@ go_test(
 )
 
 go_library(
+    name = "dna",
+    srcs = [
+      "dna.go",
+    ],
+    importpath = "gogames/raubgraf/engine/dna",
+    deps = [
+    ],
+)
+
+go_library(
     name = "econ",
     srcs = [
       "econ.go",
@@ -103,6 +113,7 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/faction",
     deps = [
+      ":dna",
     ],
 )
 
