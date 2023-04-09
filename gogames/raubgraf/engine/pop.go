@@ -1,6 +1,7 @@
 package pop
 
 import (
+	"gogames/raubgraf/engine/dna"
 	"gogames/raubgraf/engine/war"
 	"gogames/util/coords"
 )
@@ -237,6 +238,7 @@ func (d *Dwelling) RemovePop(p *Pop) *Pop {
 
 // Pop models a group of several dozen humans.
 type Pop struct {
+	*dna.Sequence
 	kind   Kind
 	hungry int
 	busy   bool
@@ -349,6 +351,14 @@ func (p *Pop) GetHunger() int {
 		return 0
 	}
 	return p.hungry
+}
+
+func (p *Pop) WithDNA(seq *dna.Sequence) *Pop {
+	if p == nil {
+		p = New(Null)
+	}
+	p.Sequence = seq.Copy()
+	return p
 }
 
 func (p *Pop) WithHunger(h int) *Pop {

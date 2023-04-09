@@ -34,6 +34,13 @@ func Make(pat, mat string) string {
 	return fmt.Sprintf("%s %s", pat, mat)
 }
 
+func (s *Sequence) Copy() *Sequence {
+	if s == nil {
+		return nil
+	}
+	return New(s.ydna, s.mtdna)
+}
+
 // String returns the full sequence.
 func (s *Sequence) String() string {
 	if s == nil {

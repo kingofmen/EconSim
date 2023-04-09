@@ -197,6 +197,7 @@ go_library(
     ],
     importpath = "gogames/raubgraf/engine/pop",
     deps = [
+      ":dna",
       ":war",
       "//gogames/util:coords",
     ],
