@@ -1,7 +1,9 @@
 syntax = "proto3";
 package raubgraf.state.proto;
 
-// Action encapsulates a Pop order.
+import "gogames/raubgraf/proto/state.proto";
+
+// Action encapsulates a player order.
 message Action {
   enum Kind {
     AK_UNKNOWN = 0;
@@ -13,4 +15,7 @@ message Action {
 
   // The target Pop.
   uint32 pop_id = 2;
+
+  // Faction that sent the order.
+  Dna source = 3;
 }

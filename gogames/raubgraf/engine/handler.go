@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"gogames/raubgraf/engine/board"
+	"gogames/raubgraf/engine/dna"
 	"gogames/raubgraf/engine/engine"
 	"google.golang.org/protobuf/encoding/prototext"
 
@@ -93,38 +94,50 @@ func PollForUpdate(gid int) (*spb.GameState, error) {
 	return GetGameState(gid)
 }
 
-func handlePopOrder(game *engine.RaubgrafGame, fdna string, order *spb.Action) error {
+func convertDNA(seq *spb.Dna) *dna.Sequence {
+	return dna.New(seq.GetPaternal(), seq.GetMaternal())
+}
+
+func handlePopOrder(game *engine.RaubgrafGame, order *spb.Action) error {
 	pid := order.GetPopId()
 	target := game.PopByID(pid)
 	if target == nil {
 		return fmt.Errorf("cannot execute order %s: No Pop with ID %d found", prototext.Format(order), pid)
 	}
+	seq := convertDNA(order.GetSource())
+	fcn := game.FactionBySequence(seq)
+	if fcn == nil {
+		return fmt.Errorf("cannot execute order %s: No faction with sequence %q found", prototext.Format(order), seq.String())
+	}
+	if !fcn.Command(target.Sequence) {
+		return fmt.Errorf("invalid order %s: Does not match DNA of Pop %d", prototext.Format(order), pid)
+	}
 	return nil
 }
 
 // PlayerActions accepts game actions from a player.
-func PlayerActions(gid int, fdna string, orders []*spb.Action) error {
+func PlayerActions(gid int, orders []*spb.Action) error {
 	game := getGame(gid)
 	if game == nil {
 		return fmt.Errorf("cannot receive player actions: Game %d is not in memory", gid)
 	}
-	endTurn := false
+	var endTurn *dna.Sequence
 	for _, order := range orders {
 		switch order.GetKind() {
 		case spb.Action_AK_UNKNOWN:
 			return fmt.Errorf("cannot execute order with UNKNOWN action")
 		case spb.Action_AK_POP_ORDER:
-			if err := handlePopOrder(game, fdna, order); err != nil {
+			if err := handlePopOrder(game, order); err != nil {
 				return err
 			}
 		case spb.Action_AK_PLAYER_DONE:
 			// Do this after all other orders are processed.
-			endTurn = true
+			endTurn = convertDNA(order.GetSource())
 		}
 	}
-	if endTurn {
-		if err := game.EndPlayerTurn(fdna); err != nil {
-			return fmt.Errorf("cannot end turn of faction %q: %w", fdna, err)
+	if endTurn != nil {
+		if err := game.EndPlayerTurn(endTurn); err != nil {
+			return fmt.Errorf("cannot end turn of faction %q: %w", "aaa", err)
 		}
 	}
 	return nil

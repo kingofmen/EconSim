@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"gogames/raubgraf/engine/board"
+	"gogames/raubgraf/engine/dna"
 	"gogames/raubgraf/engine/faction"
 	"gogames/raubgraf/engine/graph"
 	"gogames/raubgraf/engine/pop"
@@ -624,7 +625,18 @@ func (g *RaubgrafGame) ResolveTurn() error {
 
 // PopByID returns the Pop with the given ID.
 func (g *RaubgrafGame) PopByID(pid uint32) *pop.Pop {
+	if g == nil {
+		return nil
+	}
 	return g.popMap[pid]
+}
+
+// FactionBySequence returns the faction with the given sequence.
+func (g *RaubgrafGame) FactionBySequence(seq *dna.Sequence) *faction.Faction {
+	if g == nil {
+		return nil
+	}
+	return g.dnaMap[seq.String()]
 }
 
 // TurnReady returns players who have not submitted orders.
@@ -647,13 +659,13 @@ func (g *RaubgrafGame) TurnReady() []string {
 }
 
 // EndPlayerTurn sets the player's readiness to end the turn.
-func (g *RaubgrafGame) EndPlayerTurn(dna string) error {
-	fcn := g.dnaMap[dna]
+func (g *RaubgrafGame) EndPlayerTurn(seq *dna.Sequence) error {
+	fcn := g.dnaMap[seq.String()]
 	if fcn == nil {
-		return fmt.Errorf("faction %q does not exist", dna)
+		return fmt.Errorf("faction %q does not exist", seq.String())
 	}
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	g.done[dna] = true
+	g.done[seq.String()] = true
 	return nil
 }
