@@ -40,10 +40,10 @@ func CreateGame(width, height int) (int, error) {
 }
 
 // LoadGame loads a game from protobuf and returns its ID.
-func LoadGame(bp *spb.Board) (int, error) {
-	bb, err := board.FromProto(bp)
+func LoadGame(gs *spb.GameState) (int, error) {
+	bb, err := board.FromProto(gs.GetBoard())
 	if err != nil {
-		return -1, fmt.Errorf("error loading from proto: %w", err)
+		return -1, fmt.Errorf("error loading board from proto: %w", err)
 	}
 	game, err := engine.FromBoard(bb)
 	if err != nil {

@@ -674,6 +674,9 @@ func FromProto(bp *spb.Board) (*Board, error) {
 			if pid == 0 {
 				return nil, fmt.Errorf("Pop with invalid ID 0 in triangle %s", point.String())
 			}
+			if pp.GetSequence() == nil {
+				return nil, fmt.Errorf("Pop with ID %d in triangle %s has nil dna", pid, point.String())
+			}
 			seq := dna.New(pp.GetSequence().GetPaternal(), pp.GetSequence().GetMaternal())
 			if err := seq.Valid(); err != nil {
 				return nil, fmt.Errorf("Pop with ID %d in triangle %s is invalid: %w", pid, point.String(), err)

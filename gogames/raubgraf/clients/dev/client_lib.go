@@ -310,12 +310,12 @@ func (h *loadGameHandler) Parse(inp string) (Handler, error) {
 			messagef("Could not open file %q: %v", fname, err)
 			return h, nil
 		}
-		bp := &spb.Board{}
-		if err := prototext.Unmarshal(text, bp); err != nil {
+		gs := &spb.GameState{}
+		if err := prototext.Unmarshal(text, gs); err != nil {
 			messagef("Could not parse data from %q: %v", fname, err)
 			return h, nil
 		}
-		gid, err := handler.LoadGame(bp)
+		gid, err := handler.LoadGame(gs)
 		if err != nil {
 			messagef("Could not load parsed proto: %v", err)
 			return h, nil
