@@ -98,46 +98,48 @@ func convertDNA(seq *spb.Dna) *dna.Sequence {
 	return dna.New(seq.GetPaternal(), seq.GetMaternal())
 }
 
-func handlePopOrder(game *engine.RaubgrafGame, order *spb.Action) error {
+func handlePopOrder(game *engine.RaubgrafGame, seq *dna.Sequence, order *spb.PopOrder) error {
 	pid := order.GetPopId()
 	target := game.PopByID(pid)
 	if target == nil {
-		return fmt.Errorf("cannot execute order %s: No Pop with ID %d found", prototext.Format(order), pid)
+		return fmt.Errorf("no Pop with ID %d found", pid)
 	}
-	seq := convertDNA(order.GetSource())
 	fcn := game.FactionBySequence(seq)
 	if fcn == nil {
-		return fmt.Errorf("cannot execute order %s: No faction with sequence %q found", prototext.Format(order), seq.String())
+		return fmt.Errorf("no faction with sequence %q found", seq.String())
 	}
 	if !fcn.Command(target.Sequence) {
-		return fmt.Errorf("invalid order %s: Does not match DNA of Pop %d", prototext.Format(order), pid)
+		return fmt.Errorf("does not match DNA of Pop %d", pid)
 	}
 	return nil
 }
 
 // PlayerActions accepts game actions from a player.
-func PlayerActions(gid int, orders []*spb.Action) error {
+func PlayerActions(gid int, actions []*spb.Action) error {
 	game := getGame(gid)
 	if game == nil {
 		return fmt.Errorf("cannot receive player actions: Game %d is not in memory", gid)
 	}
 	var endTurn *dna.Sequence
-	for _, order := range orders {
-		switch order.GetKind() {
-		case spb.Action_AK_UNKNOWN:
-			return fmt.Errorf("cannot execute order with UNKNOWN action")
-		case spb.Action_AK_POP_ORDER:
-			if err := handlePopOrder(game, order); err != nil {
-				return err
+	for _, action := range actions {
+		seq := convertDNA(action.GetSource())
+		order := action.GetOrder()
+		if order == nil {
+			return fmt.Errorf("cannot execute action with nil order")
+		}
+		switch data := order.(type) {
+		case *spb.Action_PopAction:
+			if err := handlePopOrder(game, seq, data.PopAction); err != nil {
+				return fmt.Errorf("cannot execute action %s: %w", prototext.Format(action), err)
 			}
-		case spb.Action_AK_PLAYER_DONE:
-			// Do this after all other orders are processed.
-			endTurn = convertDNA(order.GetSource())
+		case *spb.Action_EndTurn:
+			// Do this after all other actions are processed.
+			endTurn = seq
 		}
 	}
 	if endTurn != nil {
 		if err := game.EndPlayerTurn(endTurn); err != nil {
-			return fmt.Errorf("cannot end turn of faction %q: %w", "aaa", err)
+			return fmt.Errorf("cannot end turn of faction %q: %w", endTurn.String(), err)
 		}
 	}
 	return nil

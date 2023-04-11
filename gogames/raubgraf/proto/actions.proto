@@ -3,19 +3,20 @@ package raubgraf.state.proto;
 
 import "gogames/raubgraf/proto/state.proto";
 
+message PopOrder {
+  uint32 pop_id = 1;
+}
+
+// Empty message as substitute for enum.
+message EndTurn {}
+
 // Action encapsulates a player order.
 message Action {
-  enum Kind {
-    AK_UNKNOWN = 0;
-    AK_POP_ORDER = 1;
-    AK_PLAYER_DONE = 2;
-  }
-  // Action type.
-  Kind kind = 1;
-
-  // The target Pop.
-  uint32 pop_id = 2;
-
   // Faction that sent the order.
-  Dna source = 3;
+  Dna source = 1;
+
+  oneof order {
+    PopOrder pop_action = 2;
+    EndTurn end_turn = 3;
+  }
 }
