@@ -4,6 +4,7 @@ package faction
 
 import (
 	"gogames/raubgraf/engine/dna"
+	"gogames/raubgraf/engine/pop"
 )
 
 type FactionState int
@@ -14,20 +15,56 @@ const (
 	Human
 )
 
+// Order holds an order the faction will give to a Pop.
+type Order struct {
+	Target uint32
+	Act    pop.Action
+}
+
 // Faction models a clan descended from a male-female pair
 // with uniquely identifying Y-chromosome and mitochondrial
 // DNA.
 type Faction struct {
 	*dna.Sequence
 
-	state FactionState
+	orders   []*Order
+	state    FactionState
+	capacity int
 }
 
 // New returns a new Faction.
 func New(pat, mat string) *Faction {
 	return &Faction{
 		Sequence: dna.New(pat, mat),
+		capacity: 3,
 	}
+}
+
+// AddOrder adds an order to the faction's queue, removing
+// an old one if needed.
+func (f *Faction) AddOrder(o *Order) error {
+	if f == nil {
+		return nil
+	}
+	f.orders = append(f.orders, o)
+	if len(f.orders) > f.capacity {
+		f.orders = f.orders[1:]
+	}
+	return nil
+}
+
+func (f *Faction) ClearOrders() {
+	if f == nil {
+		return
+	}
+	f.orders = make([]*Order, 0, f.capacity)
+}
+
+func (f *Faction) GetOrders() []*Order {
+	if f == nil {
+		return nil
+	}
+	return f.orders
 }
 
 // GetDNA returns the full DNA string of the faction,

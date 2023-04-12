@@ -116,6 +116,7 @@ go_library(
     importpath = "gogames/raubgraf/engine/faction",
     deps = [
       ":dna",
+      ":pop",
     ],
 )
 
@@ -163,6 +164,7 @@ go_library(
       ":board",
       ":dna",
       ":engine",
+      ":faction",
       ":graph",
       ":pop",
       ":war",

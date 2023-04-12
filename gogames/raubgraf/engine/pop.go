@@ -31,6 +31,11 @@ type Dwelling struct {
 	pops List
 }
 
+// Order contains a unit of player (or AI) input.
+type Order struct {
+	Act Action
+}
+
 // AvailableFilter passes pops that have not acted this turn.
 func AvailableFilter(p *Pop) bool {
 	return !p.Busy()
@@ -44,6 +49,14 @@ func BanditFilter(p *Pop) bool {
 // BusyFilter passes pops that cannot act.
 func BusyFilter(p *Pop) bool {
 	return p.Busy()
+}
+
+// DefaultActionFilter passes pops that don't have an external override.
+func DefaultActionFilter(p *Pop) bool {
+	if p == nil {
+		return false
+	}
+	return p.order == nil
 }
 
 // FightingFilter passes pops that are able to fight.
@@ -245,6 +258,7 @@ type Pop struct {
 	action Action
 	target coords.Point
 	popid  uint32
+	order  *Order
 
 	levy *war.FieldUnit
 }
@@ -389,6 +403,14 @@ func (p *Pop) SetAction(act Action) {
 		return
 	}
 	p.action = act
+}
+
+// SetOrder sets the Pop's external orders.
+func (p *Pop) SetOrder(ord *Order) {
+	if p == nil {
+		return
+	}
+	p.order = ord
 }
 
 // SetTarget sets the desired location for the Pop's action.

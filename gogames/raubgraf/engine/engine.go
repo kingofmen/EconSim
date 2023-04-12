@@ -255,8 +255,8 @@ func (g *RaubgrafGame) mobT(t *board.Triangle) error {
 // overridden by incoming commands.
 func popsThinkT(t *board.Triangle) error {
 	// Peasants decide whether to work or defend against bandit raids.
-	peasants := t.FilteredPopulation(pop.PeasantFilter)
-	bandits := t.FilteredPopulation(pop.BanditFilter)
+	peasants := t.FilteredPopulation(pop.PeasantFilter, pop.DefaultActionFilter)
+	bandits := t.FilteredPopulation(pop.BanditFilter, pop.DefaultActionFilter)
 
 	// Peasants want to maximise effective food production.
 	// They will assume that a militia unit is roughly equal
@@ -296,7 +296,7 @@ func popsThinkT(t *board.Triangle) error {
 // overridden by incoming commands.
 func popsThinkV(v *board.Vertex) error {
 	// Knights can decide to train, or to defend against bandits.
-	knights := v.GetSettlement().FilteredPopulation(pop.KnightFilter, pop.AvailableFilter)
+	knights := v.GetSettlement().FilteredPopulation(pop.KnightFilter, pop.AvailableFilter, pop.DefaultActionFilter)
 	triangles := make(map[*board.Triangle]int)
 	for _, d := range board.TriDirs {
 		tt := v.GetTriangle(d)
@@ -574,13 +574,6 @@ func (g *RaubgrafGame) ResolveTurn() error {
 	defer g.mu.Unlock()
 
 	g.done = make(map[string]bool)
-	for _, fcn := range g.dnaMap {
-		if fcn.IsHuman() {
-			// TODO: Run AI here.
-			continue
-		}
-	}
-
 	// TODO: Run this in a transaction or on a copy, so it can be rolled
 	// back if it fails halfway through.
 	if err := g.processPops("Clear pops", func(p *pop.Pop) error {
@@ -592,6 +585,26 @@ func (g *RaubgrafGame) ResolveTurn() error {
 	if err := g.processBoard("Clear board", g.clearV, g.clearT, true); err != nil {
 		return err
 	}
+
+	for _, fcn := range g.dnaMap {
+		if fcn.IsHuman() {
+			continue
+		}
+		// TODO: Run AI here.
+	}
+	for _, fcn := range g.dnaMap {
+		for _, order := range fcn.GetOrders() {
+			target := g.PopByID(order.Target)
+			if target == nil {
+				continue
+			}
+			target.SetOrder(&pop.Order{
+				Act: order.Act,
+			})
+		}
+		fcn.ClearOrders()
+	}
+
 	if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
 		return err
 	}

@@ -8,6 +8,8 @@ import (
 	"gogames/raubgraf/engine/board"
 	"gogames/raubgraf/engine/dna"
 	"gogames/raubgraf/engine/engine"
+	"gogames/raubgraf/engine/faction"
+	"gogames/raubgraf/engine/pop"
 	"google.golang.org/protobuf/encoding/prototext"
 
 	spb "gogames/raubgraf/protos/state_proto"
@@ -98,8 +100,8 @@ func convertDNA(seq *spb.Dna) *dna.Sequence {
 	return dna.New(seq.GetPaternal(), seq.GetMaternal())
 }
 
-func handlePopOrder(game *engine.RaubgrafGame, seq *dna.Sequence, order *spb.PopOrder) error {
-	pid := order.GetPopId()
+func handlePopOrder(game *engine.RaubgrafGame, seq *dna.Sequence, oproto *spb.PopOrder) error {
+	pid := oproto.GetPopId()
 	target := game.PopByID(pid)
 	if target == nil {
 		return fmt.Errorf("no Pop with ID %d found", pid)
@@ -111,6 +113,24 @@ func handlePopOrder(game *engine.RaubgrafGame, seq *dna.Sequence, order *spb.Pop
 	if !fcn.Command(target.Sequence) {
 		return fmt.Errorf("does not match DNA of Pop %d", pid)
 	}
+
+	var popAction pop.Action
+	switch oproto.GetAction() {
+	case spb.PopOrder_POA_UNKNOWN:
+		return fmt.Errorf("unknown Pop action value %s", oproto.GetAction())
+	case spb.PopOrder_POA_BANDITRY:
+		popAction = pop.Banditry
+	case spb.PopOrder_POA_DRILL:
+		popAction = pop.Drill
+	case spb.PopOrder_POA_LABOUR:
+		popAction = pop.Labour
+	case spb.PopOrder_POA_LEVY:
+		popAction = pop.Levy
+	}
+	fcn.AddOrder(&faction.Order{
+		Target: pid,
+		Act:    popAction,
+	})
 	return nil
 }
 
