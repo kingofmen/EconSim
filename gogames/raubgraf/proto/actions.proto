@@ -3,11 +3,20 @@ package raubgraf.state.proto;
 
 import "gogames/raubgraf/proto/state.proto";
 
+// PopOrder encapsulates orders for a Pop.
 message PopOrder {
+  enum Action {
+    POA_UNKNOWN = 0;
+    POA_BANDITRY = 1;
+    POA_DRILL = 2;
+    POA_LABOUR = 3;
+    POA_LEVY = 4;
+  }
   uint32 pop_id = 1;
+  Action action = 2;
 }
 
-// Empty message as substitute for enum.
+// EndTurn indicates that the player is done giving orders.
 message EndTurn {}
 
 // Action encapsulates a player order.
