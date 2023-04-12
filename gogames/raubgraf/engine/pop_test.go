@@ -139,3 +139,41 @@ func TestFilters(t *testing.T) {
 		})
 	}
 }
+
+func TestOrders(t *testing.T) {
+	cases := []struct {
+		desc  string
+		order *Order
+		want  Action
+	}{
+		{
+			desc: "No order",
+		},
+		{
+			desc:  "Banditry",
+			order: &Order{Act: Banditry},
+			want:  Banditry,
+		},
+		{
+			desc:  "Levy",
+			order: &Order{Act: Levy},
+			want:  Levy,
+		},
+		{
+			desc:  "Labour",
+			order: &Order{Act: Labour},
+			want:  Labour,
+		},
+	}
+
+	p := New(Peasant)
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			p.SetOrder(cc.order)
+			p.ExecuteOrder()
+			if p.action != cc.want {
+				t.Errorf("%s: Pop action is %v, want %v", cc.desc, p.action, cc.want)
+			}
+		})
+	}
+}

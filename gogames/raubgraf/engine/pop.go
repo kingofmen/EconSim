@@ -405,6 +405,18 @@ func (p *Pop) SetAction(act Action) {
 	p.action = act
 }
 
+func (p *Pop) ExecuteOrder() {
+	if p == nil {
+		return
+	}
+	if p.order == nil {
+		return
+	}
+	// TODO: Allow orders that persist over multiple turns, and have targets.
+	p.SetAction(p.order.Act)
+	p.order = nil
+}
+
 // SetOrder sets the Pop's external orders.
 func (p *Pop) SetOrder(ord *Order) {
 	if p == nil {
