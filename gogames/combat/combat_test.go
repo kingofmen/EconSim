@@ -25,11 +25,19 @@ func equalActions(one, two *Action) bool {
 	if one.Kind != two.Kind {
 		return false
 	}
-	if len(one.Combatants) != len(two.Combatants) {
+	if len(one.Attackers) != len(two.Attackers) {
 		return false
 	}
-	for idx, aid := range one.Combatants {
-		if aid != two.Combatants[idx] {
+	for idx, aid := range one.Attackers {
+		if aid != two.Attackers[idx] {
+			return false
+		}
+	}
+	if len(one.Defenders) != len(two.Defenders) {
+		return false
+	}
+	for idx, aid := range one.Defenders {
+		if aid != two.Defenders[idx] {
 			return false
 		}
 	}
@@ -45,11 +53,6 @@ func TestGenerate(t *testing.T) {
 		{
 			desc: "No armies",
 		},
-		/*
-			{
-				desc: "Attrition",
-			},
-		*/
 	}
 
 	for _, cc := range cases {
