@@ -608,6 +608,12 @@ func (g *RaubgrafGame) ResolveTurn() error {
 	if err := g.processBoard("Pop thinking", popsThinkV, popsThinkT, true); err != nil {
 		return err
 	}
+	if err := g.processPops("Pop orders", func(p *pop.Pop) error {
+		p.ExecuteOrder()
+		return nil
+	}); err != nil {
+		return err
+	}
 	if err := g.processBoard("Mobilise", g.mobV, g.mobT, true); err != nil {
 		return err
 	}
