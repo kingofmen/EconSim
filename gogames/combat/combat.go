@@ -139,7 +139,7 @@ func Generate(armies ...Combater) []*Action {
 			fighting[currid][candid] = true
 			fighting[candid][currid] = true
 		allyLoop:
-			for _, ally := range armies {
+			for _, ally := range armies[idx+1:] {
 				allyid := ally.GetArmyId()
 				if allyid == currid {
 					continue
