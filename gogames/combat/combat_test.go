@@ -173,12 +173,59 @@ func TestGenerate(t *testing.T) {
 			},
 		},
 		{
+			desc: "Simple merge",
+			armies: []*testArmy{
+				&testArmy{uuid: 1, faction: 1},
+				&testArmy{uuid: 2, faction: 2},
+				&testArmy{uuid: 3, faction: 3},
+				&testArmy{uuid: 4, faction: 4},
+			},
+			stances: map[[2]int]Attitude{
+				{1, 2}: Allied,
+				{1, 3}: Hostile,
+				{2, 4}: Hostile,
+				{3, 4}: Allied,
+			},
+			want: []*Action{
+				&Action{
+					Attackers: []ArmyId{1, 2},
+					Defenders: []ArmyId{3, 4},
+				},
+			},
+		},
+		{
+			desc: "Complex merge",
+			armies: []*testArmy{
+				&testArmy{uuid: 1, faction: 1},
+				&testArmy{uuid: 2, faction: 2},
+				&testArmy{uuid: 3, faction: 3},
+				&testArmy{uuid: 4, faction: 4},
+				&testArmy{uuid: 5, faction: 5},
+				&testArmy{uuid: 6, faction: 6},
+			},
+			stances: map[[2]int]Attitude{
+				{1, 2}: Hostile,
+				{1, 5}: Allied,
+				{1, 6}: Allied,
+				{2, 3}: Allied,
+				{2, 4}: Allied,
+				{3, 5}: Hostile,
+				{4, 6}: Hostile,
+			},
+			want: []*Action{
+				&Action{
+					Attackers: []ArmyId{1, 5, 6},
+					Defenders: []ArmyId{2, 3, 4},
+				},
+			},
+		},
+		{
 			desc: "Massive clusterfuck",
 			armies: []*testArmy{
 				&testArmy{uuid: 0, faction: 1}, // Allied to 2, 3, 4; fighting 5.
 				&testArmy{uuid: 1, faction: 1},
 				&testArmy{uuid: 2, faction: 2}, // Fighting 6.
-				&testArmy{uuid: 3, faction: 3}, // Hostile to 4 in spite of alliance; also to 5 and 6.
+				&testArmy{uuid: 3, faction: 3}, // Hostile to 4 in spite of alliance; also to 6.
 				&testArmy{uuid: 4, faction: 4}, // Separately hostile to 5.
 				&testArmy{uuid: 5, faction: 5},
 				&testArmy{uuid: 6, faction: 6},

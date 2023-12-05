@@ -131,13 +131,36 @@ func Generate(armies ...Combater) []*Action {
 			if fighting[currid][candid] {
 				continue
 			}
-			action := &Action{
-				Attackers: []ArmyId{currid},
-				Defenders: []ArmyId{candid},
+			// Check for merges.
+			var action *Action
+			for _, act := range actions {
+				if canJoinAgainst(curr, act.Attackers, append(act.Defenders, candid)) && canJoinAgainst(cand, act.Defenders, append(act.Attackers, currid)) {
+					act.Attackers = append(act.Attackers, currid)
+					act.Defenders = append(act.Defenders, candid)
+					action = act
+					break
+				}
+				if canJoinAgainst(curr, act.Defenders, append(act.Attackers, candid)) && canJoinAgainst(cand, act.Attackers, append(act.Defenders, currid)) {
+					act.Attackers = append(act.Attackers, candid)
+					act.Defenders = append(act.Defenders, currid)
+					action = act
+					break
+				}
 			}
-			actions = append(actions, action)
-			fighting[currid][candid] = true
-			fighting[candid][currid] = true
+			if action == nil {
+				action = &Action{
+					Attackers: []ArmyId{currid},
+					Defenders: []ArmyId{candid},
+				}
+				actions = append(actions, action)
+			}
+			for _, att := range action.Attackers {
+				for _, def := range action.Defenders {
+					fighting[att][def] = true
+					fighting[def][att] = true
+				}
+			}
+
 		allyLoop:
 			for _, ally := range armies[idx+1:] {
 				allyid := ally.GetArmyId()
