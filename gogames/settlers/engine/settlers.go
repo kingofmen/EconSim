@@ -20,9 +20,33 @@ type Faction struct {
 	Freemen int64
 }
 
-// Settlement contains the production logic.
+// Template contains constant settlement data.
+type Template struct {
+	people int64
+}
+
+// Settlement contains variable production data.
 type Settlement struct {
+	kind       *Template
+	faction    *Faction
 	priorities [4]int16
+	people     int64
+}
+
+func (s *Settlement) Populate() {
+	if s == nil {
+		return
+	}
+	if s.faction == nil {
+		return
+	}
+
+	want := s.kind.people - s.people
+	if s.faction.Freemen < want {
+		want = s.faction.Freemen
+	}
+	s.people += want
+	s.faction.Freemen -= want
 }
 
 // Prioritize calculates the production fractions.
@@ -55,6 +79,7 @@ func (m *Map) Tick() error {
 
 	for _, s := range m.settlements {
 		s.Prioritize()
+		s.Populate()
 	}
 
 	return nil
