@@ -70,6 +70,23 @@ go_repository(
     version = "v0.5.3-0.20201020212313-ab46b8bd0abd",
 )
 
+# Note that 'vcs' is needed for 'v2' suffix to work. And 'remote'
+# is required for 'vcs'.
+go_repository(
+    name = "com_github_hajimehoshi_ebiten_v2",
+    commit = "fdf36026aee97e674f23c219f7cfc2a544b13f51",
+    importpath = "github.com/hajimehoshi/ebiten/v2",
+    remote = "https://github.com/hajimehoshi/ebiten",
+    vcs = "git",
+)
+
+# Needed for ebiten.
+go_repository(
+    name = "com_github_ebitengine_purego",
+    importpath = "github.com/ebitengine/purego",
+    commit = "dab77e60781e3ee1254ff2f5025c9e369c21100e",
+)
+
 new_local_repository(
     name = "gtest",
     path = "C:\\users\\rolfa\\base\\protobuf\\",
