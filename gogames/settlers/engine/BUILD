@@ -6,5 +6,6 @@ go_library(
     importpath = "gogames/settlers/engine/settlers",
     visibility = ["//visibility:public"],
     deps = [
+      "//gogames/util:coords",
     ],
 )
