@@ -46,6 +46,29 @@ func TestPlace(t *testing.T) {
 			},
 			want: []error{fmt.Errorf("Never!")},
 		},
+		{
+			desc: "Multiple rules",
+			tmpl: &Template{
+				required: []Rule{
+					&testRule{
+						allow: func(pos coords.Point, fac *Faction, board *Board) error {
+							return fmt.Errorf("Never!")
+						},
+					},
+					&testRule{
+						allow: func(pos coords.Point, fac *Faction, board *Board) error {
+							return nil
+						},
+					},
+					&testRule{
+						allow: func(pos coords.Point, fac *Faction, board *Board) error {
+							return fmt.Errorf("Some other thing!")
+						},
+					},
+				},
+			},
+			want: []error{fmt.Errorf("Never!"), fmt.Errorf("Some other thing!")},
+		},
 	}
 
 	board := NewBoard()
