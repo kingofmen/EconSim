@@ -91,6 +91,12 @@ type Board struct {
 	settlements []*Piece
 }
 
+func NewBoard() *Board {
+	return &Board{
+		settlements: make([]*Piece, 0, 10),
+	}
+}
+
 // Place puts a Piece onto the board.
 func (m *Board) Place(pos coords.Point, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.required))
