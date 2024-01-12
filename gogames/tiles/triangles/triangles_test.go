@@ -23,7 +23,15 @@ func TestTiling(t *testing.T) {
 			numVtx: 4,
 			matches: map[*vtxLookup]*vtxLookup{
 				&vtxLookup{0, NorthEast}: &vtxLookup{1, North},
+				&vtxLookup{0, South}:     &vtxLookup{1, SouthWest},
 			},
+		},
+		{
+			desc: "Two disjoint triangles",
+			points: [][3]int{
+				{0, 0, 1}, {0, 2, 0},
+			},
+			numVtx: 6,
 		},
 	}
 
