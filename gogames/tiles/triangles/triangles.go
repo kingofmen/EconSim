@@ -1,46 +1,63 @@
-package board
+package triangles
 
 import (
 	"fmt"
 )
 
+// Coordinate system from https://www.boristhebrave.com/2021/05/23/triangle-grids/.
+type TriPoint [3]int
 type Direction int
+type axis int
 
 const (
 	North Direction = iota
 	NorthEast
-	East
 	SouthEast
 	South
 	SouthWest
-	West
 	NorthWest
 )
 
-// Directions of triangles from a vertex or triangle.
-var TriDirs = []Direction{North, NorthEast, SouthEast, South, SouthWest, NorthWest}
+const (
+	aAxis axis = iota // Increase SouthWest
+	bAxis             // Increase North
+	cAxis             // Increase SouthEast
+)
 
-// Directions of vertices from a vertex or triangle.
-var VtxDirs = []Direction{NorthWest, NorthEast, East, SouthEast, SouthWest, West}
+var (
+	steps = map[Direction]TriPoint{
+		SouthEast: TriPoint{1, 0, 0},
+		NorthWest: TriPoint{-1, 0, 0},
+		North:     TriPoint{0, 1, 0},
+		South:     TriPoint{0, -1, 0},
+		SouthWest: TriPoint{0, 0, 1},
+		NorthEast: TriPoint{0, 0, -1},
+	}
+
+	directions = map[TriPoint]Direction{
+		TriPoint{1, 0, 0}:  SouthWest,
+		TriPoint{-1, 0, 0}: NorthEast,
+		TriPoint{0, 1, 0}:  North,
+		TriPoint{0, -1, 0}: South,
+		TriPoint{0, 0, 1}:  SouthEast,
+		TriPoint{0, 0, -1}: NorthWest,
+	}
+)
 
 // String returns a human-readable string suitable for debugging.
 // It is not intended for display to users.
 func (d Direction) String() string {
 	switch d {
 	case North:
-		return "North"
+		return "North    "
 	case NorthEast:
 		return "NorthEast"
-	case East:
-		return "East"
 	case SouthEast:
 		return "SouthEast"
 	case South:
-		return "South"
+		return "South    "
 	case SouthWest:
 		return "SouthWest"
-	case West:
-		return "West"
 	case NorthWest:
 		return "NorthWest"
 	}
@@ -53,21 +70,22 @@ func (d Direction) Clockwise() Direction {
 	case North:
 		return NorthEast
 	case NorthEast:
-		return East
-	case East:
 		return SouthEast
 	case SouthEast:
 		return South
 	case South:
 		return SouthWest
 	case SouthWest:
-		return West
-	case West:
 		return NorthWest
 	case NorthWest:
 		return North
 	}
 	panic(fmt.Errorf("Clockwise received unknown direction %v", d))
+}
+
+// Deasil is a synonym for Clockwise.
+func (d Direction) Deasil() Direction {
+	return d.Clockwise()
 }
 
 // CounterClockwise returns the direction one step counterclockwise from that provided.
@@ -76,21 +94,27 @@ func (d Direction) CounterClockwise() Direction {
 	case North:
 		return NorthWest
 	case NorthWest:
-		return West
-	case West:
 		return SouthWest
 	case SouthWest:
 		return South
 	case South:
 		return SouthEast
 	case SouthEast:
-		return East
-	case East:
 		return NorthEast
 	case NorthEast:
 		return North
 	}
 	panic(fmt.Errorf("CounterClockwise received unknown direction %v", d))
+}
+
+// AntiClockwise is a synonym for CounterClockwise.
+func (d Direction) AntiClockwise() Direction {
+	return d.CounterClockwise()
+}
+
+// Widdershins is a synonym for CounterClockwise.
+func (d Direction) Widdershins() Direction {
+	return d.CounterClockwise()
 }
 
 // Opposite returns the 180-degrees-turned direction.
@@ -100,20 +124,59 @@ func (d Direction) Opposite() Direction {
 		return South
 	case NorthWest:
 		return SouthEast
-	case West:
-		return East
 	case SouthWest:
 		return NorthEast
 	case South:
 		return North
 	case SouthEast:
 		return NorthWest
-	case East:
-		return West
 	case NorthEast:
 		return SouthWest
 	}
 	panic(fmt.Errorf("Opposite received unknown direction %v", d))
+}
+
+// A returns the a, first, coordinate.
+func (tp TriPoint) A() int {
+	return tp[aAxis]
+}
+
+// B returns the b, second, coordinate.
+func (tp TriPoint) B() int {
+	return tp[bAxis]
+}
+
+// C returns the c, third, coordinate.
+func (tp TriPoint) C() int {
+	return tp[cAxis]
+}
+
+// String returns a human-readable string suitable for debugging.
+func (tp TriPoint) String() string {
+	return fmt.Sprintf("(%d, %d, %d)", tp.A(), tp.B(), tp.C())
+}
+
+// sum returns the coordinate sum, which indicates validity and pointing.
+func (tp TriPoint) sum() int {
+	return tp.A() + tp.B() + tp.C()
+}
+
+// add returns the vector sum.
+func (tp TriPoint) add(step TriPoint) TriPoint {
+	return TriPoint{tp.A() + step.A(), tp.B() + step.B(), tp.C() + step.C()}
+}
+
+// Valid returns an error if the coordinates do not
+// describe a valid triangle position.
+func (tp TriPoint) Valid() error {
+	// a+b+c must add to one or two.
+	switch tp.sum() {
+	case 1:
+		return nil
+	case 2:
+		return nil
+	}
+	return fmt.Errorf("invalid triangle checksum %d from coordinates %s", tp.sum(), tp)
 }
 
 // Vertex is one point of a triangle.
@@ -122,146 +185,143 @@ type Vertex struct {
 	triangles [6]*Surface
 }
 
-// setT sets the triangle t in direction d.
-func (v *Vertex) setT(t *Surface, d Direction) error {
-	if v == nil || t == nil {
-		return nil
-	}
-	if d == East || d == West {
-		return fmt.Errorf("Attempt to set vertex triangle in bad direction %v", d)
-	}
-	switch d {
-	case North:
-		v.triangles[0] = t
-		t.vertices[2] = v
-	case NorthEast:
-		v.triangles[1] = t
-		t.vertices[2] = v
-	case SouthEast:
-		v.triangles[2] = t
-		t.vertices[0] = v
-	case South:
-		v.triangles[3] = t
-		t.vertices[0] = v
-	case SouthWest:
-		v.triangles[4] = t
-		t.vertices[1] = v
-	case NorthWest:
-		v.triangles[5] = t
-		t.vertices[1] = v
-	}
-	return nil
-}
-
 // GetSurface returns the triangle in the given direction from the vertex,
 // if any. Note that vertices have between one and six triangles.
 func (v *Vertex) GetSurface(d Direction) *Surface {
 	if v == nil {
 		return nil
 	}
-	switch d {
-	case North:
-		return v.triangles[0]
-	case NorthEast:
-		return v.triangles[1]
-	case SouthEast:
-		return v.triangles[2]
-	case South:
-		return v.triangles[3]
-	case SouthWest:
-		return v.triangles[4]
-	case NorthWest:
-		return v.triangles[5]
-	}
-	return nil
+	return v.triangles[d]
 }
 
 // Surface models a tile defined by three vertices.
 type Surface struct {
 	// Either N - SE - SW or NW - NE - S.
-	vertices [3]*Vertex
+	vertices map[Direction]*Vertex
 
 	// Opposite of vertices.
-	neighbours [3]*Surface
+	neighbours map[Direction]*Surface
 
-	// Points up or down?
-	points Direction
+	// Triple coordinate.
+	tripoint TriPoint
 }
 
-// New returns a new triangle with the given pointing.
-func New(d Direction) *Surface {
-	tt := &Surface{
-		vertices:   [3]*Vertex{nil, nil, nil},
-		neighbours: [3]*Surface{nil, nil, nil},
-		points:     d,
+// New returns a new triangle with the given tri-coordinates.
+func New(a, b, c int) (*Surface, error) {
+	tp := TriPoint{a, b, c}
+	if err := tp.Valid(); err != nil {
+		return nil, err
 	}
-	return tt
+
+	tt := &Surface{
+		vertices:   make(map[Direction]*Vertex),
+		neighbours: make(map[Direction]*Surface),
+		tripoint:   tp,
+	}
+	return tt, nil
+}
+
+// String returns a human-readable string suitable for debugging.
+func (s *Surface) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	return s.tripoint.String()
 }
 
 // GetVertex returns the vertex in the given direction, if any.
-// Note that all triangles have exactly three vertices.
 func (t *Surface) GetVertex(d Direction) *Vertex {
 	if t == nil {
 		return nil
 	}
-
-	if t.pointsUp() {
-		switch d {
-		case North:
-			return t.vertices[0]
-		case SouthEast:
-			return t.vertices[1]
-		case SouthWest:
-			return t.vertices[2]
-		}
-		return nil
-	}
-
-	switch d {
-	case NorthWest:
-		return t.vertices[0]
-	case NorthEast:
-		return t.vertices[1]
-	case South:
-		return t.vertices[2]
-	}
-	return nil
+	return t.vertices[d]
 }
 
 // GetNeighbour returns the triangle in the given direction, if any.
-// All triangles have at least one and at most three neighbours.
 func (t *Surface) GetNeighbour(d Direction) *Surface {
 	if t == nil {
 		return nil
 	}
-
-	if t.pointsUp() {
-		switch d {
-		case NorthWest:
-			return t.neighbours[0]
-		case NorthEast:
-			return t.neighbours[1]
-		case South:
-			return t.neighbours[2]
-		}
-		return nil
-	}
-
-	switch d {
-	case North:
-		return t.neighbours[0]
-	case SouthEast:
-		return t.neighbours[1]
-	case SouthWest:
-		return t.neighbours[2]
-	}
-	return nil
+	return t.neighbours[d]
 }
 
-// pointsUp returns true if the triangle is north-pointing.
-func (t *Surface) pointsUp() bool {
+// Points returns true if the triangle has a point in the given direction.
+func (t *Surface) Points(d Direction) bool {
 	if t == nil {
 		return false
 	}
-	return t.points == North
+	sum := t.tripoint.sum()
+	switch d {
+	case North:
+		return sum == 2
+	case NorthEast:
+		return sum == 1
+	case SouthEast:
+		return sum == 2
+	case South:
+		return sum == 1
+	case SouthWest:
+		return sum == 2
+	case NorthWest:
+		return sum == 1
+	}
+	return false
+}
+
+// Tile sets the vertices and neighbours of the surfaces.
+func Tile(surfaces ...*Surface) error {
+	trimap := make(map[TriPoint]*Surface)
+	for _, face := range surfaces {
+		if face == nil {
+			continue
+		}
+		if _, ex := trimap[face.tripoint]; ex {
+			return fmt.Errorf("duplicate tri-coordinate %s", face.tripoint)
+		}
+		if err := face.tripoint.Valid(); err != nil {
+			return err
+		}
+		trimap[face.tripoint] = face
+	}
+	for _, face := range surfaces {
+		if face == nil {
+			continue
+		}
+		for dir, step := range steps {
+			if face.neighbours[dir] != nil {
+				// We already set this relationship from the other surface.
+				continue
+			}
+
+			nbc := face.tripoint.add(step)
+			if err := nbc.Valid(); err != nil {
+				continue
+			}
+			oppDir := dir.Opposite()
+			nb := trimap[nbc]
+			if nb != nil {
+				face.neighbours[dir] = nb
+				nb.neighbours[oppDir] = face
+			}
+
+			setVtx := func(vtxDir, oppVtxDir Direction) {
+				vtx := face.GetVertex(vtxDir)
+				if vtx == nil {
+					vtx = nb.GetVertex(oppVtxDir)
+				}
+				if vtx == nil {
+					vtx = &Vertex{}
+				}
+				face.vertices[vtxDir] = vtx
+				vtx.triangles[vtxDir.Opposite()] = face
+				if nb != nil {
+					nb.vertices[oppVtxDir] = vtx
+					vtx.triangles[oppVtxDir.Opposite()] = nb
+				}
+			}
+			setVtx(dir.Clockwise(), oppDir.AntiClockwise())
+			setVtx(dir.AntiClockwise(), oppDir.Clockwise())
+		}
+	}
+	return nil
 }
