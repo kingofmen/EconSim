@@ -71,7 +71,10 @@ func TestPlace(t *testing.T) {
 		},
 	}
 
-	board := NewBoard()
+	board, err := NewHex(1)
+	if err != nil {
+		t.Fatalf("Could not create board: %v", err)
+	}
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
 			errs := board.Place(coords.Nil(), nil, cc.tmpl)
