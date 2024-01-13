@@ -156,6 +156,11 @@ func (tp TriPoint) String() string {
 	return fmt.Sprintf("(%d, %d, %d)", tp.A(), tp.B(), tp.C())
 }
 
+// Copy returns a copy of the array.
+func (tp TriPoint) Copy() TriPoint {
+	return TriPoint{tp[0], tp[1], tp[2]}
+}
+
 // sum returns the coordinate sum, which indicates validity and pointing.
 func (tp TriPoint) sum() int {
 	return tp.A() + tp.B() + tp.C()
@@ -243,6 +248,11 @@ func (t *Surface) GetNeighbour(d Direction) *Surface {
 		return nil
 	}
 	return t.neighbours[d]
+}
+
+// GetTriPoint returns a copy of the triangle's coordinates.
+func (t *Surface) GetTriPoint() TriPoint {
+	return t.tripoint.Copy()
 }
 
 // Points returns true if the triangle has a point in the given direction.
