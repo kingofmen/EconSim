@@ -33,6 +33,44 @@ func TestTiling(t *testing.T) {
 			},
 			numVtx: 6,
 		},
+		{
+			desc: "Full hex",
+			points: [][3]int{
+				{0, 0, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1},
+			},
+			numVtx: 7,
+			matches: map[*vtxLookup]*vtxLookup{
+				&vtxLookup{0, NorthEast}: &vtxLookup{1, North},
+				&vtxLookup{1, North}:     &vtxLookup{2, NorthWest},
+				&vtxLookup{2, NorthWest}: &vtxLookup{3, SouthWest},
+				&vtxLookup{3, SouthWest}: &vtxLookup{4, South},
+				&vtxLookup{4, South}:     &vtxLookup{5, SouthEast},
+				&vtxLookup{5, SouthEast}: &vtxLookup{0, NorthEast},
+				&vtxLookup{0, South}:     &vtxLookup{1, SouthWest},
+				&vtxLookup{1, SouthEast}: &vtxLookup{2, South},
+				&vtxLookup{2, NorthEast}: &vtxLookup{3, SouthEast},
+				&vtxLookup{3, North}:     &vtxLookup{4, NorthEast},
+				&vtxLookup{4, NorthWest}: &vtxLookup{5, North},
+				&vtxLookup{5, SouthWest}: &vtxLookup{0, NorthWest},
+			},
+		},
+		{
+			desc: "Line of four",
+			points: [][3]int{
+				{0, 0, 1}, {1, 0, 1}, {1, 0, 0}, {2, 0, 0},
+			},
+			numVtx: 6,
+			matches: map[*vtxLookup]*vtxLookup{
+				&vtxLookup{0, NorthEast}: &vtxLookup{1, North},
+				&vtxLookup{0, NorthEast}: &vtxLookup{2, NorthWest},
+				&vtxLookup{0, South}:     &vtxLookup{1, SouthWest},
+				&vtxLookup{1, North}:     &vtxLookup{2, NorthWest},
+				&vtxLookup{1, SouthEast}: &vtxLookup{2, South},
+				&vtxLookup{1, SouthEast}: &vtxLookup{3, SouthWest},
+				&vtxLookup{2, South}:     &vtxLookup{3, SouthWest},
+				&vtxLookup{2, NorthEast}: &vtxLookup{3, North},
+			},
+		},
 	}
 
 	for _, cc := range cases {
