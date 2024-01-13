@@ -22,6 +22,8 @@ const (
 	aAxis axis = iota // Increase SouthWest
 	bAxis             // Increase North
 	cAxis             // Increase SouthEast
+
+	root3Sixth = float64(0.28867513459)
 )
 
 var (
@@ -253,6 +255,53 @@ func (t *Surface) GetNeighbour(d Direction) *Surface {
 // GetTriPoint returns a copy of the triangle's coordinates.
 func (t *Surface) GetTriPoint() TriPoint {
 	return t.tripoint.Copy()
+}
+
+// A returns the first (warp) coordinate.
+func (t *Surface) A() int {
+	if t == nil {
+		return 0
+	}
+	return t.tripoint.A()
+}
+
+// B returns the second (weft) coordinate.
+func (t *Surface) B() int {
+	if t == nil {
+		return 0
+	}
+	return t.tripoint.B()
+}
+
+// C returns the third (hex) coordinate.
+func (t *Surface) C() int {
+	if t == nil {
+		return 0
+	}
+	return t.tripoint.C()
+}
+
+// X translates the A, B, C tripoint into Cartesian
+// and returns the first coordinate of the centroid.
+func (t *Surface) X() float64 {
+	ret := float64(t.A())
+	ret -= float64(t.C())
+	ret *= 0.5
+	return ret
+}
+
+// Y translates the A, B, C tripoint into Cartesian
+// and returns the second coordinate of the centroid.
+func (t *Surface) Y() float64 {
+	ret := float64(2 * t.B())
+	ret -= float64(t.A())
+	ret -= float64(t.C())
+	return root3Sixth * ret
+}
+
+// XY returns the Cartesian coordinates of the centroid.
+func (t *Surface) XY() (float64, float64) {
+	return t.X(), t.Y()
 }
 
 // Points returns true if the triangle has a point in the given direction.
