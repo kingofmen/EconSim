@@ -28,6 +28,11 @@ func UnitY() Vector {
 	return New(0, 1)
 }
 
+// Copy returns a copy of the vector.
+func (v Vector) Copy() Vector {
+	return New(v.X(), v.Y())
+}
+
 // Len returns the length of the vector.
 func (v Vector) Len() float64 {
 	return math.Sqrt(v[0]*v[0] + v[1]*v[1])
@@ -48,10 +53,57 @@ func (v Vector) XY() (float64, float64) {
 	return v.X(), v.Y()
 }
 
+// Sum returns the vector sum in a new vector.
+func Sum(vs ...Vector) Vector {
+	ret := Zero()
+	for _, v := range vs {
+		ret.Add(v.XY())
+	}
+	return ret
+}
+
+func Diff(one Vector, vs ...Vector) Vector {
+	ret := one.Copy()
+	for _, v := range vs {
+		ret.Sub(v.XY())
+	}
+	return ret
+}
+
 // Add adds the coordinates in-place.
-func (v Vector) Add(x, y float64) {
+func (v *Vector) Add(x, y float64) {
 	v[0] += x
 	v[1] += y
+}
+
+// AddInt adds the coordinates in-place.
+func (v *Vector) AddInt(x, y int) {
+	v[0] += float64(x)
+	v[1] += float64(y)
+}
+
+// Sub subtracts the coordinates in-place.
+func (v *Vector) Sub(x, y float64) {
+	v[0] -= x
+	v[1] -= y
+}
+
+// SubInt subtracts the coordinates in-place.
+func (v *Vector) SubInt(x, y int) {
+	v[0] -= float64(x)
+	v[1] -= float64(y)
+}
+
+// Set sets the coordinates in-place.
+func (v *Vector) Set(x, y float64) {
+	v[0] = x
+	v[1] = y
+}
+
+// SetInt sets the coordinates in-place.
+func (v *Vector) SetInt(x, y int) {
+	v[0] = float64(x)
+	v[1] = float64(y)
 }
 
 // Dot returns the dot product.
