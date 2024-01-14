@@ -7,6 +7,7 @@ import (
 
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
+	"gogames/util/vector2d"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -21,11 +22,12 @@ const (
 )
 
 type Game struct {
-	board *settlers.Board
-	upTri *ebiten.Image
-	dnTri *ebiten.Image
-	opts  *ebiten.DrawImageOptions
-	count float64
+	board  *settlers.Board
+	upTri  *ebiten.Image
+	dnTri  *ebiten.Image
+	opts   *ebiten.DrawImageOptions
+	count  float64
+	offset vector2d.Vector
 }
 
 func (g *Game) Update() error {
@@ -42,7 +44,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		x, y := tile.XY()
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
-		g.opts.GeoM.Translate(x+100, y+80)
+		g.opts.GeoM.Translate(x+g.offset.X(), y+g.offset.Y())
 		if tile.Points(triangles.North) {
 			screen.DrawImage(g.upTri, g.opts)
 		} else {
@@ -105,8 +107,9 @@ func main() {
 		log.Fatal(err)
 	}
 	game := &Game{
-		board: board,
-		count: 0,
+		board:  board,
+		count:  0,
+		offset: vector2d.New(100, 80),
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
