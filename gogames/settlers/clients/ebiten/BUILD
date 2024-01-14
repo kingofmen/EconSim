@@ -14,6 +14,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//gogames/settlers/engine:settlers",
+      	"//gogames/tiles/triangles:triangles",
         "@com_github_hajimehoshi_ebiten_v2//ebitenutil:go_default_library",
         "@com_github_hajimehoshi_ebiten_v2//:go_default_library",
     ],
