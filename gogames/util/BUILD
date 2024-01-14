@@ -38,3 +38,22 @@ go_test(
       ":coords",
     ],
 )
+
+go_library(
+    name = "vector2d",
+    srcs = [
+      "vector2d.go",
+    ],
+    importpath = "gogames/util/vector2d",
+    deps = [
+    ],
+)
+
+go_test(
+    name = "vector2d_test",
+    srcs = ["vector2d_test.go"],
+    importpath = "gogames/util/vector2d",
+    embed = [
+      ":vector2d",
+    ],
+)
