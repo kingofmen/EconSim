@@ -17,6 +17,7 @@ go_library(
       	"//gogames/tiles/triangles:triangles",
         "//gogames/util:vector2d",
         "@com_github_hajimehoshi_ebiten_v2//ebitenutil:go_default_library",
+        "@com_github_hajimehoshi_ebiten_v2//inpututil:go_default_library",
         "@com_github_hajimehoshi_ebiten_v2//:go_default_library",
     ],
 )

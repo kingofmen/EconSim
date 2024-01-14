@@ -11,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -22,18 +23,32 @@ const (
 )
 
 type Game struct {
-	board  *settlers.Board
-	upTri  *ebiten.Image
-	dnTri  *ebiten.Image
-	opts   *ebiten.DrawImageOptions
-	count  float64
-	offset vector2d.Vector
+	board   *settlers.Board
+	upTri   *ebiten.Image
+	dnTri   *ebiten.Image
+	opts    *ebiten.DrawImageOptions
+	offset  vector2d.Vector
+	mouseDn vector2d.Vector
+}
+
+func (g *Game) handleClick(dn, up vector2d.Vector) {
+	diff := vector2d.Diff(up, dn)
+	if diff.Len() < 2 {
+		// This is a click, ignore for now.
+		return
+	}
+	// Click and drag.
+	g.offset.Add(diff.XY())
 }
 
 func (g *Game) Update() error {
-	g.count++
-	if g.count > 100 {
-		g.count = 0
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		g.mouseDn.SetInt(ebiten.CursorPosition())
+	}
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		mouseUp := vector2d.Zero()
+		mouseUp.SetInt(ebiten.CursorPosition())
+		g.handleClick(g.mouseDn, mouseUp)
 	}
 	return nil
 }
@@ -107,9 +122,9 @@ func main() {
 		log.Fatal(err)
 	}
 	game := &Game{
-		board:  board,
-		count:  0,
-		offset: vector2d.New(100, 80),
+		board:   board,
+		offset:  vector2d.New(100, 80),
+		mouseDn: vector2d.Zero(),
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
