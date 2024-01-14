@@ -18,6 +18,18 @@ func TestDotProduct(t *testing.T) {
 			two:  UnitY(),
 			want: 0,
 		},
+		{
+			desc: "Sanity",
+			one:  UnitX(),
+			two:  New(0.5, 0.5),
+			want: 0.5,
+		},
+		{
+			desc: "Numbers at random",
+			one:  New(13, 79),
+			two:  New(-2, 32),
+			want: 2502,
+		},
 	}
 
 	tolerance := 0.001
