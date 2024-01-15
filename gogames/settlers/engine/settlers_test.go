@@ -8,34 +8,20 @@ import (
 )
 
 type testRule struct {
-	triangle func(tri *triangles.Surface, fac *Faction) error
-	vertex   func(vtx *triangles.Vertex, fac *Faction) error
+	allow func(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error
 }
 
-func (tr *testRule) Triangle(tri *triangles.Surface, fac *Faction) error {
-	if tr.triangle == nil {
+func (tr *testRule) Allow(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error {
+	if tr == nil || tr.allow == nil {
 		return nil
 	}
-	return tr.triangle(tri, fac)
-}
-func (tr *testRule) Vertex(vtx *triangles.Vertex, fac *Faction) error {
-	if tr.vertex == nil {
-		return nil
-	}
-	return tr.vertex(vtx, fac)
+	return tr.allow(tile, fac, vertices...)
 }
 
-func neverTriangleRule(s string) *testRule {
+func neverRule(s string) *testRule {
 	return &testRule{
-		triangle: func(tri *triangles.Surface, fac *Faction) error {
-			return fmt.Errorf("Triangle: Never %s!", s)
-		},
-	}
-}
-func neverVertexRule(s string) *testRule {
-	return &testRule{
-		vertex: func(tri *triangles.Vertex, fac *Faction) error {
-			return fmt.Errorf("Vertex: Never %s!", s)
+		allow: func(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error {
+			return fmt.Errorf("Never %s!", s)
 		},
 	}
 }
@@ -145,24 +131,24 @@ func TestPlace(t *testing.T) {
 					faces: []Face{
 						Face{
 							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{neverTriangleRule("face")},
+							rules: []Rule{neverRule("face")},
 							verts: []Vert{
 								Vert{
 									dir:   triangles.South,
-									rules: []Rule{neverVertexRule("vertex")},
+									rules: []Rule{neverRule("vertex")},
 								},
 							},
 						},
 					},
-					faceRules: []Rule{neverTriangleRule("triangles")},
-					vertRules: []Rule{neverVertexRule("vertices")},
+					faceRules: []Rule{neverRule("triangles")},
+					vertRules: []Rule{neverRule("vertices")},
 				},
 			},
 			want: []error{
-				fmt.Errorf("Triangle: Never triangles!"),
-				fmt.Errorf("Triangle: Never face!"),
-				fmt.Errorf("Vertex: Never vertices!"),
-				fmt.Errorf("Vertex: Never vertex!"),
+				fmt.Errorf("Never triangles!"),
+				fmt.Errorf("Never face!"),
+				fmt.Errorf("Never vertex!"),
+				fmt.Errorf("Never vertices!"),
 			},
 		},
 	}

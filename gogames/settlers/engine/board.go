@@ -68,31 +68,34 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 			continue
 		}
 
-		for _, allow := range tmp.shape.faceRules {
-			if err := allow.Triangle(start.Surface, fac); err != nil {
+		for _, rule := range tmp.shape.faceRules {
+			if err := rule.Allow(start, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
-		for _, allow := range face.rules {
-			if err := allow.Triangle(start.Surface, fac); err != nil {
+		for _, rule := range face.rules {
+			if err := rule.Allow(start, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
+
+		vertices := make([]*triangles.Vertex, 0, len(face.verts))
 		for _, vert := range face.verts {
 			vtx := start.GetVertex(vert.dir)
 			if vtx == nil {
 				bad = append(bad, fmt.Errorf("cannot apply vertex rules to nil vertex (%s -> %s)", coord, vert.dir))
 				continue
 			}
-			for _, allow := range tmp.shape.vertRules {
-				if err := allow.Vertex(vtx, fac); err != nil {
+			vertices = append(vertices, vtx)
+			for _, rule := range vert.rules {
+				if err := rule.Allow(start, fac, vtx); err != nil {
 					bad = append(bad, err)
 				}
 			}
-			for _, allow := range vert.rules {
-				if err := allow.Vertex(vtx, fac); err != nil {
-					bad = append(bad, err)
-				}
+		}
+		for _, rule := range tmp.shape.vertRules {
+			if err := rule.Allow(start, fac, vertices...); err != nil {
+				bad = append(bad, err)
 			}
 		}
 		// TODO: Edges.
