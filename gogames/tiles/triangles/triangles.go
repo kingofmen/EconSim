@@ -239,6 +239,20 @@ func New(a, b, c int) (*Surface, error) {
 	return tt, nil
 }
 
+// GetVertices returns the non-nil vertices of the tile.
+func (s *Surface) GetVertices() []*Vertex {
+	if s == nil {
+		return nil
+	}
+	verts := make([]*Vertex, 0, 3)
+	for _, v := range s.vertices {
+		if v != nil {
+			verts = append(verts, v)
+		}
+	}
+	return verts
+}
+
 // String returns a human-readable string suitable for debugging.
 func (s *Surface) String() string {
 	if s == nil {
