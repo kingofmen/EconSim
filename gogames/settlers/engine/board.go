@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"gogames/tiles/triangles"
-	"gogames/util/coords"
 )
 
 // Board contains the game board.
@@ -47,21 +46,55 @@ func NewHex(r int) (*Board, error) {
 }
 
 // Place puts a Piece onto the board.
-func (m *Board) Place(pos coords.Point, fac *Faction, tmp *Template) []error {
-	if m == nil {
+func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
+	if bd == nil {
 		return []error{fmt.Errorf("piece placed on nil Board")}
 	}
-	bad := make([]error, 0, len(tmp.required))
-	for _, rule := range tmp.required {
-		if err := rule.Allow(pos, fac, m); err != nil {
-			bad = append(bad, err)
+
+	bad := make([]error, 0, len(tmp.shape.faces))
+	for _, face := range tmp.shape.faces {
+		coord := triangles.Sum(pos, face.pos)
+		start, ok := bd.tileMap[coord]
+		if !ok {
+			bad = append(bad, fmt.Errorf("required position %s not on the board", coord))
+			continue
 		}
+
+		for _, allow := range tmp.shape.faceRules {
+			if err := allow.Triangle(start, fac); err != nil {
+				bad = append(bad, err)
+			}
+		}
+		for _, allow := range face.rules {
+			if err := allow.Triangle(start, fac); err != nil {
+				bad = append(bad, err)
+			}
+		}
+		for _, vert := range face.verts {
+			vtx := start.GetVertex(vert.dir)
+			if vtx == nil {
+				bad = append(bad, fmt.Errorf("cannot apply vertex rules to nil vertex (%s -> %s)", coord, vert.dir))
+				continue
+			}
+			for _, allow := range tmp.shape.vertRules {
+				if err := allow.Vertex(vtx, fac); err != nil {
+					bad = append(bad, err)
+				}
+			}
+			for _, allow := range vert.rules {
+				if err := allow.Vertex(vtx, fac); err != nil {
+					bad = append(bad, err)
+				}
+			}
+		}
+		// TODO: Edges.
 	}
+
 	if len(bad) > 0 {
 		return bad
 	}
 
-	m.settlements = append(m.settlements, NewPiece(tmp, fac))
+	bd.settlements = append(bd.settlements, NewPiece(tmp, fac))
 	return nil
 }
 

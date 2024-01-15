@@ -2,7 +2,7 @@
 package settlers
 
 import (
-	"gogames/util/coords"
+	"gogames/tiles/triangles"
 )
 
 // Faction models a tribe or nation.
@@ -13,5 +13,7 @@ type Faction struct {
 
 // Rule models a requirement for a piece to be placed.
 type Rule interface {
-	Allow(pos coords.Point, fac *Faction, board *Board) error
+	Triangle(tri *triangles.Surface, fac *Faction) error
+	Vertex(vtx *triangles.Vertex, fac *Faction) error
+	// TODO: Edge.
 }

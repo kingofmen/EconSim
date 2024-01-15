@@ -1,5 +1,9 @@
 package settlers
 
+import (
+	"gogames/tiles/triangles"
+)
+
 type Activity int
 
 const (
@@ -9,12 +13,46 @@ const (
 	MILITIA        // Drill, weapons, training, patrol; the defense of the other three.
 )
 
+// Edge contains occupation information for a triangle edge.
+type Edge struct {
+	dir   triangles.Direction
+	rules []Rule
+}
+
+// Vert contains occupation information for a triangle vertex.
+type Vert struct {
+	dir   triangles.Direction
+	rules []Rule
+}
+
+// Face contains occupation information for one triangle tile.
+type Face struct {
+	// Tri-coordinates relative to base face.
+	pos triangles.TriPoint
+	// Rules for the face.
+	rules []Rule
+	// Occupied vertices.
+	verts []Vert
+	// Occupied edges.
+	edges []Edge
+}
+
+// Shape is a collection of Faces.
+type Shape struct {
+	faces []Face
+	// Rules for all occupied faces.
+	faceRules []Rule
+	// Rules for all edges.
+	edgeRules []Rule
+	// Rules for all vertices.
+	vertRules []Rule
+}
+
 // Template contains information shared across a class of game pieces,
 // such as shape and production capability.
 type Template struct {
 	people int64
-
-	required []Rule
+	shape  Shape
 }
 
 // Piece is an instantiation of a Template, placed on the board.
