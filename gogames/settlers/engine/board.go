@@ -6,10 +6,14 @@ import (
 	"gogames/tiles/triangles"
 )
 
+type Tile struct {
+	*triangles.Surface
+}
+
 // Board contains the game board.
 type Board struct {
-	Tiles       []*triangles.Surface
-	tileMap     map[triangles.TriPoint]*triangles.Surface
+	Tiles       []*Tile
+	tileMap     map[triangles.TriPoint]*Tile
 	settlements []*Piece
 }
 
@@ -19,12 +23,14 @@ func NewHex(r int) (*Board, error) {
 		return nil, fmt.Errorf("hex board of radius %d would be empty", r)
 	}
 	b := &Board{
-		// Hex consists of 6 large triangles; hence the number is 6
+		// Hex consists of 6 large triangles; hence the number of tiles is 6
 		// times the nth triangular number.
-		Tiles:       make([]*triangles.Surface, 0, 3*r*(r+1)),
-		tileMap:     make(map[triangles.TriPoint]*triangles.Surface),
+		Tiles:       make([]*Tile, 0, 3*r*(r+1)),
+		tileMap:     make(map[triangles.TriPoint]*Tile),
 		settlements: make([]*Piece, 0, 10),
 	}
+
+	surfaces := make([]*triangles.Surface, 0, len(b.Tiles))
 	for warp := r; warp > -r; warp-- {
 		for weft := r; weft > -r; weft-- {
 			for hex := r; hex > -r; hex-- {
@@ -33,13 +39,15 @@ func NewHex(r int) (*Board, error) {
 					// Invalid tripoint.
 					continue
 				}
-				b.Tiles = append(b.Tiles, s)
-				b.tileMap[s.GetTriPoint()] = s
+				surfaces = append(surfaces, s)
+				tile := &Tile{s}
+				b.Tiles = append(b.Tiles, tile)
+				b.tileMap[s.GetTriPoint()] = tile
 			}
 		}
 	}
 
-	if err := triangles.Tile(b.Tiles...); err != nil {
+	if err := triangles.Tile(surfaces...); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -61,12 +69,12 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 		}
 
 		for _, allow := range tmp.shape.faceRules {
-			if err := allow.Triangle(start, fac); err != nil {
+			if err := allow.Triangle(start.Surface, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
 		for _, allow := range face.rules {
-			if err := allow.Triangle(start, fac); err != nil {
+			if err := allow.Triangle(start.Surface, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
