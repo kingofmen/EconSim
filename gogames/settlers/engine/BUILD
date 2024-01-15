@@ -5,6 +5,7 @@ go_library(
     srcs = [
       "settlers.go",
       "board.go",
+      "piece.go",
     ],
     importpath = "gogames/settlers/engine/settlers",
     visibility = ["//visibility:public"],
