@@ -173,6 +173,17 @@ func (tp TriPoint) add(step TriPoint) TriPoint {
 	return TriPoint{tp.A() + step.A(), tp.B() + step.B(), tp.C() + step.C()}
 }
 
+// Sum returns the vector sum.
+func Sum(tps ...TriPoint) TriPoint {
+	ret := TriPoint{0, 0, 0}
+	for _, tp := range tps {
+		ret[0] += tp.A()
+		ret[1] += tp.B()
+		ret[2] += tp.C()
+	}
+	return ret
+}
+
 // Valid returns an error if the coordinates do not
 // describe a valid triangle position.
 func (tp TriPoint) Valid() error {

@@ -110,3 +110,35 @@ func TestTiling(t *testing.T) {
 		})
 	}
 }
+
+func TestSum(t *testing.T) {
+	cases := []struct {
+		desc     string
+		summands []TriPoint
+		want     TriPoint
+	}{
+		{
+			desc:     "Add two",
+			summands: []TriPoint{{1, 2, 3}, {4, 5, 6}},
+			want:     TriPoint{5, 7, 9},
+		},
+		{
+			desc: "Nothing",
+			want: TriPoint{0, 0, 0},
+		},
+		{
+			desc:     "Negative numbers",
+			summands: []TriPoint{{1, 2, 3}, {4, -5, 6}, {-1, 0, 4}},
+			want:     TriPoint{4, -3, 13},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			got := Sum(cc.summands...)
+			if got != cc.want {
+				t.Errorf("%s: Sum(%v) => %s, want %s", cc.desc, cc.summands, got, cc.want)
+			}
+		})
+	}
+}
