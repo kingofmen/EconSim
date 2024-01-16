@@ -88,11 +88,15 @@ func TestTiling(t *testing.T) {
 			}
 			vtxCount := make(map[*Vertex]bool)
 			for idx, tile := range tiles {
-				for dir := range steps {
+				for dir, tp := range vtxSteps {
 					if vtx := tile.GetVertex(dir); vtx != nil {
 						vtxCount[vtx] = true
 						if face := vtx.GetSurface(dir.Opposite()); face != tile {
 							t.Errorf("%s: Tile %d direction %s return is %s, want %s", cc.desc, idx, dir, face, tile)
+						}
+						exp := tile.GetTriPoint().add(tp)
+						if vtx.GetTriPoint() != exp {
+							t.Errorf("%s: Tile %d direction %s has coordinates %s, want %s", cc.desc, idx, vtx.GetTriPoint(), exp)
 						}
 					}
 				}

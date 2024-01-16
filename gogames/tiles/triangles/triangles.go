@@ -27,12 +27,23 @@ const (
 )
 
 var (
+	// Add to Surface coordinates to get neighbour coordinates.
 	steps = map[Direction]TriPoint{
 		SouthEast: TriPoint{1, 0, 0},
 		NorthWest: TriPoint{-1, 0, 0},
 		North:     TriPoint{0, 1, 0},
 		South:     TriPoint{0, -1, 0},
 		SouthWest: TriPoint{0, 0, 1},
+		NorthEast: TriPoint{0, 0, -1},
+	}
+
+	// Add to Surface coordinates to get vertex coordinates.
+	vtxSteps = map[Direction]TriPoint{
+		SouthEast: TriPoint{0, -1, -1},
+		NorthWest: TriPoint{-1, 0, 0},
+		North:     TriPoint{-1, 0, -1},
+		South:     TriPoint{0, -1, 0},
+		SouthWest: TriPoint{-1, -1, 0},
 		NorthEast: TriPoint{0, 0, -1},
 	}
 
@@ -201,6 +212,14 @@ func (tp TriPoint) Valid() error {
 type Vertex struct {
 	// At the map border some triangles may be nil.
 	triangles [6]*Surface
+	// Triple coordinate. Vertices occur between triangle lanes
+	// N and N+1, and we take the coordinate as N.
+	tripoint TriPoint
+}
+
+// GetTriPoint returns a copy of the vertex's coordinates.
+func (v *Vertex) GetTriPoint() TriPoint {
+	return v.tripoint.Copy()
 }
 
 // GetSurface returns the triangle in the given direction from the vertex,
@@ -394,7 +413,9 @@ func Tile(surfaces ...*Surface) error {
 					vtx = nb.GetVertex(oppVtxDir)
 				}
 				if vtx == nil {
-					vtx = &Vertex{}
+					vtx = &Vertex{
+						tripoint: face.tripoint.add(vtxSteps[vtxDir]),
+					}
 				}
 				face.vertices[vtxDir] = vtx
 				vtx.triangles[vtxDir.Opposite()] = face
