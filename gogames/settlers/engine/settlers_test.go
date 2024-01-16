@@ -8,20 +8,20 @@ import (
 )
 
 type testRule struct {
-	allow func(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error
+	allow func(bd *Board, fac *Faction, pos ...triangles.TriPoint) []error
 }
 
-func (tr *testRule) Allow(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error {
+func (tr *testRule) Allow(bd *Board, fac *Faction, pos ...triangles.TriPoint) []error {
 	if tr == nil || tr.allow == nil {
 		return nil
 	}
-	return tr.allow(tile, fac, vertices...)
+	return tr.allow(bd, fac, pos...)
 }
 
 func neverRule(s string) *testRule {
 	return &testRule{
-		allow: func(tile *Tile, fac *Faction, vertices ...*triangles.Vertex) error {
-			return fmt.Errorf("Never %s!", s)
+		allow: func(bd *Board, fac *Faction, pos ...triangles.TriPoint) []error {
+			return []error{fmt.Errorf("Never %s!", s)}
 		},
 	}
 }
@@ -33,12 +33,12 @@ func TestPlace(t *testing.T) {
 				Face{
 					pos:   triangles.TriPoint{0, 0, 0},
 					rules: []Rule{&testRule{}},
-					verts: []Vert{
-						Vert{
-							dir:   triangles.South,
-							rules: []Rule{&testRule{}},
-						},
-					},
+				},
+			},
+			verts: []Vert{
+				Vert{
+					pos:   triangles.TriPoint{0, -1, 0},
+					rules: []Rule{&testRule{}},
 				},
 			},
 			faceRules: []Rule{&testRule{}},
@@ -62,11 +62,11 @@ func TestPlace(t *testing.T) {
 					faces: []Face{
 						Face{
 							pos: triangles.TriPoint{0, 0, 0},
-							verts: []Vert{
-								Vert{
-									dir: triangles.South,
-								},
-							},
+						},
+					},
+					verts: []Vert{
+						Vert{
+							pos: triangles.TriPoint{0, -1, 0},
 						},
 					},
 				},
@@ -82,7 +82,7 @@ func TestPlace(t *testing.T) {
 			pos:  triangles.TriPoint{0, 1, 1},
 			tmpl: alwaysTmpl,
 			errors: []error{
-				fmt.Errorf("cannot apply vertex rules to nil vertex ((0, 1, 1) -> South    )"),
+				fmt.Errorf("vertex position (0, 0, 1) does not exist"),
 			},
 		},
 		{
@@ -90,7 +90,8 @@ func TestPlace(t *testing.T) {
 			pos:  triangles.TriPoint{0, 0, 100},
 			tmpl: alwaysTmpl,
 			errors: []error{
-				fmt.Errorf("required position (0, 0, 100) not on the board"),
+				fmt.Errorf("tile position (0, 0, 100) does not exist"),
+				fmt.Errorf("vertex position (0, -1, 100) does not exist"),
 			},
 		},
 		{
@@ -102,12 +103,12 @@ func TestPlace(t *testing.T) {
 						Face{
 							pos:   triangles.TriPoint{0, 0, 0},
 							rules: []Rule{neverRule("face")},
-							verts: []Vert{
-								Vert{
-									dir:   triangles.South,
-									rules: []Rule{neverRule("vertex")},
-								},
-							},
+						},
+					},
+					verts: []Vert{
+						Vert{
+							pos:   triangles.TriPoint{0, -1, 0},
+							rules: []Rule{neverRule("vertex")},
 						},
 					},
 					faceRules: []Rule{neverRule("triangles")},
@@ -117,8 +118,8 @@ func TestPlace(t *testing.T) {
 			errors: []error{
 				fmt.Errorf("Never triangles!"),
 				fmt.Errorf("Never face!"),
-				fmt.Errorf("Never vertex!"),
 				fmt.Errorf("Never vertices!"),
+				fmt.Errorf("Never vertex!"),
 			},
 		},
 		{
@@ -136,7 +137,7 @@ func TestPlace(t *testing.T) {
 				},
 			},
 			errors: []error{
-				fmt.Errorf("tile is not empty"),
+				fmt.Errorf("position (0, 0, 1) is not empty"),
 			},
 		},
 		{
@@ -174,7 +175,7 @@ func TestPlace(t *testing.T) {
 			}
 			for idx, err := range errs {
 				if err.Error() != cc.errors[idx].Error() {
-					t.Errorf("%s: Place() => error %d %v, want %v", cc.desc, idx, err, cc.errors[idx])
+					t.Errorf("%s: Place() => error %d %q, want %q", cc.desc, idx, err, cc.errors[idx])
 				}
 			}
 		})

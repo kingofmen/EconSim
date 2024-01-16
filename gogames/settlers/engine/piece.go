@@ -21,7 +21,9 @@ type Edge struct {
 
 // Vert contains occupation information for a triangle vertex.
 type Vert struct {
-	dir   triangles.Direction
+	// Tri-coordinates relative to base face.
+	pos triangles.TriPoint
+	// Vertex-specific rules.
 	rules []Rule
 }
 
@@ -31,8 +33,6 @@ type Face struct {
 	pos triangles.TriPoint
 	// Rules for the face.
 	rules []Rule
-	// Occupied vertices.
-	verts []Vert
 	// Occupied edges.
 	edges []Edge
 }
@@ -40,6 +40,7 @@ type Face struct {
 // Shape is a collection of Faces.
 type Shape struct {
 	faces []Face
+	verts []Vert
 	// Rules for all occupied faces.
 	faceRules []Rule
 	// Rules for all edges.

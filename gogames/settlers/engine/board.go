@@ -8,14 +8,19 @@ import (
 
 type Tile struct {
 	*triangles.Surface
-	facePieces []*Piece
-	vtxPieces  map[*triangles.Vertex][]*Piece
+	pieces []*Piece
+}
+
+type Point struct {
+	*triangles.Vertex
+	pieces []*Piece
 }
 
 // Board contains the game board.
 type Board struct {
 	Tiles   []*Tile
 	tileMap map[triangles.TriPoint]*Tile
+	vtxMap  map[triangles.TriPoint]*Point
 	pieces  []*Piece
 }
 
@@ -29,6 +34,7 @@ func NewHex(r int) (*Board, error) {
 		// times the nth triangular number.
 		Tiles:   make([]*Tile, 0, 3*r*(r+1)),
 		tileMap: make(map[triangles.TriPoint]*Tile),
+		vtxMap:  make(map[triangles.TriPoint]*Point),
 		pieces:  make([]*Piece, 0, 10),
 	}
 
@@ -43,9 +49,8 @@ func NewHex(r int) (*Board, error) {
 				}
 				surfaces = append(surfaces, s)
 				tile := &Tile{
-					Surface:    s,
-					facePieces: make([]*Piece, 0, 3),
-					vtxPieces:  make(map[*triangles.Vertex][]*Piece),
+					Surface: s,
+					pieces:  make([]*Piece, 0, 3),
 				}
 				b.Tiles = append(b.Tiles, tile)
 				b.tileMap[s.GetTriPoint()] = tile
@@ -56,6 +61,18 @@ func NewHex(r int) (*Board, error) {
 	if err := triangles.Tile(surfaces...); err != nil {
 		return nil, err
 	}
+
+	// Vertices are created and given positions by Tile.
+	for _, tile := range b.Tiles {
+		for _, vtx := range tile.GetVertices() {
+			point := &Point{
+				Vertex: vtx,
+				pieces: make([]*Piece, 0, 3),
+			}
+			b.vtxMap[vtx.GetTriPoint()] = point
+		}
+	}
+
 	return b, nil
 }
 
@@ -64,44 +81,41 @@ func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template)
 	bad := make([]error, 0, len(tmp.shape.faces))
 	for _, face := range tmp.shape.faces {
 		coord := triangles.Sum(pos, face.pos)
-		tile, ok := bd.tileMap[coord]
-		if !ok {
-			bad = append(bad, fmt.Errorf("required position %s not on the board", coord))
+		if _, ok := bd.tileMap[coord]; !ok {
+			bad = append(bad, fmt.Errorf("tile position %s does not exist", coord))
 			continue
 		}
-
 		for _, rule := range tmp.shape.faceRules {
-			if err := rule.Allow(tile, fac); err != nil {
-				bad = append(bad, err)
+			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
+				bad = append(bad, errs...)
 			}
 		}
 		for _, rule := range face.rules {
-			if err := rule.Allow(tile, fac); err != nil {
-				bad = append(bad, err)
+			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
+				bad = append(bad, errs...)
 			}
 		}
+	}
 
-		vertices := make([]*triangles.Vertex, 0, len(face.verts))
-		for _, vert := range face.verts {
-			vtx := tile.GetVertex(vert.dir)
-			if vtx == nil {
-				bad = append(bad, fmt.Errorf("cannot apply vertex rules to nil vertex (%s -> %s)", coord, vert.dir))
-				continue
-			}
-			vertices = append(vertices, vtx)
-			for _, rule := range vert.rules {
-				if err := rule.Allow(tile, fac, vtx); err != nil {
-					bad = append(bad, err)
-				}
-			}
+	for _, vert := range tmp.shape.verts {
+		coord := triangles.Sum(pos, vert.pos)
+		if _, ok := bd.vtxMap[coord]; !ok {
+			bad = append(bad, fmt.Errorf("vertex position %s does not exist", coord))
+			continue
 		}
 		for _, rule := range tmp.shape.vertRules {
-			if err := rule.Allow(tile, fac, vertices...); err != nil {
-				bad = append(bad, err)
+			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
+				bad = append(bad, errs...)
 			}
 		}
-		// TODO: Edges.
+		for _, rule := range vert.rules {
+			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
+				bad = append(bad, errs...)
+			}
+		}
 	}
+
+	// TODO: Edges.
 
 	return bad
 }
@@ -121,11 +135,12 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 	for _, face := range tmp.shape.faces {
 		coord := triangles.Sum(pos, face.pos)
 		tile := bd.tileMap[coord]
-		tile.facePieces = append(tile.facePieces, p)
-		for _, vert := range face.verts {
-			vtx := tile.GetVertex(vert.dir)
-			tile.vtxPieces[vtx] = append(tile.vtxPieces[vtx], p)
-		}
+		tile.pieces = append(tile.pieces, p)
+	}
+	for _, vert := range tmp.shape.verts {
+		coord := triangles.Sum(pos, vert.pos)
+		point := bd.vtxMap[coord]
+		point.pieces = append(point.pieces, p)
 	}
 
 	return nil
@@ -144,4 +159,18 @@ func (m *Board) Tick() error {
 	}
 
 	return nil
+}
+
+func (bd *Board) GetPieces(loc triangles.TriPoint) ([]*Piece, error) {
+	if bd == nil {
+		return nil, fmt.Errorf("cannot get pieces from nil Board")
+	}
+	// TODO: Wait is there overlap here?
+	if tile := bd.tileMap[loc]; tile != nil {
+		return tile.pieces, nil
+	}
+	if point := bd.vtxMap[loc]; point != nil {
+		return point.pieces, nil
+	}
+	return nil, fmt.Errorf("position %s is not on the board", loc)
 }
