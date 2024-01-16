@@ -213,7 +213,7 @@ type Vertex struct {
 	// At the map border some triangles may be nil.
 	triangles [6]*Surface
 	// Triple coordinate. Vertices occur between triangle lanes
-	// N and N+1, and we take the coordinate as N.
+	// N and N+1, and we take the coordinate as N. Sum is always 0.
 	tripoint TriPoint
 }
 
@@ -239,7 +239,7 @@ type Surface struct {
 	// Opposite of vertices.
 	neighbours map[Direction]*Surface
 
-	// Triple coordinate.
+	// Triple coordinate. Sum is either 1 (south-pointing) or 2 (north-pointing).
 	tripoint TriPoint
 }
 

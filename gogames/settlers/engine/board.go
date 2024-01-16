@@ -165,7 +165,6 @@ func (bd *Board) GetPieces(loc triangles.TriPoint) ([]*Piece, error) {
 	if bd == nil {
 		return nil, fmt.Errorf("cannot get pieces from nil Board")
 	}
-	// TODO: Wait is there overlap here?
 	if tile := bd.tileMap[loc]; tile != nil {
 		return tile.pieces, nil
 	}
