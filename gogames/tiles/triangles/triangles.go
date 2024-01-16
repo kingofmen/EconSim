@@ -195,9 +195,9 @@ func Sum(tps ...TriPoint) TriPoint {
 	return ret
 }
 
-// Valid returns an error if the coordinates do not
+// validSurface returns an error if the coordinates do not
 // describe a valid triangle position.
-func (tp TriPoint) Valid() error {
+func (tp TriPoint) validSurface() error {
 	// a+b+c must add to one or two.
 	switch tp.sum() {
 	case 1:
@@ -246,7 +246,7 @@ type Surface struct {
 // New returns a new triangle with the given tri-coordinates.
 func New(a, b, c int) (*Surface, error) {
 	tp := TriPoint{a, b, c}
-	if err := tp.Valid(); err != nil {
+	if err := tp.validSurface(); err != nil {
 		return nil, err
 	}
 
@@ -381,7 +381,7 @@ func Tile(surfaces ...*Surface) error {
 		if _, ex := trimap[face.tripoint]; ex {
 			return fmt.Errorf("duplicate tri-coordinate %s", face.tripoint)
 		}
-		if err := face.tripoint.Valid(); err != nil {
+		if err := face.tripoint.validSurface(); err != nil {
 			return err
 		}
 		trimap[face.tripoint] = face
@@ -397,7 +397,7 @@ func Tile(surfaces ...*Surface) error {
 			}
 
 			nbc := face.tripoint.add(step)
-			if err := nbc.Valid(); err != nil {
+			if err := nbc.validSurface(); err != nil {
 				continue
 			}
 			oppDir := dir.Opposite()
