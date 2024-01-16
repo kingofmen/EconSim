@@ -8,13 +8,15 @@ import (
 
 type Tile struct {
 	*triangles.Surface
+	facePieces []*Piece
+	vtxPieces  map[*triangles.Vertex][]*Piece
 }
 
 // Board contains the game board.
 type Board struct {
-	Tiles       []*Tile
-	tileMap     map[triangles.TriPoint]*Tile
-	settlements []*Piece
+	Tiles   []*Tile
+	tileMap map[triangles.TriPoint]*Tile
+	pieces  []*Piece
 }
 
 // NewHex returns a six-sided board of radius r.
@@ -25,9 +27,9 @@ func NewHex(r int) (*Board, error) {
 	b := &Board{
 		// Hex consists of 6 large triangles; hence the number of tiles is 6
 		// times the nth triangular number.
-		Tiles:       make([]*Tile, 0, 3*r*(r+1)),
-		tileMap:     make(map[triangles.TriPoint]*Tile),
-		settlements: make([]*Piece, 0, 10),
+		Tiles:   make([]*Tile, 0, 3*r*(r+1)),
+		tileMap: make(map[triangles.TriPoint]*Tile),
+		pieces:  make([]*Piece, 0, 10),
 	}
 
 	surfaces := make([]*triangles.Surface, 0, len(b.Tiles))
@@ -40,7 +42,11 @@ func NewHex(r int) (*Board, error) {
 					continue
 				}
 				surfaces = append(surfaces, s)
-				tile := &Tile{s}
+				tile := &Tile{
+					Surface:    s,
+					facePieces: make([]*Piece, 0, 3),
+					vtxPieces:  make(map[*triangles.Vertex][]*Piece),
+				}
 				b.Tiles = append(b.Tiles, tile)
 				b.tileMap[s.GetTriPoint()] = tile
 			}
@@ -53,59 +59,75 @@ func NewHex(r int) (*Board, error) {
 	return b, nil
 }
 
-// Place puts a Piece onto the board.
-func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
-	if bd == nil {
-		return []error{fmt.Errorf("piece placed on nil Board")}
-	}
-
+// checkShape returns any rules conflicts of placing the piece.
+func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.shape.faces))
 	for _, face := range tmp.shape.faces {
 		coord := triangles.Sum(pos, face.pos)
-		start, ok := bd.tileMap[coord]
+		tile, ok := bd.tileMap[coord]
 		if !ok {
 			bad = append(bad, fmt.Errorf("required position %s not on the board", coord))
 			continue
 		}
 
 		for _, rule := range tmp.shape.faceRules {
-			if err := rule.Allow(start, fac); err != nil {
+			if err := rule.Allow(tile, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
 		for _, rule := range face.rules {
-			if err := rule.Allow(start, fac); err != nil {
+			if err := rule.Allow(tile, fac); err != nil {
 				bad = append(bad, err)
 			}
 		}
 
 		vertices := make([]*triangles.Vertex, 0, len(face.verts))
 		for _, vert := range face.verts {
-			vtx := start.GetVertex(vert.dir)
+			vtx := tile.GetVertex(vert.dir)
 			if vtx == nil {
 				bad = append(bad, fmt.Errorf("cannot apply vertex rules to nil vertex (%s -> %s)", coord, vert.dir))
 				continue
 			}
 			vertices = append(vertices, vtx)
 			for _, rule := range vert.rules {
-				if err := rule.Allow(start, fac, vtx); err != nil {
+				if err := rule.Allow(tile, fac, vtx); err != nil {
 					bad = append(bad, err)
 				}
 			}
 		}
 		for _, rule := range tmp.shape.vertRules {
-			if err := rule.Allow(start, fac, vertices...); err != nil {
+			if err := rule.Allow(tile, fac, vertices...); err != nil {
 				bad = append(bad, err)
 			}
 		}
 		// TODO: Edges.
 	}
 
-	if len(bad) > 0 {
-		return bad
+	return bad
+}
+
+// Place puts a Piece onto the board.
+func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
+	if bd == nil {
+		return []error{fmt.Errorf("piece placed on nil Board")}
 	}
 
-	bd.settlements = append(bd.settlements, NewPiece(tmp, fac))
+	if errors := bd.checkShape(pos, fac, tmp); len(errors) > 0 {
+		return errors
+	}
+
+	p := NewPiece(tmp, fac)
+	bd.pieces = append(bd.pieces, p)
+	for _, face := range tmp.shape.faces {
+		coord := triangles.Sum(pos, face.pos)
+		tile := bd.tileMap[coord]
+		tile.facePieces = append(tile.facePieces, p)
+		for _, vert := range face.verts {
+			vtx := tile.GetVertex(vert.dir)
+			tile.vtxPieces[vtx] = append(tile.vtxPieces[vtx], p)
+		}
+	}
+
 	return nil
 }
 
@@ -115,7 +137,7 @@ func (m *Board) Tick() error {
 		return fmt.Errorf("Tick called on nil Board")
 	}
 
-	for _, s := range m.settlements {
+	for _, s := range m.pieces {
 		s.Prioritize()
 		s.Populate()
 		s.Produce()

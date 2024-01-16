@@ -27,34 +27,33 @@ func neverRule(s string) *testRule {
 }
 
 func TestPlace(t *testing.T) {
-	cases := []struct {
-		desc string
-		pos  triangles.TriPoint
-		tmpl *Template
-		want []error
-	}{
-		{
-			desc: "Always rule",
-			pos:  triangles.TriPoint{0, 0, 1},
-			tmpl: &Template{
-				shape: Shape{
-					faces: []Face{
-						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
+	alwaysTmpl := &Template{
+		shape: Shape{
+			faces: []Face{
+				Face{
+					pos:   triangles.TriPoint{0, 0, 0},
+					rules: []Rule{&testRule{}},
+					verts: []Vert{
+						Vert{
+							dir:   triangles.South,
 							rules: []Rule{&testRule{}},
-							verts: []Vert{
-								Vert{
-									dir:   triangles.South,
-									rules: []Rule{&testRule{}},
-								},
-							},
 						},
 					},
-					faceRules: []Rule{&testRule{}},
-					vertRules: []Rule{&testRule{}},
 				},
 			},
+			faceRules: []Rule{&testRule{}},
+			vertRules: []Rule{&testRule{}},
 		},
+	}
+
+	cases := []struct {
+		desc   string
+		pos    triangles.TriPoint
+		prep   []*Template
+		tmpl   *Template
+		errors []error
+		want   []*Piece
+	}{
 		{
 			desc: "No rules",
 			pos:  triangles.TriPoint{0, 0, 1},
@@ -74,52 +73,23 @@ func TestPlace(t *testing.T) {
 			},
 		},
 		{
-			desc: "Nil vertex",
+			desc: "Always rule",
 			pos:  triangles.TriPoint{0, 0, 1},
-			tmpl: &Template{
-				shape: Shape{
-					faces: []Face{
-						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{&testRule{}},
-							verts: []Vert{
-								Vert{
-									dir:   triangles.North,
-									rules: []Rule{&testRule{}},
-								},
-							},
-						},
-					},
-					faceRules: []Rule{&testRule{}},
-					vertRules: []Rule{&testRule{}},
-				},
-			},
-			want: []error{
-				fmt.Errorf("cannot apply vertex rules to nil vertex ((0, 0, 1) -> North    )"),
+			tmpl: alwaysTmpl,
+		},
+		{
+			desc: "Nil vertex",
+			pos:  triangles.TriPoint{0, 1, 1},
+			tmpl: alwaysTmpl,
+			errors: []error{
+				fmt.Errorf("cannot apply vertex rules to nil vertex ((0, 1, 1) -> South    )"),
 			},
 		},
 		{
 			desc: "Nil face",
 			pos:  triangles.TriPoint{0, 0, 100},
-			tmpl: &Template{
-				shape: Shape{
-					faces: []Face{
-						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{&testRule{}},
-							verts: []Vert{
-								Vert{
-									dir:   triangles.South,
-									rules: []Rule{&testRule{}},
-								},
-							},
-						},
-					},
-					faceRules: []Rule{&testRule{}},
-					vertRules: []Rule{&testRule{}},
-				},
-			},
-			want: []error{
+			tmpl: alwaysTmpl,
+			errors: []error{
 				fmt.Errorf("required position (0, 0, 100) not on the board"),
 			},
 		},
@@ -144,29 +114,67 @@ func TestPlace(t *testing.T) {
 					vertRules: []Rule{neverRule("vertices")},
 				},
 			},
-			want: []error{
+			errors: []error{
 				fmt.Errorf("Never triangles!"),
 				fmt.Errorf("Never face!"),
 				fmt.Errorf("Never vertex!"),
 				fmt.Errorf("Never vertices!"),
 			},
 		},
+		{
+			desc: "Empty tile rule (face fail)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{alwaysTmpl},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:   triangles.TriPoint{0, 0, 0},
+							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+			errors: []error{
+				fmt.Errorf("tile is not empty"),
+			},
+		},
+		{
+			desc: "Empty tile rule (face succeed)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:   triangles.TriPoint{0, 0, 0},
+							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+		},
 	}
 
-	board, err := NewHex(2)
-	if err != nil {
-		t.Fatalf("Could not create board: %v", err)
-	}
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
+			board, err := NewHex(4)
+			if err != nil {
+				t.Fatalf("%s: Could not create board: %v", cc.desc, err)
+			}
+			for i, p := range cc.prep {
+				if errs := board.Place(cc.pos, nil, p); len(errs) > 0 {
+					t.Fatalf("%s: Could not place prep template %d: %v", cc.desc, i, errs)
+				}
+			}
+
 			errs := board.Place(cc.pos, nil, cc.tmpl)
-			if len(errs) != len(cc.want) {
-				t.Errorf("%s: Place() => %v, want %v", cc.desc, errs, cc.want)
+			if len(errs) != len(cc.errors) {
+				t.Errorf("%s: Place() => %v, want %v", cc.desc, errs, cc.errors)
 				return
 			}
 			for idx, err := range errs {
-				if err.Error() != cc.want[idx].Error() {
-					t.Errorf("%s: Place() => error %d %v, want %v", cc.desc, idx, err, cc.want[idx])
+				if err.Error() != cc.errors[idx].Error() {
+					t.Errorf("%s: Place() => error %d %v, want %v", cc.desc, idx, err, cc.errors[idx])
 				}
 			}
 		})
