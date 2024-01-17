@@ -28,6 +28,7 @@ func neverRule(s string) *testRule {
 
 func TestPlace(t *testing.T) {
 	alwaysTmpl := &Template{
+		key: "always",
 		shape: Shape{
 			faces: []Face{
 				Face{
@@ -250,6 +251,37 @@ func TestPlace(t *testing.T) {
 							pos:      triangles.TriPoint{0, -1, 0},
 							rules:    []Rule{&EmptyRule{}},
 							occupied: true,
+						},
+					},
+				},
+			},
+		},
+		{
+			desc: "Has rule (fail)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{alwaysTmpl},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:   triangles.TriPoint{0, 0, 0},
+							rules: []Rule{HasKeys("always", "always")},
+						},
+					},
+				},
+			},
+			errors: []error{fmt.Errorf("require 2 always, found 1")},
+		},
+		{
+			desc: "Has rule (success)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{alwaysTmpl, alwaysTmpl},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:   triangles.TriPoint{0, 0, 0},
+							rules: []Rule{HasKeys("always", "always")},
 						},
 					},
 				},

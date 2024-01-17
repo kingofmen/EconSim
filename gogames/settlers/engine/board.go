@@ -79,6 +79,7 @@ func NewHex(r int) (*Board, error) {
 // checkShape returns any rules conflicts of placing the piece.
 func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.shape.faces))
+	// TODO: Test global rules in one pass to allow distributed counts.
 	for _, face := range tmp.shape.faces {
 		coord := triangles.Sum(pos, face.pos)
 		if _, ok := bd.tileMap[coord]; !ok {

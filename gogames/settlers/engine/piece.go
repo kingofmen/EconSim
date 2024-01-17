@@ -56,6 +56,7 @@ type Shape struct {
 // Template contains information shared across a class of game pieces,
 // such as shape and production capability.
 type Template struct {
+	key    string
 	people int64
 	shape  Shape
 }
@@ -75,6 +76,14 @@ func NewPiece(tmp *Template, fac *Faction) *Piece {
 		priorities: [4]int16{250, 250, 250, 250},
 		people:     0,
 	}
+}
+
+// GetKey returns the lookup key for the piece's template.
+func (p *Piece) GetKey() string {
+	if p == nil {
+		return "nil"
+	}
+	return p.kind.key
 }
 
 func (s *Piece) Populate() {
