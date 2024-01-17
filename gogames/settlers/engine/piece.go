@@ -25,14 +25,18 @@ type Vert struct {
 	pos triangles.TriPoint
 	// Vertex-specific rules.
 	rules []Rule
+	// Whether the piece covers the vertex.
+	occupied bool
 }
 
-// Face contains occupation information for one triangle tile.
+// Face contains requirement and occupation information for one triangle tile.
 type Face struct {
 	// Tri-coordinates relative to base face.
 	pos triangles.TriPoint
 	// Rules for the face.
 	rules []Rule
+	// Whether the piece covers the face.
+	occupied bool
 	// Occupied edges.
 	edges []Edge
 }

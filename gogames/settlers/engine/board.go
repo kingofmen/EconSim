@@ -133,11 +133,17 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 	p := NewPiece(tmp, fac)
 	bd.pieces = append(bd.pieces, p)
 	for _, face := range tmp.shape.faces {
+		if !face.occupied {
+			continue
+		}
 		coord := triangles.Sum(pos, face.pos)
 		tile := bd.tileMap[coord]
 		tile.pieces = append(tile.pieces, p)
 	}
 	for _, vert := range tmp.shape.verts {
+		if !vert.occupied {
+			continue
+		}
 		coord := triangles.Sum(pos, vert.pos)
 		point := bd.vtxMap[coord]
 		point.pieces = append(point.pieces, p)

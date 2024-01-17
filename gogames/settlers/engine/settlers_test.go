@@ -31,14 +31,16 @@ func TestPlace(t *testing.T) {
 		shape: Shape{
 			faces: []Face{
 				Face{
-					pos:   triangles.TriPoint{0, 0, 0},
-					rules: []Rule{&testRule{}},
+					pos:      triangles.TriPoint{0, 0, 0},
+					rules:    []Rule{&testRule{}},
+					occupied: true,
 				},
 			},
 			verts: []Vert{
 				Vert{
-					pos:   triangles.TriPoint{0, -1, 0},
-					rules: []Rule{&testRule{}},
+					pos:      triangles.TriPoint{0, -1, 0},
+					rules:    []Rule{&testRule{}},
+					occupied: true,
 				},
 			},
 			faceRules: []Rule{&testRule{}},
@@ -181,6 +183,73 @@ func TestPlace(t *testing.T) {
 						Vert{
 							pos:   triangles.TriPoint{0, -1, 0},
 							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+		},
+		{
+			desc: "Face check does not block face",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{
+				&Template{
+					shape: Shape{
+						faces: []Face{
+							Face{
+								pos:   triangles.TriPoint{0, 0, 0},
+								rules: []Rule{&EmptyRule{}},
+							},
+						},
+						verts: []Vert{
+							Vert{
+								pos:      triangles.TriPoint{0, -1, 0},
+								rules:    []Rule{&EmptyRule{}},
+								occupied: true,
+							},
+						},
+					},
+				},
+			},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:   triangles.TriPoint{0, 0, 0},
+							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+		},
+		{
+			desc: "Vertex check does not block vertex",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{
+				&Template{
+					shape: Shape{
+						faces: []Face{
+							Face{
+								pos:      triangles.TriPoint{0, 0, 0},
+								rules:    []Rule{&EmptyRule{}},
+								occupied: true,
+							},
+						},
+						verts: []Vert{
+							Vert{
+								pos:   triangles.TriPoint{0, -1, 0},
+								rules: []Rule{&EmptyRule{}},
+							},
+						},
+					},
+				},
+			},
+			tmpl: &Template{
+				shape: Shape{
+					verts: []Vert{
+						Vert{
+							pos:      triangles.TriPoint{0, -1, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
