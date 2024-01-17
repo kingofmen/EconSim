@@ -154,6 +154,38 @@ func TestPlace(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "Empty vertex rule (vertex fail)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{alwaysTmpl},
+			tmpl: &Template{
+				shape: Shape{
+					verts: []Vert{
+						Vert{
+							pos:   triangles.TriPoint{0, -1, 0},
+							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+			errors: []error{
+				fmt.Errorf("position (0, -1, 1) is not empty"),
+			},
+		},
+		{
+			desc: "Empty vertex rule (vertex succeed)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			tmpl: &Template{
+				shape: Shape{
+					verts: []Vert{
+						Vert{
+							pos:   triangles.TriPoint{0, -1, 0},
+							rules: []Rule{&EmptyRule{}},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, cc := range cases {
