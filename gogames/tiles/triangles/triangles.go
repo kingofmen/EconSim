@@ -47,6 +47,7 @@ var (
 		NorthEast: TriPoint{0, 0, -1},
 	}
 
+	// Reverse of steps.
 	directions = map[TriPoint]Direction{
 		TriPoint{1, 0, 0}:  SouthWest,
 		TriPoint{-1, 0, 0}: NorthEast,
@@ -149,6 +150,11 @@ func (d Direction) Opposite() Direction {
 	panic(fmt.Errorf("Opposite received unknown direction %v", d))
 }
 
+// Zero returns a zero-initialised TriPoint.
+func Zero() TriPoint {
+	return TriPoint{0, 0, 0}
+}
+
 // A returns the a, first, coordinate.
 func (tp TriPoint) A() int {
 	return tp[aAxis]
@@ -174,6 +180,18 @@ func (tp TriPoint) Copy() TriPoint {
 	return TriPoint{tp[0], tp[1], tp[2]}
 }
 
+// Flip returns the opposite vertex coordinate.
+func (tp TriPoint) Flip() TriPoint {
+	f := tp.Copy()
+	// Any vertex can be specified six ways,
+	// as one of the surrounding faces plus
+	// a vertex step. For this flip, arbitrarily
+	// use the North vertex step.
+	faceSteps := Diff(f, vtxSteps[North])
+	// Reverse the face steps and go south instead of north.
+	return Diff(vtxSteps[South], faceSteps)
+}
+
 // sum returns the coordinate sum, which indicates validity and pointing.
 func (tp TriPoint) sum() int {
 	return tp.A() + tp.B() + tp.C()
@@ -184,9 +202,23 @@ func (tp TriPoint) add(step TriPoint) TriPoint {
 	return TriPoint{tp.A() + step.A(), tp.B() + step.B(), tp.C() + step.C()}
 }
 
+// Diff subtracts from the first argument.
+func Diff(tps ...TriPoint) TriPoint {
+	if len(tps) == 0 {
+		return Zero()
+	}
+	ret := tps[0].Copy()
+	for _, tp := range tps[1:] {
+		ret[0] -= tp.A()
+		ret[1] -= tp.B()
+		ret[2] -= tp.C()
+	}
+	return ret
+}
+
 // Sum returns the vector sum.
 func Sum(tps ...TriPoint) TriPoint {
-	ret := TriPoint{0, 0, 0}
+	ret := Zero()
 	for _, tp := range tps {
 		ret[0] += tp.A()
 		ret[1] += tp.B()
@@ -206,6 +238,26 @@ func (tp TriPoint) validSurface() error {
 		return nil
 	}
 	return fmt.Errorf("invalid triangle checksum %d from coordinates %s", tp.sum(), tp)
+}
+
+// Points returns true if the triangle has a point in the given direction.
+func (tp TriPoint) Points(d Direction) bool {
+	sum := tp.sum()
+	switch d {
+	case North:
+		return sum == 2
+	case NorthEast:
+		return sum == 1
+	case SouthEast:
+		return sum == 2
+	case South:
+		return sum == 1
+	case SouthWest:
+		return sum == 2
+	case NorthWest:
+		return sum == 1
+	}
+	return false
 }
 
 // Vertex is one point of a triangle.
@@ -346,29 +398,6 @@ func (t *Surface) Y() float64 {
 // XY returns the Cartesian coordinates of the centroid.
 func (t *Surface) XY() (float64, float64) {
 	return t.X(), t.Y()
-}
-
-// Points returns true if the triangle has a point in the given direction.
-func (t *Surface) Points(d Direction) bool {
-	if t == nil {
-		return false
-	}
-	sum := t.tripoint.sum()
-	switch d {
-	case North:
-		return sum == 2
-	case NorthEast:
-		return sum == 1
-	case SouthEast:
-		return sum == 2
-	case South:
-		return sum == 1
-	case SouthWest:
-		return sum == 2
-	case NorthWest:
-		return sum == 1
-	}
-	return false
 }
 
 // Tile sets the vertices and neighbours of the surfaces.
