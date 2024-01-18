@@ -79,40 +79,43 @@ func NewHex(r int) (*Board, error) {
 // checkShape returns any rules conflicts of placing the piece.
 func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.shape.faces))
-	// TODO: Test global rules in one pass to allow distributed counts.
+	facePos := make([]triangles.TriPoint, 0, len(tmp.shape.faces))
 	for _, face := range tmp.shape.faces {
 		coord := triangles.Sum(pos, face.pos)
 		if _, ok := bd.tileMap[coord]; !ok {
 			bad = append(bad, fmt.Errorf("tile position %s does not exist", coord))
 			continue
 		}
-		for _, rule := range tmp.shape.faceRules {
-			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
-				bad = append(bad, errs...)
-			}
-		}
+		facePos = append(facePos, coord)
 		for _, rule := range face.rules {
 			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
 				bad = append(bad, errs...)
 			}
 		}
 	}
+	for _, rule := range tmp.shape.faceRules {
+		if errs := rule.Allow(bd, fac, facePos...); len(errs) > 0 {
+			bad = append(bad, errs...)
+		}
+	}
 
+	vertPos := make([]triangles.TriPoint, 0, len(tmp.shape.faces))
 	for _, vert := range tmp.shape.verts {
 		coord := triangles.Sum(pos, vert.pos)
 		if _, ok := bd.vtxMap[coord]; !ok {
 			bad = append(bad, fmt.Errorf("vertex position %s does not exist", coord))
 			continue
 		}
-		for _, rule := range tmp.shape.vertRules {
-			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
-				bad = append(bad, errs...)
-			}
-		}
+		vertPos = append(vertPos, coord)
 		for _, rule := range vert.rules {
 			if errs := rule.Allow(bd, fac, coord); len(errs) > 0 {
 				bad = append(bad, errs...)
 			}
+		}
+	}
+	for _, rule := range tmp.shape.vertRules {
+		if errs := rule.Allow(bd, fac, vertPos...); len(errs) > 0 {
+			bad = append(bad, errs...)
 		}
 	}
 

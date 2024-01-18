@@ -50,12 +50,13 @@ func TestPlace(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc   string
-		pos    triangles.TriPoint
-		prep   []*Template
-		tmpl   *Template
-		errors []error
-		want   []*Piece
+		desc    string
+		pos     triangles.TriPoint
+		prep    []*Template
+		prepPos []triangles.TriPoint
+		tmpl    *Template
+		errors  []error
+		want    []*Piece
 	}{
 		{
 			desc: "No rules",
@@ -119,10 +120,10 @@ func TestPlace(t *testing.T) {
 				},
 			},
 			errors: []error{
-				fmt.Errorf("Never triangles!"),
 				fmt.Errorf("Never face!"),
-				fmt.Errorf("Never vertices!"),
+				fmt.Errorf("Never triangles!"),
 				fmt.Errorf("Never vertex!"),
+				fmt.Errorf("Never vertices!"),
 			},
 		},
 		{
@@ -287,6 +288,48 @@ func TestPlace(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "Global count (fail)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			prep: []*Template{alwaysTmpl},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos: triangles.TriPoint{0, 0, 0},
+						},
+						Face{
+							pos: triangles.TriPoint{0, 1, 0},
+						},
+					},
+					faceRules: []Rule{
+						HasKeys("always", "always"),
+					},
+				},
+			},
+			errors: []error{fmt.Errorf("require 2 always, found 1")},
+		},
+		{
+			desc:    "Global count (succeed)",
+			pos:     triangles.TriPoint{0, 0, 1},
+			prep:    []*Template{alwaysTmpl, alwaysTmpl},
+			prepPos: []triangles.TriPoint{{1, 0, 0}},
+			tmpl: &Template{
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos: triangles.TriPoint{0, 0, 0},
+						},
+						Face{
+							pos: triangles.TriPoint{1, 0, -1},
+						},
+					},
+					faceRules: []Rule{
+						HasKeys("always", "always"),
+					},
+				},
+			},
+		},
 	}
 
 	for _, cc := range cases {
@@ -296,7 +339,11 @@ func TestPlace(t *testing.T) {
 				t.Fatalf("%s: Could not create board: %v", cc.desc, err)
 			}
 			for i, p := range cc.prep {
-				if errs := board.Place(cc.pos, nil, p); len(errs) > 0 {
+				pos := cc.pos
+				if len(cc.prepPos) > i {
+					pos = cc.prepPos[i]
+				}
+				if errs := board.Place(pos, nil, p); len(errs) > 0 {
 					t.Fatalf("%s: Could not place prep template %d: %v", cc.desc, i, errs)
 				}
 			}
