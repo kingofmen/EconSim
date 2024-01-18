@@ -81,7 +81,7 @@ func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template)
 	bad := make([]error, 0, len(tmp.shape.faces))
 	facePos := make([]triangles.TriPoint, 0, len(tmp.shape.faces))
 	for _, face := range tmp.shape.faces {
-		coord := triangles.Sum(pos, face.pos)
+		coord := face.From(pos)
 		if _, ok := bd.tileMap[coord]; !ok {
 			bad = append(bad, fmt.Errorf("tile position %s does not exist", coord))
 			continue
@@ -101,7 +101,7 @@ func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template)
 
 	vertPos := make([]triangles.TriPoint, 0, len(tmp.shape.faces))
 	for _, vert := range tmp.shape.verts {
-		coord := triangles.Sum(pos, vert.pos)
+		coord := vert.From(pos)
 		if _, ok := bd.vtxMap[coord]; !ok {
 			bad = append(bad, fmt.Errorf("vertex position %s does not exist", coord))
 			continue
@@ -140,7 +140,7 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 		if !face.occupied {
 			continue
 		}
-		coord := triangles.Sum(pos, face.pos)
+		coord := face.From(pos)
 		tile := bd.tileMap[coord]
 		tile.pieces = append(tile.pieces, p)
 	}
@@ -148,7 +148,7 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 		if !vert.occupied {
 			continue
 		}
-		coord := triangles.Sum(pos, vert.pos)
+		coord := vert.From(pos)
 		point := bd.vtxMap[coord]
 		point.pieces = append(point.pieces, p)
 	}

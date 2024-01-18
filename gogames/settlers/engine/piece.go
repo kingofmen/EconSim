@@ -29,6 +29,15 @@ type Vert struct {
 	occupied bool
 }
 
+// From returns the coordinates of the vertex relative to the given
+// origin, possibly flipped and rotated.
+func (v Vert) From(org triangles.TriPoint) triangles.TriPoint {
+	if org.Points(triangles.North) {
+		triangles.Sum(org, v.pos.Flip())
+	}
+	return triangles.Sum(org, v.pos)
+}
+
 // Face contains requirement and occupation information for one triangle tile.
 type Face struct {
 	// Tri-coordinates relative to base face.
@@ -39,6 +48,16 @@ type Face struct {
 	occupied bool
 	// Occupied edges.
 	edges []Edge
+}
+
+// From returns the coordinates of the face relative to the given
+// origin, possibly flipped and rotated.
+func (f Face) From(org triangles.TriPoint) triangles.TriPoint {
+	if org.Points(triangles.North) {
+		// Flip by reversing all directions.
+		return triangles.Sum(org, triangles.Diff(triangles.Zero(), f.pos))
+	}
+	return triangles.Sum(org, f.pos)
 }
 
 // Shape is a collection of Faces.
