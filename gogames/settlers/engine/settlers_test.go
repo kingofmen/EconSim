@@ -422,6 +422,96 @@ func TestPlace(t *testing.T) {
 				{1, 0, 0}: HasKeys("count"),
 			},
 		},
+		{
+			desc: "Flip test (base)",
+			pos:  triangles.TriPoint{0, 0, 1},
+			tmpl: &Template{
+				key: "triplet",
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
+						},
+						Face{
+							pos:      triangles.TriPoint{1, 0, -1},
+							occupied: true,
+						},
+						Face{
+							pos:      triangles.TriPoint{1, -1, 0},
+							occupied: true,
+						},
+					},
+					verts: []Vert{
+						Vert{
+							pos:      triangles.TriPoint{-1, 0, 0},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, -1, -1},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, -2, 0},
+							occupied: true,
+						},
+					},
+				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  HasKeys("triplet"),
+				{1, 0, 0}:  HasKeys("triplet"),
+				{1, -1, 1}: HasKeys("triplet"),
+				{-1, 0, 1}: HasKeys("triplet"),
+				{1, -1, 0}: HasKeys("triplet"),
+				{1, -2, 1}: HasKeys("triplet"),
+			},
+		},
+		{
+			desc: "Flip test (flip)",
+			pos:  triangles.TriPoint{1, 0, 1},
+			tmpl: &Template{
+				key: "triplet",
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
+						},
+						Face{
+							pos:      triangles.TriPoint{1, 0, -1},
+							occupied: true,
+						},
+						Face{
+							pos:      triangles.TriPoint{1, -1, 0},
+							occupied: true,
+						},
+					},
+					verts: []Vert{
+						Vert{
+							pos:      triangles.TriPoint{-1, 0, 0},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, -1, -1},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, -2, 0},
+							occupied: true,
+						},
+					},
+				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{1, 0, 1}:  HasKeys("triplet"),
+				{0, 1, 1}:  HasKeys("triplet"),
+				{0, 0, 2}:  HasKeys("triplet"),
+				{1, -1, 0}: HasKeys("triplet"),
+				{-1, 1, 0}: HasKeys("triplet"),
+				{-1, 0, 1}: HasKeys("triplet"),
+			},
+		},
 	}
 
 	for _, cc := range cases {
