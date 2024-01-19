@@ -56,37 +56,67 @@ func TestPlace(t *testing.T) {
 		prepPos []triangles.TriPoint
 		tmpl    *Template
 		errors  []error
-		want    []*Piece
+		want    map[triangles.TriPoint]Rule
 	}{
 		{
 			desc: "No rules",
 			pos:  triangles.TriPoint{0, 0, 1},
 			tmpl: &Template{
+				key: "norule",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos: triangles.TriPoint{0, 0, 0},
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
 						},
 					},
 					verts: []Vert{
 						Vert{
-							pos: triangles.TriPoint{0, -1, 0},
+							pos:      triangles.TriPoint{0, -1, 0},
+							occupied: true,
 						},
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  HasKeys("norule"),
+				{0, -1, 1}: HasKeys("norule"),
 			},
 		},
 		{
 			desc: "Always rule",
 			pos:  triangles.TriPoint{0, 0, 1},
 			tmpl: alwaysTmpl,
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  HasKeys("always"),
+				{0, -1, 1}: HasKeys("always"),
+				{1, 0, 1}:  &EmptyRule{},
+			},
+		},
+		{
+			desc: "Always rule flip",
+			pos:  triangles.TriPoint{1, 0, 1},
+			tmpl: alwaysTmpl,
+			want: map[triangles.TriPoint]Rule{
+				{1, 0, 1}: HasKeys("always"),
+				{0, 0, 0}: HasKeys("always"),
+				{0, 0, 1}: &EmptyRule{},
+			},
 		},
 		{
 			desc: "Nil vertex",
 			pos:  triangles.TriPoint{0, 1, 1},
-			tmpl: alwaysTmpl,
+			tmpl: &Template{
+				shape: Shape{
+					verts: []Vert{
+						Vert{
+							pos: triangles.TriPoint{0, -1, 100},
+						},
+					},
+				},
+			},
 			errors: []error{
-				fmt.Errorf("vertex position (0, 0, 1) does not exist"),
+				fmt.Errorf("vertex position (-1, 1, -100) does not exist"),
 			},
 		},
 		{
@@ -102,17 +132,20 @@ func TestPlace(t *testing.T) {
 			desc: "Never rule",
 			pos:  triangles.TriPoint{0, 0, 1},
 			tmpl: &Template{
+				key: "never",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{neverRule("face")},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{neverRule("face")},
+							occupied: true,
 						},
 					},
 					verts: []Vert{
 						Vert{
-							pos:   triangles.TriPoint{0, -1, 0},
-							rules: []Rule{neverRule("vertex")},
+							pos:      triangles.TriPoint{0, -1, 0},
+							rules:    []Rule{neverRule("vertex")},
+							occupied: true,
 						},
 					},
 					faceRules: []Rule{neverRule("triangles")},
@@ -125,17 +158,23 @@ func TestPlace(t *testing.T) {
 				fmt.Errorf("Never vertex!"),
 				fmt.Errorf("Never vertices!"),
 			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  &EmptyRule{},
+				{0, -1, 1}: &EmptyRule{},
+			},
 		},
 		{
 			desc: "Empty tile rule (face fail)",
 			pos:  triangles.TriPoint{0, 0, 1},
 			prep: []*Template{alwaysTmpl},
 			tmpl: &Template{
+				key: "empty",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{&EmptyRule{}},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
@@ -143,19 +182,27 @@ func TestPlace(t *testing.T) {
 			errors: []error{
 				fmt.Errorf("position (0, 0, 1) is not empty"),
 			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("always"),
+			},
 		},
 		{
 			desc: "Empty tile rule (face succeed)",
 			pos:  triangles.TriPoint{0, 0, 1},
 			tmpl: &Template{
+				key: "empty",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{&EmptyRule{}},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("empty"),
 			},
 		},
 		{
@@ -166,8 +213,9 @@ func TestPlace(t *testing.T) {
 				shape: Shape{
 					verts: []Vert{
 						Vert{
-							pos:   triangles.TriPoint{0, -1, 0},
-							rules: []Rule{&EmptyRule{}},
+							pos:      triangles.TriPoint{0, -1, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
@@ -175,19 +223,27 @@ func TestPlace(t *testing.T) {
 			errors: []error{
 				fmt.Errorf("position (0, -1, 1) is not empty"),
 			},
+			want: map[triangles.TriPoint]Rule{
+				{0, -1, 1}: HasKeys("always"),
+			},
 		},
 		{
 			desc: "Empty vertex rule (vertex succeed)",
 			pos:  triangles.TriPoint{0, 0, 1},
 			tmpl: &Template{
+				key: "empty",
 				shape: Shape{
 					verts: []Vert{
 						Vert{
-							pos:   triangles.TriPoint{0, -1, 0},
-							rules: []Rule{&EmptyRule{}},
+							pos:      triangles.TriPoint{0, -1, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, -1, 1}: HasKeys("empty"),
 			},
 		},
 		{
@@ -195,6 +251,7 @@ func TestPlace(t *testing.T) {
 			pos:  triangles.TriPoint{0, 0, 1},
 			prep: []*Template{
 				&Template{
+					key: "facecheck",
 					shape: Shape{
 						faces: []Face{
 							Face{
@@ -213,14 +270,20 @@ func TestPlace(t *testing.T) {
 				},
 			},
 			tmpl: &Template{
+				key: "emptyface",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{&EmptyRule{}},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{&EmptyRule{}},
+							occupied: true,
 						},
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  HasKeys("emptyface"),
+				{0, -1, 1}: HasKeys("facecheck"),
 			},
 		},
 		{
@@ -228,6 +291,7 @@ func TestPlace(t *testing.T) {
 			pos:  triangles.TriPoint{0, 0, 1},
 			prep: []*Template{
 				&Template{
+					key: "vtxcheck",
 					shape: Shape{
 						faces: []Face{
 							Face{
@@ -246,6 +310,7 @@ func TestPlace(t *testing.T) {
 				},
 			},
 			tmpl: &Template{
+				key: "emptyvtx",
 				shape: Shape{
 					verts: []Vert{
 						Vert{
@@ -256,6 +321,10 @@ func TestPlace(t *testing.T) {
 					},
 				},
 			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}:  HasKeys("vtxcheck"),
+				{0, -1, 1}: HasKeys("emptyvtx"),
+			},
 		},
 		{
 			desc: "Has rule (fail)",
@@ -265,13 +334,17 @@ func TestPlace(t *testing.T) {
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{HasKeys("always", "always")},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{HasKeys("always", "always")},
+							occupied: true,
 						},
 					},
 				},
 			},
 			errors: []error{fmt.Errorf("require 2 always, found 1")},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("always"),
+			},
 		},
 		{
 			desc: "Has rule (success)",
@@ -281,11 +354,15 @@ func TestPlace(t *testing.T) {
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos:   triangles.TriPoint{0, 0, 0},
-							rules: []Rule{HasKeys("always", "always")},
+							pos:      triangles.TriPoint{0, 0, 0},
+							rules:    []Rule{HasKeys("always", "always")},
+							occupied: true,
 						},
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("always", "always"),
 			},
 		},
 		{
@@ -296,10 +373,12 @@ func TestPlace(t *testing.T) {
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos: triangles.TriPoint{0, 0, 0},
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
 						},
 						Face{
-							pos: triangles.TriPoint{0, 1, 0},
+							pos:      triangles.TriPoint{0, 1, 0},
+							occupied: true,
 						},
 					},
 					faceRules: []Rule{
@@ -308,6 +387,10 @@ func TestPlace(t *testing.T) {
 				},
 			},
 			errors: []error{fmt.Errorf("require 2 always, found 1")},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("always"),
+				{0, 1, 1}: &EmptyRule{},
+			},
 		},
 		{
 			desc:    "Global count (succeed)",
@@ -315,19 +398,28 @@ func TestPlace(t *testing.T) {
 			prep:    []*Template{alwaysTmpl, alwaysTmpl},
 			prepPos: []triangles.TriPoint{{1, 0, 0}},
 			tmpl: &Template{
+				key: "count",
 				shape: Shape{
 					faces: []Face{
 						Face{
-							pos: triangles.TriPoint{0, 0, 0},
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
 						},
 						Face{
-							pos: triangles.TriPoint{1, 0, -1},
+							pos:      triangles.TriPoint{1, 0, -1},
+							occupied: true,
 						},
 					},
 					faceRules: []Rule{
 						HasKeys("always", "always"),
 					},
 				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{0, 0, 1}: HasKeys("always"),
+				{0, 0, 1}: HasKeys("count"),
+				{1, 0, 0}: HasKeys("always"),
+				{1, 0, 0}: HasKeys("count"),
 			},
 		},
 	}
@@ -356,6 +448,11 @@ func TestPlace(t *testing.T) {
 			for idx, err := range errs {
 				if err.Error() != cc.errors[idx].Error() {
 					t.Errorf("%s: Place() => error %d %q, want %q", cc.desc, idx, err, cc.errors[idx])
+				}
+			}
+			for pos, rule := range cc.want {
+				if errs := rule.Allow(board, nil, pos); len(errs) > 0 {
+					t.Errorf("%s: Rule fail in %s after placement: %v", cc.desc, pos, errs)
 				}
 			}
 		})

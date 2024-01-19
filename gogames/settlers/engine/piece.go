@@ -33,7 +33,7 @@ type Vert struct {
 // origin, possibly flipped and rotated.
 func (v Vert) From(org triangles.TriPoint) triangles.TriPoint {
 	if org.Points(triangles.North) {
-		triangles.Sum(org, v.pos.Flip())
+		return triangles.Sum(org, v.pos.Flip())
 	}
 	return triangles.Sum(org, v.pos)
 }
