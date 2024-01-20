@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"math"
@@ -20,6 +21,10 @@ const (
 
 	edgeLength = 100
 	height     = 87
+)
+
+var (
+	userExit = fmt.Errorf("User exit")
 )
 
 type Game struct {
@@ -42,6 +47,10 @@ func (g *Game) handleClick(dn, up vector2d.Vector) {
 }
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustReleased(ebiten.KeyQ) {
+		return userExit
+	}
+
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		g.mouseDn.SetInt(ebiten.CursorPosition())
 	}
@@ -128,6 +137,10 @@ func main() {
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(err)
+		if err == userExit {
+			fmt.Println("Goodbye!")
+		} else {
+			log.Fatal(err)
+		}
 	}
 }

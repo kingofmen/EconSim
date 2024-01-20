@@ -353,6 +353,11 @@ func (t *Surface) GetTriPoint() TriPoint {
 	return t.tripoint.Copy()
 }
 
+// Points exposes the Points method of the tri-coordinates.
+func (t *Surface) Points(d Direction) bool {
+	return t.tripoint.Points(d)
+}
+
 // A returns the first (warp) coordinate.
 func (t *Surface) A() int {
 	if t == nil {
