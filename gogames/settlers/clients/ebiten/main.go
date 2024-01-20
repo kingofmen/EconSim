@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"log"
 	"math"
@@ -11,7 +12,7 @@ import (
 	"gogames/util/vector2d"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	_ "github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
@@ -27,6 +28,11 @@ var (
 	userExit = fmt.Errorf("User exit")
 )
 
+type layout struct {
+	total image.Rectangle
+	tiles image.Rectangle
+}
+
 type Game struct {
 	board   *settlers.Board
 	upTri   *ebiten.Image
@@ -34,6 +40,7 @@ type Game struct {
 	opts    *ebiten.DrawImageOptions
 	offset  vector2d.Vector
 	mouseDn vector2d.Vector
+	areas   layout
 }
 
 func (g *Game) handleClick(dn, up vector2d.Vector) {
@@ -62,7 +69,15 @@ func (g *Game) Update() error {
 	return nil
 }
 
+func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Color) {
+	x, y, dx, dy := float64(r.Min.X), float64(r.Min.Y), float64(r.Dx()), float64(r.Dy())
+	ebitenutil.DrawRect(target, x, y, dx, dy, fill)
+	ebitenutil.DrawRect(target, x+1, y+1, dx-2, dy-2, edge)
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
+	drawRectangle(screen, &g.areas.total, color.White, color.Black)
+
 	for _, tile := range g.board.Tiles {
 		g.opts.GeoM.Reset()
 		x, y := tile.XY()
@@ -75,10 +90,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(g.dnTri, g.opts)
 		}
 	}
+
+	drawRectangle(screen, &g.areas.tiles, color.White, color.Black)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
+	return g.areas.total.Dx(), g.areas.total.Dy()
 }
 
 func (g *Game) initTriangle() {
@@ -134,6 +151,10 @@ func main() {
 		board:   board,
 		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
+		areas: layout{
+			total: image.Rect(0, 0, 640, 480),
+			tiles: image.Rect(0, 0, 120, 480),
+		},
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
