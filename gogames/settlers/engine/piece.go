@@ -15,8 +15,9 @@ const (
 
 // Edge contains occupation information for a triangle edge.
 type Edge struct {
-	dir   triangles.Direction
-	rules []Rule
+	dir      triangles.Direction
+	rules    []Rule
+	occupied bool
 }
 
 // Vert contains occupation information for a triangle vertex.
@@ -46,8 +47,6 @@ type Face struct {
 	rules []Rule
 	// Whether the piece covers the face.
 	occupied bool
-	// Occupied edges.
-	edges []Edge
 }
 
 // From returns the coordinates of the face relative to the given
@@ -78,6 +77,22 @@ type Template struct {
 	key    string
 	people int64
 	shape  Shape
+}
+
+// Occupies returns the triangle and vertex coordinates the template
+// occupies.
+func (tp *Template) Occupies() (tris, verts []triangles.TriPoint) {
+	for _, f := range tp.shape.faces {
+		if f.occupied {
+			tris = append(tris, f.pos.Copy())
+		}
+	}
+	for _, v := range tp.shape.verts {
+		if v.occupied {
+			verts = append(verts, v.pos.Copy())
+		}
+	}
+	return
 }
 
 // Piece is an instantiation of a Template, placed on the board.
@@ -136,5 +151,59 @@ func (s *Piece) Prioritize() {
 func (s *Piece) Produce() {
 	if s == nil {
 		return
+	}
+}
+
+// DevTemplates returns some trivial templates for dev work.
+func DevTemplates() []*Template {
+	return []*Template{
+		&Template{
+			key: "village",
+			shape: Shape{
+				faces: []Face{
+					Face{
+						pos:      triangles.TriPoint{0, 0, 0},
+						occupied: true,
+					},
+				},
+				faceRules: []Rule{&EmptyRule{}},
+			},
+		},
+		&Template{
+			key: "tower",
+			shape: Shape{
+				faces: []Face{
+					Face{
+						pos:   triangles.TriPoint{0, 0, 0},
+						rules: []Rule{HasKeys("village")},
+					},
+				},
+				verts: []Vert{
+					Vert{
+						pos:      triangles.TriPoint{0, -1, 0},
+						occupied: true,
+						rules:    []Rule{&EmptyRule{}},
+					},
+				},
+			},
+		},
+		&Template{
+			key: "temple",
+			shape: Shape{
+				faces: []Face{
+					Face{
+						pos:   triangles.TriPoint{0, 0, 0},
+						rules: []Rule{HasKeys("village")},
+					},
+				},
+				verts: []Vert{
+					Vert{
+						pos:      triangles.TriPoint{0, -1, 0},
+						occupied: true,
+						rules:    []Rule{&EmptyRule{}},
+					},
+				},
+			},
+		},
 	}
 }
