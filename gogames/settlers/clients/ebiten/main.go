@@ -34,13 +34,21 @@ type layout struct {
 }
 
 type Game struct {
-	board   *settlers.Board
-	upTri   *ebiten.Image
-	dnTri   *ebiten.Image
-	opts    *ebiten.DrawImageOptions
-	offset  vector2d.Vector
+	// state contains the game state.
+	state *settlers.GameState
+	// upTri and dnTri are graphical triangles.
+	upTri *ebiten.Image
+	dnTri *ebiten.Image
+	// shapes contains thumbnails of the known piece templates.
+	shapes map[*settlers.Template]*ebiten.Image
+	// opts contains the transform and other options of the current tile.
+	opts *ebiten.DrawImageOptions
+	// offset is the view position for the map.
+	offset vector2d.Vector
+	// mouseDn stores the last position where the mouse was clicked.
 	mouseDn vector2d.Vector
-	areas   layout
+	// areas contains the rectangles used to divide up the screen for displays.
+	areas layout
 }
 
 func (g *Game) handleClick(dn, up vector2d.Vector) {
@@ -78,7 +86,7 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 func (g *Game) Draw(screen *ebiten.Image) {
 	drawRectangle(screen, &g.areas.total, color.White, color.Black)
 
-	for _, tile := range g.board.Tiles {
+	for _, tile := range g.state.Board.Tiles {
 		g.opts.GeoM.Reset()
 		x, y := tile.XY()
 		x *= edgeLength
@@ -92,6 +100,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	drawRectangle(screen, &g.areas.tiles, color.White, color.Black)
+	count := 0
+	for _, thumb := range g.shapes {
+		x, y := float64(count%3), float64(count/3)
+		g.opts.GeoM.Reset()
+		g.opts.GeoM.Translate(5+35*x, 5+35*y)
+		screen.DrawImage(thumb, g.opts)
+		count++
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -137,6 +153,12 @@ func (g *Game) initTriangle() {
 	g.opts.GeoM.Rotate(-2 * SixtyD)
 	g.opts.GeoM.Translate(edgeLength-1, height-1)
 	g.upTri.DrawImage(line, g.opts)
+
+	for _, tmpl := range g.state.Templates {
+		thumb := ebiten.NewImage(30, 30)
+		thumb.Fill(color.White)
+		g.shapes[tmpl] = thumb
+	}
 }
 
 func main() {
@@ -147,13 +169,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	game := &Game{
-		board:   board,
+		state: &settlers.GameState{
+			Board:     board,
+			Templates: settlers.DevTemplates(),
+		},
+		shapes:  make(map[*settlers.Template]*ebiten.Image),
 		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
 		areas: layout{
 			total: image.Rect(0, 0, 640, 480),
-			tiles: image.Rect(0, 0, 120, 480),
+			tiles: image.Rect(0, 0, 110, 480),
 		},
 	}
 	game.initTriangle()
