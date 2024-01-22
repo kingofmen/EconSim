@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -22,10 +21,6 @@ const (
 
 	edgeLength = 100
 	height     = 87
-)
-
-var (
-	userExit = fmt.Errorf("User exit")
 )
 
 type layout struct {
@@ -63,7 +58,7 @@ func (g *Game) handleClick(dn, up vector2d.Vector) {
 
 func (g *Game) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyQ) {
-		return userExit
+		return ebiten.Termination
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
@@ -77,14 +72,14 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Color) {
+func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Color, width float64) {
 	x, y, dx, dy := float64(r.Min.X), float64(r.Min.Y), float64(r.Dx()), float64(r.Dy())
-	ebitenutil.DrawRect(target, x, y, dx, dy, fill)
-	ebitenutil.DrawRect(target, x+1, y+1, dx-2, dy-2, edge)
+	ebitenutil.DrawRect(target, x, y, dx, dy, edge)
+	ebitenutil.DrawRect(target, x+width, y+width, dx-2*width, dy-2*width, fill)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	drawRectangle(screen, &g.areas.total, color.White, color.Black)
+	drawRectangle(screen, &g.areas.total, color.Black, color.White, 1)
 
 	for _, tile := range g.state.Board.Tiles {
 		g.opts.GeoM.Reset()
@@ -99,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	drawRectangle(screen, &g.areas.tiles, color.White, color.Black)
+	drawRectangle(screen, &g.areas.tiles, color.Black, color.White, 1)
 	count := 0
 	for _, thumb := range g.shapes {
 		x, y := float64(count%3), float64(count/3)
@@ -156,7 +151,8 @@ func (g *Game) initTriangle() {
 
 	for _, tmpl := range g.state.Templates {
 		thumb := ebiten.NewImage(30, 30)
-		thumb.Fill(color.White)
+		rect := thumb.Bounds()
+		drawRectangle(thumb, &rect, color.Black, color.White, 1)
 		g.shapes[tmpl] = thumb
 	}
 }
@@ -185,10 +181,6 @@ func main() {
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
-		if err == userExit {
-			fmt.Println("Goodbye!")
-		} else {
-			log.Fatal(err)
-		}
+		log.Fatal(err)
 	}
 }
