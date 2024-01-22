@@ -1,6 +1,7 @@
 package main
 
 import (
+	//"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -23,6 +24,11 @@ const (
 	height     = 87
 )
 
+var (
+	colorRed = color.RGBA{R: 255}
+)
+
+// layout packages the screen areas.
 type layout struct {
 	total image.Rectangle
 	tiles image.Rectangle
@@ -34,8 +40,8 @@ type Game struct {
 	// upTri and dnTri are graphical triangles.
 	upTri *ebiten.Image
 	dnTri *ebiten.Image
-	// shapes contains thumbnails of the known piece templates.
-	shapes map[*settlers.Template]*ebiten.Image
+	// shapes contains thumbnails for the known templates.
+	shapes map[string]*ebiten.Image
 	// opts contains the transform and other options of the current tile.
 	opts *ebiten.DrawImageOptions
 	// offset is the view position for the map.
@@ -96,7 +102,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	drawRectangle(screen, &g.areas.tiles, color.Black, color.White, 1)
 	count := 0
-	for _, thumb := range g.shapes {
+	for _, tmpl := range g.state.Templates {
+		thumb, ok := g.shapes[tmpl.Key()]
+		if !ok {
+			continue
+		}
 		x, y := float64(count%3), float64(count/3)
 		g.opts.GeoM.Reset()
 		g.opts.GeoM.Translate(5+35*x, 5+35*y)
@@ -153,7 +163,41 @@ func (g *Game) initTriangle() {
 		thumb := ebiten.NewImage(30, 30)
 		rect := thumb.Bounds()
 		drawRectangle(thumb, &rect, color.Black, color.White, 1)
-		g.shapes[tmpl] = thumb
+		tris, verts := tmpl.Occupies()
+		for _, tri := range tris {
+			c := triangles.TriPoint{tri.A(), tri.B(), tri.C() + 1}
+			x, y := c.XY()
+			x *= 4.7
+			y *= -4.7
+			x += 15
+			y += 15
+			if c.Points(triangles.North) {
+			} else {
+				thumb.Set(int(x+2.5), int(y-1.5), color.White)
+				thumb.Set(int(x+1.5), int(y-1.5), color.White)
+				thumb.Set(int(x+0.5), int(y-1.5), color.White)
+				thumb.Set(int(x-0.5), int(y-1.5), color.White)
+				thumb.Set(int(x-1.5), int(y-1.5), color.White)
+
+				thumb.Set(int(x+1.5), int(y-0.5), color.White)
+				thumb.Set(int(x+0.5), int(y-0.5), color.White)
+				thumb.Set(int(x-0.5), int(y-0.5), color.White)
+
+				thumb.Set(int(x+0.5), int(y+0.5), color.White)
+
+				thumb.Set(int(x+0.5), int(y+1.5), color.White)
+			}
+		}
+		for _, vert := range verts {
+			c := triangles.TriPoint{vert.A(), vert.B(), vert.C() + 1}
+			x, y := c.XY()
+			x *= 4.7
+			y *= -4.7
+			x += 15
+			y += 15
+			thumb.Set(int(x+0.5), int(y+0.5), colorRed)
+		}
+		g.shapes[tmpl.Key()] = thumb
 	}
 }
 
@@ -171,7 +215,7 @@ func main() {
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		shapes:  make(map[*settlers.Template]*ebiten.Image),
+		shapes:  make(map[string]*ebiten.Image),
 		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
 		areas: layout{

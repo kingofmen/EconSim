@@ -79,6 +79,14 @@ type Template struct {
 	shape  Shape
 }
 
+// Key returns the template's lookup key.
+func (tp *Template) Key() string {
+	if tp == nil {
+		return "nil"
+	}
+	return tp.key
+}
+
 // Occupies returns the triangle and vertex coordinates the template
 // occupies.
 func (tp *Template) Occupies() (tris, verts []triangles.TriPoint) {
@@ -198,7 +206,7 @@ func DevTemplates() []*Template {
 				},
 				verts: []Vert{
 					Vert{
-						pos:      triangles.TriPoint{0, -1, 0},
+						pos:      triangles.TriPoint{-1, 0, 0},
 						occupied: true,
 						rules:    []Rule{&EmptyRule{}},
 					},
