@@ -170,6 +170,31 @@ func (tp TriPoint) C() int {
 	return tp[cAxis]
 }
 
+// X returns the Cartesian X coordinate assuming unit edges.
+// Note that this works out the same for triangle centroids
+// and vertices.
+func (tp TriPoint) X() float64 {
+	ret := float64(tp.A())
+	ret -= float64(tp.C())
+	ret *= 0.5
+	return ret
+}
+
+// Y returns the Cartesian Y coordinate assuming unit edges.
+// Note that this works out the same for triangle centroids
+// and vertices.
+func (tp TriPoint) Y() float64 {
+	ret := float64(2 * tp.B())
+	ret -= float64(tp.A())
+	ret -= float64(tp.C())
+	return root3Sixth * ret
+}
+
+// XY returns the Cartesian coordinates of the tripoint.
+func (tp TriPoint) XY() (float64, float64) {
+	return tp.X(), tp.Y()
+}
+
 // String returns a human-readable string suitable for debugging.
 func (tp TriPoint) String() string {
 	return fmt.Sprintf("(%d, %d, %d)", tp.A(), tp.B(), tp.C())
@@ -385,19 +410,19 @@ func (t *Surface) C() int {
 // X translates the A, B, C tripoint into Cartesian
 // and returns the first coordinate of the centroid.
 func (t *Surface) X() float64 {
-	ret := float64(t.A())
-	ret -= float64(t.C())
-	ret *= 0.5
-	return ret
+	if t == nil {
+		return 0
+	}
+	return t.tripoint.X()
 }
 
 // Y translates the A, B, C tripoint into Cartesian
 // and returns the second coordinate of the centroid.
 func (t *Surface) Y() float64 {
-	ret := float64(2 * t.B())
-	ret -= float64(t.A())
-	ret -= float64(t.C())
-	return root3Sixth * ret
+	if t == nil {
+		return 0
+	}
+	return t.tripoint.Y()
 }
 
 // XY returns the Cartesian coordinates of the centroid.
