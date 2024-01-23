@@ -28,10 +28,15 @@ var (
 	colorRed = color.RGBA{R: 255}
 )
 
+// component is a part of the UI.
+type component struct {
+	*image.Rectangle
+}
+
 // layout packages the screen areas.
 type layout struct {
-	total image.Rectangle
-	tiles image.Rectangle
+	total component
+	tiles component
 }
 
 type Game struct {
@@ -85,7 +90,7 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	drawRectangle(screen, &g.areas.total, color.Black, color.White, 1)
+	drawRectangle(screen, g.areas.total.Rectangle, color.Black, color.White, 1)
 
 	for _, tile := range g.state.Board.Tiles {
 		g.opts.GeoM.Reset()
@@ -100,7 +105,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	drawRectangle(screen, &g.areas.tiles, color.Black, color.White, 1)
+	drawRectangle(screen, g.areas.tiles.Rectangle, color.Black, color.White, 1)
 	count := 0
 	for _, tmpl := range g.state.Templates {
 		thumb, ok := g.shapes[tmpl.Key()]
@@ -201,6 +206,11 @@ func (g *Game) initTriangle() {
 	}
 }
 
+func makeRect(x, y, w, h int) *image.Rectangle {
+	rect := image.Rect(x, y, w, h)
+	return &rect
+}
+
 func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Settlers Dev Client")
@@ -219,8 +229,8 @@ func main() {
 		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
 		areas: layout{
-			total: image.Rect(0, 0, 640, 480),
-			tiles: image.Rect(0, 0, 110, 480),
+			total: component{Rectangle: makeRect(0, 0, 640, 480)},
+			tiles: component{Rectangle: makeRect(0, 0, 110, 480)},
 		},
 	}
 	game.initTriangle()
