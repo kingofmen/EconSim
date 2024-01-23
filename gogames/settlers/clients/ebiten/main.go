@@ -31,6 +31,7 @@ var (
 // component is a part of the UI.
 type component struct {
 	*image.Rectangle
+	active bool
 }
 
 // layout packages the screen areas.
@@ -89,7 +90,7 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 	ebitenutil.DrawRect(target, x+width, y+width, dx-2*width, dy-2*width, fill)
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
+func (g *Game) drawBoard(screen *ebiten.Image) {
 	drawRectangle(screen, g.areas.total.Rectangle, color.Black, color.White, 1)
 
 	for _, tile := range g.state.Board.Tiles {
@@ -104,7 +105,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(g.dnTri, g.opts)
 		}
 	}
+}
 
+func (g *Game) drawTiles(screen *ebiten.Image) {
 	drawRectangle(screen, g.areas.tiles.Rectangle, color.Black, color.White, 1)
 	count := 0
 	for _, tmpl := range g.state.Templates {
@@ -117,6 +120,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.opts.GeoM.Translate(5+35*x, 5+35*y)
 		screen.DrawImage(thumb, g.opts)
 		count++
+	}
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	if g.areas.total.active {
+		g.drawBoard(screen)
+	}
+	if g.areas.tiles.active {
+		g.drawTiles(screen)
 	}
 }
 
@@ -229,8 +241,14 @@ func main() {
 		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
 		areas: layout{
-			total: component{Rectangle: makeRect(0, 0, 640, 480)},
-			tiles: component{Rectangle: makeRect(0, 0, 110, 480)},
+			total: component{
+				Rectangle: makeRect(0, 0, 640, 480),
+				active:    true,
+			},
+			tiles: component{
+				Rectangle: makeRect(0, 0, 110, 480),
+				active:    true,
+			},
 		},
 	}
 	game.initTriangle()
