@@ -108,18 +108,81 @@ func (bc *boardComponent) initTriangles() {
 	bc.upTri.DrawImage(line, bc.gopts)
 }
 
+type tilesComponent struct {
+	component
+	// shapes contains thumbnails for the known templates.
+	shapes map[string]*ebiten.Image
+}
+
+func (tc *tilesComponent) draw(state *settlers.GameState, screen *ebiten.Image) {
+	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
+	count := 0
+	for _, tmpl := range state.Templates {
+		thumb, ok := tc.shapes[tmpl.Key()]
+		if !ok {
+			continue
+		}
+		x, y := float64(count%3), float64(count/3)
+		tc.gopts.GeoM.Reset()
+		tc.gopts.GeoM.Translate(5+35*x, 5+35*y)
+		screen.DrawImage(thumb, tc.gopts)
+		count++
+	}
+}
+
+func (tc *tilesComponent) initThumbs(state *settlers.GameState) {
+	for _, tmpl := range state.Templates {
+		thumb := ebiten.NewImage(30, 30)
+		rect := thumb.Bounds()
+		drawRectangle(thumb, &rect, color.Black, color.White, 1)
+		tris, verts := tmpl.Occupies()
+		for _, tri := range tris {
+			c := triangles.TriPoint{tri.A(), tri.B(), tri.C() + 1}
+			x, y := c.XY()
+			x *= 4.7
+			y *= -4.7
+			x += 15
+			y += 15
+			if c.Points(triangles.North) {
+			} else {
+				thumb.Set(int(x+2.5), int(y-1.5), color.White)
+				thumb.Set(int(x+1.5), int(y-1.5), color.White)
+				thumb.Set(int(x+0.5), int(y-1.5), color.White)
+				thumb.Set(int(x-0.5), int(y-1.5), color.White)
+				thumb.Set(int(x-1.5), int(y-1.5), color.White)
+
+				thumb.Set(int(x+1.5), int(y-0.5), color.White)
+				thumb.Set(int(x+0.5), int(y-0.5), color.White)
+				thumb.Set(int(x-0.5), int(y-0.5), color.White)
+
+				thumb.Set(int(x+0.5), int(y+0.5), color.White)
+
+				thumb.Set(int(x+0.5), int(y+1.5), color.White)
+			}
+		}
+		for _, vert := range verts {
+			c := triangles.TriPoint{vert.A(), vert.B(), vert.C() + 1}
+			x, y := c.XY()
+			x *= 4.7
+			y *= -4.7
+			x += 15
+			y += 15
+			thumb.Set(int(x+0.5), int(y+0.5), colorRed)
+		}
+		tc.shapes[tmpl.Key()] = thumb
+	}
+}
+
 // layout packages the screen areas.
 type layout struct {
 	total *boardComponent
-	tiles component
+	tiles *tilesComponent
 	draws []drawable
 }
 
 type Game struct {
 	// state contains the game state.
 	state *settlers.GameState
-	// shapes contains thumbnails for the known templates.
-	shapes map[string]*ebiten.Image
 	// opts contains the transform and other options of the current tile.
 	opts *ebiten.DrawImageOptions
 	// mouseDn stores the last position where the mouse was clicked.
@@ -160,22 +223,6 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 	ebitenutil.DrawRect(target, x+width, y+width, dx-2*width, dy-2*width, fill)
 }
 
-func (g *Game) drawTiles(screen *ebiten.Image) {
-	drawRectangle(screen, g.areas.tiles.Rectangle, color.Black, color.White, 1)
-	count := 0
-	for _, tmpl := range g.state.Templates {
-		thumb, ok := g.shapes[tmpl.Key()]
-		if !ok {
-			continue
-		}
-		x, y := float64(count%3), float64(count/3)
-		g.opts.GeoM.Reset()
-		g.opts.GeoM.Translate(5+35*x, 5+35*y)
-		screen.DrawImage(thumb, g.opts)
-		count++
-	}
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
 	for _, d := range g.areas.draws {
 		if !d.isActive() {
@@ -183,62 +230,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 		d.draw(g.state, screen)
 	}
-
-	if g.areas.tiles.active {
-		g.drawTiles(screen)
-	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return g.areas.total.Dx(), g.areas.total.Dy()
 }
 
-func (g *Game) initTriangle() {
+func (g *Game) initGraphics() {
 	g.opts = &ebiten.DrawImageOptions{
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.total.initTriangles()
-
-	for _, tmpl := range g.state.Templates {
-		thumb := ebiten.NewImage(30, 30)
-		rect := thumb.Bounds()
-		drawRectangle(thumb, &rect, color.Black, color.White, 1)
-		tris, verts := tmpl.Occupies()
-		for _, tri := range tris {
-			c := triangles.TriPoint{tri.A(), tri.B(), tri.C() + 1}
-			x, y := c.XY()
-			x *= 4.7
-			y *= -4.7
-			x += 15
-			y += 15
-			if c.Points(triangles.North) {
-			} else {
-				thumb.Set(int(x+2.5), int(y-1.5), color.White)
-				thumb.Set(int(x+1.5), int(y-1.5), color.White)
-				thumb.Set(int(x+0.5), int(y-1.5), color.White)
-				thumb.Set(int(x-0.5), int(y-1.5), color.White)
-				thumb.Set(int(x-1.5), int(y-1.5), color.White)
-
-				thumb.Set(int(x+1.5), int(y-0.5), color.White)
-				thumb.Set(int(x+0.5), int(y-0.5), color.White)
-				thumb.Set(int(x-0.5), int(y-0.5), color.White)
-
-				thumb.Set(int(x+0.5), int(y+0.5), color.White)
-
-				thumb.Set(int(x+0.5), int(y+1.5), color.White)
-			}
-		}
-		for _, vert := range verts {
-			c := triangles.TriPoint{vert.A(), vert.B(), vert.C() + 1}
-			x, y := c.XY()
-			x *= 4.7
-			y *= -4.7
-			x += 15
-			y += 15
-			thumb.Set(int(x+0.5), int(y+0.5), colorRed)
-		}
-		g.shapes[tmpl.Key()] = thumb
-	}
+	g.areas.tiles.initThumbs(g.state)
 }
 
 func makeRect(x, y, w, h int) *image.Rectangle {
@@ -258,13 +261,20 @@ func makeLayout() layout {
 			},
 			offset: vector2d.New(100, 80),
 		},
-		tiles: component{
-			Rectangle: makeRect(0, 0, 110, 480),
-			active:    true,
+		tiles: &tilesComponent{
+			component: component{
+				Rectangle: makeRect(0, 0, 110, 480),
+				active:    true,
+				gopts: &ebiten.DrawImageOptions{
+					GeoM: ebiten.GeoM{},
+				},
+			},
+			shapes: make(map[string]*ebiten.Image),
 		},
 	}
-	l.draws = make([]drawable, 1)
+	l.draws = make([]drawable, 2)
 	l.draws[0] = l.total
+	l.draws[1] = l.tiles
 	return l
 }
 
@@ -282,11 +292,10 @@ func main() {
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		shapes:  make(map[string]*ebiten.Image),
 		mouseDn: vector2d.Zero(),
 		areas:   makeLayout(),
 	}
-	game.initTriangle()
+	game.initGraphics()
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
