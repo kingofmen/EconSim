@@ -28,9 +28,19 @@ var (
 	colorRed = color.RGBA{R: 255}
 )
 
-type drawable interface {
-	draw(*settlers.GameState, *ebiten.Image)
+type activable interface {
 	isActive() bool
+}
+
+type drawable interface {
+	activable
+	draw(*settlers.GameState, *ebiten.Image)
+}
+
+type handler interface {
+	activable
+	image.Image
+	handleClick(dn, up vector2d.Vector)
 }
 
 // component is a part of the UI.
@@ -68,6 +78,16 @@ func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 			screen.DrawImage(bc.dnTri, bc.gopts)
 		}
 	}
+}
+
+func (bc *boardComponent) handleClick(dn, up vector2d.Vector) {
+	diff := vector2d.Diff(up, dn)
+	if diff.Len() < 2 {
+		// This is a click, ignore for now.
+		return
+	}
+	// Click and drag.
+	bc.offset.Add(diff.XY())
 }
 
 func (bc *boardComponent) initTriangles() {
@@ -130,6 +150,9 @@ func (tc *tilesComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 	}
 }
 
+func (bc *tilesComponent) handleClick(dn, up vector2d.Vector) {
+}
+
 func (tc *tilesComponent) initThumbs(state *settlers.GameState) {
 	for _, tmpl := range state.Templates {
 		thumb := ebiten.NewImage(30, 30)
@@ -175,9 +198,10 @@ func (tc *tilesComponent) initThumbs(state *settlers.GameState) {
 
 // layout packages the screen areas.
 type layout struct {
-	total *boardComponent
-	tiles *tilesComponent
-	draws []drawable
+	total    *boardComponent
+	tiles    *tilesComponent
+	draws    []drawable
+	handlers []handler
 }
 
 type Game struct {
@@ -192,13 +216,16 @@ type Game struct {
 }
 
 func (g *Game) handleClick(dn, up vector2d.Vector) {
-	diff := vector2d.Diff(up, dn)
-	if diff.Len() < 2 {
-		// This is a click, ignore for now.
-		return
+	for _, h := range g.areas.handlers {
+		if !h.isActive() {
+			continue
+		}
+		if h.At(int(dn.X()), int(dn.Y())) == color.Transparent {
+			continue
+		}
+		h.handleClick(dn, up)
+		break
 	}
-	// Click and drag.
-	g.areas.total.offset.Add(diff.XY())
 }
 
 func (g *Game) Update() error {
@@ -271,10 +298,14 @@ func makeLayout() layout {
 			},
 			shapes: make(map[string]*ebiten.Image),
 		},
+		draws:    make([]drawable, 2),
+		handlers: make([]handler, 2),
 	}
-	l.draws = make([]drawable, 2)
 	l.draws[0] = l.total
 	l.draws[1] = l.tiles
+	// Note that handle order differs.
+	l.handlers[0] = l.tiles
+	l.handlers[1] = l.total
 	return l
 }
 
