@@ -82,13 +82,13 @@ func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 
 func (bc *boardComponent) handleClick(dn image.Point) {
 	up := image.Pt(ebiten.CursorPosition())
-	up.Sub(dn)
-	if up.X*up.X+up.Y*up.Y >= 4 {
+	diff := up.Sub(dn)
+	if diff.X*diff.X+diff.Y*diff.Y <= 4 {
 		// This is a click, ignore for now.
 		return
 	}
 	// Click and drag.
-	bc.offset.AddInt(up.X, up.Y)
+	bc.offset.AddInt(diff.X, diff.Y)
 }
 
 func (bc *boardComponent) initTriangles() {
