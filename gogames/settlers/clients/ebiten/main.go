@@ -28,30 +28,100 @@ var (
 	colorRed = color.RGBA{R: 255}
 )
 
+type drawable interface {
+	draw(*settlers.GameState, *ebiten.Image)
+	isActive() bool
+}
+
 // component is a part of the UI.
 type component struct {
 	*image.Rectangle
 	active bool
+	gopts  *ebiten.DrawImageOptions
+}
+
+func (c *component) isActive() bool {
+	return c.active
+}
+
+type boardComponent struct {
+	component
+	// upTri and dnTri are graphical triangles.
+	upTri *ebiten.Image
+	dnTri *ebiten.Image
+	// offset is the view position for the map.
+	offset vector2d.Vector
+}
+
+func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) {
+	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
+
+	for _, tile := range state.Board.Tiles {
+		bc.gopts.GeoM.Reset()
+		x, y := tile.XY()
+		x *= edgeLength
+		y *= -edgeLength // Triangles library has upwards y coordinate.
+		bc.gopts.GeoM.Translate(x+bc.offset.X(), y+bc.offset.Y())
+		if tile.Points(triangles.North) {
+			screen.DrawImage(bc.upTri, bc.gopts)
+		} else {
+			screen.DrawImage(bc.dnTri, bc.gopts)
+		}
+	}
+}
+
+func (bc *boardComponent) initTriangles() {
+	line := ebiten.NewImage(edgeLength, 1)
+	line.Fill(color.White)
+	centroidOffset := 28.86751
+	extraSpace := 29
+
+	bc.dnTri = ebiten.NewImage(edgeLength, height+extraSpace)
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Translate(0, centroidOffset)
+	bc.dnTri.DrawImage(line, bc.gopts)
+
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Rotate(SixtyD)
+	bc.gopts.GeoM.Translate(0, centroidOffset)
+	bc.dnTri.DrawImage(line, bc.gopts)
+
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Rotate(2 * SixtyD)
+	bc.gopts.GeoM.Translate(edgeLength-1, centroidOffset)
+	bc.dnTri.DrawImage(line, bc.gopts)
+
+	centroidOffset = 0
+	bc.upTri = ebiten.NewImage(edgeLength, height)
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Translate(0, height-1)
+	bc.upTri.DrawImage(line, bc.gopts)
+
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Rotate(-SixtyD)
+	bc.gopts.GeoM.Translate(0, height-1)
+	bc.upTri.DrawImage(line, bc.gopts)
+
+	bc.gopts.GeoM.Reset()
+	bc.gopts.GeoM.Rotate(-2 * SixtyD)
+	bc.gopts.GeoM.Translate(edgeLength-1, height-1)
+	bc.upTri.DrawImage(line, bc.gopts)
 }
 
 // layout packages the screen areas.
 type layout struct {
-	total component
+	total *boardComponent
 	tiles component
+	draws []drawable
 }
 
 type Game struct {
 	// state contains the game state.
 	state *settlers.GameState
-	// upTri and dnTri are graphical triangles.
-	upTri *ebiten.Image
-	dnTri *ebiten.Image
 	// shapes contains thumbnails for the known templates.
 	shapes map[string]*ebiten.Image
 	// opts contains the transform and other options of the current tile.
 	opts *ebiten.DrawImageOptions
-	// offset is the view position for the map.
-	offset vector2d.Vector
 	// mouseDn stores the last position where the mouse was clicked.
 	mouseDn vector2d.Vector
 	// areas contains the rectangles used to divide up the screen for displays.
@@ -65,7 +135,7 @@ func (g *Game) handleClick(dn, up vector2d.Vector) {
 		return
 	}
 	// Click and drag.
-	g.offset.Add(diff.XY())
+	g.areas.total.offset.Add(diff.XY())
 }
 
 func (g *Game) Update() error {
@@ -90,23 +160,6 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 	ebitenutil.DrawRect(target, x+width, y+width, dx-2*width, dy-2*width, fill)
 }
 
-func (g *Game) drawBoard(screen *ebiten.Image) {
-	drawRectangle(screen, g.areas.total.Rectangle, color.Black, color.White, 1)
-
-	for _, tile := range g.state.Board.Tiles {
-		g.opts.GeoM.Reset()
-		x, y := tile.XY()
-		x *= edgeLength
-		y *= -edgeLength // Triangles library has upwards y coordinate.
-		g.opts.GeoM.Translate(x+g.offset.X(), y+g.offset.Y())
-		if tile.Points(triangles.North) {
-			screen.DrawImage(g.upTri, g.opts)
-		} else {
-			screen.DrawImage(g.dnTri, g.opts)
-		}
-	}
-}
-
 func (g *Game) drawTiles(screen *ebiten.Image) {
 	drawRectangle(screen, g.areas.tiles.Rectangle, color.Black, color.White, 1)
 	count := 0
@@ -124,9 +177,13 @@ func (g *Game) drawTiles(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.areas.total.active {
-		g.drawBoard(screen)
+	for _, d := range g.areas.draws {
+		if !d.isActive() {
+			continue
+		}
+		d.draw(g.state, screen)
 	}
+
 	if g.areas.tiles.active {
 		g.drawTiles(screen)
 	}
@@ -137,44 +194,10 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func (g *Game) initTriangle() {
-	line := ebiten.NewImage(edgeLength, 1)
-	line.Fill(color.White)
-	centroidOffset := 28.86751
-	extraSpace := 29
-
 	g.opts = &ebiten.DrawImageOptions{
 		GeoM: ebiten.GeoM{},
 	}
-	g.dnTri = ebiten.NewImage(edgeLength, height+extraSpace)
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Translate(0, centroidOffset)
-	g.dnTri.DrawImage(line, g.opts)
-
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Rotate(SixtyD)
-	g.opts.GeoM.Translate(0, centroidOffset)
-	g.dnTri.DrawImage(line, g.opts)
-
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Rotate(2 * SixtyD)
-	g.opts.GeoM.Translate(edgeLength-1, centroidOffset)
-	g.dnTri.DrawImage(line, g.opts)
-
-	centroidOffset = 0
-	g.upTri = ebiten.NewImage(edgeLength, height)
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Translate(0, height-1)
-	g.upTri.DrawImage(line, g.opts)
-
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Rotate(-SixtyD)
-	g.opts.GeoM.Translate(0, height-1)
-	g.upTri.DrawImage(line, g.opts)
-
-	g.opts.GeoM.Reset()
-	g.opts.GeoM.Rotate(-2 * SixtyD)
-	g.opts.GeoM.Translate(edgeLength-1, height-1)
-	g.upTri.DrawImage(line, g.opts)
+	g.areas.total.initTriangles()
 
 	for _, tmpl := range g.state.Templates {
 		thumb := ebiten.NewImage(30, 30)
@@ -223,6 +246,28 @@ func makeRect(x, y, w, h int) *image.Rectangle {
 	return &rect
 }
 
+func makeLayout() layout {
+	l := layout{
+		total: &boardComponent{
+			component: component{
+				Rectangle: makeRect(0, 0, 640, 480),
+				active:    true,
+				gopts: &ebiten.DrawImageOptions{
+					GeoM: ebiten.GeoM{},
+				},
+			},
+			offset: vector2d.New(100, 80),
+		},
+		tiles: component{
+			Rectangle: makeRect(0, 0, 110, 480),
+			active:    true,
+		},
+	}
+	l.draws = make([]drawable, 1)
+	l.draws[0] = l.total
+	return l
+}
+
 func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Settlers Dev Client")
@@ -238,18 +283,8 @@ func main() {
 			Templates: settlers.DevTemplates(),
 		},
 		shapes:  make(map[string]*ebiten.Image),
-		offset:  vector2d.New(100, 80),
 		mouseDn: vector2d.Zero(),
-		areas: layout{
-			total: component{
-				Rectangle: makeRect(0, 0, 640, 480),
-				active:    true,
-			},
-			tiles: component{
-				Rectangle: makeRect(0, 0, 110, 480),
-				active:    true,
-			},
-		},
+		areas:   makeLayout(),
 	}
 	game.initTriangle()
 	if err := ebiten.RunGame(game); err != nil {
