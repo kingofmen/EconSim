@@ -40,7 +40,7 @@ type drawable interface {
 type handler interface {
 	activable
 	image.Image
-	handleClick(dn, up vector2d.Vector)
+	handleClick(dn image.Point)
 }
 
 // component is a part of the UI.
@@ -80,14 +80,15 @@ func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 	}
 }
 
-func (bc *boardComponent) handleClick(dn, up vector2d.Vector) {
-	diff := vector2d.Diff(up, dn)
-	if diff.Len() < 2 {
+func (bc *boardComponent) handleClick(dn image.Point) {
+	up := image.Pt(ebiten.CursorPosition())
+	up.Sub(dn)
+	if up.X*up.X+up.Y*up.Y >= 4 {
 		// This is a click, ignore for now.
 		return
 	}
 	// Click and drag.
-	bc.offset.Add(diff.XY())
+	bc.offset.AddInt(up.X, up.Y)
 }
 
 func (bc *boardComponent) initTriangles() {
@@ -150,7 +151,7 @@ func (tc *tilesComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 	}
 }
 
-func (bc *tilesComponent) handleClick(dn, up vector2d.Vector) {
+func (bc *tilesComponent) handleClick(dn image.Point) {
 }
 
 func (tc *tilesComponent) initThumbs(state *settlers.GameState) {
@@ -210,20 +211,20 @@ type Game struct {
 	// opts contains the transform and other options of the current tile.
 	opts *ebiten.DrawImageOptions
 	// mouseDn stores the last position where the mouse was clicked.
-	mouseDn vector2d.Vector
+	mouseDn image.Point
 	// areas contains the rectangles used to divide up the screen for displays.
 	areas layout
 }
 
-func (g *Game) handleClick(dn, up vector2d.Vector) {
+func (g *Game) handleClick(dn image.Point) {
 	for _, h := range g.areas.handlers {
 		if !h.isActive() {
 			continue
 		}
-		if h.At(int(dn.X()), int(dn.Y())) == color.Transparent {
+		if !dn.In(h.Bounds()) {
 			continue
 		}
-		h.handleClick(dn, up)
+		h.handleClick(dn)
 		break
 	}
 }
@@ -234,12 +235,10 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		g.mouseDn.SetInt(ebiten.CursorPosition())
+		g.mouseDn = image.Pt(ebiten.CursorPosition())
 	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		mouseUp := vector2d.Zero()
-		mouseUp.SetInt(ebiten.CursorPosition())
-		g.handleClick(g.mouseDn, mouseUp)
+		g.handleClick(g.mouseDn)
 	}
 	return nil
 }
@@ -323,7 +322,7 @@ func main() {
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		mouseDn: vector2d.Zero(),
+		mouseDn: image.Pt(0, 0),
 		areas:   makeLayout(),
 	}
 	game.initGraphics()
