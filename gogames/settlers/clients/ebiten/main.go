@@ -26,7 +26,20 @@ const (
 
 var (
 	colorRed = color.RGBA{R: 255}
+
+	// uiInfo contains information needed for all components.
+	uiInfo *uiState
 )
+
+// uiState contains global UI information.
+type uiState struct {
+	// currTmpl is the selected Template.
+	currTmpl *settlers.Template
+	// gameState contains the board and other game information.
+	gameState *settlers.GameState
+	// mouseDn stores the last position where the mouse was clicked.
+	mouseDn image.Point
+}
 
 type activable interface {
 	isActive() bool
@@ -34,13 +47,13 @@ type activable interface {
 
 type drawable interface {
 	activable
-	draw(*settlers.GameState, *ebiten.Image)
+	draw(*ebiten.Image)
 }
 
 type handler interface {
 	activable
 	image.Image
-	handleClick(dn image.Point)
+	handleClick()
 }
 
 // component is a part of the UI.
@@ -63,10 +76,10 @@ type boardComponent struct {
 	offset vector2d.Vector
 }
 
-func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) {
+func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
 
-	for _, tile := range state.Board.Tiles {
+	for _, tile := range uiInfo.gameState.Board.Tiles {
 		bc.gopts.GeoM.Reset()
 		x, y := tile.XY()
 		x *= edgeLength
@@ -80,9 +93,9 @@ func (bc *boardComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 	}
 }
 
-func (bc *boardComponent) handleClick(dn image.Point) {
+func (bc *boardComponent) handleClick() {
 	up := image.Pt(ebiten.CursorPosition())
-	diff := up.Sub(dn)
+	diff := up.Sub(uiInfo.mouseDn)
 	if diff.X*diff.X+diff.Y*diff.Y <= 4 {
 		// This is a click, ignore for now.
 		return
@@ -135,10 +148,10 @@ type tilesComponent struct {
 	shapes map[string]*ebiten.Image
 }
 
-func (tc *tilesComponent) draw(state *settlers.GameState, screen *ebiten.Image) {
+func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
 	count := 0
-	for _, tmpl := range state.Templates {
+	for _, tmpl := range uiInfo.gameState.Templates {
 		thumb, ok := tc.shapes[tmpl.Key()]
 		if !ok {
 			continue
@@ -151,11 +164,12 @@ func (tc *tilesComponent) draw(state *settlers.GameState, screen *ebiten.Image) 
 	}
 }
 
-func (bc *tilesComponent) handleClick(dn image.Point) {
+func (bc *tilesComponent) handleClick() {
+
 }
 
-func (tc *tilesComponent) initThumbs(state *settlers.GameState) {
-	for _, tmpl := range state.Templates {
+func (tc *tilesComponent) initThumbs() {
+	for _, tmpl := range uiInfo.gameState.Templates {
 		thumb := ebiten.NewImage(30, 30)
 		rect := thumb.Bounds()
 		drawRectangle(thumb, &rect, color.Black, color.White, 1)
@@ -206,25 +220,21 @@ type layout struct {
 }
 
 type Game struct {
-	// state contains the game state.
-	state *settlers.GameState
-	// opts contains the transform and other options of the current tile.
+	// opts contains the transform and other options of the game.
 	opts *ebiten.DrawImageOptions
-	// mouseDn stores the last position where the mouse was clicked.
-	mouseDn image.Point
 	// areas contains the rectangles used to divide up the screen for displays.
 	areas layout
 }
 
-func (g *Game) handleClick(dn image.Point) {
+func (g *Game) handleClick() {
 	for _, h := range g.areas.handlers {
 		if !h.isActive() {
 			continue
 		}
-		if !dn.In(h.Bounds()) {
+		if !uiInfo.mouseDn.In(h.Bounds()) {
 			continue
 		}
-		h.handleClick(dn)
+		h.handleClick()
 		break
 	}
 }
@@ -235,10 +245,10 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		g.mouseDn = image.Pt(ebiten.CursorPosition())
+		uiInfo.mouseDn = image.Pt(ebiten.CursorPosition())
 	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		g.handleClick(g.mouseDn)
+		g.handleClick()
 	}
 	return nil
 }
@@ -254,7 +264,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if !d.isActive() {
 			continue
 		}
-		d.draw(g.state, screen)
+		d.draw(screen)
 	}
 }
 
@@ -267,7 +277,7 @@ func (g *Game) initGraphics() {
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.total.initTriangles()
-	g.areas.tiles.initThumbs(g.state)
+	g.areas.tiles.initThumbs()
 }
 
 func makeRect(x, y, w, h int) *image.Rectangle {
@@ -317,13 +327,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	game := &Game{
-		state: &settlers.GameState{
+	uiInfo = &uiState{
+		gameState: &settlers.GameState{
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
 		mouseDn: image.Pt(0, 0),
-		areas:   makeLayout(),
+	}
+
+	game := &Game{
+		areas: makeLayout(),
 	}
 	game.initGraphics()
 	if err := ebiten.RunGame(game); err != nil {
