@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -146,30 +146,34 @@ type tilesComponent struct {
 	component
 	// shapes contains thumbnails for the known templates.
 	shapes map[string]*ebiten.Image
+	// subs are the locations to draw the thumbnails.
+	subs []image.Rectangle
 }
 
 func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
-	count := 0
-	for _, tmpl := range uiInfo.gameState.Templates {
+	for i, tmpl := range uiInfo.gameState.Templates {
 		thumb, ok := tc.shapes[tmpl.Key()]
 		if !ok {
 			continue
 		}
-		x, y := float64(count%3), float64(count/3)
 		tc.gopts.GeoM.Reset()
-		tc.gopts.GeoM.Translate(5+35*x, 5+35*y)
+		tc.gopts.GeoM.Translate(float64(tc.subs[i].Min.X), float64(tc.subs[i].Min.Y))
 		screen.DrawImage(thumb, tc.gopts)
-		count++
 	}
 }
 
-func (bc *tilesComponent) handleClick() {
-
+func (tc *tilesComponent) handleClick() {
+	pos := image.Pt(ebiten.CursorPosition())
+	for i, tmpl := range uiInfo.gameState.Templates {
+		if pos.In(tc.subs[i]) {
+			fmt.Printf("%s\n", tmpl.Key())
+		}
+	}
 }
 
 func (tc *tilesComponent) initThumbs() {
-	for _, tmpl := range uiInfo.gameState.Templates {
+	for count, tmpl := range uiInfo.gameState.Templates {
 		thumb := ebiten.NewImage(30, 30)
 		rect := thumb.Bounds()
 		drawRectangle(thumb, &rect, color.Black, color.White, 1)
@@ -208,6 +212,8 @@ func (tc *tilesComponent) initThumbs() {
 			thumb.Set(int(x+0.5), int(y+0.5), colorRed)
 		}
 		tc.shapes[tmpl.Key()] = thumb
+		x, y := count%3, count/3
+		tc.subs = append(tc.subs, image.Rectangle{image.Pt(5+35*x, 5+35*y), image.Pt(35+35*x, 35+35*y)})
 	}
 }
 
@@ -339,7 +345,9 @@ func main() {
 		areas: makeLayout(),
 	}
 	game.initGraphics()
+	fmt.Println("Starting game.")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Goodbye!")
 }
