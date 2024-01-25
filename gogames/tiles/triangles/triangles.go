@@ -2,6 +2,7 @@ package triangles
 
 import (
 	"fmt"
+	"math"
 )
 
 // Coordinate system from https://www.boristhebrave.com/2021/05/23/triangle-grids/.
@@ -23,6 +24,7 @@ const (
 	bAxis             // Increase North
 	cAxis             // Increase SouthEast
 
+	root3Third = float64(0.57735026919)
 	root3Sixth = float64(0.28867513459)
 )
 
@@ -153,6 +155,18 @@ func (d Direction) Opposite() Direction {
 // Zero returns a zero-initialised TriPoint.
 func Zero() TriPoint {
 	return TriPoint{0, 0, 0}
+}
+
+// FromXY returns the tri-coordinates of the triangle
+// containing the point. The method is to calculate the
+// distance to the zero warp/weft/hex axis by taking
+// the dot product with the perpendiculars, then truncate.
+func FromXY(x, y float64) TriPoint {
+	return TriPoint{
+		int(math.Ceil(x - root3Third*y)),
+		int(math.Floor(2*root3Third*y)) + 1,
+		int(math.Ceil(-x - root3Third*y)),
+	}
 }
 
 // A returns the a, first, coordinate.

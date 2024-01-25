@@ -146,3 +146,43 @@ func TestSum(t *testing.T) {
 		})
 	}
 }
+
+func TestFromXY(t *testing.T) {
+	cases := []struct {
+		x, y float64
+		want TriPoint
+	}{
+		{
+			x:    0,
+			y:    0,
+			want: TriPoint{0, 1, 0},
+		},
+		{
+			x:    0,
+			y:    0.5,
+			want: TriPoint{0, 1, 0},
+		},
+		{
+			x:    0.999,
+			y:    0,
+			want: TriPoint{1, 1, 0},
+		},
+		{
+			x:    1,
+			y:    0,
+			want: TriPoint{1, 1, -1},
+		},
+		{
+			x:    0,
+			y:    -1,
+			want: TriPoint{1, -1, 1},
+		},
+	}
+
+	for _, cc := range cases {
+		got := FromXY(cc.x, cc.y)
+		if got != cc.want {
+			t.Errorf("FromXY(%v, %v) => %s, want %s", cc.x, cc.y, got, cc.want)
+		}
+	}
+}
