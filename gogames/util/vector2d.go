@@ -83,9 +83,10 @@ func (v *Vector) AddInt(x, y int) {
 }
 
 // Mul multiplies the coordinates in-place.
-func (v *Vector) Mul(k float64) {
+func (v Vector) Mul(k float64) Vector {
 	v[0] *= k
 	v[1] *= k
+	return v
 }
 
 // Sub subtracts the coordinates in-place.

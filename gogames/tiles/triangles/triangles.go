@@ -444,6 +444,21 @@ func (t *Surface) XY() (float64, float64) {
 	return t.X(), t.Y()
 }
 
+// Bounds returns the bounding rectangle.
+func (t *Surface) Bounds() (x, y, w, h float64) {
+	if t.Points(North) {
+		x, h = t.GetVertex(SouthWest).GetTriPoint().XY()
+		y = t.GetVertex(North).GetTriPoint().Y()
+		h = y - h
+		w = t.GetVertex(SouthEast).GetTriPoint().X() - x
+	} else {
+		x, y = t.GetVertex(NorthWest).GetTriPoint().XY()
+		h = y - t.GetVertex(South).GetTriPoint().Y()
+		w = t.GetVertex(NorthEast).GetTriPoint().X() - x
+	}
+	return
+}
+
 // Tile sets the vertices and neighbours of the surfaces.
 func Tile(surfaces ...*Surface) error {
 	trimap := make(map[TriPoint]*Surface)

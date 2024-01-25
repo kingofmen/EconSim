@@ -20,19 +20,22 @@ const (
 	toRadians = math.Pi / 180
 	SixtyD    = 60 * toRadians
 
-	edgeLength = 100
-	height     = 87
+	edgeLength    = 100
+	invEdgeLength = 0.01
+	height        = 87
 )
 
 var (
 	colorRed = color.RGBA{R: 255}
 
-	// uiInfo contains information needed for all components.
-	uiInfo *uiState
+	// uiState contains information needed for all components.
+	uiState *commonState
+
+	debug = true
 )
 
-// uiState contains global UI information.
-type uiState struct {
+// commonState contains global UI information.
+type commonState struct {
 	// currTmpl is the selected Template.
 	currTmpl *settlers.Template
 	// gameState contains the board and other game information.
@@ -79,9 +82,14 @@ type boardComponent struct {
 func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
 
-	for _, tile := range uiInfo.gameState.Board.Tiles {
+	// Note that coordinates are relative to game window, not board component.
+	pos := image.Pt(ebiten.CursorPosition())
+	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
+	target := triangles.FromXY(coord.XY())
+
+	for _, tile := range uiState.gameState.Board.Tiles {
 		bc.gopts.GeoM.Reset()
-		x, y := tile.XY()
+		x, y, _, _ := tile.Bounds()
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
 		bc.gopts.GeoM.Translate(x+bc.offset.X(), y+bc.offset.Y())
@@ -90,12 +98,16 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		} else {
 			screen.DrawImage(bc.dnTri, bc.gopts)
 		}
+
+		if tile.GetTriPoint() == target {
+			fmt.Printf("Pointing at %s\n", target)
+		}
 	}
 }
 
 func (bc *boardComponent) handleClick() {
 	up := image.Pt(ebiten.CursorPosition())
-	diff := up.Sub(uiInfo.mouseDn)
+	diff := up.Sub(uiState.mouseDn)
 	if diff.X*diff.X+diff.Y*diff.Y <= 4 {
 		// This is a click, ignore for now.
 		return
@@ -107,8 +119,11 @@ func (bc *boardComponent) handleClick() {
 func (bc *boardComponent) initTriangles() {
 	line := ebiten.NewImage(edgeLength, 1)
 	line.Fill(color.White)
+
 	centroidOffset := 28.86751
 	extraSpace := 29
+	centroidOffset = 0
+	extraSpace = 0
 
 	bc.dnTri = ebiten.NewImage(edgeLength, height+extraSpace)
 	bc.gopts.GeoM.Reset()
@@ -125,7 +140,6 @@ func (bc *boardComponent) initTriangles() {
 	bc.gopts.GeoM.Translate(edgeLength-1, centroidOffset)
 	bc.dnTri.DrawImage(line, bc.gopts)
 
-	centroidOffset = 0
 	bc.upTri = ebiten.NewImage(edgeLength, height)
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Translate(0, height-1)
@@ -152,7 +166,7 @@ type tilesComponent struct {
 
 func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
-	for i, tmpl := range uiInfo.gameState.Templates {
+	for i, tmpl := range uiState.gameState.Templates {
 		thumb, ok := tc.shapes[tmpl.Key()]
 		if !ok {
 			continue
@@ -165,15 +179,17 @@ func (tc *tilesComponent) draw(screen *ebiten.Image) {
 
 func (tc *tilesComponent) handleClick() {
 	pos := image.Pt(ebiten.CursorPosition())
-	for i, tmpl := range uiInfo.gameState.Templates {
-		if pos.In(tc.subs[i]) {
-			fmt.Printf("%s\n", tmpl.Key())
+	for i, tmpl := range uiState.gameState.Templates {
+		if !pos.In(tc.subs[i]) {
+			continue
 		}
+		uiState.currTmpl = tmpl
+		break
 	}
 }
 
 func (tc *tilesComponent) initThumbs() {
-	for count, tmpl := range uiInfo.gameState.Templates {
+	for count, tmpl := range uiState.gameState.Templates {
 		thumb := ebiten.NewImage(30, 30)
 		rect := thumb.Bounds()
 		drawRectangle(thumb, &rect, color.Black, color.White, 1)
@@ -237,7 +253,7 @@ func (g *Game) handleClick() {
 		if !h.isActive() {
 			continue
 		}
-		if !uiInfo.mouseDn.In(h.Bounds()) {
+		if !uiState.mouseDn.In(h.Bounds()) {
 			continue
 		}
 		h.handleClick()
@@ -251,7 +267,7 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		uiInfo.mouseDn = image.Pt(ebiten.CursorPosition())
+		uiState.mouseDn = image.Pt(ebiten.CursorPosition())
 	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.handleClick()
@@ -301,7 +317,7 @@ func makeLayout() layout {
 					GeoM: ebiten.GeoM{},
 				},
 			},
-			offset: vector2d.New(100, 80),
+			offset: vector2d.New(250, 180),
 		},
 		tiles: &tilesComponent{
 			component: component{
@@ -333,7 +349,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	uiInfo = &uiState{
+	uiState = &commonState{
 		gameState: &settlers.GameState{
 			Board:     board,
 			Templates: settlers.DevTemplates(),
