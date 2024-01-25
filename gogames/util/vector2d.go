@@ -82,6 +82,12 @@ func (v *Vector) AddInt(x, y int) {
 	v[1] += float64(y)
 }
 
+// Mul multiplies the coordinates in-place.
+func (v *Vector) Mul(k float64) {
+	v[0] *= k
+	v[1] *= k
+}
+
 // Sub subtracts the coordinates in-place.
 func (v *Vector) Sub(x, y float64) {
 	v[0] -= x
