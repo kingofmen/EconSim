@@ -26,7 +26,9 @@ const (
 )
 
 var (
-	colorRed = color.RGBA{R: 255}
+	colorRed   = color.RGBA{R: 255}
+	colorGreen = color.RGBA{G: 255}
+	colorBlue  = color.RGBA{B: 255}
 
 	// uiState contains information needed for all components.
 	uiState *commonState
@@ -38,8 +40,8 @@ var (
 type commonState struct {
 	// currTmpl is the selected Template.
 	currTmpl *settlers.Template
-	// gameState contains the board and other game information.
-	gameState *settlers.GameState
+	// game contains the board and other game information.
+	game *settlers.GameState
 	// mouseDn stores the last position where the mouse was clicked.
 	mouseDn image.Point
 	// turnOver is true when the player has done his action.
@@ -79,39 +81,41 @@ type boardComponent struct {
 	dnTri *ebiten.Image
 	// offset is the view position for the map.
 	offset vector2d.Vector
+	// pieces contains the images to use for templates.
+	pieces map[string]*ebiten.Image
 }
 
 func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
-
-	// Note that coordinates are relative to game window, not board component.
-	pos := image.Pt(ebiten.CursorPosition())
-	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
-	target := triangles.FromXY(coord.XY())
-
-	var targetTile *settlers.Tile
-	for _, tile := range uiState.gameState.Board.Tiles {
+	for _, tile := range uiState.game.Board.Tiles {
 		bc.gopts.GeoM.Reset()
 		x, y, _, _ := tile.Bounds()
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
 		bc.gopts.GeoM.Translate(x+bc.offset.X(), y+bc.offset.Y())
+		poff := 15.0
 		if tile.Points(triangles.North) {
 			screen.DrawImage(bc.upTri, bc.gopts)
+			poff -= 15
 		} else {
 			screen.DrawImage(bc.dnTri, bc.gopts)
+			poff += 15
 		}
-
-		if tile.GetTriPoint() == target {
-			targetTile = tile
-
+		bc.gopts.GeoM.Translate(0.5*edgeLength-20, 0.5*height-poff)
+		for _, p := range tile.Pieces() {
+			if img := bc.pieces[p.GetKey()]; img != nil {
+				screen.DrawImage(img, bc.gopts)
+			}
 		}
 	}
+
+	pos := image.Pt(ebiten.CursorPosition())
+	targetTile := bc.getTileAt(pos)
 	if targetTile == nil || uiState.currTmpl == nil {
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 	} else {
 		// TODO: Cache this information to avoid the every-frame evaluation.
-		if errs := uiState.gameState.Board.CheckShape(target, nil, uiState.currTmpl); len(errs) > 0 {
+		if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
 			ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
 		} else {
 			ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
@@ -123,9 +127,10 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 func (bc *boardComponent) getTileAt(pos image.Point) *settlers.Tile {
 	// TODO: Check that we're actually in the board component and not, e.g.,
 	// the tile display.
+	// Note that coordinates are relative to game window, not board component.
 	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
 	target := triangles.FromXY(coord.XY())
-	return uiState.gameState.Board.GetTile(target)
+	return uiState.game.Board.GetTile(target)
 }
 
 func (bc *boardComponent) handleClick() {
@@ -144,7 +149,7 @@ func (bc *boardComponent) handleClick() {
 	if uiState.currTmpl == nil {
 		return
 	}
-	if errs := uiState.gameState.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
+	if errs := uiState.game.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
 		for _, err := range errs {
 			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
 		}
@@ -157,24 +162,17 @@ func (bc *boardComponent) initTriangles() {
 	line := ebiten.NewImage(edgeLength, 1)
 	line.Fill(color.White)
 
-	centroidOffset := 28.86751
-	extraSpace := 29
-	centroidOffset = 0
-	extraSpace = 0
-
-	bc.dnTri = ebiten.NewImage(edgeLength, height+extraSpace)
+	bc.dnTri = ebiten.NewImage(edgeLength, height)
 	bc.gopts.GeoM.Reset()
-	bc.gopts.GeoM.Translate(0, centroidOffset)
 	bc.dnTri.DrawImage(line, bc.gopts)
 
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Rotate(SixtyD)
-	bc.gopts.GeoM.Translate(0, centroidOffset)
 	bc.dnTri.DrawImage(line, bc.gopts)
 
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Rotate(2 * SixtyD)
-	bc.gopts.GeoM.Translate(edgeLength-1, centroidOffset)
+	bc.gopts.GeoM.Translate(edgeLength-1, 0)
 	bc.dnTri.DrawImage(line, bc.gopts)
 
 	bc.upTri = ebiten.NewImage(edgeLength, height)
@@ -193,6 +191,17 @@ func (bc *boardComponent) initTriangles() {
 	bc.upTri.DrawImage(line, bc.gopts)
 }
 
+func (bc *boardComponent) initTemplates() {
+	bc.pieces["village"] = ebiten.NewImage(40, 30)
+	bc.pieces["village"].Fill(colorGreen)
+	bc.pieces["temple"] = ebiten.NewImage(20, 20)
+	bnds := bc.pieces["temple"].Bounds()
+	drawRectangle(bc.pieces["temple"], &bnds, color.Black, colorRed, 2)
+	bc.pieces["tower"] = ebiten.NewImage(20, 20)
+	bnds = bc.pieces["tower"].Bounds()
+	drawRectangle(bc.pieces["tower"], &bnds, color.Black, colorBlue, 2)
+}
+
 type tilesComponent struct {
 	component
 	// shapes contains thumbnails for the known templates.
@@ -203,7 +212,7 @@ type tilesComponent struct {
 
 func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
-	for i, tmpl := range uiState.gameState.Templates {
+	for i, tmpl := range uiState.game.Templates {
 		thumb, ok := tc.shapes[tmpl.Key()]
 		if !ok {
 			continue
@@ -216,7 +225,7 @@ func (tc *tilesComponent) draw(screen *ebiten.Image) {
 
 func (tc *tilesComponent) handleClick() {
 	pos := image.Pt(ebiten.CursorPosition())
-	for i, tmpl := range uiState.gameState.Templates {
+	for i, tmpl := range uiState.game.Templates {
 		if !pos.In(tc.subs[i]) {
 			continue
 		}
@@ -226,7 +235,7 @@ func (tc *tilesComponent) handleClick() {
 }
 
 func (tc *tilesComponent) initThumbs() {
-	for count, tmpl := range uiState.gameState.Templates {
+	for count, tmpl := range uiState.game.Templates {
 		thumb := ebiten.NewImage(30, 30)
 		rect := thumb.Bounds()
 		drawRectangle(thumb, &rect, color.Black, color.White, 1)
@@ -311,7 +320,7 @@ func (g *Game) Update() error {
 	}
 
 	if uiState.turnOver {
-		if err := uiState.gameState.Board.Tick(); err != nil {
+		if err := uiState.game.Board.Tick(); err != nil {
 			fmt.Printf("Board tick error: %v\n", err)
 		}
 		uiState.turnOver = false
@@ -343,6 +352,7 @@ func (g *Game) initGraphics() {
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.total.initTriangles()
+	g.areas.total.initTemplates()
 	g.areas.tiles.initThumbs()
 }
 
@@ -362,6 +372,7 @@ func makeLayout() layout {
 				},
 			},
 			offset: vector2d.New(250, 180),
+			pieces: make(map[string]*ebiten.Image),
 		},
 		tiles: &tilesComponent{
 			component: component{
@@ -394,7 +405,7 @@ func main() {
 	}
 
 	uiState = &commonState{
-		gameState: &settlers.GameState{
+		game: &settlers.GameState{
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},

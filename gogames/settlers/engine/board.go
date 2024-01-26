@@ -76,6 +76,22 @@ func NewHex(r int) (*Board, error) {
 	return b, nil
 }
 
+// Pieces returns the pieces on the tile.
+func (t *Tile) Pieces() []*Piece {
+	if t == nil {
+		return nil
+	}
+	return t.pieces
+}
+
+// Pieces returns the pieces on the vertex.
+func (v *Point) Pieces() []*Piece {
+	if v == nil {
+		return nil
+	}
+	return v.pieces
+}
+
 // CheckShape returns any rules conflicts of placing the piece.
 func (bd *Board) CheckShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.shape.faces))
