@@ -42,6 +42,8 @@ type commonState struct {
 	gameState *settlers.GameState
 	// mouseDn stores the last position where the mouse was clicked.
 	mouseDn image.Point
+	// turnOver is true when the player has done his action.
+	turnOver bool
 }
 
 type activable interface {
@@ -117,15 +119,38 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 	}
 }
 
+// getTileAt returns the tile containing the given point in the window.
+func (bc *boardComponent) getTileAt(pos image.Point) *settlers.Tile {
+	// TODO: Check that we're actually in the board component and not, e.g.,
+	// the tile display.
+	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
+	target := triangles.FromXY(coord.XY())
+	return uiState.gameState.Board.GetTile(target)
+}
+
 func (bc *boardComponent) handleClick() {
-	up := image.Pt(ebiten.CursorPosition())
-	diff := up.Sub(uiState.mouseDn)
-	if diff.X*diff.X+diff.Y*diff.Y <= 4 {
-		// This is a click, ignore for now.
+	pos := image.Pt(ebiten.CursorPosition())
+	diff := pos.Sub(uiState.mouseDn)
+	if diff.X*diff.X+diff.Y*diff.Y > 4 {
+		// Click and drag.
+		bc.offset.AddInt(diff.X, diff.Y)
 		return
 	}
-	// Click and drag.
-	bc.offset.AddInt(diff.X, diff.Y)
+
+	target := bc.getTileAt(pos)
+	if target == nil {
+		return
+	}
+	if uiState.currTmpl == nil {
+		return
+	}
+	if errs := uiState.gameState.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
+		}
+	} else {
+		uiState.turnOver = true
+	}
 }
 
 func (bc *boardComponent) initTriangles() {
@@ -283,6 +308,13 @@ func (g *Game) Update() error {
 	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.handleClick()
+	}
+
+	if uiState.turnOver {
+		if err := uiState.gameState.Board.Tick(); err != nil {
+			fmt.Printf("Board tick error: %v\n", err)
+		}
+		uiState.turnOver = false
 	}
 	return nil
 }

@@ -183,3 +183,11 @@ func (bd *Board) GetPieces(loc triangles.TriPoint) ([]*Piece, error) {
 	}
 	return nil, fmt.Errorf("position %s is not on the board", loc)
 }
+
+// GetTile returns the tile at the given location, if there is one.
+func (bd *Board) GetTile(loc triangles.TriPoint) *Tile {
+	if bd == nil {
+		return nil
+	}
+	return bd.tileMap[loc]
+}
