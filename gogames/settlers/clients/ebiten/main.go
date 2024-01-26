@@ -87,6 +87,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
 	target := triangles.FromXY(coord.XY())
 
+	var targetTile *settlers.Tile
 	for _, tile := range uiState.gameState.Board.Tiles {
 		bc.gopts.GeoM.Reset()
 		x, y, _, _ := tile.Bounds()
@@ -100,7 +101,18 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		}
 
 		if tile.GetTriPoint() == target {
-			fmt.Printf("Pointing at %s\n", target)
+			targetTile = tile
+
+		}
+	}
+	if targetTile == nil || uiState.currTmpl == nil {
+		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+	} else {
+		// TODO: Cache this information to avoid the every-frame evaluation.
+		if errs := uiState.gameState.Board.CheckShape(target, nil, uiState.currTmpl); len(errs) > 0 {
+			ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
+		} else {
+			ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
 		}
 	}
 }

@@ -76,8 +76,8 @@ func NewHex(r int) (*Board, error) {
 	return b, nil
 }
 
-// checkShape returns any rules conflicts of placing the piece.
-func (bd *Board) checkShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
+// CheckShape returns any rules conflicts of placing the piece.
+func (bd *Board) CheckShape(pos triangles.TriPoint, fac *Faction, tmp *Template) []error {
 	bad := make([]error, 0, len(tmp.shape.faces))
 	facePos := make([]triangles.TriPoint, 0, len(tmp.shape.faces))
 	for _, face := range tmp.shape.faces {
@@ -130,7 +130,7 @@ func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template) []er
 		return []error{fmt.Errorf("piece placed on nil Board")}
 	}
 
-	if errors := bd.checkShape(pos, fac, tmp); len(errors) > 0 {
+	if errors := bd.CheckShape(pos, fac, tmp); len(errors) > 0 {
 		return errors
 	}
 
