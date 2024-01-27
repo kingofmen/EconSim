@@ -109,6 +109,23 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		}
 	}
 
+	for _, pt := range uiState.game.Board.Points {
+		pieces := pt.Pieces()
+		if len(pieces) < 1 {
+			continue
+		}
+		bc.gopts.GeoM.Reset()
+		x, y := pt.GetTriPoint().XY()
+		x *= edgeLength
+		y *= -edgeLength // Triangles library has upwards y coordinate.
+		bc.gopts.GeoM.Translate(x+bc.offset.X()-10, y+bc.offset.Y()-10)
+		for _, p := range pieces {
+			if img := bc.pieces[p.GetKey()]; img != nil {
+				screen.DrawImage(img, bc.gopts)
+			}
+		}
+	}
+
 	pos := image.Pt(ebiten.CursorPosition())
 	targetTile := bc.getTileAt(pos)
 	if targetTile == nil || uiState.currTmpl == nil {

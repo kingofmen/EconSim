@@ -19,6 +19,7 @@ type Point struct {
 // Board contains the game board.
 type Board struct {
 	Tiles   []*Tile
+	Points  []*Point
 	tileMap map[triangles.TriPoint]*Tile
 	vtxMap  map[triangles.TriPoint]*Point
 	pieces  []*Piece
@@ -65,11 +66,15 @@ func NewHex(r int) (*Board, error) {
 	// Vertices are created and given positions by Tile.
 	for _, tile := range b.Tiles {
 		for _, vtx := range tile.GetVertices() {
+			if _, seen := b.vtxMap[vtx.GetTriPoint()]; seen {
+				continue
+			}
 			point := &Point{
 				Vertex: vtx,
 				pieces: make([]*Piece, 0, 3),
 			}
 			b.vtxMap[vtx.GetTriPoint()] = point
+			b.Points = append(b.Points, point)
 		}
 	}
 
