@@ -229,6 +229,28 @@ func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
 	return nil
 }
 
+func (bc *boardComponent) loadVertexImage(key, base, fname string) error {
+	fpath := filepath.Join(base, "gfx", fname)
+	img, _, err := ebitenutil.NewImageFromFile(fpath)
+	if err != nil {
+		return err
+	}
+	img.Set(0, 0, color.Transparent)
+	img.Set(0, 1, color.Transparent)
+	img.Set(1, 0, color.Transparent)
+	img.Set(19, 19, color.Transparent)
+	img.Set(18, 19, color.Transparent)
+	img.Set(19, 18, color.Transparent)
+	img.Set(19, 0, color.Transparent)
+	img.Set(19, 1, color.Transparent)
+	img.Set(18, 0, color.Transparent)
+	img.Set(0, 19, color.Transparent)
+	img.Set(0, 18, color.Transparent)
+	img.Set(1, 19, color.Transparent)
+	bc.pieces[key] = img
+	return nil
+}
+
 func (bc *boardComponent) initTemplates() error {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -237,12 +259,12 @@ func (bc *boardComponent) initTemplates() error {
 	if err := bc.loadTriangleImage("village", wd, "ManorVillage.png"); err != nil {
 		return err
 	}
-	bc.pieces["temple"] = ebiten.NewImage(20, 20)
-	bnds := bc.pieces["temple"].Bounds()
-	drawRectangle(bc.pieces["temple"], &bnds, color.Black, colorRed, 2)
-	bc.pieces["tower"] = ebiten.NewImage(20, 20)
-	bnds = bc.pieces["tower"].Bounds()
-	drawRectangle(bc.pieces["tower"], &bnds, color.Black, colorBlue, 2)
+	if err := bc.loadVertexImage("temple", wd, "WoodenChurch.png"); err != nil {
+		return err
+	}
+	if err := bc.loadVertexImage("tower", wd, "WatchTower.png"); err != nil {
+		return err
+	}
 	return nil
 }
 
