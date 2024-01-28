@@ -6,6 +6,8 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"os"
+	"path/filepath"
 
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
@@ -19,6 +21,8 @@ import (
 const (
 	toRadians = math.Pi / 180
 	SixtyD    = 60 * toRadians
+	root3half = 0.86602540378
+	root3     = 1.73205080757
 
 	edgeLength    = 100
 	invEdgeLength = 0.01
@@ -89,19 +93,17 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
 	for _, tile := range uiState.game.Board.Tiles {
 		bc.gopts.GeoM.Reset()
-		x, y, _, _ := tile.Bounds()
+		x, y, w, h := tile.Bounds()
+		cx, cy := 0.0, 0.0
+		if tile.Points(triangles.South) {
+			bc.gopts.GeoM.Rotate(toRadians * 180.0)
+			cx += w * edgeLength
+			cy += h * edgeLength
+		}
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
-		bc.gopts.GeoM.Translate(x+bc.offset.X(), y+bc.offset.Y())
-		poff := 15.0
-		if tile.Points(triangles.North) {
-			screen.DrawImage(bc.upTri, bc.gopts)
-			poff -= 15
-		} else {
-			screen.DrawImage(bc.dnTri, bc.gopts)
-			poff += 15
-		}
-		bc.gopts.GeoM.Translate(0.5*edgeLength-20, 0.5*height-poff)
+		bc.gopts.GeoM.Translate(x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
+		screen.DrawImage(bc.upTri, bc.gopts)
 		for _, p := range tile.Pieces() {
 			if img := bc.pieces[p.GetKey()]; img != nil {
 				screen.DrawImage(img, bc.gopts)
@@ -208,15 +210,40 @@ func (bc *boardComponent) initTriangles() {
 	bc.upTri.DrawImage(line, bc.gopts)
 }
 
-func (bc *boardComponent) initTemplates() {
-	bc.pieces["village"] = ebiten.NewImage(40, 30)
-	bc.pieces["village"].Fill(colorGreen)
+func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
+	fpath := filepath.Join(base, "gfx", fname)
+	img, _, err := ebitenutil.NewImageFromFile(fpath)
+	if err != nil {
+		return err
+	}
+	for y := 0; y < height; y++ {
+		for x := 0; x < edgeLength/2; x++ {
+			if float64(height-y) < root3*float64(x) {
+				continue
+			}
+			img.Set(x, y, color.Transparent)
+			img.Set(edgeLength-x, y, color.Transparent)
+		}
+	}
+	bc.pieces[key] = img
+	return nil
+}
+
+func (bc *boardComponent) initTemplates() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	if err := bc.loadTriangleImage("village", wd, "ManorVillage.png"); err != nil {
+		return err
+	}
 	bc.pieces["temple"] = ebiten.NewImage(20, 20)
 	bnds := bc.pieces["temple"].Bounds()
 	drawRectangle(bc.pieces["temple"], &bnds, color.Black, colorRed, 2)
 	bc.pieces["tower"] = ebiten.NewImage(20, 20)
 	bnds = bc.pieces["tower"].Bounds()
 	drawRectangle(bc.pieces["tower"], &bnds, color.Black, colorBlue, 2)
+	return nil
 }
 
 type tilesComponent struct {
@@ -364,13 +391,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return g.areas.total.Dx(), g.areas.total.Dy()
 }
 
-func (g *Game) initGraphics() {
+func (g *Game) initGraphics() error {
 	g.opts = &ebiten.DrawImageOptions{
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.total.initTriangles()
-	g.areas.total.initTemplates()
+	if err := g.areas.total.initTemplates(); err != nil {
+		return err
+	}
 	g.areas.tiles.initThumbs()
+	return nil
 }
 
 func makeRect(x, y, w, h int) *image.Rectangle {
@@ -432,7 +462,9 @@ func main() {
 	game := &Game{
 		areas: makeLayout(),
 	}
-	game.initGraphics()
+	if err := game.initGraphics(); err != nil {
+		log.Fatalf("Error initialising graphics: %v")
+	}
 	fmt.Println("Starting game.")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
