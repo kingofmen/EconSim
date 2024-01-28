@@ -50,6 +50,8 @@ type commonState struct {
 	mouseDn image.Point
 	// turnOver is true when the player has done his action.
 	turnOver bool
+	// rotation is the amount to rotate the next tile placement.
+	rotation int
 }
 
 type activable interface {
@@ -80,9 +82,8 @@ func (c *component) isActive() bool {
 
 type boardComponent struct {
 	component
-	// upTri and dnTri are graphical triangles.
-	upTri *ebiten.Image
-	dnTri *ebiten.Image
+	// baseTri is the base, unfilled triangle tile.
+	baseTri *ebiten.Image
 	// offset is the view position for the map.
 	offset vector2d.Vector
 	// pieces contains the images to use for templates.
@@ -103,7 +104,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
 		bc.gopts.GeoM.Translate(x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
-		screen.DrawImage(bc.upTri, bc.gopts)
+		screen.DrawImage(bc.baseTri, bc.gopts)
 		for _, p := range tile.Pieces() {
 			if img := bc.pieces[p.GetKey()]; img != nil {
 				screen.DrawImage(img, bc.gopts)
@@ -181,33 +182,20 @@ func (bc *boardComponent) initTriangles() {
 	line := ebiten.NewImage(edgeLength, 1)
 	line.Fill(color.White)
 
-	bc.dnTri = ebiten.NewImage(edgeLength, height)
-	bc.gopts.GeoM.Reset()
-	bc.dnTri.DrawImage(line, bc.gopts)
-
-	bc.gopts.GeoM.Reset()
-	bc.gopts.GeoM.Rotate(SixtyD)
-	bc.dnTri.DrawImage(line, bc.gopts)
-
-	bc.gopts.GeoM.Reset()
-	bc.gopts.GeoM.Rotate(2 * SixtyD)
-	bc.gopts.GeoM.Translate(edgeLength-1, 0)
-	bc.dnTri.DrawImage(line, bc.gopts)
-
-	bc.upTri = ebiten.NewImage(edgeLength, height)
+	bc.baseTri = ebiten.NewImage(edgeLength, height)
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Translate(0, height-1)
-	bc.upTri.DrawImage(line, bc.gopts)
+	bc.baseTri.DrawImage(line, bc.gopts)
 
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Rotate(-SixtyD)
 	bc.gopts.GeoM.Translate(0, height-1)
-	bc.upTri.DrawImage(line, bc.gopts)
+	bc.baseTri.DrawImage(line, bc.gopts)
 
 	bc.gopts.GeoM.Reset()
 	bc.gopts.GeoM.Rotate(-2 * SixtyD)
 	bc.gopts.GeoM.Translate(edgeLength-1, height-1)
-	bc.upTri.DrawImage(line, bc.gopts)
+	bc.baseTri.DrawImage(line, bc.gopts)
 }
 
 func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
@@ -478,7 +466,8 @@ func main() {
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		mouseDn: image.Pt(0, 0),
+		mouseDn:  image.Pt(0, 0),
+		rotation: 0,
 	}
 
 	game := &Game{
