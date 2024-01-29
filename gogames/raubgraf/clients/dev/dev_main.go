@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"gogames/raubgraf/clients/dev/clientlib"
-	"golang.org/x/sys/windows"
+	"golang.org/windows"
 )
 
 func runGame() error {
