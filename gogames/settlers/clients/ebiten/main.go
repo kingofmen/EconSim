@@ -52,6 +52,8 @@ type commonState struct {
 	turnOver bool
 	// rotation is the amount to rotate the next tile placement.
 	rotation int
+	// keys contains the currently pressed keys.
+	keys map[ebiten.Key]bool
 }
 
 type activable interface {
@@ -66,7 +68,7 @@ type drawable interface {
 type handler interface {
 	activable
 	image.Image
-	handleClick()
+	handleLeftClick()
 }
 
 // component is a part of the UI.
@@ -153,7 +155,7 @@ func (bc *boardComponent) getTileAt(pos image.Point) *settlers.Tile {
 	return uiState.game.Board.GetTile(target)
 }
 
-func (bc *boardComponent) handleClick() {
+func (bc *boardComponent) handleLeftClick() {
 	pos := image.Pt(ebiten.CursorPosition())
 	diff := pos.Sub(uiState.mouseDn)
 	if diff.X*diff.X+diff.Y*diff.Y > 4 {
@@ -277,7 +279,7 @@ func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	}
 }
 
-func (tc *tilesComponent) handleClick() {
+func (tc *tilesComponent) handleLeftClick() {
 	pos := image.Pt(ebiten.CursorPosition())
 	for i, tmpl := range uiState.game.Templates {
 		if !pos.In(tc.subs[i]) {
@@ -348,7 +350,7 @@ type Game struct {
 	areas layout
 }
 
-func (g *Game) handleClick() {
+func (g *Game) handleLeftClick() {
 	for _, h := range g.areas.handlers {
 		if !h.isActive() {
 			continue
@@ -356,21 +358,42 @@ func (g *Game) handleClick() {
 		if !uiState.mouseDn.In(h.Bounds()) {
 			continue
 		}
-		h.handleClick()
+		h.handleLeftClick()
 		break
 	}
+}
+
+func (g *Game) handleRightClick() {
+	pos := image.Pt(ebiten.CursorPosition())
+	if pos.In(g.areas.tiles.Bounds()) {
+		return
+	}
+	amt := 1
+	if uiState.keys[ebiten.KeyShiftLeft] || uiState.keys[ebiten.KeyShiftRight] {
+		amt = -1
+	}
+	uiState.rotation += amt
 }
 
 func (g *Game) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyQ) {
 		return ebiten.Termination
 	}
+	pressed := make([]ebiten.Key, 0, 5)
+	pressed = inpututil.AppendPressedKeys(pressed)
+	clear(uiState.keys)
+	for _, k := range pressed {
+		uiState.keys[k] = true
+	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		uiState.mouseDn = image.Pt(ebiten.CursorPosition())
 	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		g.handleClick()
+		g.handleLeftClick()
+	}
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
+		g.handleRightClick()
 	}
 
 	if uiState.turnOver {
@@ -468,6 +491,7 @@ func main() {
 		},
 		mouseDn:  image.Pt(0, 0),
 		rotation: 0,
+		keys:     make(map[ebiten.Key]bool),
 	}
 
 	game := &Game{
