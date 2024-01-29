@@ -52,6 +52,7 @@ func TestPlace(t *testing.T) {
 	cases := []struct {
 		desc    string
 		pos     triangles.TriPoint
+		turns   Rotate
 		prep    []*Template
 		prepPos []triangles.TriPoint
 		tmpl    *Template
@@ -525,19 +526,19 @@ func TestPlace(t *testing.T) {
 				if len(cc.prepPos) > i {
 					pos = cc.prepPos[i]
 				}
-				if errs := board.Place(pos, nil, p); len(errs) > 0 {
+				if errs := board.Place(pos, nil, p, None); len(errs) > 0 {
 					t.Fatalf("%s: Could not place prep template %d: %v", cc.desc, i, errs)
 				}
 			}
 
-			errs := board.Place(cc.pos, nil, cc.tmpl)
+			errs := board.Place(cc.pos, nil, cc.tmpl, cc.turns)
 			if len(errs) != len(cc.errors) {
-				t.Errorf("%s: Place() => %v, want %v", cc.desc, errs, cc.errors)
+				t.Errorf("%s: Place(%s) => %v, want %v", cc.desc, cc.turns, errs, cc.errors)
 				return
 			}
 			for idx, err := range errs {
 				if err.Error() != cc.errors[idx].Error() {
-					t.Errorf("%s: Place() => error %d %q, want %q", cc.desc, idx, err, cc.errors[idx])
+					t.Errorf("%s: Place(%s) => error %d %q, want %q", cc.desc, cc.turns, idx, err, cc.errors[idx])
 				}
 			}
 			for pos, rule := range cc.want {

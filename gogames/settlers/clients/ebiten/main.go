@@ -137,7 +137,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 	} else {
 		// TODO: Cache this information to avoid the every-frame evaluation.
-		if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
+		if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
 			ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
 		} else {
 			ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
@@ -171,7 +171,7 @@ func (bc *boardComponent) handleLeftClick() {
 	if uiState.currTmpl == nil {
 		return
 	}
-	if errs := uiState.game.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl); len(errs) > 0 {
+	if errs := uiState.game.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
 		for _, err := range errs {
 			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
 		}

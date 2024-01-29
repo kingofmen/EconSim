@@ -5,13 +5,50 @@ import (
 )
 
 type Activity int
+type Rotate int
 
 const (
 	CONSUME = iota // Eat, drink, and be merry; all that feeds the body.
 	MEANING        // Ritual, sport, family, worship; all that makes life worth living.
 	PRODUCE        // Investment, building, the creation of tools.
 	MILITIA        // Drill, weapons, training, patrol; the defense of the other three.
+
+	None Rotate = iota
+	Once
+	Twice
 )
+
+// Turns converts a signed number of turns into the equivalent
+// number of clockwise ticks; triangles have only three possible
+// orientations.
+func Turns(r int) Rotate {
+	r = r % 3
+	if r < 0 {
+		r += 3
+	}
+	switch r {
+	case 0:
+		return None
+	case 1:
+		return Once
+	case 2:
+		return Twice
+	}
+	return None
+}
+
+// String returns a human-readable debug string.
+func (r Rotate) String() string {
+	switch r {
+	case None:
+		return "None"
+	case Once:
+		return "Once"
+	case Twice:
+		return "Twice"
+	}
+	return "Impossible"
+}
 
 // Edge contains occupation information for a triangle edge.
 type Edge struct {
@@ -32,7 +69,7 @@ type Vert struct {
 
 // From returns the coordinates of the vertex relative to the given
 // origin, possibly flipped and rotated.
-func (v Vert) From(org triangles.TriPoint) triangles.TriPoint {
+func (v Vert) From(org triangles.TriPoint, turns Rotate) triangles.TriPoint {
 	if org.Points(triangles.North) {
 		return triangles.Sum(org, v.pos.Flip())
 	}
@@ -51,7 +88,7 @@ type Face struct {
 
 // From returns the coordinates of the face relative to the given
 // origin, possibly flipped and rotated.
-func (f Face) From(org triangles.TriPoint) triangles.TriPoint {
+func (f Face) From(org triangles.TriPoint, turns Rotate) triangles.TriPoint {
 	if org.Points(triangles.North) {
 		// Flip by reversing all directions.
 		return triangles.Sum(org, triangles.Diff(triangles.Zero(), f.pos))
