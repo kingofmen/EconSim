@@ -37,6 +37,22 @@ func Turns(r int) Rotate {
 	return None
 }
 
+// turn returns the tripoint rotated around the (0, 0, 0) vertex.
+func (r Rotate) turn(tp triangles.TriPoint) triangles.TriPoint {
+	switch r {
+	case None:
+		return tp.Copy()
+	case Once:
+		// a->c, b->a, c->b
+		return triangles.TriPoint{tp.B(), tp.C(), tp.A()}
+	case Twice:
+		// a->b, b->c, c->a
+		return triangles.TriPoint{tp.C(), tp.A(), tp.B()}
+	}
+
+	return tp.Copy()
+}
+
 // String returns a human-readable debug string.
 func (r Rotate) String() string {
 	switch r {
@@ -70,10 +86,11 @@ type Vert struct {
 // From returns the coordinates of the vertex relative to the given
 // origin, possibly flipped and rotated.
 func (v Vert) From(org triangles.TriPoint, turns Rotate) triangles.TriPoint {
+	pos := turns.turn(v.pos)
 	if org.Points(triangles.North) {
-		return triangles.Sum(org, v.pos.Flip())
+		return triangles.Sum(org, pos.Flip())
 	}
-	return triangles.Sum(org, v.pos)
+	return triangles.Sum(org, pos)
 }
 
 // Face contains requirement and occupation information for one triangle tile.
@@ -89,11 +106,12 @@ type Face struct {
 // From returns the coordinates of the face relative to the given
 // origin, possibly flipped and rotated.
 func (f Face) From(org triangles.TriPoint, turns Rotate) triangles.TriPoint {
+	pos := turns.turn(f.pos)
 	if org.Points(triangles.North) {
 		// Flip by reversing all directions.
-		return triangles.Sum(org, triangles.Diff(triangles.Zero(), f.pos))
+		return triangles.Sum(org, triangles.Diff(triangles.Zero(), pos))
 	}
-	return triangles.Sum(org, f.pos)
+	return triangles.Sum(org, pos)
 }
 
 // Shape is a collection of Faces.
