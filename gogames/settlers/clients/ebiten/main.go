@@ -105,7 +105,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		}
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
-		bc.gopts.GeoM.Translate(x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
+		bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
 		screen.DrawImage(bc.baseTri, bc.gopts)
 		for _, p := range tile.Pieces() {
 			if img := bc.pieces[p.GetKey()]; img != nil {
@@ -123,7 +123,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		x, y := pt.GetTriPoint().XY()
 		x *= edgeLength
 		y *= -edgeLength // Triangles library has upwards y coordinate.
-		bc.gopts.GeoM.Translate(x+bc.offset.X()-10, y+bc.offset.Y()-10)
+		bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()-10, y+bc.offset.Y()-10)
 		for _, p := range pieces {
 			if img := bc.pieces[p.GetKey()]; img != nil {
 				screen.DrawImage(img, bc.gopts)
@@ -131,17 +131,20 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		}
 	}
 
+	ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 	pos := image.Pt(ebiten.CursorPosition())
+	if !pos.In(bc.Bounds()) {
+		return
+	}
 	targetTile := bc.getTileAt(pos)
 	if targetTile == nil || uiState.currTmpl == nil {
-		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+		return
+	}
+	// TODO: Cache this information to avoid the every-frame evaluation.
+	if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
+		ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
 	} else {
-		// TODO: Cache this information to avoid the every-frame evaluation.
-		if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
-			ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
-		} else {
-			ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
-		}
+		ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
 	}
 }
 
@@ -150,7 +153,8 @@ func (bc *boardComponent) getTileAt(pos image.Point) *settlers.Tile {
 	// TODO: Check that we're actually in the board component and not, e.g.,
 	// the tile display.
 	// Note that coordinates are relative to game window, not board component.
-	coord := vector2d.New(float64(pos.X)-bc.offset.X(), bc.offset.Y()-float64(pos.Y)).Mul(invEdgeLength)
+	bPos := pos.Sub(bc.Min)
+	coord := vector2d.New(float64(bPos.X)-bc.offset.X(), bc.offset.Y()-float64(bPos.Y)).Mul(invEdgeLength)
 	target := triangles.FromXY(coord.XY())
 	return uiState.game.Board.GetTile(target)
 }
@@ -337,7 +341,7 @@ func (tc *tilesComponent) initThumbs() {
 
 // layout packages the screen areas.
 type layout struct {
-	total    *boardComponent
+	board    *boardComponent
 	tiles    *tilesComponent
 	draws    []drawable
 	handlers []handler
@@ -421,15 +425,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return g.areas.total.Dx(), g.areas.total.Dy()
+	return 640, 480
 }
 
 func (g *Game) initGraphics() error {
 	g.opts = &ebiten.DrawImageOptions{
 		GeoM: ebiten.GeoM{},
 	}
-	g.areas.total.initTriangles()
-	if err := g.areas.total.initTemplates(); err != nil {
+	g.areas.board.initTriangles()
+	if err := g.areas.board.initTemplates(); err != nil {
 		return err
 	}
 	g.areas.tiles.initThumbs()
@@ -443,9 +447,9 @@ func makeRect(x, y, w, h int) *image.Rectangle {
 
 func makeLayout() layout {
 	l := layout{
-		total: &boardComponent{
+		board: &boardComponent{
 			component: component{
-				Rectangle: makeRect(0, 0, 640, 480),
+				Rectangle: makeRect(110, 0, 640, 480),
 				active:    true,
 				gopts: &ebiten.DrawImageOptions{
 					GeoM: ebiten.GeoM{},
@@ -467,11 +471,11 @@ func makeLayout() layout {
 		draws:    make([]drawable, 2),
 		handlers: make([]handler, 2),
 	}
-	l.draws[0] = l.total
+	l.draws[0] = l.board
 	l.draws[1] = l.tiles
 	// Note that handle order differs.
 	l.handlers[0] = l.tiles
-	l.handlers[1] = l.total
+	l.handlers[1] = l.board
 	return l
 }
 
@@ -479,7 +483,7 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Settlers Dev Client")
 
-	board, err := settlers.NewHex(1)
+	board, err := settlers.NewHex(4)
 	if err != nil {
 		log.Fatal(err)
 	}
