@@ -513,6 +513,63 @@ func TestPlace(t *testing.T) {
 				{-1, 0, 1}: HasKeys("triplet"),
 			},
 		},
+		{
+			desc: "Rotation test",
+			pos:  triangles.TriPoint{1, 0, 1},
+			prep: []*Template{
+				&Template{
+					key: "facecheck",
+					shape: Shape{
+						faces: []Face{
+							Face{
+								pos:      triangles.TriPoint{0, 0, 0},
+								occupied: true,
+							},
+						},
+					},
+				},
+			},
+			prepPos: []triangles.TriPoint{{0, 1, 0}},
+			turns:   Once,
+			tmpl: &Template{
+				key: "hourglass",
+				shape: Shape{
+					faces: []Face{
+						Face{
+							pos:      triangles.TriPoint{0, 0, 0},
+							occupied: true,
+						},
+						Face{
+							pos:      triangles.TriPoint{1, -1, 1},
+							occupied: true,
+						},
+					},
+					verts: []Vert{
+						Vert{
+							pos:      triangles.TriPoint{-2, 0, 1},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, 0, -2},
+							occupied: true,
+						},
+						Vert{
+							pos:      triangles.TriPoint{1, -3, 1},
+							occupied: true,
+						},
+					},
+					faceRules: []Rule{&EmptyRule{}},
+					vertRules: []Rule{&EmptyRule{}},
+				},
+			},
+			want: map[triangles.TriPoint]Rule{
+				{1, 0, 1}:   HasKeys("hourglass"),
+				{2, -1, 0}:  HasKeys("hourglass"),
+				{3, -2, -1}: HasKeys("hourglass"),
+				{0, 1, -1}:  HasKeys("hourglass"),
+				{0, -2, 2}:  HasKeys("hourglass"),
+			},
+		},
 	}
 
 	for _, cc := range cases {
