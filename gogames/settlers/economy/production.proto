@@ -1,0 +1,54 @@
+syntax = "proto3";
+package settlers.economy.proto;
+
+enum Area {
+  A_CONSUME = 0;
+  A_MEANING = 1;
+  A_INVEST = 2;
+  A_MILITARY = 3;
+}
+
+// Requirement models a prerequisite for getting a good.
+message Requirement {
+  enum Kind {
+    RK_FULL = 0;
+    RK_CAP = 1;
+    RK_MIN = 2;
+  }
+
+  string key = 1;
+  Kind kind = 2;
+  double amount = 3;
+}
+
+// Effect stores what happens when a bucket is full - or empty.
+message Effect {
+  enum Trigger {
+    ET_EMPTY = 0;
+    ET_FULL = 1;
+    ET_LINEAR = 2;
+  }
+  Trigger trigger = 1;
+  enum Kind {
+    EK_MORTALITY = 0;
+  }
+  Kind kind = 2;
+  double amount = 3;
+}
+
+// Good models anything that humans can produce, including
+// abstract goods like meaning.
+message Good {
+  string key = 1;
+  double maximum = 2;
+  double stockpile = 3;
+  double decay = 4;
+  repeated Requirement prereqs = 5;
+  repeated Effect effects = 6;
+  Area area = 7;
+}
+
+// Process defines a production function.
+message Process {
+  string output = 1;
+}
