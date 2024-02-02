@@ -16,7 +16,7 @@ type Producer interface {
 }
 
 // meets returns true if exists matches the requirement.
-func meets(exist map[string]float64, buckets map[string]*prodpb.Good, req *prodpb.Requirement) bool {
+func meets(key string, exist map[string]float64, buckets map[string]*prodpb.Good, req *prodpb.Requirement) bool {
 	switch req.GetKind() {
 	case prodpb.Requirement_RK_FULL:
 		target, ok := buckets[req.GetKey()]
@@ -25,9 +25,11 @@ func meets(exist map[string]float64, buckets map[string]*prodpb.Good, req *prodp
 		}
 		return exist[req.GetKey()] >= target.GetMaximum()
 	case prodpb.Requirement_RK_CAP:
-		return exist[req.GetKey()] <= req.GetAmount()
+		return exist[req.GetKey()]*req.GetAmount() > exist[key]
 	case prodpb.Requirement_RK_MIN:
 		return exist[req.GetKey()] >= req.GetAmount()
+	case prodpb.Requirement_RK_MAX:
+		return exist[req.GetKey()] <= req.GetAmount()
 	}
 	return false
 }
@@ -38,7 +40,7 @@ func filterGoods(exist map[string]float64, buckets map[string]*prodpb.Good) map[
 bucketLoop:
 	for key, good := range buckets {
 		for _, req := range good.GetPrereqs() {
-			if !meets(exist, buckets, req) {
+			if !meets(key, exist, buckets, req) {
 				continue bucketLoop
 			}
 		}

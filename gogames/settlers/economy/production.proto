@@ -8,12 +8,17 @@ enum Area {
   A_MILITARY = 3;
 }
 
-// Requirement models a prerequisite for getting a good.
+// Requirement models a prerequisite for getting a base good.
 message Requirement {
   enum Kind {
+    // Target must be at its stockpile capacity.
     RK_FULL = 0;
+    // Target (weighted by amount) greater than base.
     RK_CAP = 1;
+    // Must have at least this much of target.
     RK_MIN = 2;
+    // At most this much target.
+    RK_MAX = 3;
   }
 
   string key = 1;

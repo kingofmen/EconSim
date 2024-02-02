@@ -117,29 +117,7 @@ func TestRequirements(t *testing.T) {
 			},
 		},
 		{
-			desc:  "Require cap (fail)",
-			exist: map[string]float64{"one": 1.0},
-			goods: []*prodpb.Good{
-				{
-					Key: "one",
-				},
-				{
-					Key: "two",
-					Prereqs: []*prodpb.Requirement{
-						{
-							Key:    "one",
-							Kind:   prodpb.Requirement_RK_CAP,
-							Amount: 0.75,
-						},
-					},
-				},
-			},
-			want: map[string]bool{
-				"one": true,
-			},
-		},
-		{
-			desc:  "Require cap (succeed)",
+			desc:  "Require max (fail)",
 			exist: map[string]float64{"one": 0.5},
 			goods: []*prodpb.Good{
 				{
@@ -150,8 +128,74 @@ func TestRequirements(t *testing.T) {
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
-							Kind:   prodpb.Requirement_RK_CAP,
+							Kind:   prodpb.Requirement_RK_MAX,
+							Amount: 0.25,
+						},
+					},
+				},
+			},
+			want: map[string]bool{
+				"one": true,
+			},
+		},
+		{
+			desc:  "Require max (succeed)",
+			exist: map[string]float64{"one": 0.5},
+			goods: []*prodpb.Good{
+				{
+					Key: "one",
+				},
+				{
+					Key: "two",
+					Prereqs: []*prodpb.Requirement{
+						{
+							Key:    "one",
+							Kind:   prodpb.Requirement_RK_MAX,
 							Amount: 0.75,
+						},
+					},
+				},
+			},
+			want: map[string]bool{
+				"one": true, "two": true,
+			},
+		},
+		{
+			desc:  "Require cap (fail)",
+			exist: map[string]float64{"one": 1.0, "two": 0.5},
+			goods: []*prodpb.Good{
+				{
+					Key: "one",
+				},
+				{
+					Key: "two",
+					Prereqs: []*prodpb.Requirement{
+						{
+							Key:    "one",
+							Kind:   prodpb.Requirement_RK_CAP,
+							Amount: 0.5,
+						},
+					},
+				},
+			},
+			want: map[string]bool{
+				"one": true,
+			},
+		},
+		{
+			desc:  "Require cap (succeed)",
+			exist: map[string]float64{"one": 0.6, "two": 0.5},
+			goods: []*prodpb.Good{
+				{
+					Key: "one",
+				},
+				{
+					Key: "two",
+					Prereqs: []*prodpb.Requirement{
+						{
+							Key:    "one",
+							Kind:   prodpb.Requirement_RK_CAP,
+							Amount: 1.0,
 						},
 					},
 				},
@@ -174,8 +218,8 @@ func TestRequirements(t *testing.T) {
 						},
 						{
 							Key:    "three",
-							Kind:   prodpb.Requirement_RK_MIN,
-							Amount: 0.25,
+							Kind:   prodpb.Requirement_RK_CAP,
+							Amount: 1.0,
 						},
 					},
 				},
@@ -194,7 +238,7 @@ func TestRequirements(t *testing.T) {
 						},
 						{
 							Key:    "three",
-							Kind:   prodpb.Requirement_RK_CAP,
+							Kind:   prodpb.Requirement_RK_MAX,
 							Amount: 0.5,
 						},
 					},
@@ -214,7 +258,7 @@ func TestRequirements(t *testing.T) {
 						},
 						{
 							Key:    "two",
-							Kind:   prodpb.Requirement_RK_CAP,
+							Kind:   prodpb.Requirement_RK_MAX,
 							Amount: 0.15,
 						},
 					},
@@ -234,7 +278,7 @@ func TestRequirements(t *testing.T) {
 						},
 						{
 							Key:    "three",
-							Kind:   prodpb.Requirement_RK_CAP,
+							Kind:   prodpb.Requirement_RK_MAX,
 							Amount: 0.50,
 						},
 					},
