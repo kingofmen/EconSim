@@ -18,10 +18,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 				},
 			},
 			want: map[string]bool{
@@ -59,7 +61,8 @@ func TestRequirements(t *testing.T) {
 					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:  "one",
@@ -69,7 +72,7 @@ func TestRequirements(t *testing.T) {
 				},
 			},
 			want: map[string]bool{
-				"one": true, "two": true,
+				"two": true,
 			},
 		},
 		{
@@ -77,10 +80,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{"one": 0.5},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -99,10 +104,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{"one": 1.0},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -113,7 +120,7 @@ func TestRequirements(t *testing.T) {
 				},
 			},
 			want: map[string]bool{
-				"one": true, "two": true,
+				"two": true,
 			},
 		},
 		{
@@ -121,10 +128,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{"one": 0.5},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -143,10 +152,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{"one": 0.5},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -165,10 +176,12 @@ func TestRequirements(t *testing.T) {
 			exist: map[string]float64{"one": 1.0, "two": 0.5},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -178,19 +191,19 @@ func TestRequirements(t *testing.T) {
 					},
 				},
 			},
-			want: map[string]bool{
-				"one": true,
-			},
+			want: map[string]bool{},
 		},
 		{
 			desc:  "Require cap (succeed)",
 			exist: map[string]float64{"one": 0.6, "two": 0.5},
 			goods: []*prodpb.Good{
 				{
-					Key: "one",
+					Key:     "one",
+					Maximum: 1.0,
 				},
 				{
-					Key: "two",
+					Key:     "two",
+					Maximum: 1.0,
 					Prereqs: []*prodpb.Requirement{
 						{
 							Key:    "one",
@@ -305,6 +318,90 @@ func TestRequirements(t *testing.T) {
 			}
 			if len(cc.want) > 0 {
 				t.Errorf("%s: filterGoods() => %v, missing %v", cc.desc, got, cc.want)
+			}
+		})
+	}
+}
+
+type testProducer struct {
+	out   string
+	amt   float64
+	labor float64
+}
+
+func (tp *testProducer) Makes() string {
+	return tp.out
+}
+func (tp *testProducer) Output() float64 {
+	return tp.amt
+}
+func (tp *testProducer) Run(on map[string]float64) float64 {
+	on[tp.out] += tp.amt
+	return tp.labor
+}
+
+func TestProduce(t *testing.T) {
+	buckets := map[string]*prodpb.Good{
+		"base": {
+			Key:     "base",
+			Maximum: 100,
+			Area:    prodpb.Area_A_CONSUME,
+		},
+		"sust": {
+			Key:     "sust",
+			Maximum: 100,
+			Area:    prodpb.Area_A_CONSUME,
+			Prereqs: []*prodpb.Requirement{
+				{
+					Key:  "base",
+					Kind: prodpb.Requirement_RK_FULL,
+				},
+			},
+		},
+	}
+	cases := []struct {
+		desc   string
+		labor  float64
+		exist  map[string]float64
+		proc   []Producer
+		target *Alloc
+		want   map[string]float64
+	}{
+		{
+			desc:  "Food",
+			labor: 100,
+			exist: map[string]float64{},
+			proc: []Producer{
+				&testProducer{
+					out:   "base",
+					amt:   10,
+					labor: 5,
+				},
+				&testProducer{
+					out:   "sust",
+					amt:   10,
+					labor: 5,
+				},
+			},
+			target: EqualAlloc(1),
+			want: map[string]float64{
+				"base": 100,
+				"sust": 100,
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			Produce(cc.labor, cc.exist, buckets, cc.proc, cc.target)
+			for key, amt := range cc.exist {
+				if cc.want[key] != amt {
+					t.Errorf("%s: Produce() => %s: %v, want %v", cc.desc, key, amt, cc.want[key])
+				}
+				delete(cc.want, key)
+			}
+			if len(cc.want) != 0 {
+				t.Errorf("%s: Produce() did not give expected outputs %v", cc.desc, cc.want)
 			}
 		})
 	}

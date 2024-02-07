@@ -11,7 +11,7 @@ enum Area {
 // Requirement models a prerequisite for getting a base good.
 message Requirement {
   enum Kind {
-    // Target must be at its stockpile capacity.
+    // Target must be at its maximum capacity.
     RK_FULL = 0;
     // Target (weighted by amount) greater than base.
     RK_CAP = 1;

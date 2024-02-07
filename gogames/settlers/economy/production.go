@@ -9,10 +9,92 @@ const (
 	tolerance = 0.001
 )
 
+// Producer is an interface for a production process.
 type Producer interface {
 	Makes() string
 	Output() float64
 	Run(map[string]float64) float64
+}
+
+// Alloc stores a priority allocation.
+type Alloc struct {
+	consume  float64
+	meaning  float64
+	invest   float64
+	military float64
+	invTotal float64
+}
+
+func EqualAlloc(init float64) *Alloc {
+	a := &Alloc{
+		consume:  init,
+		meaning:  init,
+		invest:   init,
+		military: init,
+	}
+	a.Norm()
+	return a
+}
+
+func NewAlloc(c, m, i, w float64) *Alloc {
+	a := &Alloc{
+		consume:  c,
+		meaning:  m,
+		invest:   i,
+		military: w,
+	}
+	a.Norm()
+	return a
+}
+
+// add adds to one of the four areas without renormalising.
+func (a *Alloc) add(area prodpb.Area, amt float64) {
+	switch area {
+	case prodpb.Area_A_CONSUME:
+		a.consume += amt
+	case prodpb.Area_A_MEANING:
+		a.meaning += amt
+	case prodpb.Area_A_INVEST:
+		a.invest += amt
+	case prodpb.Area_A_MILITARY:
+		a.military += amt
+	}
+}
+
+// Norm renormalises the alloc.
+func (a *Alloc) Norm() {
+	total := a.consume + a.meaning + a.invest + a.military
+	if total < tolerance {
+		return
+	}
+	a.invTotal = 1.0 / total
+}
+
+func CalcAlloc(exist map[string]float64, buckets map[string]*prodpb.Good) *Alloc {
+	alloc := EqualAlloc(0)
+	for key, good := range buckets {
+		amt := exist[key]
+		if amt < tolerance {
+			continue
+		}
+		alloc.add(good.GetArea(), amt)
+	}
+	alloc.Norm()
+	return alloc
+}
+
+func (a *Alloc) Priority(area prodpb.Area) float64 {
+	switch area {
+	case prodpb.Area_A_CONSUME:
+		return a.consume * a.invTotal
+	case prodpb.Area_A_MEANING:
+		return a.meaning * a.invTotal
+	case prodpb.Area_A_INVEST:
+		return a.invest * a.invTotal
+	case prodpb.Area_A_MILITARY:
+		return a.military * a.invTotal
+	}
+	return 0
 }
 
 // meets returns true if exists matches the requirement.
@@ -39,6 +121,9 @@ func filterGoods(exist map[string]float64, buckets map[string]*prodpb.Good) map[
 	possible := make(map[string]bool)
 bucketLoop:
 	for key, good := range buckets {
+		if exist[key] >= good.GetMaximum() {
+			continue
+		}
 		for _, req := range good.GetPrereqs() {
 			if !meets(key, exist, buckets, req) {
 				continue bucketLoop
@@ -49,33 +134,10 @@ bucketLoop:
 	return possible
 }
 
-func calcAlloc(exist map[string]float64, buckets map[string]*prodpb.Good) map[prodpb.Area]float64 {
-	alloc := map[prodpb.Area]float64{
-		prodpb.Area_A_CONSUME:  0.01,
-		prodpb.Area_A_MEANING:  0.01,
-		prodpb.Area_A_INVEST:   0.01,
-		prodpb.Area_A_MILITARY: 0.01,
-	}
-	total := 0.04
-	for key, good := range buckets {
-		amt := exist[key]
-		if amt < tolerance {
-			continue
-		}
-		alloc[good.GetArea()] += amt
-		total += amt
-	}
-	invTotal := 1.0 / total
-	for key, val := range alloc {
-		alloc[key] = val * invTotal
-	}
-	return alloc
-}
-
 // Produce walks the decision tree for the given producers and
 // runs the resulting production functions.
 // TODO: Return a slice of decisions made.
-func Produce(labor float64, exist map[string]float64, buckets map[string]*prodpb.Good, proc []Producer, alloc map[prodpb.Area]float64) {
+func Produce(labor float64, exist map[string]float64, buckets map[string]*prodpb.Good, proc []Producer, target *Alloc) {
 	count := 0
 	for labor > tolerance {
 		count++
@@ -87,7 +149,7 @@ func Produce(labor float64, exist map[string]float64, buckets map[string]*prodpb
 			return
 		}
 
-		currAlloc := calcAlloc(exist, buckets)
+		currAlloc := CalcAlloc(exist, buckets)
 		best := -1
 		score := -1000.0
 		for idx, p := range proc {
@@ -96,7 +158,7 @@ func Produce(labor float64, exist map[string]float64, buckets map[string]*prodpb
 			}
 			amt := p.Output()
 			area := buckets[p.Makes()].GetArea()
-			if curr := (alloc[area] - currAlloc[area]) * amt; curr > score {
+			if curr := (target.Priority(area) - currAlloc.Priority(area)) * amt; curr > score {
 				best = idx
 				score = curr
 			}
