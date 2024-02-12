@@ -358,6 +358,22 @@ func TestProduce(t *testing.T) {
 				},
 			},
 		},
+		"art": {
+			Key:     "art",
+			Maximum: 100,
+			Prereqs: []*prodpb.Requirement{
+				{
+					Key:  "base",
+					Kind: prodpb.Requirement_RK_FULL,
+				},
+				{
+					Key:    "sust",
+					Kind:   prodpb.Requirement_RK_CAP,
+					Amount: 1.0,
+				},
+			},
+			Area: prodpb.Area_A_MEANING,
+		},
 	}
 	cases := []struct {
 		desc   string
@@ -387,6 +403,61 @@ func TestProduce(t *testing.T) {
 			want: map[string]float64{
 				"base": 100,
 				"sust": 100,
+			},
+		},
+		{
+			desc:  "Prioritise consume",
+			labor: 100,
+			exist: map[string]float64{},
+			proc: []Producer{
+				&testProducer{
+					out:   "base",
+					amt:   10,
+					labor: 5,
+				},
+				&testProducer{
+					out:   "sust",
+					amt:   10,
+					labor: 5,
+				},
+				&testProducer{
+					out:   "art",
+					amt:   10,
+					labor: 5,
+				},
+			},
+			target: NewAlloc(1, 0.5, 0.1, 0.1),
+			want: map[string]float64{
+				"base": 100,
+				"sust": 100,
+			},
+		},
+		{
+			desc:  "Prioritise meaning",
+			labor: 100,
+			exist: map[string]float64{},
+			proc: []Producer{
+				&testProducer{
+					out:   "base",
+					amt:   10,
+					labor: 5,
+				},
+				&testProducer{
+					out:   "sust",
+					amt:   10,
+					labor: 5,
+				},
+				&testProducer{
+					out:   "art",
+					amt:   10,
+					labor: 5,
+				},
+			},
+			target: NewAlloc(0.5, 1, 0.1, 0.1),
+			want: map[string]float64{
+				"base": 100,
+				"sust": 50,
+				"art":  50,
 			},
 		},
 	}
