@@ -444,6 +444,23 @@ func (t *Surface) XY() (float64, float64) {
 	return t.X(), t.Y()
 }
 
+// Bounds returns the bounding rectangle of the corresponding
+// Surface.
+func (tp TriPoint) Bounds() (x, y, w, h float64) {
+	if tp.Points(North) {
+		x, h = tp.add(vtxSteps[SouthWest]).XY()
+		y = tp.add(vtxSteps[North]).Y()
+		h = y - h
+		w = tp.add(vtxSteps[SouthEast]).X() - x
+	} else {
+		x, y = tp.add(vtxSteps[NorthWest]).XY()
+		h = y - tp.add(vtxSteps[South]).Y()
+		w = tp.add(vtxSteps[NorthEast]).X() - x
+	}
+	return
+
+}
+
 // Bounds returns the bounding rectangle.
 func (t *Surface) Bounds() (x, y, w, h float64) {
 	if t.Points(North) {

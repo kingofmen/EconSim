@@ -92,20 +92,35 @@ type boardComponent struct {
 	pieces map[string]*ebiten.Image
 }
 
+// optsForTile translates the graphics matrix to the tile position.
+func (bc *boardComponent) optsForTile(tp triangles.TriPoint) {
+	bc.gopts.GeoM.Reset()
+	x, y, w, h := tp.Bounds()
+	cx, cy := 0.0, 0.0
+	if tp.Points(triangles.South) {
+		bc.gopts.GeoM.Rotate(toRadians * 180.0)
+		cx += w * edgeLength
+		cy += h * edgeLength
+	}
+	x *= edgeLength
+	y *= -edgeLength // Triangles library has upwards y coordinate.
+	bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
+}
+
+func (bc *boardComponent) optsForVertex(tp triangles.TriPoint) {
+	bc.gopts.GeoM.Reset()
+	x, y := tp.XY()
+	x *= edgeLength
+	y *= -edgeLength // Triangles library has upwards y coordinate.
+	bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()-10, y+bc.offset.Y()-10)
+}
+
+// TODO: This doesn't support separate separate graphics for
+// different parts of pieces!
 func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
 	for _, tile := range uiState.game.Board.Tiles {
-		bc.gopts.GeoM.Reset()
-		x, y, w, h := tile.Bounds()
-		cx, cy := 0.0, 0.0
-		if tile.Points(triangles.South) {
-			bc.gopts.GeoM.Rotate(toRadians * 180.0)
-			cx += w * edgeLength
-			cy += h * edgeLength
-		}
-		x *= edgeLength
-		y *= -edgeLength // Triangles library has upwards y coordinate.
-		bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()+cx, y+bc.offset.Y()+cy)
+		bc.optsForTile(tile.GetTriPoint())
 		screen.DrawImage(bc.baseTri, bc.gopts)
 		for _, p := range tile.Pieces() {
 			if img := bc.pieces[p.GetKey()]; img != nil {
@@ -119,11 +134,7 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		if len(pieces) < 1 {
 			continue
 		}
-		bc.gopts.GeoM.Reset()
-		x, y := pt.GetTriPoint().XY()
-		x *= edgeLength
-		y *= -edgeLength // Triangles library has upwards y coordinate.
-		bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()-10, y+bc.offset.Y()-10)
+		bc.optsForVertex(pt.GetTriPoint())
 		for _, p := range pieces {
 			if img := bc.pieces[p.GetKey()]; img != nil {
 				screen.DrawImage(img, bc.gopts)
@@ -141,11 +152,28 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		return
 	}
 	// TODO: Cache this information to avoid the every-frame evaluation.
+	// Also reuse it below instead of recalculating the rotations.
 	if errs := uiState.game.Board.CheckShape(targetTile.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
 		ebiten.SetCursorShape(ebiten.CursorShapeNotAllowed)
 	} else {
 		ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
 	}
+
+	img := bc.pieces[uiState.currTmpl.Key()]
+	if img == nil {
+		return
+	}
+	bc.gopts.ColorScale.ScaleAlpha(0.5)
+	tris, verts := uiState.currTmpl.OccupiesFrom(targetTile.GetTriPoint(), settlers.Turns(uiState.rotation))
+	for _, tri := range tris {
+		bc.optsForTile(tri)
+		screen.DrawImage(img, bc.gopts)
+	}
+	for _, vert := range verts {
+		bc.optsForVertex(vert)
+		screen.DrawImage(img, bc.gopts)
+	}
+	bc.gopts.ColorScale.Reset()
 }
 
 // getTileAt returns the tile containing the given point in the window.
