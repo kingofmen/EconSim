@@ -142,20 +142,26 @@ func (tp *Template) Key() string {
 	return tp.key
 }
 
-// Occupies returns the triangle and vertex coordinates the template
-// occupies.
-func (tp *Template) Occupies() (tris, verts []triangles.TriPoint) {
+// OccupiesFrom returns the occupied triangles and vertices relative
+// to the given origin and rotation.
+func (tp *Template) OccupiesFrom(orig triangles.TriPoint, turns Rotate) (tris, verts []triangles.TriPoint) {
 	for _, f := range tp.shape.faces {
 		if f.occupied {
-			tris = append(tris, f.pos.Copy())
+			tris = append(tris, f.From(orig, turns))
 		}
 	}
 	for _, v := range tp.shape.verts {
 		if v.occupied {
-			verts = append(verts, v.pos.Copy())
+			verts = append(verts, v.From(orig, turns))
 		}
 	}
 	return
+}
+
+// Occupies returns the triangle and vertex coordinates the template
+// occupies.
+func (tp *Template) Occupies() (tris, verts []triangles.TriPoint) {
+	return tp.OccupiesFrom(triangles.Zero(), None)
 }
 
 // Piece is an instantiation of a Template, placed on the board.
