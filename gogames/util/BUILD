@@ -40,6 +40,25 @@ go_test(
 )
 
 go_library(
+    name = "dna",
+    srcs = [
+      "dna.go",
+    ],
+    importpath = "gogames/util/dna",
+    deps = [
+    ],
+)
+
+go_test(
+    name = "dna_test",
+    srcs = ["dna_test.go"],
+    importpath = "gogames/util/dna",
+    embed = [
+      ":dna",
+    ],
+)
+
+go_library(
     name = "vector2d",
     srcs = [
       "vector2d.go",
