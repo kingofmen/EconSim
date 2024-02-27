@@ -72,6 +72,10 @@ func TestRGBA(t *testing.T) {
 			seq:  "aabbccdd",
 			want: color.NRGBA64{24929, 25186, 25443, 25700},
 		},
+		{
+			seq:  "\x00\x00\x00\x00\xFF\xFF\x00\x00",
+			want: color.NRGBA64{0, 0, 65535, 0},
+		},
 	}
 
 	for _, cc := range cases {
