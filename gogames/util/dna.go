@@ -2,6 +2,7 @@
 package dna
 
 import (
+	"fmt"
 	"image/color"
 )
 
@@ -12,14 +13,29 @@ const (
 type Sequence [Size]byte
 
 // FromString creates a Sequence from the first 8 bytes of the string,
-// padding with '0' characters if needed.
+// padding with space characters if needed. Extended ASCII is ignored
+// and printable characters are spaced out to make a neat 0-255 range.
 func FromString(s string) Sequence {
+	if len(s) < Size {
+		return FromString(fmt.Sprintf("%-*s", Size, s))
+	}
 	var ret Sequence
 	for idx := range ret {
-		if idx < len(s) {
-			ret[idx] = s[idx]
+		ascii := s[idx]
+		// Map space to zero.
+		if ascii > 31 {
+			ascii -= 32
 		} else {
-			ret[idx] = '0'
+			ascii = 0
+		}
+		if ascii > 94 {
+			ascii = 94
+		}
+		// Tilde is 94 - add 33 for 127.
+		ascii += ascii/32 + ascii/3
+		ret[idx] = ascii * 2
+		if s[idx]-32 > 64 {
+			ret[idx]++
 		}
 	}
 	return ret

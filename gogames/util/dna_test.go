@@ -12,34 +12,30 @@ func TestStrings(t *testing.T) {
 		dist   int
 	}{
 		{
+			// Unintuitive because of the stretching, unfortunately.
 			s1:   "a",
 			s2:   "b",
-			dist: 1,
+			dist: 4,
 		},
 		{
-			s1:   "a0000000",
+			s1:   "a       ",
 			s2:   "a",
 			dist: 0,
 		},
 		{
-			s1:   "11111111",
-			s2:   "",
-			dist: 8,
+			s1:   "        ",
+			s2:   "!!!!!!!!",
+			dist: 16,
 		},
 		{
-			s1:   "a",
-			s2:   "z",
-			dist: 25,
+			s1:   " ! ! ! !",
+			s2:   "! ! ! ! ",
+			dist: 16,
 		},
 		{
-			s1:   "abababab",
-			s2:   "babababa",
-			dist: 8,
-		},
-		{
-			s1:   "ababababthisdoesn'tmatter",
-			s2:   "babababawhateverdude",
-			dist: 8,
+			s1:   " ! ! ! !thisdoesn'tmatter",
+			s2:   "! ! ! ! whateverdude",
+			dist: 16,
 		},
 	}
 
@@ -50,10 +46,10 @@ func TestStrings(t *testing.T) {
 			got1 := s1.Distance(s2)
 			got2 := s2.Distance(s1)
 			if got1 != got2 {
-				t.Errorf("%s/%s: Distance should be symmetric, got %d vs %d", cc.s1, cc.s2, got1, got2)
+				t.Errorf("%q/%q: Distance should be symmetric, got %d vs %d", cc.s1, cc.s2, got1, got2)
 			}
 			if got1 != cc.dist {
-				t.Errorf("%s/%s: Got distance %d, expect %d", cc.s1, cc.s2, got1, cc.dist)
+				t.Errorf("%q/%q: Got distance %d, expect %d", cc.s1, cc.s2, got1, cc.dist)
 			}
 		})
 	}
@@ -66,14 +62,14 @@ func TestRGBA(t *testing.T) {
 	}{
 		{
 			seq:  "",
-			want: color.NRGBA64{12336, 12336, 12336, 12336},
+			want: color.NRGBA64{0, 0, 0, 0},
 		},
 		{
-			seq:  "aabbccdd",
-			want: color.NRGBA64{24929, 25186, 25443, 25700},
+			seq:  "!#09RS{}",
+			want: color.NRGBA64{520, 10818, 34442, 63485},
 		},
 		{
-			seq:  "\x00\x00\x00\x00\xFF\xFF\x00\x00",
+			seq:  "    ~~  ",
 			want: color.NRGBA64{0, 0, 65535, 0},
 		},
 	}
