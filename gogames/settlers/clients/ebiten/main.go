@@ -88,8 +88,12 @@ type boardComponent struct {
 	baseTri *ebiten.Image
 	// offset is the view position for the map.
 	offset vector2d.Vector
-	// pieces contains the images to use for templates.
-	pieces map[string]*ebiten.Image
+	// pieceTris contains the triangle images to use for templates.
+	pieceTris map[string][]*ebiten.Image
+	// pieceVtxs contains the vertex images to use for templates.
+	pieceVtxs map[string][]*ebiten.Image
+	// pieceNums contains the image indices for each tile.
+	pieceNums map[triangles.TriPoint]map[string]int
 }
 
 // optsForTile translates the graphics matrix to the tile position.
@@ -115,15 +119,19 @@ func (bc *boardComponent) optsForVertex(tp triangles.TriPoint) {
 	bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()-10, y+bc.offset.Y()-10)
 }
 
-// TODO: This doesn't support separate separate graphics for
-// different parts of pieces!
 func (bc *boardComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
 	for _, tile := range uiState.game.Board.Tiles {
 		bc.optsForTile(tile.GetTriPoint())
 		screen.DrawImage(bc.baseTri, bc.gopts)
+		pnums := bc.pieceNums[tile.GetTriPoint()]
 		for _, p := range tile.Pieces() {
-			if img := bc.pieces[p.GetKey()]; img != nil {
+			idx := pnums[p.GetKey()]
+			imgs := bc.pieceTris[p.GetKey()]
+			if idx >= len(imgs) {
+				continue
+			}
+			if img := imgs[idx]; img != nil {
 				screen.DrawImage(img, bc.gopts)
 			}
 		}
@@ -135,8 +143,14 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 			continue
 		}
 		bc.optsForVertex(pt.GetTriPoint())
+		pnums := bc.pieceNums[pt.GetTriPoint()]
 		for _, p := range pieces {
-			if img := bc.pieces[p.GetKey()]; img != nil {
+			idx := pnums[p.GetKey()]
+			imgs := bc.pieceVtxs[p.GetKey()]
+			if idx >= len(imgs) {
+				continue
+			}
+			if img := imgs[idx]; img != nil {
 				screen.DrawImage(img, bc.gopts)
 			}
 		}
@@ -159,19 +173,16 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 		ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
 	}
 
-	img := bc.pieces[uiState.currTmpl.Key()]
-	if img == nil {
-		return
-	}
+	pTris, pVtxs := bc.pieceTris[uiState.currTmpl.Key()], bc.pieceVtxs[uiState.currTmpl.Key()]
 	bc.gopts.ColorScale.ScaleAlpha(0.5)
 	tris, verts := uiState.currTmpl.OccupiesFrom(targetTile.GetTriPoint(), settlers.Turns(uiState.rotation))
-	for _, tri := range tris {
+	for idx, tri := range tris[:len(pTris)] {
 		bc.optsForTile(tri)
-		screen.DrawImage(img, bc.gopts)
+		screen.DrawImage(pTris[idx], bc.gopts)
 	}
-	for _, vert := range verts {
+	for idx, vert := range verts[:len(pVtxs)] {
 		bc.optsForVertex(vert)
-		screen.DrawImage(img, bc.gopts)
+		screen.DrawImage(pVtxs[idx], bc.gopts)
 	}
 	bc.gopts.ColorScale.Reset()
 }
@@ -208,6 +219,14 @@ func (bc *boardComponent) handleLeftClick() {
 			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
 		}
 	} else {
+		tris, verts := uiState.currTmpl.OccupiesFrom(target.GetTriPoint(), settlers.Turns(uiState.rotation))
+		for idx, tri := range tris {
+			bc.pieceNums[tri][uiState.currTmpl.Key()] = idx
+		}
+		for idx, vert := range verts {
+			bc.pieceNums[vert][uiState.currTmpl.Key()] = idx
+		}
+
 		uiState.turnOver = true
 	}
 }
@@ -230,6 +249,13 @@ func (bc *boardComponent) initTriangles() {
 	bc.gopts.GeoM.Rotate(-2 * SixtyD)
 	bc.gopts.GeoM.Translate(edgeLength-1, height-1)
 	bc.baseTri.DrawImage(line, bc.gopts)
+
+	for _, tile := range uiState.game.Board.Tiles {
+		bc.pieceNums[tile.GetTriPoint()] = make(map[string]int)
+	}
+	for _, pt := range uiState.game.Board.Points {
+		bc.pieceNums[pt.GetTriPoint()] = make(map[string]int)
+	}
 }
 
 func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
@@ -247,7 +273,7 @@ func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
 			img.Set(edgeLength-x, y, color.Transparent)
 		}
 	}
-	bc.pieces[key] = img
+	bc.pieceTris[key] = append(bc.pieceTris[key], img)
 	return nil
 }
 
@@ -269,7 +295,7 @@ func (bc *boardComponent) loadVertexImage(key, base, fname string) error {
 	img.Set(0, 19, color.Transparent)
 	img.Set(0, 18, color.Transparent)
 	img.Set(1, 19, color.Transparent)
-	bc.pieces[key] = img
+	bc.pieceVtxs[key] = append(bc.pieceVtxs[key], img)
 	return nil
 }
 
@@ -285,6 +311,15 @@ func (bc *boardComponent) initTemplates() error {
 		return err
 	}
 	if err := bc.loadVertexImage("tower", wd, "WatchTower.png"); err != nil {
+		return err
+	}
+	if err := bc.loadTriangleImage("outfields", wd, "Outfields1.png"); err != nil {
+		return err
+	}
+	if err := bc.loadTriangleImage("outfields", wd, "Outfields2.png"); err != nil {
+		return err
+	}
+	if err := bc.loadTriangleImage("outfields", wd, "Outfields3.png"); err != nil {
 		return err
 	}
 	return nil
@@ -483,8 +518,10 @@ func makeLayout() layout {
 					GeoM: ebiten.GeoM{},
 				},
 			},
-			offset: vector2d.New(250, 180),
-			pieces: make(map[string]*ebiten.Image),
+			offset:    vector2d.New(250, 180),
+			pieceTris: make(map[string][]*ebiten.Image),
+			pieceVtxs: make(map[string][]*ebiten.Image),
+			pieceNums: make(map[triangles.TriPoint]map[string]int),
 		},
 		tiles: &tilesComponent{
 			component: component{
@@ -530,7 +567,7 @@ func main() {
 		areas: makeLayout(),
 	}
 	if err := game.initGraphics(); err != nil {
-		log.Fatalf("Error initialising graphics: %v")
+		log.Fatalf("Error initialising graphics: %v", err)
 	}
 	fmt.Println("Starting game.")
 	if err := ebiten.RunGame(game); err != nil {

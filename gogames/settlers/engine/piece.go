@@ -239,6 +239,32 @@ func DevTemplates() []*Template {
 			},
 		},
 		&Template{
+			key: "outfields",
+			shape: Shape{
+				faces: []Face{
+					Face{
+						pos:   triangles.TriPoint{0, 0, 0},
+						rules: []Rule{HasKeys("village")},
+					},
+					Face{
+						pos:      triangles.TriPoint{1, 0, 0},
+						rules:    []Rule{&EmptyRule{}},
+						occupied: true,
+					},
+					Face{
+						pos:      triangles.TriPoint{0, 1, 0},
+						rules:    []Rule{&EmptyRule{}},
+						occupied: true,
+					},
+					Face{
+						pos:      triangles.TriPoint{0, 0, 1},
+						rules:    []Rule{&EmptyRule{}},
+						occupied: true,
+					},
+				},
+			},
+		},
+		&Template{
 			key: "tower",
 			shape: Shape{
 				faces: []Face{
