@@ -12,6 +12,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
       "//gogames/util:coords",
+      "//gogames/util:dna",
       "//gogames/tiles/triangles:triangles",
     ],
 )
