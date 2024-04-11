@@ -35,3 +35,10 @@ go_library(
     deps = [
     ],
 )
+
+go_binary(
+    name = "volatility",
+    srcs = ["volatility.go"],
+    deps = [
+    ],
+)
