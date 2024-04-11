@@ -54,6 +54,17 @@ type commonState struct {
 	rotation int
 	// keys contains the currently pressed keys.
 	keys map[ebiten.Key]bool
+	// playerIndex is the currently active faction.
+	playerIndex int
+	// turnSignal receives end-of-turn notifications.
+	turnSignal chan int
+}
+
+// factionState contains state information about the game's factions.
+type factionState struct {
+	faction     *settlers.Faction
+	human       bool
+	displayName string
 }
 
 type activable interface {
@@ -415,6 +426,8 @@ type Game struct {
 	opts *ebiten.DrawImageOptions
 	// areas contains the rectangles used to divide up the screen for displays.
 	areas layout
+	// factions contains the players, human and AI.
+	factions []*factionState
 }
 
 func (g *Game) handleLeftClick() {
@@ -443,9 +456,18 @@ func (g *Game) handleRightClick() {
 }
 
 func (g *Game) Update() error {
+	// Always quit if told.
 	if inpututil.IsKeyJustReleased(ebiten.KeyQ) {
+		close(uiState.turnSignal)
 		return ebiten.Termination
 	}
+
+	// Otherwise ignore player input if it's not the player's turn.
+	if !g.factions[uiState.playerIndex].human {
+		// We're waiting for AI processing.
+		return nil
+	}
+
 	pressed := make([]ebiten.Key, 0, 5)
 	pressed = inpututil.AppendPressedKeys(pressed)
 	clear(uiState.keys)
@@ -463,13 +485,39 @@ func (g *Game) Update() error {
 		g.handleRightClick()
 	}
 
-	if uiState.turnOver {
-		if err := uiState.game.Board.Tick(); err != nil {
-			fmt.Printf("Board tick error: %v\n", err)
-		}
-		uiState.turnOver = false
+	if !uiState.turnOver {
+		return nil
 	}
+	uiState.turnOver = false
+	uiState.turnSignal <- uiState.playerIndex
 	return nil
+}
+
+// trackTurns awaits turn-over signals from the players.
+func (g *Game) trackTurns() {
+	for pidx := range uiState.turnSignal {
+		uiState.playerIndex = pidx + 1
+		if uiState.playerIndex >= len(g.factions) {
+			if err := uiState.game.Board.Tick(); err != nil {
+				fmt.Printf("Board tick error: %v\n", err)
+			}
+			uiState.playerIndex = 0
+		}
+		go aiProcessing(uiState.game, g.factions[uiState.playerIndex])
+	}
+}
+
+// aiProcessing runs the player-input calculation. It is a placeholder.
+// TODO: Write an actual AI library and call out to it.
+func aiProcessing(state *settlers.GameState, fac *factionState) {
+	if fac.human {
+		fmt.Printf("Starting turn of human player %q\n", fac.displayName)
+		return
+	}
+
+	fmt.Printf("Starting turn of AI player %q\n", fac.displayName)
+	// TODO: Actually do something, even if random.
+	uiState.turnSignal <- uiState.playerIndex
 }
 
 func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Color, width float64) {
@@ -552,24 +600,42 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	game := &Game{
+		areas: makeLayout(),
+		factions: []*factionState{
+			&factionState{
+				faction:     settlers.NewFaction("player01"),
+				human:       true,
+				displayName: "Red",
+			},
+			&factionState{
+				faction:     settlers.NewFaction("abcd1234"),
+				displayName: "Blue",
+			},
+		},
+	}
 
 	uiState = &commonState{
 		game: &settlers.GameState{
+			Factions:  make([]*settlers.Faction, len(game.factions)),
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		mouseDn:  image.Pt(0, 0),
-		rotation: 0,
-		keys:     make(map[ebiten.Key]bool),
+		mouseDn:     image.Pt(0, 0),
+		rotation:    0,
+		keys:        make(map[ebiten.Key]bool),
+		playerIndex: 0,
+		turnSignal:  make(chan int),
+	}
+	for i, f := range game.factions {
+		uiState.game.Factions[i] = f.faction
 	}
 
-	game := &Game{
-		areas: makeLayout(),
-	}
 	if err := game.initGraphics(); err != nil {
 		log.Fatalf("Error initialising graphics: %v", err)
 	}
 	fmt.Println("Starting game.")
+	go game.trackTurns()
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
