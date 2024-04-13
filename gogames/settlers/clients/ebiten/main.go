@@ -65,6 +65,7 @@ type factionState struct {
 	faction     *settlers.Faction
 	human       bool
 	displayName string
+	decider     settlers.Decider
 }
 
 type activable interface {
@@ -507,6 +508,13 @@ func (g *Game) trackTurns() {
 	}
 }
 
+// getDeadBrain returns a brain-dead, unimplemented AI.
+func getDeadBrain(n string) settlers.DeciderFunc {
+	return func(gs *settlers.GameState, f *settlers.Faction) error {
+		return fmt.Errorf("%s faction AI was not initialised, no move made.", n)
+	}
+}
+
 // aiProcessing runs the player-input calculation. It is a placeholder.
 // TODO: Write an actual AI library and call out to it.
 func aiProcessing(state *settlers.GameState, fac *factionState) {
@@ -516,7 +524,12 @@ func aiProcessing(state *settlers.GameState, fac *factionState) {
 	}
 
 	fmt.Printf("Starting turn of AI player %q\n", fac.displayName)
-	// TODO: Actually do something, even if random.
+	if fac.decider == nil {
+		fac.decider = getDeadBrain(fac.displayName)
+	}
+	if err := fac.decider.Decide(uiState.game, fac.faction); err != nil {
+		fmt.Printf("AI error, skipping %s turn: %v\n", fac.displayName, err)
+	}
 	uiState.turnSignal <- uiState.playerIndex
 }
 
