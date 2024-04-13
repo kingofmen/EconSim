@@ -4,6 +4,7 @@ package cog
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
@@ -36,7 +37,8 @@ func NewRandom() settlers.DeciderFunc {
 			return fmt.Errorf("no legal moves")
 		}
 
-		action := moves[0]
+		rnd := rand.Int() % len(moves)
+		action := moves[rnd]
 		return errors.Join(gs.Board.Place(action.pos, f, action.tmpl, action.turns)...)
 	}
 }
