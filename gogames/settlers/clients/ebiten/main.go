@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"gogames/settlers/ai/cog"
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
 	"gogames/util/vector2d"
@@ -624,6 +625,7 @@ func main() {
 			&factionState{
 				faction:     settlers.NewFaction("abcd1234"),
 				displayName: "Blue",
+				decider:     cog.NewRandom(),
 			},
 		},
 	}

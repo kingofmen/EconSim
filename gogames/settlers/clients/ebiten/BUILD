@@ -13,6 +13,7 @@ go_library(
     importpath = "gogames/settlers/clients/ebiten",
     visibility = ["//visibility:private"],
     deps = [
+        "//gogames/settlers/ai:cog",
         "//gogames/settlers/engine:settlers",
       	"//gogames/tiles/triangles:triangles",
         "//gogames/util:vector2d",
