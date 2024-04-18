@@ -39,3 +39,41 @@ go_proto_library(
     importpath = "gogames/settlers/economy/production_proto",
     protos = [":production_proto"],
 )
+
+go_library(
+    name = "chain",
+    srcs = [
+      "chain.go",
+    ],
+    importpath = "gogames/settlers/economy/chain",
+    visibility = ["//visibility:public"],
+    deps = [
+      ":chain_go_proto",
+      "@org_golang_google_protobuf//proto:proto",
+    ],
+)
+
+go_test(
+    name = "chain_test",
+    srcs = [
+      "chain_test.go",
+    ],
+    embed = [
+      ":chain",
+    ],
+    deps = [
+    ],
+)
+
+proto_library(
+    name = "chain_proto",
+    srcs = [
+    	 "chain.proto",
+    ],
+)
+
+go_proto_library(
+    name = "chain_go_proto",
+    importpath = "gogames/settlers/economy/chain_proto",
+    protos = [":chain_proto"],
+)

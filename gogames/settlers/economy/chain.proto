@@ -1,0 +1,27 @@
+syntax = "proto3";
+package settlers.economy.proto;
+
+// Workers models a workforce.
+message Workers {
+  // Skill tags.
+  map<string, int32> skills = 1;
+}
+
+// Goods is a basket of goods.
+message Goods {
+  map<string, int32> goods = 1;
+}
+
+// Process models a step in a production web.
+message Process {
+  // Lookup key.
+  string key = 1;
+  // Labour required.
+  Workers workers = 2;
+  // Goods produced.
+  Goods outputs = 3;
+  // TODO: Scalability, skills, capital.
+}
+
+
+
