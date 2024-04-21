@@ -11,39 +11,125 @@ func TestAllowed(t *testing.T) {
 		desc    string
 		loc     *Location
 		process *cpb.Process
-		want    bool
+		want    []*placement
 	}{
 		{
 			desc: "Insufficient workers",
-			loc:  &Location{},
+			loc: &Location{
+				maxBox: 100,
+			},
 			process: &cpb.Process{
 				Key: "requires_work",
-				Workers: &cpb.Workers{
-					Skills: map[string]int32{"work": 1},
+				Levels: []*cpb.Level{
+					{Workers: map[string]int32{"work": 1}},
 				},
 			},
 		},
 		{
 			desc: "Happy case",
 			loc: &Location{
-				pool: &cpb.Workers{
-					Skills: map[string]int32{"work": 1, "unrelated": 1},
-				},
+				pool:   map[string]int32{"work": 1, "unrelated": 1},
+				maxBox: 100,
 			},
 			process: &cpb.Process{
 				Key: "requires_work",
-				Workers: &cpb.Workers{
-					Skills: map[string]int32{"work": 1},
+				Levels: []*cpb.Level{
+					{Workers: map[string]int32{"work": 1}},
 				},
 			},
-			want: true,
+			want: []*placement{
+				&placement{pos: -1, lvl: 0},
+			},
+		},
+		{
+			desc: "Scalable process",
+			loc: &Location{
+				pool:   map[string]int32{"work": 1, "unrelated": 1},
+				maxBox: 100,
+				boxen: []*Work{
+					{
+						key: "scalable",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			process: &cpb.Process{
+				Key: "scalable",
+				Levels: []*cpb.Level{
+					{Workers: map[string]int32{"work": 3}},
+					{Workers: map[string]int32{"work": 1}},
+				},
+			},
+			want: []*placement{
+				&placement{pos: 0, lvl: 1},
+			},
+		},
+		{
+			desc: "Scalable and restartable",
+			loc: &Location{
+				pool:   map[string]int32{"work": 3},
+				maxBox: 100,
+				boxen: []*Work{
+					{
+						key: "scalable",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			process: &cpb.Process{
+				Key: "scalable",
+				Levels: []*cpb.Level{
+					{Workers: map[string]int32{"work": 3}},
+					{Workers: map[string]int32{"work": 1}},
+				},
+			},
+			want: []*placement{
+				&placement{pos: 0, lvl: 1},
+				&placement{pos: -1, lvl: 0},
+			},
+		},
+		{
+			desc: "Box limit",
+			loc: &Location{
+				pool:   map[string]int32{"work": 3},
+				maxBox: 1,
+				boxen: []*Work{
+					{
+						key: "scalable",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			process: &cpb.Process{
+				Key: "scalable",
+				Levels: []*cpb.Level{
+					{Workers: map[string]int32{"work": 3}},
+					{Workers: map[string]int32{"work": 1}},
+				},
+			},
+			want: []*placement{
+				&placement{pos: 0, lvl: 1},
+			},
 		},
 	}
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			if got := cc.loc.Allowed(cc.process); got != cc.want {
+			got := cc.loc.Allowed(cc.process)
+			if len(got) != len(cc.want) {
 				t.Errorf("%s: Allowed(%s) => %v, want %v", cc.desc, cc.process.GetKey(), got, cc.want)
+				return
+			}
+			for i, g := range got {
+				if *g != *cc.want[i] {
+					t.Errorf("%s: Allowed(%s) %d => %+v, want %+v", cc.desc, cc.process.GetKey(), i, g, cc.want[i])
+				}
 			}
 		})
 	}
@@ -52,20 +138,28 @@ func TestAllowed(t *testing.T) {
 func TestPlace(t *testing.T) {
 	grain := &cpb.Process{
 		Key: "grain",
-		Workers: &cpb.Workers{
-			Skills: map[string]int32{"labor": 100},
-		},
-		Outputs: &cpb.Goods{
-			Goods: map[string]int32{"grain": 100},
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"grain": 100},
+			},
+			{
+				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"grain": 200},
+			},
 		},
 	}
 	prayers := &cpb.Process{
 		Key: "prayers",
-		Workers: &cpb.Workers{
-			Skills: map[string]int32{"theology": 100},
-		},
-		Outputs: &cpb.Goods{
-			Goods: map[string]int32{"prayers": 1000},
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"theology": 100},
+				Outputs: map[string]int32{"prayers": 1000},
+			},
+			{
+				Workers: map[string]int32{"theology": 100},
+				Outputs: map[string]int32{"prayers": 100},
+			},
 		},
 	}
 
@@ -76,18 +170,19 @@ func TestPlace(t *testing.T) {
 		want      string
 	}{
 		{
-			desc:      "No workers",
-			want:      "",
-			loc:       &Location{},
+			desc: "No workers",
+			want: "",
+			loc: &Location{
+				maxBox: 100,
+			},
 			processes: []*cpb.Process{grain},
 		},
 		{
 			desc: "Wrong workers",
 			want: "",
 			loc: &Location{
-				pool: &cpb.Workers{
-					Skills: map[string]int32{"flattery": 10},
-				},
+				pool:   map[string]int32{"flattery": 10},
+				maxBox: 100,
 			},
 			processes: []*cpb.Process{grain},
 		},
@@ -95,9 +190,8 @@ func TestPlace(t *testing.T) {
 			desc: "One legal process",
 			want: "grain",
 			loc: &Location{
-				pool: &cpb.Workers{
-					Skills: map[string]int32{"labor": 100},
-				},
+				pool:   map[string]int32{"labor": 100},
+				maxBox: 100,
 			},
 			processes: []*cpb.Process{grain, prayers},
 		},
@@ -105,12 +199,11 @@ func TestPlace(t *testing.T) {
 			desc: "Default scoring",
 			want: "prayers",
 			loc: &Location{
-				pool: &cpb.Workers{
-					Skills: map[string]int32{
-						"labor":    100,
-						"theology": 100,
-					},
+				pool: map[string]int32{
+					"labor":    100,
+					"theology": 100,
 				},
+				maxBox: 100,
 			},
 			processes: []*cpb.Process{grain, prayers},
 		},
@@ -118,18 +211,63 @@ func TestPlace(t *testing.T) {
 			desc: "Custom scoring",
 			want: "grain",
 			loc: &Location{
-				pool: &cpb.Workers{
-					Skills: map[string]int32{
-						"labor":    100,
-						"theology": 100,
-					},
+				pool: map[string]int32{
+					"labor":    100,
+					"theology": 100,
 				},
-				evaluator: ScorerFunc(func(exist, marginal *cpb.Goods) int32 {
-					if marginal.GetGoods()["grain"] > 0 {
+				maxBox: 100,
+				evaluator: ScorerFunc(func(exist, marginal map[string]int32) int32 {
+					if marginal["grain"] > 0 {
 						return 100
 					}
 					return 0
 				}),
+			},
+			processes: []*cpb.Process{grain, prayers},
+		},
+		{
+			desc: "Scalable",
+			want: "grain",
+			loc: &Location{
+				pool: map[string]int32{
+					"labor":    100,
+					"theology": 100,
+				},
+				maxBox: 2,
+				boxen: []*Work{
+					{
+						key: "grain",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"grain": 100}},
+						},
+					},
+					{
+						key: "prayers",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"theology": 100}},
+						},
+					},
+				},
+			},
+			processes: []*cpb.Process{grain, prayers},
+		},
+		{
+			desc: "Scalable but new is better",
+			want: "prayers",
+			loc: &Location{
+				maxBox: 2,
+				pool: map[string]int32{
+					"labor":    100,
+					"theology": 100,
+				},
+				boxen: []*Work{
+					{
+						key: "grain",
+						assigned: []*cpb.Level{
+							{Workers: map[string]int32{"grain": 100}},
+						},
+					},
+				},
 			},
 			processes: []*cpb.Process{grain, prayers},
 		},

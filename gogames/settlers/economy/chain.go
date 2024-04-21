@@ -11,18 +11,34 @@ import (
 type Work struct {
 	// Work type.
 	key string
-	// Labour used.
-	assigned *cpb.Workers
+	// Labour and capital used.
+	assigned []*cpb.Level
+}
+
+// scalable returns the level of the process that can be
+// stacked onto this box, if there is one.
+func (w *Work) scalable(p *cpb.Process) int {
+	if w == nil {
+		return -1
+	}
+	if w.key != p.GetKey() {
+		return -1
+	}
+	cand := len(w.assigned)
+	if cand >= len(p.GetLevels()) {
+		return -1
+	}
+	return cand
 }
 
 type Scorer interface {
-	Score(exist, marginal *cpb.Goods) int32
+	Score(exist, marginal map[string]int32) int32
 }
 
 // ScorerFunc returns a score for the given basket.
-type ScorerFunc func(exist, marginal *cpb.Goods) int32
+type ScorerFunc func(exist, marginal map[string]int32) int32
 
-func (sf ScorerFunc) Score(exist, marginal *cpb.Goods) int32 {
+func (sf ScorerFunc) Score(exist, marginal map[string]int32) int32 {
 	return sf(exist, marginal)
 }
 
@@ -33,19 +49,20 @@ type Location struct {
 	// Filled boxes.
 	boxen []*Work
 	// Labour pool.
-	pool *cpb.Workers
+	pool map[string]int32
 	// Connected locations.
 	network []*Location
 	// Prioritiser.
 	evaluator Scorer
 	// Stockpile.
-	goods *cpb.Goods
+	goods map[string]int32
+	// Max work process.
+	maxBox int
 }
 
 // super returns true if p1 is a superset of p2.
-func super(p1, p2 *cpb.Workers) bool {
-	avail := p1.GetSkills()
-	for skill, amount := range p2.GetSkills() {
+func super(avail, want map[string]int32) bool {
+	for skill, amount := range want {
 		if avail[skill] < amount {
 			return false
 		}
@@ -53,34 +70,63 @@ func super(p1, p2 *cpb.Workers) bool {
 	return true
 }
 
-// Allowed returns true if a box can be filled with the given process.
-func (loc *Location) Allowed(p *cpb.Process) bool {
-	if !super(loc.pool, p.GetWorkers()) {
-		return false
-	}
-	// TODO: Other constraints.
-	return true
+// placement is a possible scaling of a process.
+type placement struct {
+	pos int
+	lvl int
 }
 
-// output returns what this location will produce by adding the process.
-func (loc *Location) output(p *cpb.Process) *cpb.Goods {
-	// TODO: Account for scaling and whatnot.
-	return proto.Clone(p.GetOutputs()).(*cpb.Goods)
+// Allowed returns the possible placements of the given process.
+func (loc *Location) Allowed(p *cpb.Process) []*placement {
+	// TODO: Constraints other than number of workers.
+	places := make([]*placement, 0, 3)
+	// First check scaling.
+	for idx, box := range loc.boxen {
+		lvl := box.scalable(p)
+		if lvl < 0 {
+			continue
+		}
+		need := p.GetLevels()[lvl]
+		if !super(loc.pool, need.GetWorkers()) {
+			continue
+		}
+		// Other prereqs must be fulfilled since we have
+		// a box with it already.
+		places = append(places, &placement{
+			pos: idx,
+			lvl: lvl,
+		})
+	}
+	if len(loc.boxen) < loc.maxBox {
+		if super(loc.pool, p.GetLevels()[0].GetWorkers()) {
+			places = append(places, &placement{
+				pos: -1,
+				lvl: 0,
+			})
+		}
+	}
+	return places
+}
+
+// output returns what this location will produce by adding the
+// process in place
+func (loc *Location) output(place *placement, p *cpb.Process) map[string]int32 {
+	return p.GetLevels()[place.lvl].GetOutputs()
 }
 
 // defaultScore returns a score prioritising all goods equally
 // with no diminishing returns.
-func defaultScore(exist, output *cpb.Goods) int32 {
+func defaultScore(exist, output map[string]int32) int32 {
 	ret := int32(0)
-	for _, amt := range output.GetGoods() {
+	for _, amt := range output {
 		ret += amt
 	}
 	return ret
 }
 
 // score returns the priority of the process.
-func (loc *Location) score(p *cpb.Process) int32 {
-	output := loc.output(p)
+func (loc *Location) score(place *placement, proc *cpb.Process) int32 {
+	output := loc.output(place, proc)
 	if loc.evaluator != nil {
 		return loc.evaluator.Score(loc.goods, output)
 	}
@@ -88,37 +134,52 @@ func (loc *Location) score(p *cpb.Process) int32 {
 }
 
 // assignWork fills a box with the provided process.
-func (loc *Location) assignWork(w *Work) {
-	for skill, amount := range w.assigned.GetSkills() {
-		loc.pool.GetSkills()[skill] -= amount
+func (loc *Location) assignWork(pos int, p *cpb.Process) {
+	var box *Work
+	if pos >= 0 {
+		box = loc.boxen[pos]
+	} else {
+		box = &Work{
+			key: p.GetKey(),
+		}
+		loc.boxen = append(loc.boxen, box)
 	}
-	loc.boxen = append(loc.boxen, w)
+	lvl := proto.Clone(p.GetLevels()[len(box.assigned)]).(*cpb.Level)
+	box.assigned = append(box.assigned, lvl)
+	for skill, amount := range lvl.GetWorkers() {
+		loc.pool[skill] -= amount
+	}
 }
 
 // Place assigns labour to the best available Process.
 // It returns the key of the process chosen.
 func (loc *Location) Place(options []*cpb.Process) string {
-	legal := make([]*cpb.Process, 0, len(options))
+	legal := make(map[*cpb.Process][]*placement)
 	for _, opt := range options {
-		if loc.Allowed(opt) {
-			legal = append(legal, opt)
+		if ps := loc.Allowed(opt); len(ps) > 0 {
+			legal[opt] = ps
 		}
 	}
 	if len(legal) == 0 {
 		return ""
 	}
 
-	best, pts := legal[0], loc.score(legal[0])
-	for _, opt := range legal[1:] {
-		if curr := loc.score(opt); curr > pts {
-			best = opt
-			pts = curr
+	var best *cpb.Process
+	pts := int32(-1000)
+	pos := -1000
+	for proc, places := range legal {
+		for _, ps := range places {
+			if curr := loc.score(ps, proc); curr > pts {
+				pts = curr
+				best = proc
+				pos = ps.pos
+			}
 		}
 	}
+	if pts < 0 {
+		return ""
+	}
 
-	loc.assignWork(&Work{
-		key:      best.GetKey(),
-		assigned: proto.Clone(best.GetWorkers()).(*cpb.Workers),
-	})
+	loc.assignWork(pos, best)
 	return best.GetKey()
 }
