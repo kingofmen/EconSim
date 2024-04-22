@@ -58,7 +58,7 @@ type Location struct {
 	evaluator Scorer
 	// Stockpile.
 	goods map[string]int32
-	// Max work process.
+	// Max work processes.
 	maxBox int
 }
 
@@ -196,7 +196,20 @@ func Valid(web *cpb.Web) error {
 	if nlvl < 1 {
 		return fmt.Errorf("Processes must have at least one level - %q has %d", fnode.GetKey(), nlvl)
 	}
+	if len(fnode.GetKey()) < 1 {
+		return fmt.Errorf("Processes must have non-empty keys")
+	}
+
+	seen := map[string]bool{fnode.GetKey(): true}
 	for _, n := range nodes[1:] {
+		key := n.GetKey()
+		if len(key) == 0 {
+			return fmt.Errorf("Processes must have non-empty keys")
+		}
+		if seen[key] {
+			return fmt.Errorf("Process keys must be unique, %q occurs twice", key)
+		}
+		seen[key] = true
 		if nl := len(n.GetLevels()); nl != nlvl {
 			return fmt.Errorf("Processes in web must have same number of levels - %q has %d versus %q with %d", n.GetKey(), nl, fnode.GetKey(), nlvl)
 		}

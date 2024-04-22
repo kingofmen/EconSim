@@ -308,6 +308,58 @@ func TestWebValid(t *testing.T) {
 			want: "at least one level",
 		},
 		{
+			desc: "Empty key",
+			web: &cpb.Web{
+				Nodes: []*cpb.Process{
+					{
+						Levels: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			want: "non-empty",
+		},
+		{
+			desc: "Second empty key",
+			web: &cpb.Web{
+				Nodes: []*cpb.Process{
+					{
+						Key: "blah",
+						Levels: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+					{
+						Levels: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			want: "non-empty",
+		},
+		{
+			desc: "Duplicate key",
+			web: &cpb.Web{
+				Nodes: []*cpb.Process{
+					{
+						Key: "blah",
+						Levels: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+					{
+						Key: "blah",
+						Levels: []*cpb.Level{
+							{Workers: map[string]int32{"work": 3}},
+						},
+					},
+				},
+			},
+			want: "must be unique",
+		},
+		{
 			desc: "Uneven levels",
 			web: &cpb.Web{
 				Nodes: []*cpb.Process{
