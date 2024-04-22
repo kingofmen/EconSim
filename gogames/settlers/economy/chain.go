@@ -2,6 +2,8 @@
 package chain
 
 import (
+	"fmt"
+
 	"google.golang.org/protobuf/proto"
 
 	cpb "gogames/settlers/economy/chain_proto"
@@ -182,4 +184,25 @@ func (loc *Location) Place(options []*cpb.Process) string {
 
 	loc.assignWork(pos, best)
 	return best.GetKey()
+}
+
+func Valid(web *cpb.Web) error {
+	nodes := web.GetNodes()
+	if len(nodes) < 1 {
+		return fmt.Errorf("Web must have at least one node")
+	}
+	fnode := nodes[0]
+	nlvl := len(fnode.GetLevels())
+	if nlvl < 1 {
+		return fmt.Errorf("Processes must have at least one level - %q has %d", fnode.GetKey(), nlvl)
+	}
+	for _, n := range nodes[1:] {
+		if nl := len(n.GetLevels()); nl != nlvl {
+			return fmt.Errorf("Processes in web must have same number of levels - %q has %d versus %q with %d", n.GetKey(), nl, fnode.GetKey(), nlvl)
+		}
+	}
+	if ntl := len(web.GetTransport()); ntl != nlvl {
+		return fmt.Errorf("Web must have same number of transport and production levels - found %d transport, %d production (in %q)", ntl, nlvl, fnode.GetKey())
+	}
+	return nil
 }
