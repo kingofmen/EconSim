@@ -9,6 +9,11 @@ import (
 	cpb "gogames/settlers/economy/chain_proto"
 )
 
+const (
+	// kNewBox indicates that a previously-unfilled box will be used.
+	kNewBox = -1
+)
+
 // Work models a production process at a particular location.
 type Work struct {
 	// Work type.
@@ -74,14 +79,33 @@ func super(avail, want map[string]int32) bool {
 
 // placement is a possible scaling of a process.
 type placement struct {
+	loc *Location
+	prc *cpb.Process
 	pos int
 	lvl int
 }
 
-// Allowed returns the possible placements of the given process.
-func (loc *Location) Allowed(p *cpb.Process) []*placement {
+// Allowed returns the possible placements of the given process,
+// taking into account any previous placements in the location.
+func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 	// TODO: Constraints other than number of workers.
 	places := make([]*placement, 0, 3)
+	avail := map[string]int32{}
+	filled := 0
+	for k, v := range loc.pool {
+		avail[k] = v
+	}
+	for _, pl := range prev {
+		if pl.loc != loc {
+			continue
+		}
+		if pl.pos == kNewBox {
+			filled++
+		}
+		for k, v := range pl.prc.GetLevels()[pl.lvl].GetWorkers() {
+			avail[k] -= v
+		}
+	}
 	// First check scaling.
 	for idx, box := range loc.boxen {
 		lvl := box.scalable(p)
@@ -89,20 +113,24 @@ func (loc *Location) Allowed(p *cpb.Process) []*placement {
 			continue
 		}
 		need := p.GetLevels()[lvl]
-		if !super(loc.pool, need.GetWorkers()) {
+		if !super(avail, need.GetWorkers()) {
 			continue
 		}
 		// Other prereqs must be fulfilled since we have
 		// a box with it already.
 		places = append(places, &placement{
+			loc: loc,
+			prc: p,
 			pos: idx,
 			lvl: lvl,
 		})
 	}
-	if len(loc.boxen) < loc.maxBox {
-		if super(loc.pool, p.GetLevels()[0].GetWorkers()) {
+	if len(loc.boxen)+filled < loc.maxBox {
+		if super(avail, p.GetLevels()[0].GetWorkers()) {
 			places = append(places, &placement{
-				pos: -1,
+				loc: loc,
+				prc: p,
+				pos: kNewBox,
 				lvl: 0,
 			})
 		}

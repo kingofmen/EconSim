@@ -1,24 +1,55 @@
 package chain
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	cpb "gogames/settlers/economy/chain_proto"
 )
 
+func stringize(plcs []*placement) string {
+	ret := "["
+	for _, pl := range plcs {
+		ret = fmt.Sprintf("%s {loc: %p prc: %s pos: %d lvl: %d}", ret, pl.loc, pl.prc.GetKey(), pl.pos, pl.lvl)
+	}
+	return ret + "]"
+}
+
 func TestAllowed(t *testing.T) {
+	location := &Location{}
+	needWork := &cpb.Process{
+		Key: "requires_work",
+		Levels: []*cpb.Level{
+			{Workers: map[string]int32{"work": 1}},
+		},
+	}
+	needLabour := &cpb.Process{
+		Key: "requires_labour",
+		Levels: []*cpb.Level{
+			{Workers: map[string]int32{"labour": 1}},
+		},
+	}
+	scalable := &cpb.Process{
+		Key: "scalable",
+		Levels: []*cpb.Level{
+			{Workers: map[string]int32{"work": 3}},
+			{Workers: map[string]int32{"work": 2}},
+			{Workers: map[string]int32{"work": 1}},
+		},
+	}
+
 	cases := []struct {
 		desc    string
-		loc     *Location
+		max     int
+		pool    map[string]int32
+		boxen   []*Work
 		process *cpb.Process
+		prev    []*placement
 		want    []*placement
 	}{
 		{
 			desc: "Insufficient workers",
-			loc: &Location{
-				maxBox: 100,
-			},
 			process: &cpb.Process{
 				Key: "requires_work",
 				Levels: []*cpb.Level{
@@ -27,104 +58,134 @@ func TestAllowed(t *testing.T) {
 			},
 		},
 		{
-			desc: "Happy case",
-			loc: &Location{
-				pool:   map[string]int32{"work": 1, "unrelated": 1},
-				maxBox: 100,
-			},
-			process: &cpb.Process{
-				Key: "requires_work",
-				Levels: []*cpb.Level{
-					{Workers: map[string]int32{"work": 1}},
-				},
-			},
+			desc:    "Happy case",
+			pool:    map[string]int32{"work": 1, "unrelated": 1},
+			process: needWork,
 			want: []*placement{
-				&placement{pos: -1, lvl: 0},
+				&placement{loc: location, prc: needWork, pos: -1, lvl: 0},
+			},
+			prev: []*placement{
+				&placement{loc: &Location{}, prc: scalable, pos: -1, lvl: 0},
 			},
 		},
 		{
 			desc: "Scalable process",
-			loc: &Location{
-				pool:   map[string]int32{"work": 1, "unrelated": 1},
-				maxBox: 100,
-				boxen: []*Work{
-					{
-						key: "scalable",
-						assigned: []*cpb.Level{
-							{Workers: map[string]int32{"work": 3}},
-						},
+			pool: map[string]int32{"work": 2, "unrelated": 1},
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
 					},
 				},
 			},
-			process: &cpb.Process{
-				Key: "scalable",
-				Levels: []*cpb.Level{
-					{Workers: map[string]int32{"work": 3}},
-					{Workers: map[string]int32{"work": 1}},
+			process: scalable,
+			want: []*placement{
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
+			},
+		},
+		{
+			desc: "Scalable but previously scaled",
+			pool: map[string]int32{"work": 2, "unrelated": 1},
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
+					},
 				},
 			},
-			want: []*placement{
-				&placement{pos: 0, lvl: 1},
+			process: scalable,
+			prev: []*placement{
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
 			},
 		},
 		{
 			desc: "Scalable and restartable",
-			loc: &Location{
-				pool:   map[string]int32{"work": 3},
-				maxBox: 100,
-				boxen: []*Work{
-					{
-						key: "scalable",
-						assigned: []*cpb.Level{
-							{Workers: map[string]int32{"work": 3}},
-						},
+			pool: map[string]int32{"work": 3},
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
 					},
 				},
 			},
-			process: &cpb.Process{
-				Key: "scalable",
-				Levels: []*cpb.Level{
-					{Workers: map[string]int32{"work": 3}},
-					{Workers: map[string]int32{"work": 1}},
+			process: scalable,
+			want: []*placement{
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
+				&placement{loc: location, prc: scalable, pos: kNewBox, lvl: 0},
+			},
+		},
+		{
+			desc: "Scalable and restartable but previously restarted",
+			pool: map[string]int32{"work": 5},
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
+					},
 				},
 			},
+			process: scalable,
 			want: []*placement{
-				&placement{pos: 0, lvl: 1},
-				&placement{pos: -1, lvl: 0},
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
+			},
+			prev: []*placement{
+				&placement{loc: location, prc: scalable, pos: kNewBox, lvl: 0},
 			},
 		},
 		{
 			desc: "Box limit",
-			loc: &Location{
-				pool:   map[string]int32{"work": 3},
-				maxBox: 1,
-				boxen: []*Work{
-					{
-						key: "scalable",
-						assigned: []*cpb.Level{
-							{Workers: map[string]int32{"work": 3}},
-						},
+			pool: map[string]int32{"work": 3},
+			max:  1,
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
 					},
 				},
 			},
-			process: &cpb.Process{
-				Key: "scalable",
-				Levels: []*cpb.Level{
-					{Workers: map[string]int32{"work": 3}},
-					{Workers: map[string]int32{"work": 1}},
+			process: scalable,
+			want: []*placement{
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
+			},
+		},
+		{
+			desc: "Box limit from prevs",
+			pool: map[string]int32{"work": 3},
+			max:  2,
+			boxen: []*Work{
+				{
+					key: "scalable",
+					assigned: []*cpb.Level{
+						{Workers: map[string]int32{"work": 3}},
+					},
 				},
 			},
+			process: scalable,
 			want: []*placement{
-				&placement{pos: 0, lvl: 1},
+				&placement{loc: location, prc: scalable, pos: 0, lvl: 1},
+			},
+			prev: []*placement{
+				&placement{loc: location, prc: needLabour, pos: kNewBox, lvl: 0},
 			},
 		},
 	}
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			got := cc.loc.Allowed(cc.process)
+			location.pool = cc.pool
+			location.boxen = cc.boxen
+			location.maxBox = 100
+			if cc.max > 0 {
+				location.maxBox = cc.max
+			}
+			got := location.Allowed(cc.process, cc.prev...)
 			if len(got) != len(cc.want) {
-				t.Errorf("%s: Allowed(%s) => %v, want %v", cc.desc, cc.process.GetKey(), got, cc.want)
+				t.Errorf("%s: Allowed(%s) => %s, want %s", cc.desc, cc.process.GetKey(), stringize(got), stringize(cc.want))
 				return
 			}
 			for i, g := range got {
