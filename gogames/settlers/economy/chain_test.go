@@ -8,12 +8,19 @@ import (
 	cpb "gogames/settlers/economy/chain_proto"
 )
 
-func stringize(plcs []*placement) string {
-	ret := "["
-	for _, pl := range plcs {
-		ret = fmt.Sprintf("%s {loc: %p prc: %s pos: %d lvl: %d}", ret, pl.loc, pl.prc.GetKey(), pl.pos, pl.lvl)
+func stringize(plcs ...[]*placement) string {
+	if len(plcs) == 0 {
+		return "<nil>"
 	}
-	return ret + "]"
+	ret := ""
+	for _, pl := range plcs {
+		ret += "\n[\n"
+		for _, p := range pl {
+			ret += fmt.Sprintf(" {loc: %p prc: %s pos: %d lvl: %d}\n", p.loc, p.prc.GetKey(), p.pos, p.lvl)
+		}
+		ret += "]"
+	}
+	return ret
 }
 
 func TestAllowed(t *testing.T) {
@@ -504,6 +511,183 @@ func TestWebValid(t *testing.T) {
 			}
 			if !strings.Contains(err.Error(), cc.want) {
 				t.Errorf("%s: Valid() => %v, want %q", cc.desc, err, cc.want)
+			}
+		})
+	}
+}
+
+func TestGenerate(t *testing.T) {
+	subsist1 := &cpb.Process{
+		Key: "subsist_1",
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"labor": 100},
+			},
+			{
+				Workers: map[string]int32{"labor": 100},
+			},
+		},
+	}
+	dig := &cpb.Process{
+		Key: "dig_ore",
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"labor": 100},
+			},
+			{
+				Workers: map[string]int32{"labor": 100},
+			},
+		},
+	}
+	smelt := &cpb.Process{
+		Key: "smelt_iron",
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"skilled": 100},
+			},
+			{
+				Workers: map[string]int32{"skilled": 100},
+			},
+		},
+	}
+	hammer := &cpb.Process{
+		Key: "make_weapons",
+		Levels: []*cpb.Level{
+			{
+				Workers: map[string]int32{"smith": 100},
+			},
+			{
+				Workers: map[string]int32{"smith": 100},
+			},
+		},
+	}
+
+	subsist := &cpb.Web{
+		Key:   "subsist",
+		Nodes: []*cpb.Process{subsist1},
+	}
+	forge := &cpb.Web{
+		Key:   "forge",
+		Nodes: []*cpb.Process{dig, smelt, hammer},
+	}
+
+	loc1 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"labor": 1000,
+		},
+	}
+	loc2 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"labor": 1000,
+		},
+	}
+	loc3 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"labor": 900,
+		},
+		boxen: []*Work{
+			{
+				key: "subsist_1",
+				assigned: []*cpb.Level{
+					{
+						Workers: map[string]int32{"labor": 100},
+						Outputs: map[string]int32{"grain": 100},
+					},
+				},
+			},
+		},
+	}
+	loc4 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"labor": 1000,
+		},
+	}
+	loc5 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"skilled": 1000,
+		},
+	}
+	loc6 := &Location{
+		maxBox: 10,
+		pool: map[string]int32{
+			"smith": 1000,
+		},
+	}
+	loc1.network = []*Location{loc2, loc3}
+	loc2.network = []*Location{loc1, loc3}
+	loc3.network = []*Location{loc1, loc2, loc4}
+	loc4.network = []*Location{loc3, loc5}
+	loc5.network = []*Location{loc4, loc6}
+	loc6.network = []*Location{loc5}
+
+	cases := []struct {
+		desc      string
+		web       *cpb.Web
+		locations []*Location
+		want      [][]*placement
+	}{
+		{
+			desc: "Nil web",
+		},
+		{
+			desc: "No locations",
+			web:  subsist,
+		},
+		{
+			desc:      "Single process single location",
+			web:       subsist,
+			locations: []*Location{loc1},
+			want: [][]*placement{
+				[]*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+			},
+		},
+		{
+			desc:      "Single process many locations",
+			web:       subsist,
+			locations: []*Location{loc1, loc2, loc3},
+			want: [][]*placement{
+				[]*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+				[]*placement{{loc: loc2, prc: subsist1, pos: kNewBox, lvl: 0}},
+				[]*placement{{loc: loc3, prc: subsist1, pos: 0, lvl: 1}},
+				[]*placement{{loc: loc3, prc: subsist1, pos: kNewBox, lvl: 0}},
+			},
+		},
+		{
+			desc:      "Complex process sad case",
+			web:       forge,
+			locations: []*Location{loc1, loc2, loc3},
+		},
+		{
+			desc:      "Complex process happy case",
+			web:       forge,
+			locations: []*Location{loc1, loc2, loc3, loc4, loc5, loc6},
+			want: [][]*placement{
+				[]*placement{
+					{loc: loc4, prc: dig, pos: kNewBox, lvl: 0},
+					{loc: loc5, prc: smelt, pos: kNewBox, lvl: 0},
+					{loc: loc6, prc: hammer, pos: kNewBox, lvl: 0},
+				},
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			got := generate(cc.web, cc.locations)
+			if ng, nw := len(got), len(cc.want); ng != nw {
+				t.Errorf("%s: generated() => %d placements, want %d (%s vs %s)", cc.desc, ng, nw, stringize(got...), stringize(cc.want...))
+				return
+			}
+			for idx, gpls := range got {
+				wpls := cc.want[idx]
+				if ng, nw := len(gpls), len(wpls); ng != nw {
+					t.Errorf("%s: generated[%d] => %d placements, want %d (%s vs %s)", cc.desc, idx, ng, nw, stringize(gpls), stringize(wpls))
+				}
 			}
 		})
 	}

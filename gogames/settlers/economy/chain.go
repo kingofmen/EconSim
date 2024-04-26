@@ -12,6 +12,8 @@ import (
 const (
 	// kNewBox indicates that a previously-unfilled box will be used.
 	kNewBox = -1
+	// kNotScalable indicates that the work cannot be scaled.
+	kNotScalable = -2
 )
 
 // Work models a production process at a particular location.
@@ -26,14 +28,14 @@ type Work struct {
 // stacked onto this box, if there is one.
 func (w *Work) scalable(p *cpb.Process) int {
 	if w == nil {
-		return -1
+		return kNewBox
 	}
 	if w.key != p.GetKey() {
-		return -1
+		return kNotScalable
 	}
 	cand := len(w.assigned)
 	if cand >= len(p.GetLevels()) {
-		return -1
+		return kNotScalable
 	}
 	return cand
 }
@@ -106,10 +108,16 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 			avail[k] -= v
 		}
 	}
+	open := 0
 	// First check scaling.
 	for idx, box := range loc.boxen {
+		// TODO: Allow empty boxen.
 		lvl := box.scalable(p)
-		if lvl < 0 {
+		if lvl == kNotScalable {
+			continue
+		}
+		if lvl == kNewBox {
+			open++
 			continue
 		}
 		need := p.GetLevels()[lvl]
@@ -125,7 +133,8 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 			lvl: lvl,
 		})
 	}
-	if len(loc.boxen)+filled < loc.maxBox {
+
+	if len(loc.boxen)+filled-open < loc.maxBox {
 		if super(avail, p.GetLevels()[0].GetWorkers()) {
 			places = append(places, &placement{
 				loc: loc,
@@ -246,4 +255,43 @@ func Valid(web *cpb.Web) error {
 		return fmt.Errorf("Web must have same number of transport and production levels - found %d transport, %d production (in %q)", ntl, nlvl, fnode.GetKey())
 	}
 	return nil
+}
+
+// generate finds all legal combinations of locations to place the web.
+func generate(web *cpb.Web, locs []*Location) [][]*placement {
+	if web == nil {
+		return nil
+	}
+	nodes := web.GetNodes()
+	fnode := nodes[0]
+	combos := make([][]*placement, 0, len(locs))
+	for _, loc := range locs {
+		for _, cand := range loc.Allowed(fnode) {
+			combos = append(combos, []*placement{cand})
+		}
+	}
+
+	for _, proc := range nodes[1:] {
+		if len(combos) == 0 {
+			break
+		}
+
+		// For each existing list of placements, either grow it
+		// by adding a new location (possibly forking), or abandon
+		// it if no additions are possible.
+		ncombs := make([][]*placement, 0, len(combos))
+		for _, cmb := range combos {
+			start := cmb[len(cmb)-1].loc
+			for _, loc := range start.network {
+				for _, cand := range loc.Allowed(proc, cmb...) {
+					extend := make([]*placement, len(cmb))
+					copy(extend, cmb)
+					ncombs = append(ncombs, append(extend, cand))
+				}
+			}
+		}
+		combos = ncombs
+	}
+
+	return combos
 }
