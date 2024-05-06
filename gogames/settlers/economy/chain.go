@@ -3,6 +3,7 @@ package chain
 
 import (
 	"fmt"
+	"strings"
 
 	"google.golang.org/protobuf/proto"
 
@@ -85,6 +86,27 @@ type placement struct {
 	prc *cpb.Process
 	pos int
 	lvl int
+}
+
+// combo is a set of placements comprising a web.
+type combo struct {
+	// key is the lookup key of the web.
+	key string
+	// procs are the process placements.
+	procs []*placement
+}
+
+// debugString returns a human-readable-ish string suitable
+// for debugging.
+func (c *combo) debugString() string {
+	if c == nil {
+		return "<nil>"
+	}
+	strs := make([]string, 0, len(c.procs))
+	for _, p := range c.procs {
+		strs = append(strs, fmt.Sprintf(" {loc: %p prc: %s pos: %d lvl: %d}\n", p.loc, p.prc.GetKey(), p.pos, p.lvl))
+	}
+	return fmt.Sprintf("%s: %s", c.key, strings.Join(strs, " "))
 }
 
 // Allowed returns the possible placements of the given process,
@@ -258,16 +280,19 @@ func Valid(web *cpb.Web) error {
 }
 
 // generate finds all legal combinations of locations to place the web.
-func generate(web *cpb.Web, locs []*Location) [][]*placement {
+func generate(web *cpb.Web, locs []*Location) []*combo {
 	if web == nil {
 		return nil
 	}
 	nodes := web.GetNodes()
 	fnode := nodes[0]
-	combos := make([][]*placement, 0, len(locs))
+	combos := make([]*combo, 0, len(locs))
 	for _, loc := range locs {
 		for _, cand := range loc.Allowed(fnode) {
-			combos = append(combos, []*placement{cand})
+			combos = append(combos, &combo{
+				key:   web.GetKey(),
+				procs: []*placement{cand},
+			})
 		}
 	}
 
@@ -279,14 +304,18 @@ func generate(web *cpb.Web, locs []*Location) [][]*placement {
 		// For each existing list of placements, either grow it
 		// by adding a new location (possibly forking), or abandon
 		// it if no additions are possible.
-		ncombs := make([][]*placement, 0, len(combos))
+		ncombs := make([]*combo, 0, len(combos))
 		for _, cmb := range combos {
-			start := cmb[len(cmb)-1].loc
+			start := cmb.procs[len(cmb.procs)-1].loc
 			for _, loc := range start.network {
-				for _, cand := range loc.Allowed(proc, cmb...) {
-					extend := make([]*placement, len(cmb))
-					copy(extend, cmb)
-					ncombs = append(ncombs, append(extend, cand))
+				for _, cand := range loc.Allowed(proc, cmb.procs...) {
+					nc := &combo{
+						key:   web.GetKey(),
+						procs: make([]*placement, len(cmb.procs)),
+					}
+					copy(nc.procs, cmb.procs)
+					nc.procs = append(nc.procs, cand)
+					ncombs = append(ncombs, nc)
 				}
 			}
 		}

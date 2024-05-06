@@ -23,6 +23,14 @@ func stringize(plcs ...[]*placement) string {
 	return ret
 }
 
+func makeString(cs ...*combo) string {
+	strs := make([]string, 0, len(cs))
+	for _, c := range cs {
+		strs = append(strs, c.debugString())
+	}
+	return strings.Join(strs, "\n")
+}
+
 func TestAllowed(t *testing.T) {
 	location := &Location{}
 	needWork := &cpb.Process{
@@ -629,7 +637,7 @@ func TestGenerate(t *testing.T) {
 		desc      string
 		web       *cpb.Web
 		locations []*Location
-		want      [][]*placement
+		want      []*combo
 	}{
 		{
 			desc: "Nil web",
@@ -642,19 +650,34 @@ func TestGenerate(t *testing.T) {
 			desc:      "Single process single location",
 			web:       subsist,
 			locations: []*Location{loc1},
-			want: [][]*placement{
-				[]*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+			want: []*combo{
+				{
+					key:   subsist.GetKey(),
+					procs: []*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+				},
 			},
 		},
 		{
 			desc:      "Single process many locations",
 			web:       subsist,
 			locations: []*Location{loc1, loc2, loc3},
-			want: [][]*placement{
-				[]*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
-				[]*placement{{loc: loc2, prc: subsist1, pos: kNewBox, lvl: 0}},
-				[]*placement{{loc: loc3, prc: subsist1, pos: 0, lvl: 1}},
-				[]*placement{{loc: loc3, prc: subsist1, pos: kNewBox, lvl: 0}},
+			want: []*combo{
+				{
+					key:   subsist.GetKey(),
+					procs: []*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+				},
+				{
+					key:   subsist.GetKey(),
+					procs: []*placement{{loc: loc2, prc: subsist1, pos: kNewBox, lvl: 0}},
+				},
+				{
+					key:   subsist.GetKey(),
+					procs: []*placement{{loc: loc3, prc: subsist1, pos: 0, lvl: 1}},
+				},
+				{
+					key:   subsist.GetKey(),
+					procs: []*placement{{loc: loc3, prc: subsist1, pos: kNewBox, lvl: 0}},
+				},
 			},
 		},
 		{
@@ -666,11 +689,14 @@ func TestGenerate(t *testing.T) {
 			desc:      "Complex process happy case",
 			web:       forge,
 			locations: []*Location{loc1, loc2, loc3, loc4, loc5, loc6},
-			want: [][]*placement{
-				[]*placement{
-					{loc: loc4, prc: dig, pos: kNewBox, lvl: 0},
-					{loc: loc5, prc: smelt, pos: kNewBox, lvl: 0},
-					{loc: loc6, prc: hammer, pos: kNewBox, lvl: 0},
+			want: []*combo{
+				{
+					key: forge.GetKey(),
+					procs: []*placement{
+						{loc: loc4, prc: dig, pos: kNewBox, lvl: 0},
+						{loc: loc5, prc: smelt, pos: kNewBox, lvl: 0},
+						{loc: loc6, prc: hammer, pos: kNewBox, lvl: 0},
+					},
 				},
 			},
 		},
@@ -680,13 +706,13 @@ func TestGenerate(t *testing.T) {
 		t.Run(cc.desc, func(t *testing.T) {
 			got := generate(cc.web, cc.locations)
 			if ng, nw := len(got), len(cc.want); ng != nw {
-				t.Errorf("%s: generated() => %d placements, want %d (%s vs %s)", cc.desc, ng, nw, stringize(got...), stringize(cc.want...))
+				t.Errorf("%s: generated() => %d combos, want %d (%s vs %s)", cc.desc, ng, nw, makeString(got...), makeString(cc.want...))
 				return
 			}
 			for idx, gpls := range got {
 				wpls := cc.want[idx]
-				if ng, nw := len(gpls), len(wpls); ng != nw {
-					t.Errorf("%s: generated[%d] => %d placements, want %d (%s vs %s)", cc.desc, idx, ng, nw, stringize(gpls), stringize(wpls))
+				if ng, nw := len(gpls.procs), len(wpls.procs); ng != nw {
+					t.Errorf("%s: generated[%d] => %d combos, want %d (%s vs %s)", cc.desc, idx, ng, nw, gpls.debugString(), wpls.debugString())
 				}
 			}
 		})
