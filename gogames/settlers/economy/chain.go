@@ -3,6 +3,7 @@ package chain
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -186,8 +187,8 @@ func defaultScore(exist, output map[string]int32) int32 {
 }
 
 // score returns the priority of the process.
-func (loc *Location) score(place *placement, proc *cpb.Process) int32 {
-	output := loc.output(place, proc)
+func (loc *Location) score(place *placement) int32 {
+	output := loc.output(place, place.prc)
 	if loc.evaluator != nil {
 		return loc.evaluator.Score(loc.goods, output)
 	}
@@ -230,7 +231,7 @@ func (loc *Location) Place(options []*cpb.Process) string {
 	pos := -1000
 	for proc, places := range legal {
 		for _, ps := range places {
-			if curr := loc.score(ps, proc); curr > pts {
+			if curr := loc.score(ps); curr > pts {
 				pts = curr
 				best = proc
 				pos = ps.pos
@@ -323,4 +324,46 @@ func generate(web *cpb.Web, locs []*Location) []*combo {
 	}
 
 	return combos
+}
+
+func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *combo {
+	for {
+		votes := make(map[*combo]int)
+		for loc, locScores := range scores {
+			// Sort by the location's score and vote for highest score.
+			slices.SortFunc(combos, func(a, b *combo) int {
+				sca, scb := locScores[a], locScores[b]
+				// For ascending order return negative when a < b;
+				// this reverses that to get descending order.
+				return int(scb - sca)
+			})
+			if cand := combos[0]; scores[loc][cand] > 0 {
+				votes[cand]++
+			}
+		}
+		if len(votes) == 0 {
+			return nil
+		}
+
+		// Sort by votes (ascending).
+		slices.SortFunc(combos, func(a, b *combo) int {
+			return votes[a] - votes[b]
+		})
+
+		frst, last := combos[0], combos[len(combos)-1]
+		if votes[frst] == votes[last] {
+			// All are equal; pick one at random.
+			// TODO: Use random generator instead of relying
+			// on sort instability.
+			return frst
+		}
+		prev := votes[frst]
+		for idx, cmb := range combos[1:] {
+			if votes[cmb] == prev {
+				continue
+			}
+			combos = combos[idx+1:]
+			break
+		}
+	}
 }

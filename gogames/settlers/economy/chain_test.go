@@ -718,3 +718,88 @@ func TestGenerate(t *testing.T) {
 		})
 	}
 }
+
+func TestInstantRunoff(t *testing.T) {
+	cmb1 := &combo{key: "1"}
+	cmb2 := &combo{key: "2"}
+	cmb3 := &combo{key: "3"}
+	cmb4 := &combo{key: "4"}
+	cmb5 := &combo{key: "5"}
+	cmb6 := &combo{key: "6"}
+
+	loc1 := &Location{}
+	loc2 := &Location{}
+	loc3 := &Location{}
+	loc4 := &Location{}
+	loc5 := &Location{}
+	cases := []struct {
+		desc   string
+		scores map[*Location]map[*combo]int32
+		want   map[*combo]bool
+	}{
+		{
+			desc: "Nil votes",
+			want: map[*combo]bool{nil: true},
+		},
+		{
+			desc: "Communist election",
+			scores: map[*Location]map[*combo]int32{
+				loc1: map[*combo]int32{cmb1: int32(1)},
+				loc2: map[*combo]int32{cmb1: int32(1)},
+			},
+			want: map[*combo]bool{cmb1: true},
+		},
+		{
+			desc: "Landslide",
+			scores: map[*Location]map[*combo]int32{
+				loc1: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc2: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc3: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc4: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc5: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+			},
+			want: map[*combo]bool{cmb1: true},
+		},
+		{
+			desc: "Close election",
+			scores: map[*Location]map[*combo]int32{
+				loc1: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc2: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc3: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc4: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc5: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+			},
+			want: map[*combo]bool{cmb2: true},
+		},
+		{
+			desc: "Third-party tiebreak",
+			scores: map[*Location]map[*combo]int32{
+				loc1: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
+				loc2: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
+				loc3: map[*combo]int32{cmb3: int32(5), cmb1: int32(4), cmb2: int32(3)},
+				loc4: map[*combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
+				loc5: map[*combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
+			},
+			want: map[*combo]bool{cmb1: true},
+		},
+		{
+			desc: "Overlapping options, no clear winner",
+			scores: map[*Location]map[*combo]int32{
+				loc1: map[*combo]int32{cmb1: int32(5), cmb2: int32(4), cmb3: int32(3)},
+				loc2: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb4: int32(3)},
+				loc3: map[*combo]int32{cmb3: int32(5), cmb4: int32(4), cmb5: int32(3)},
+				loc4: map[*combo]int32{cmb4: int32(5), cmb5: int32(4), cmb6: int32(3)},
+				loc5: map[*combo]int32{cmb5: int32(5), cmb6: int32(4)},
+			},
+			want: map[*combo]bool{cmb1: true, cmb2: true, cmb3: true, cmb4: true, cmb5: true},
+		},
+	}
+
+	for _, cc := range cases {
+		combos := []*combo{cmb1, cmb2, cmb3, cmb4, cmb5, cmb6}
+		got := instantRunoff(combos, cc.scores)
+		if !cc.want[got] {
+			t.Errorf("%s: instantRunoff() => %v, want %v", cc.desc, got, cc.want)
+		}
+	}
+}
