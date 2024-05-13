@@ -8,6 +8,15 @@ import (
 	cpb "gogames/settlers/economy/chain_proto"
 )
 
+const (
+	kDigProc     = "dig_ore"
+	kSmeltProc   = "smelt_iron"
+	kForgeProc   = "make_weapons"
+	kForgeWeb    = "forge"
+	kSubsistProc = "subsist1"
+	kSubsistWeb  = "subsist"
+)
+
 func stringize(plcs ...[]*placement) string {
 	if len(plcs) == 0 {
 		return "<nil>"
@@ -63,6 +72,9 @@ func TestAllowed(t *testing.T) {
 		prev    []*placement
 		want    []*placement
 	}{
+		{
+			desc: "Nil",
+		},
 		{
 			desc: "Insufficient workers",
 			process: &cpb.Process{
@@ -524,65 +536,82 @@ func TestWebValid(t *testing.T) {
 	}
 }
 
-func TestGenerate(t *testing.T) {
-	subsist1 := &cpb.Process{
+func makeWebs() (map[string]*cpb.Process, map[string]*cpb.Web) {
+	procs := make(map[string]*cpb.Process)
+	webs := make(map[string]*cpb.Web)
+	procs[kSubsistProc] = &cpb.Process{
 		Key: "subsist_1",
 		Levels: []*cpb.Level{
 			{
 				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"food": 100},
 			},
 			{
 				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"food": 100},
 			},
 		},
 	}
-	dig := &cpb.Process{
-		Key: "dig_ore",
+	procs[kDigProc] = &cpb.Process{
+		Key: kDigProc,
 		Levels: []*cpb.Level{
 			{
 				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"ore": 100},
 			},
 			{
 				Workers: map[string]int32{"labor": 100},
+				Outputs: map[string]int32{"ore": 100},
 			},
 		},
 	}
-	smelt := &cpb.Process{
-		Key: "smelt_iron",
+	procs[kSmeltProc] = &cpb.Process{
+		Key: kSmeltProc,
 		Levels: []*cpb.Level{
 			{
 				Workers: map[string]int32{"skilled": 100},
+				Outputs: map[string]int32{"iron": 100},
 			},
 			{
 				Workers: map[string]int32{"skilled": 100},
+				Outputs: map[string]int32{"iron": 100},
 			},
 		},
 	}
-	hammer := &cpb.Process{
-		Key: "make_weapons",
+	procs[kForgeProc] = &cpb.Process{
+		Key: kForgeProc,
 		Levels: []*cpb.Level{
 			{
 				Workers: map[string]int32{"smith": 100},
+				Outputs: map[string]int32{"weapons": 100},
 			},
 			{
 				Workers: map[string]int32{"smith": 100},
+				Outputs: map[string]int32{"weapons": 100},
 			},
 		},
 	}
 
-	subsist := &cpb.Web{
-		Key:   "subsist",
-		Nodes: []*cpb.Process{subsist1},
+	webs[kSubsistWeb] = &cpb.Web{
+		Key:   kSubsistWeb,
+		Nodes: []*cpb.Process{procs[kSubsistProc]},
 	}
-	forge := &cpb.Web{
-		Key:   "forge",
-		Nodes: []*cpb.Process{dig, smelt, hammer},
+	webs[kForgeWeb] = &cpb.Web{
+		Key:   kForgeWeb,
+		Nodes: []*cpb.Process{procs[kDigProc], procs[kSmeltProc], procs[kForgeProc]},
 	}
 
+	return procs, webs
+}
+
+func makeLocations() []*Location {
 	loc1 := &Location{
 		maxBox: 10,
 		pool: map[string]int32{
 			"labor": 1000,
+		},
+		goods: map[string]int32{
+			"loc1": 1,
 		},
 	}
 	loc2 := &Location{
@@ -590,11 +619,17 @@ func TestGenerate(t *testing.T) {
 		pool: map[string]int32{
 			"labor": 1000,
 		},
+		goods: map[string]int32{
+			"loc2": 1,
+		},
 	}
 	loc3 := &Location{
 		maxBox: 10,
 		pool: map[string]int32{
 			"labor": 900,
+		},
+		goods: map[string]int32{
+			"loc3": 1,
 		},
 		boxen: []*Work{
 			{
@@ -613,17 +648,26 @@ func TestGenerate(t *testing.T) {
 		pool: map[string]int32{
 			"labor": 1000,
 		},
+		goods: map[string]int32{
+			"loc4": 1,
+		},
 	}
 	loc5 := &Location{
 		maxBox: 10,
 		pool: map[string]int32{
 			"skilled": 1000,
 		},
+		goods: map[string]int32{
+			"loc5": 1,
+		},
 	}
 	loc6 := &Location{
 		maxBox: 10,
 		pool: map[string]int32{
 			"smith": 1000,
+		},
+		goods: map[string]int32{
+			"loc6": 1,
 		},
 	}
 	loc1.network = []*Location{loc2, loc3}
@@ -633,6 +677,12 @@ func TestGenerate(t *testing.T) {
 	loc5.network = []*Location{loc4, loc6}
 	loc6.network = []*Location{loc5}
 
+	return []*Location{loc1, loc2, loc3, loc4, loc5, loc6}
+}
+
+func TestGenerate(t *testing.T) {
+	procs, webs := makeWebs()
+	locs := makeLocations()
 	cases := []struct {
 		desc      string
 		web       *cpb.Web
@@ -644,58 +694,58 @@ func TestGenerate(t *testing.T) {
 		},
 		{
 			desc: "No locations",
-			web:  subsist,
+			web:  webs[kSubsistWeb],
 		},
 		{
 			desc:      "Single process single location",
-			web:       subsist,
-			locations: []*Location{loc1},
+			web:       webs[kSubsistWeb],
+			locations: locs[:1],
 			want: []*combo{
 				{
-					key:   subsist.GetKey(),
-					procs: []*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+					key:   webs[kSubsistWeb].GetKey(),
+					procs: []*placement{{loc: locs[0], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
 				},
 			},
 		},
 		{
 			desc:      "Single process many locations",
-			web:       subsist,
-			locations: []*Location{loc1, loc2, loc3},
+			web:       webs[kSubsistWeb],
+			locations: locs[:3],
 			want: []*combo{
 				{
-					key:   subsist.GetKey(),
-					procs: []*placement{{loc: loc1, prc: subsist1, pos: kNewBox, lvl: 0}},
+					key:   webs[kSubsistWeb].GetKey(),
+					procs: []*placement{{loc: locs[0], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
 				},
 				{
-					key:   subsist.GetKey(),
-					procs: []*placement{{loc: loc2, prc: subsist1, pos: kNewBox, lvl: 0}},
+					key:   webs[kSubsistWeb].GetKey(),
+					procs: []*placement{{loc: locs[1], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
 				},
 				{
-					key:   subsist.GetKey(),
-					procs: []*placement{{loc: loc3, prc: subsist1, pos: 0, lvl: 1}},
+					key:   webs[kSubsistWeb].GetKey(),
+					procs: []*placement{{loc: locs[2], prc: procs[kSubsistProc], pos: 0, lvl: 1}},
 				},
 				{
-					key:   subsist.GetKey(),
-					procs: []*placement{{loc: loc3, prc: subsist1, pos: kNewBox, lvl: 0}},
+					key:   webs[kSubsistWeb].GetKey(),
+					procs: []*placement{{loc: locs[2], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
 				},
 			},
 		},
 		{
 			desc:      "Complex process sad case",
-			web:       forge,
-			locations: []*Location{loc1, loc2, loc3},
+			web:       webs[kForgeWeb],
+			locations: locs[:3],
 		},
 		{
 			desc:      "Complex process happy case",
-			web:       forge,
-			locations: []*Location{loc1, loc2, loc3, loc4, loc5, loc6},
+			web:       webs[kForgeWeb],
+			locations: locs,
 			want: []*combo{
 				{
-					key: forge.GetKey(),
+					key: kForgeWeb,
 					procs: []*placement{
-						{loc: loc4, prc: dig, pos: kNewBox, lvl: 0},
-						{loc: loc5, prc: smelt, pos: kNewBox, lvl: 0},
-						{loc: loc6, prc: hammer, pos: kNewBox, lvl: 0},
+						{loc: locs[3], prc: procs[kDigProc], pos: kNewBox, lvl: 0},
+						{loc: locs[4], prc: procs[kSmeltProc], pos: kNewBox, lvl: 0},
+						{loc: locs[5], prc: procs[kForgeProc], pos: kNewBox, lvl: 0},
 					},
 				},
 			},
@@ -727,11 +777,12 @@ func TestInstantRunoff(t *testing.T) {
 	cmb5 := &combo{key: "5"}
 	cmb6 := &combo{key: "6"}
 
-	loc1 := &Location{}
-	loc2 := &Location{}
-	loc3 := &Location{}
-	loc4 := &Location{}
-	loc5 := &Location{}
+	locs := makeLocations()
+	loc1 := locs[0]
+	loc2 := locs[1]
+	loc3 := locs[2]
+	loc4 := locs[3]
+	loc5 := locs[4]
 	cases := []struct {
 		desc   string
 		scores map[*Location]map[*combo]int32
@@ -801,5 +852,98 @@ func TestInstantRunoff(t *testing.T) {
 		if !cc.want[got] {
 			t.Errorf("%s: instantRunoff() => %v, want %v", cc.desc, got, cc.want)
 		}
+	}
+}
+
+func TestPlaceWeb(t *testing.T) {
+	procs, webs := makeWebs()
+	locs := makeLocations()
+	allWebs := []*cpb.Web{webs[kSubsistWeb], webs[kForgeWeb]}
+
+	cases := []struct {
+		desc string
+		webs []*cpb.Web
+		locs []*Location
+		want *combo
+	}{
+		{
+			desc: "Nil inputs",
+		},
+		{
+			desc: "No locations",
+			webs: allWebs,
+		},
+		{
+			desc: "Need skilled labour for complex web",
+			webs: allWebs,
+			locs: locs[:1],
+			want: &combo{
+				key: kSubsistWeb,
+				procs: []*placement{
+					{
+						loc: locs[0],
+						prc: procs[kSubsistProc],
+						pos: kNewBox,
+						lvl: 0,
+					},
+				},
+			},
+		},
+		{
+			desc: "Level up where possible",
+			webs: allWebs,
+			locs: locs[2:3],
+			want: &combo{
+				key: kSubsistWeb,
+				procs: []*placement{
+					{
+						loc: locs[2],
+						prc: procs[kSubsistProc],
+						pos: 0,
+						lvl: 1,
+					},
+				},
+			},
+		},
+		{
+			desc: "Voting",
+			webs: allWebs,
+			locs: locs,
+			// Locations 5 and 6 cannot vote for subsistence as they
+			// don't have unskilled labour, so they always form a sufficient
+			// voting bloc to get kForgeWeb adapted.
+			want: &combo{
+				key: kForgeWeb,
+				procs: []*placement{
+					{
+						loc: locs[3],
+						prc: procs[kDigProc],
+						pos: kNewBox,
+						lvl: 0,
+					},
+					{
+						loc: locs[4],
+						prc: procs[kSmeltProc],
+						pos: kNewBox,
+						lvl: 0,
+					},
+					{
+						loc: locs[5],
+						prc: procs[kForgeProc],
+						pos: kNewBox,
+						lvl: 0,
+					},
+				},
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			got := Place(cc.webs, cc.locs)
+			if gs, ws := makeString(got), makeString(cc.want); gs != ws {
+				t.Errorf("%s: Place() => %s,\n want %s", cc.desc, gs, ws)
+			}
+		})
 	}
 }

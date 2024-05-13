@@ -113,6 +113,9 @@ func (c *combo) debugString() string {
 // Allowed returns the possible placements of the given process,
 // taking into account any previous placements in the location.
 func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
+	if p == nil {
+		return nil
+	}
 	// TODO: Constraints other than number of workers.
 	places := make([]*placement, 0, 3)
 	avail := map[string]int32{}
@@ -326,6 +329,8 @@ func generate(web *cpb.Web, locs []*Location) []*combo {
 	return combos
 }
 
+// instantRunoff selects the combo with the most votes using instant runoff,
+// with random tiebreaking.
 func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *combo {
 	for {
 		votes := make(map[*combo]int)
@@ -366,4 +371,34 @@ func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *comb
 			break
 		}
 	}
+}
+
+// Place emplaces the highest-voted production web to the
+// locations, returning the placed combination. Each location
+// ranks the combinations by score, then an instant-runoff
+// election is held.
+func Place(webs []*cpb.Web, locs []*Location) *combo {
+	combos := make([]*combo, 0, len(locs))
+	for _, web := range webs {
+		if curr := generate(web, locs); len(curr) > 0 {
+			combos = append(combos, curr...)
+		}
+	}
+
+	if len(combos) == 0 {
+		return nil
+	}
+
+	scores := make(map[*Location]map[*combo]int32)
+	for _, cmb := range combos {
+		for _, proc := range cmb.procs {
+			loc := proc.loc
+			if scores[loc] == nil {
+				scores[loc] = make(map[*combo]int32)
+			}
+			scores[loc][cmb] = loc.score(proc)
+		}
+	}
+
+	return instantRunoff(combos, scores)
 }
