@@ -2,6 +2,7 @@ package chain
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 	"testing"
 
@@ -943,6 +944,91 @@ func TestPlaceWeb(t *testing.T) {
 			got := Place(cc.webs, cc.locs)
 			if gs, ws := makeString(got), makeString(cc.want); gs != ws {
 				t.Errorf("%s: Place() => %s,\n want %s", cc.desc, gs, ws)
+			}
+		})
+	}
+}
+
+func TestWork(t *testing.T) {
+	cases := []struct {
+		desc    string
+		loc     *Location
+		workers map[string]int32
+		want    map[string]int32
+		pool    map[string]int32
+	}{
+		{
+			desc: "Nil location",
+		},
+		{
+			desc:    "No work",
+			loc:     &Location{},
+			workers: map[string]int32{"labor": 100},
+			pool:    map[string]int32{"labor": 100},
+		},
+		{
+			desc: "Priorities",
+			loc: &Location{
+				goods: make(map[string]int32),
+				boxen: []*Work{
+					&Work{
+						assigned: []*cpb.Level{
+							&cpb.Level{
+								Workers: map[string]int32{"labor": 50},
+								Outputs: map[string]int32{"food": 50},
+							},
+							&cpb.Level{
+								Workers: map[string]int32{"labor": 40},
+								Outputs: map[string]int32{"food": 30},
+							},
+						},
+					},
+					nil,
+					&Work{
+						assigned: []*cpb.Level{
+							&cpb.Level{
+								Workers: map[string]int32{"skilled": 50},
+								Outputs: map[string]int32{"goods": 50},
+							},
+						},
+					},
+					&Work{
+						assigned: []*cpb.Level{
+							&cpb.Level{
+								Workers: map[string]int32{"skilled": 30},
+								Outputs: map[string]int32{"goods": 30},
+							},
+							&cpb.Level{
+								Workers: map[string]int32{"skilled": 30},
+								Outputs: map[string]int32{"goods": 30},
+							},
+						},
+					},
+				},
+			},
+			workers: map[string]int32{"labor": 100, "skilled": 100},
+			pool:    map[string]int32{"labor": 10, "skilled": 20},
+			want:    map[string]int32{"food": 80, "goods": 80},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			cc.loc.MakeAvailable(cc.workers)
+			var gotpool map[string]int32
+			if cc.loc != nil {
+				gotpool = cc.loc.pool
+			}
+			if !maps.Equal(gotpool, cc.pool) {
+				t.Errorf("%s: MakeAvailable() => %v, want %v", cc.desc, cc.loc.pool, cc.pool)
+			}
+			cc.loc.Work()
+			var gotgoods map[string]int32
+			if cc.loc != nil {
+				gotgoods = cc.loc.goods
+			}
+			if !maps.Equal(gotgoods, cc.want) {
+				t.Errorf("%s: Work() => %v, want %v", cc.desc, cc.loc.goods, cc.want)
 			}
 		})
 	}

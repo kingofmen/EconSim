@@ -3,6 +3,7 @@ package chain
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
@@ -24,6 +25,8 @@ type Work struct {
 	key string
 	// Labour and capital used.
 	assigned []*cpb.Level
+	// Currently active level.
+	active int
 }
 
 // scalable returns the level of the process that can be
@@ -71,6 +74,66 @@ type Location struct {
 	maxBox int
 }
 
+func NewLocation() *Location {
+	return &Location{
+		pool:   make(map[string]int32),
+		goods:  make(map[string]int32),
+		maxBox: 10,
+	}
+}
+
+func (l *Location) WithEvaluator(s Scorer) *Location {
+	if l != nil {
+		l.evaluator = s
+	}
+	return l
+}
+
+func (l *Location) WithMaxBox(mb int) *Location {
+	if l != nil {
+		l.maxBox = mb
+	}
+	return l
+}
+
+// MakeAvailable distributes the given skills among the
+// Location's work boxen, leaving any surplus in the pool.
+func (l *Location) MakeAvailable(work map[string]int32) {
+	if l == nil {
+		return
+	}
+	for _, b := range l.boxen {
+		if b == nil {
+			continue
+		}
+		b.active = -1
+		for idx, lvl := range b.assigned {
+			if !super(work, lvl.GetWorkers()) {
+				continue
+			}
+			sub(work, lvl.GetWorkers())
+			b.active = idx
+		}
+	}
+	l.pool = maps.Clone(work)
+}
+
+func (l *Location) Work() {
+	if l == nil {
+		return
+	}
+	for _, b := range l.boxen {
+		if b == nil {
+			continue
+		}
+		for _, lvl := range b.assigned[:b.active+1] {
+			for k, v := range lvl.GetOutputs() {
+				l.goods[k] += v
+			}
+		}
+	}
+}
+
 // super returns true if p1 is a superset of p2.
 func super(avail, want map[string]int32) bool {
 	for skill, amount := range want {
@@ -79,6 +142,13 @@ func super(avail, want map[string]int32) bool {
 		}
 	}
 	return true
+}
+
+// sub subtracts the subtrahend from the minuend.
+func sub(minuend, subtrahend map[string]int32) {
+	for k, v := range subtrahend {
+		minuend[k] -= v
+	}
 }
 
 // placement is a possible scaling of a process.
