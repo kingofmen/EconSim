@@ -75,5 +75,6 @@ proto_library(
 go_proto_library(
     name = "chain_go_proto",
     importpath = "gogames/settlers/economy/chain_proto",
+    visibility = ["//visibility:public"],
     protos = [":chain_proto"],
 )

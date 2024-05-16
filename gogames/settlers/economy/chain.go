@@ -69,17 +69,27 @@ type Location struct {
 	// Prioritiser.
 	evaluator Scorer
 	// Stockpile.
-	goods map[string]int32
+	Goods map[string]int32
 	// Max work processes.
 	maxBox int
+	// Rejection reasons.
+	Reasons map[string]string
 }
 
 func NewLocation() *Location {
 	return &Location{
 		pool:   make(map[string]int32),
-		goods:  make(map[string]int32),
+		Goods:  make(map[string]int32),
 		maxBox: 10,
 	}
+}
+
+// reject stores the reason for not allowing the process.
+func (loc *Location) reject(p *cpb.Process, reason string) {
+	if loc == nil || loc.Reasons == nil {
+		return
+	}
+	loc.Reasons[p.GetKey()] = reason
 }
 
 func (l *Location) WithEvaluator(s Scorer) *Location {
@@ -128,7 +138,7 @@ func (l *Location) Work() {
 		}
 		for _, lvl := range b.assigned[:b.active+1] {
 			for k, v := range lvl.GetOutputs() {
-				l.goods[k] += v
+				l.Goods[k] += v
 			}
 		}
 	}
@@ -159,17 +169,17 @@ type placement struct {
 	lvl int
 }
 
-// combo is a set of placements comprising a web.
-type combo struct {
+// Combo is a set of placements comprising a web.
+type Combo struct {
 	// key is the lookup key of the web.
 	key string
 	// procs are the process placements.
 	procs []*placement
 }
 
-// debugString returns a human-readable-ish string suitable
+// DebugString returns a human-readable-ish string suitable
 // for debugging.
-func (c *combo) debugString() string {
+func (c *Combo) DebugString() string {
 	if c == nil {
 		return "<nil>"
 	}
@@ -178,6 +188,16 @@ func (c *combo) debugString() string {
 		strs = append(strs, fmt.Sprintf(" {loc: %p prc: %s pos: %d lvl: %d}\n", p.loc, p.prc.GetKey(), p.pos, p.lvl))
 	}
 	return fmt.Sprintf("%s: %s", c.key, strings.Join(strs, " "))
+}
+
+// Activate emplaces the combination's processes in the locations.
+func (c *Combo) Activate() {
+	if c == nil {
+		return
+	}
+	for _, pl := range c.procs {
+		pl.loc.assignWork(pl.pos, pl.prc)
+	}
 }
 
 // Allowed returns the possible placements of the given process,
@@ -210,6 +230,7 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 		// TODO: Allow empty boxen.
 		lvl := box.scalable(p)
 		if lvl == kNotScalable {
+			loc.reject(p, "unscalable")
 			continue
 		}
 		if lvl == kNewBox {
@@ -218,6 +239,7 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 		}
 		need := p.GetLevels()[lvl]
 		if !super(avail, need.GetWorkers()) {
+			loc.reject(p, "insufficient workers")
 			continue
 		}
 		// Other prereqs must be fulfilled since we have
@@ -263,9 +285,9 @@ func defaultScore(exist, output map[string]int32) int32 {
 func (loc *Location) score(place *placement) int32 {
 	output := loc.output(place, place.prc)
 	if loc.evaluator != nil {
-		return loc.evaluator.Score(loc.goods, output)
+		return loc.evaluator.Score(loc.Goods, output)
 	}
-	return defaultScore(loc.goods, output)
+	return defaultScore(loc.Goods, output)
 }
 
 // assignWork fills a box with the provided process.
@@ -319,6 +341,7 @@ func (loc *Location) Place(options []*cpb.Process) string {
 	return best.GetKey()
 }
 
+// Valid returns an error if the Web is invalid.
 func Valid(web *cpb.Web) error {
 	nodes := web.GetNodes()
 	if len(nodes) < 1 {
@@ -354,16 +377,16 @@ func Valid(web *cpb.Web) error {
 }
 
 // generate finds all legal combinations of locations to place the web.
-func generate(web *cpb.Web, locs []*Location) []*combo {
+func generate(web *cpb.Web, locs []*Location) []*Combo {
 	if web == nil {
 		return nil
 	}
 	nodes := web.GetNodes()
 	fnode := nodes[0]
-	combos := make([]*combo, 0, len(locs))
+	combos := make([]*Combo, 0, len(locs))
 	for _, loc := range locs {
 		for _, cand := range loc.Allowed(fnode) {
-			combos = append(combos, &combo{
+			combos = append(combos, &Combo{
 				key:   web.GetKey(),
 				procs: []*placement{cand},
 			})
@@ -378,12 +401,12 @@ func generate(web *cpb.Web, locs []*Location) []*combo {
 		// For each existing list of placements, either grow it
 		// by adding a new location (possibly forking), or abandon
 		// it if no additions are possible.
-		ncombs := make([]*combo, 0, len(combos))
+		ncombs := make([]*Combo, 0, len(combos))
 		for _, cmb := range combos {
 			start := cmb.procs[len(cmb.procs)-1].loc
 			for _, loc := range start.network {
 				for _, cand := range loc.Allowed(proc, cmb.procs...) {
-					nc := &combo{
+					nc := &Combo{
 						key:   web.GetKey(),
 						procs: make([]*placement, len(cmb.procs)),
 					}
@@ -399,14 +422,14 @@ func generate(web *cpb.Web, locs []*Location) []*combo {
 	return combos
 }
 
-// instantRunoff selects the combo with the most votes using instant runoff,
+// instantRunoff selects the Combo with the most votes using instant runoff,
 // with random tiebreaking.
-func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *combo {
+func instantRunoff(combos []*Combo, scores map[*Location]map[*Combo]int32) *Combo {
 	for {
-		votes := make(map[*combo]int)
+		votes := make(map[*Combo]int)
 		for loc, locScores := range scores {
 			// Sort by the location's score and vote for highest score.
-			slices.SortFunc(combos, func(a, b *combo) int {
+			slices.SortFunc(combos, func(a, b *Combo) int {
 				sca, scb := locScores[a], locScores[b]
 				// For ascending order return negative when a < b;
 				// this reverses that to get descending order.
@@ -421,7 +444,7 @@ func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *comb
 		}
 
 		// Sort by votes (ascending).
-		slices.SortFunc(combos, func(a, b *combo) int {
+		slices.SortFunc(combos, func(a, b *Combo) int {
 			return votes[a] - votes[b]
 		})
 
@@ -447,8 +470,8 @@ func instantRunoff(combos []*combo, scores map[*Location]map[*combo]int32) *comb
 // locations, returning the placed combination. Each location
 // ranks the combinations by score, then an instant-runoff
 // election is held.
-func Place(webs []*cpb.Web, locs []*Location) *combo {
-	combos := make([]*combo, 0, len(locs))
+func Place(webs []*cpb.Web, locs []*Location) *Combo {
+	combos := make([]*Combo, 0, len(locs))
 	for _, web := range webs {
 		if curr := generate(web, locs); len(curr) > 0 {
 			combos = append(combos, curr...)
@@ -459,12 +482,12 @@ func Place(webs []*cpb.Web, locs []*Location) *combo {
 		return nil
 	}
 
-	scores := make(map[*Location]map[*combo]int32)
+	scores := make(map[*Location]map[*Combo]int32)
 	for _, cmb := range combos {
 		for _, proc := range cmb.procs {
 			loc := proc.loc
 			if scores[loc] == nil {
-				scores[loc] = make(map[*combo]int32)
+				scores[loc] = make(map[*Combo]int32)
 			}
 			scores[loc][cmb] = loc.score(proc)
 		}

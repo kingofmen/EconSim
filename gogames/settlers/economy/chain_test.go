@@ -33,10 +33,10 @@ func stringize(plcs ...[]*placement) string {
 	return ret
 }
 
-func makeString(cs ...*combo) string {
+func makeString(cs ...*Combo) string {
 	strs := make([]string, 0, len(cs))
 	for _, c := range cs {
-		strs = append(strs, c.debugString())
+		strs = append(strs, c.DebugString())
 	}
 	return strings.Join(strs, "\n")
 }
@@ -611,7 +611,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"labor": 1000,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc1": 1,
 		},
 	}
@@ -620,7 +620,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"labor": 1000,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc2": 1,
 		},
 	}
@@ -629,7 +629,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"labor": 900,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc3": 1,
 		},
 		boxen: []*Work{
@@ -649,7 +649,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"labor": 1000,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc4": 1,
 		},
 	}
@@ -658,7 +658,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"skilled": 1000,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc5": 1,
 		},
 	}
@@ -667,7 +667,7 @@ func makeLocations() []*Location {
 		pool: map[string]int32{
 			"smith": 1000,
 		},
-		goods: map[string]int32{
+		Goods: map[string]int32{
 			"loc6": 1,
 		},
 	}
@@ -688,7 +688,7 @@ func TestGenerate(t *testing.T) {
 		desc      string
 		web       *cpb.Web
 		locations []*Location
-		want      []*combo
+		want      []*Combo
 	}{
 		{
 			desc: "Nil web",
@@ -701,7 +701,7 @@ func TestGenerate(t *testing.T) {
 			desc:      "Single process single location",
 			web:       webs[kSubsistWeb],
 			locations: locs[:1],
-			want: []*combo{
+			want: []*Combo{
 				{
 					key:   webs[kSubsistWeb].GetKey(),
 					procs: []*placement{{loc: locs[0], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
@@ -712,7 +712,7 @@ func TestGenerate(t *testing.T) {
 			desc:      "Single process many locations",
 			web:       webs[kSubsistWeb],
 			locations: locs[:3],
-			want: []*combo{
+			want: []*Combo{
 				{
 					key:   webs[kSubsistWeb].GetKey(),
 					procs: []*placement{{loc: locs[0], prc: procs[kSubsistProc], pos: kNewBox, lvl: 0}},
@@ -740,7 +740,7 @@ func TestGenerate(t *testing.T) {
 			desc:      "Complex process happy case",
 			web:       webs[kForgeWeb],
 			locations: locs,
-			want: []*combo{
+			want: []*Combo{
 				{
 					key: kForgeWeb,
 					procs: []*placement{
@@ -763,7 +763,7 @@ func TestGenerate(t *testing.T) {
 			for idx, gpls := range got {
 				wpls := cc.want[idx]
 				if ng, nw := len(gpls.procs), len(wpls.procs); ng != nw {
-					t.Errorf("%s: generated[%d] => %d combos, want %d (%s vs %s)", cc.desc, idx, ng, nw, gpls.debugString(), wpls.debugString())
+					t.Errorf("%s: generated[%d] => %d combos, want %d (%s vs %s)", cc.desc, idx, ng, nw, gpls.DebugString(), wpls.DebugString())
 				}
 			}
 		})
@@ -771,12 +771,12 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestInstantRunoff(t *testing.T) {
-	cmb1 := &combo{key: "1"}
-	cmb2 := &combo{key: "2"}
-	cmb3 := &combo{key: "3"}
-	cmb4 := &combo{key: "4"}
-	cmb5 := &combo{key: "5"}
-	cmb6 := &combo{key: "6"}
+	cmb1 := &Combo{key: "1"}
+	cmb2 := &Combo{key: "2"}
+	cmb3 := &Combo{key: "3"}
+	cmb4 := &Combo{key: "4"}
+	cmb5 := &Combo{key: "5"}
+	cmb6 := &Combo{key: "6"}
 
 	locs := makeLocations()
 	loc1 := locs[0]
@@ -786,69 +786,69 @@ func TestInstantRunoff(t *testing.T) {
 	loc5 := locs[4]
 	cases := []struct {
 		desc   string
-		scores map[*Location]map[*combo]int32
-		want   map[*combo]bool
+		scores map[*Location]map[*Combo]int32
+		want   map[*Combo]bool
 	}{
 		{
 			desc: "Nil votes",
-			want: map[*combo]bool{nil: true},
+			want: map[*Combo]bool{nil: true},
 		},
 		{
 			desc: "Communist election",
-			scores: map[*Location]map[*combo]int32{
-				loc1: map[*combo]int32{cmb1: int32(1)},
-				loc2: map[*combo]int32{cmb1: int32(1)},
+			scores: map[*Location]map[*Combo]int32{
+				loc1: map[*Combo]int32{cmb1: int32(1)},
+				loc2: map[*Combo]int32{cmb1: int32(1)},
 			},
-			want: map[*combo]bool{cmb1: true},
+			want: map[*Combo]bool{cmb1: true},
 		},
 		{
 			desc: "Landslide",
-			scores: map[*Location]map[*combo]int32{
-				loc1: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
-				loc2: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
-				loc3: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
-				loc4: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
-				loc5: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+			scores: map[*Location]map[*Combo]int32{
+				loc1: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc2: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc3: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc4: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc5: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
 			},
-			want: map[*combo]bool{cmb1: true},
+			want: map[*Combo]bool{cmb1: true},
 		},
 		{
 			desc: "Close election",
-			scores: map[*Location]map[*combo]int32{
-				loc1: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
-				loc2: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
-				loc3: map[*combo]int32{cmb2: int32(5), cmb1: int32(4)},
-				loc4: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
-				loc5: map[*combo]int32{cmb1: int32(5), cmb2: int32(4)},
+			scores: map[*Location]map[*Combo]int32{
+				loc1: map[*Combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc2: map[*Combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc3: map[*Combo]int32{cmb2: int32(5), cmb1: int32(4)},
+				loc4: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
+				loc5: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4)},
 			},
-			want: map[*combo]bool{cmb2: true},
+			want: map[*Combo]bool{cmb2: true},
 		},
 		{
 			desc: "Third-party tiebreak",
-			scores: map[*Location]map[*combo]int32{
-				loc1: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
-				loc2: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
-				loc3: map[*combo]int32{cmb3: int32(5), cmb1: int32(4), cmb2: int32(3)},
-				loc4: map[*combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
-				loc5: map[*combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
+			scores: map[*Location]map[*Combo]int32{
+				loc1: map[*Combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
+				loc2: map[*Combo]int32{cmb2: int32(5), cmb3: int32(4), cmb1: int32(3)},
+				loc3: map[*Combo]int32{cmb3: int32(5), cmb1: int32(4), cmb2: int32(3)},
+				loc4: map[*Combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
+				loc5: map[*Combo]int32{cmb1: int32(5), cmb3: int32(4), cmb2: int32(3)},
 			},
-			want: map[*combo]bool{cmb1: true},
+			want: map[*Combo]bool{cmb1: true},
 		},
 		{
 			desc: "Overlapping options, no clear winner",
-			scores: map[*Location]map[*combo]int32{
-				loc1: map[*combo]int32{cmb1: int32(5), cmb2: int32(4), cmb3: int32(3)},
-				loc2: map[*combo]int32{cmb2: int32(5), cmb3: int32(4), cmb4: int32(3)},
-				loc3: map[*combo]int32{cmb3: int32(5), cmb4: int32(4), cmb5: int32(3)},
-				loc4: map[*combo]int32{cmb4: int32(5), cmb5: int32(4), cmb6: int32(3)},
-				loc5: map[*combo]int32{cmb5: int32(5), cmb6: int32(4)},
+			scores: map[*Location]map[*Combo]int32{
+				loc1: map[*Combo]int32{cmb1: int32(5), cmb2: int32(4), cmb3: int32(3)},
+				loc2: map[*Combo]int32{cmb2: int32(5), cmb3: int32(4), cmb4: int32(3)},
+				loc3: map[*Combo]int32{cmb3: int32(5), cmb4: int32(4), cmb5: int32(3)},
+				loc4: map[*Combo]int32{cmb4: int32(5), cmb5: int32(4), cmb6: int32(3)},
+				loc5: map[*Combo]int32{cmb5: int32(5), cmb6: int32(4)},
 			},
-			want: map[*combo]bool{cmb1: true, cmb2: true, cmb3: true, cmb4: true, cmb5: true},
+			want: map[*Combo]bool{cmb1: true, cmb2: true, cmb3: true, cmb4: true, cmb5: true},
 		},
 	}
 
 	for _, cc := range cases {
-		combos := []*combo{cmb1, cmb2, cmb3, cmb4, cmb5, cmb6}
+		combos := []*Combo{cmb1, cmb2, cmb3, cmb4, cmb5, cmb6}
 		got := instantRunoff(combos, cc.scores)
 		if !cc.want[got] {
 			t.Errorf("%s: instantRunoff() => %v, want %v", cc.desc, got, cc.want)
@@ -865,7 +865,7 @@ func TestPlaceWeb(t *testing.T) {
 		desc string
 		webs []*cpb.Web
 		locs []*Location
-		want *combo
+		want *Combo
 	}{
 		{
 			desc: "Nil inputs",
@@ -878,7 +878,7 @@ func TestPlaceWeb(t *testing.T) {
 			desc: "Need skilled labour for complex web",
 			webs: allWebs,
 			locs: locs[:1],
-			want: &combo{
+			want: &Combo{
 				key: kSubsistWeb,
 				procs: []*placement{
 					{
@@ -894,7 +894,7 @@ func TestPlaceWeb(t *testing.T) {
 			desc: "Level up where possible",
 			webs: allWebs,
 			locs: locs[2:3],
-			want: &combo{
+			want: &Combo{
 				key: kSubsistWeb,
 				procs: []*placement{
 					{
@@ -913,7 +913,7 @@ func TestPlaceWeb(t *testing.T) {
 			// Locations 5 and 6 cannot vote for subsistence as they
 			// don't have unskilled labour, so they always form a sufficient
 			// voting bloc to get kForgeWeb adapted.
-			want: &combo{
+			want: &Combo{
 				key: kForgeWeb,
 				procs: []*placement{
 					{
@@ -969,7 +969,7 @@ func TestWork(t *testing.T) {
 		{
 			desc: "Priorities",
 			loc: &Location{
-				goods: make(map[string]int32),
+				Goods: make(map[string]int32),
 				boxen: []*Work{
 					&Work{
 						assigned: []*cpb.Level{
@@ -1025,10 +1025,10 @@ func TestWork(t *testing.T) {
 			cc.loc.Work()
 			var gotgoods map[string]int32
 			if cc.loc != nil {
-				gotgoods = cc.loc.goods
+				gotgoods = cc.loc.Goods
 			}
 			if !maps.Equal(gotgoods, cc.want) {
-				t.Errorf("%s: Work() => %v, want %v", cc.desc, cc.loc.goods, cc.want)
+				t.Errorf("%s: Work() => %v, want %v", cc.desc, cc.loc.Goods, cc.want)
 			}
 		})
 	}
