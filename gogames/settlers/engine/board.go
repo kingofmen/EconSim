@@ -3,11 +3,15 @@ package settlers
 import (
 	"fmt"
 
+	"gogames/settlers/economy/chain"
 	"gogames/tiles/triangles"
+
+	cpb "gogames/settlers/economy/chain_proto"
 )
 
 type Tile struct {
 	*triangles.Surface
+	*chain.Location
 	pieces []*Piece
 }
 
@@ -23,6 +27,7 @@ type Board struct {
 	tileMap map[triangles.TriPoint]*Tile
 	vtxMap  map[triangles.TriPoint]*Point
 	pieces  []*Piece
+	Webs    []*cpb.Web
 }
 
 // NewHex returns a six-sided board of radius r.
@@ -50,8 +55,9 @@ func NewHex(r int) (*Board, error) {
 				}
 				surfaces = append(surfaces, s)
 				tile := &Tile{
-					Surface: s,
-					pieces:  make([]*Piece, 0, 3),
+					Surface:  s,
+					Location: chain.NewLocation(),
+					pieces:   make([]*Piece, 0, 3),
 				}
 				b.Tiles = append(b.Tiles, tile)
 				b.tileMap[s.GetTriPoint()] = tile
@@ -183,10 +189,26 @@ func (m *Board) Tick() error {
 		return fmt.Errorf("Tick called on nil Board")
 	}
 
-	for _, s := range m.pieces {
-		s.Prioritize()
-		s.Populate()
-		s.Produce()
+	asLocs := make([]*chain.Location, 0, len(m.Tiles))
+	for _, tile := range m.Tiles {
+		if tile == nil {
+			continue
+		}
+		asLocs = append(asLocs, tile.Location)
+		for _, piece := range tile.pieces {
+			tile.Location.MakeAvailable(piece.GetWorkers())
+		}
+	}
+
+	for {
+		if cmb := chain.Place(m.Webs, asLocs); cmb != nil {
+			cmb.Activate()
+			continue
+		}
+		break
+	}
+	for _, tile := range m.Tiles {
+		tile.Location.Work()
 	}
 
 	return nil

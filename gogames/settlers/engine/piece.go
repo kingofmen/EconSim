@@ -189,6 +189,12 @@ func (p *Piece) GetKey() string {
 	return p.kind.key
 }
 
+// GetWorkers returns the currently-available skills of the piece.
+func (p *Piece) GetWorkers() map[string]int32 {
+	// TODO: This is a placeholder.
+	return map[string]int32{"labour": int32(100)}
+}
+
 func (s *Piece) Populate() {
 	if s == nil {
 		return

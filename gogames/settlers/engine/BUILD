@@ -11,9 +11,11 @@ go_library(
     importpath = "gogames/settlers/engine/settlers",
     visibility = ["//visibility:public"],
     deps = [
+      "//gogames/settlers/economy:chain",
+      "//gogames/settlers/economy:chain_go_proto",
+      "//gogames/tiles/triangles:triangles",
       "//gogames/util:coords",
       "//gogames/util:dna",
-      "//gogames/tiles/triangles:triangles",
     ],
 )
 
@@ -21,6 +23,7 @@ go_test(
     name = "settlers_test",
     srcs = [
       "settlers_test.go",
+      "board_test.go",
     ],
     embed = [
       ":settlers",
@@ -29,3 +32,4 @@ go_test(
       "//gogames/util:coords",
     ],
 )
+
