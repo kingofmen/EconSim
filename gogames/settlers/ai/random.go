@@ -39,6 +39,7 @@ func NewRandom() settlers.DeciderFunc {
 
 		rnd := rand.Int() % len(moves)
 		action := moves[rnd]
-		return errors.Join(gs.Board.Place(action.pos, f, action.tmpl, action.turns)...)
+		place := settlers.NewPlacement(action.pos, action.tmpl).WithRotation(action.turns).WithFaction(f)
+		return errors.Join(gs.Board.Place(place)...)
 	}
 }

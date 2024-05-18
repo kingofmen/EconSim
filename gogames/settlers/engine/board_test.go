@@ -61,7 +61,7 @@ func TestTickWork(t *testing.T) {
 			t.Fatalf("%s: Could not create board: %v", cc.desc, err)
 		}
 		for _, pos := range cc.place {
-			if errs := board.Place(pos, nil, workerTemplate, None); len(errs) > 0 {
+			if errs := board.Place(NewPlacement(pos, workerTemplate)); len(errs) > 0 {
 				t.Fatalf("Could not place worker template: %v", errs)
 			}
 		}

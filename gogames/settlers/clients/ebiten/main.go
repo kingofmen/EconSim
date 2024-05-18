@@ -227,7 +227,8 @@ func (bc *boardComponent) handleLeftClick() {
 	if uiState.currTmpl == nil {
 		return
 	}
-	if errs := uiState.game.Board.Place(target.GetTriPoint(), nil, uiState.currTmpl, settlers.Turns(uiState.rotation)); len(errs) > 0 {
+	place := settlers.NewPlacement(target.GetTriPoint(), uiState.currTmpl).WithRotation(settlers.Turns(uiState.rotation))
+	if errs := uiState.game.Board.Place(place); len(errs) > 0 {
 		for _, err := range errs {
 			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
 		}

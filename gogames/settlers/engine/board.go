@@ -151,31 +151,79 @@ func (bd *Board) CheckShape(pos triangles.TriPoint, fac *Faction, tmp *Template,
 	return bad
 }
 
+// PlaceParams contains parameters for the Place function.
+type PlaceParams struct {
+	pos   triangles.TriPoint
+	fac   *Faction
+	tmp   *Template
+	turns Rotate
+}
+
+// Valid returns an error if required parameters are not present.
+func (pp *PlaceParams) Valid() error {
+	if pp == nil {
+		return fmt.Errorf("invalid place parameters: nil")
+	}
+	if err := pp.pos.ValidSurface(); err != nil {
+		return fmt.Errorf("invalid place parameters: %w", err)
+	}
+	if pp.tmp == nil {
+		return fmt.Errorf("invalid place parameters: template is nil")
+	}
+	return nil
+}
+
+func NewPlacement(pos triangles.TriPoint, tmp *Template) *PlaceParams {
+	return &PlaceParams{
+		pos: pos,
+		tmp: tmp,
+	}
+}
+
+func (pp *PlaceParams) WithFaction(fac *Faction) *PlaceParams {
+	if pp == nil {
+		return nil
+	}
+	pp.fac = fac
+	return pp
+}
+
+func (pp *PlaceParams) WithRotation(turns Rotate) *PlaceParams {
+	if pp == nil {
+		return nil
+	}
+	pp.turns = turns
+	return pp
+}
+
 // Place puts a Piece onto the board.
-func (bd *Board) Place(pos triangles.TriPoint, fac *Faction, tmp *Template, turns Rotate) []error {
+func (bd *Board) Place(pp *PlaceParams) []error {
 	if bd == nil {
 		return []error{fmt.Errorf("piece placed on nil Board")}
 	}
+	if err := pp.Valid(); err != nil {
+		return []error{err}
+	}
 
-	if errors := bd.CheckShape(pos, fac, tmp, turns); len(errors) > 0 {
+	if errors := bd.CheckShape(pp.pos, pp.fac, pp.tmp, pp.turns); len(errors) > 0 {
 		return errors
 	}
 
-	p := NewPiece(tmp, fac)
+	p := NewPiece(pp.tmp, pp.fac)
 	bd.pieces = append(bd.pieces, p)
-	for _, face := range tmp.shape.faces {
+	for _, face := range pp.tmp.shape.faces {
 		if !face.occupied {
 			continue
 		}
-		coord := face.From(pos, turns)
+		coord := face.From(pp.pos, pp.turns)
 		tile := bd.tileMap[coord]
 		tile.pieces = append(tile.pieces, p)
 	}
-	for _, vert := range tmp.shape.verts {
+	for _, vert := range pp.tmp.shape.verts {
 		if !vert.occupied {
 			continue
 		}
-		coord := vert.From(pos, turns)
+		coord := vert.From(pp.pos, pp.turns)
 		point := bd.vtxMap[coord]
 		point.pieces = append(point.pieces, p)
 	}

@@ -122,11 +122,11 @@ func TestPlace(t *testing.T) {
 		},
 		{
 			desc: "Nil face",
-			pos:  triangles.TriPoint{0, 0, 100},
+			pos:  triangles.TriPoint{0, -98, 100},
 			tmpl: alwaysTmpl,
 			errors: []error{
-				fmt.Errorf("tile position (0, 0, 100) does not exist"),
-				fmt.Errorf("vertex position (0, -1, 100) does not exist"),
+				fmt.Errorf("tile position (0, -98, 100) does not exist"),
+				fmt.Errorf("vertex position (-1, -98, 99) does not exist"),
 			},
 		},
 		{
@@ -583,12 +583,12 @@ func TestPlace(t *testing.T) {
 				if len(cc.prepPos) > i {
 					pos = cc.prepPos[i]
 				}
-				if errs := board.Place(pos, nil, p, None); len(errs) > 0 {
+				if errs := board.Place(NewPlacement(pos, p)); len(errs) > 0 {
 					t.Fatalf("%s: Could not place prep template %d: %v", cc.desc, i, errs)
 				}
 			}
 
-			errs := board.Place(cc.pos, nil, cc.tmpl, cc.turns)
+			errs := board.Place(NewPlacement(cc.pos, cc.tmpl).WithRotation(cc.turns))
 			if len(errs) != len(cc.errors) {
 				t.Errorf("%s: Place(%s) => %v, want %v", cc.desc, cc.turns, errs, cc.errors)
 				return
