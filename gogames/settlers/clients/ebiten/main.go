@@ -12,6 +12,7 @@ import (
 	"gogames/settlers/ai/cog"
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
+	"gogames/util/dna"
 	"gogames/util/vector2d"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,12 +29,16 @@ const (
 	edgeLength    = 100
 	invEdgeLength = 0.01
 	height        = 87
+
+	kTerrainOnly    = "terrain_display"
+	kFactionColor   = "faction_color_overlay"
+	kFactionBorders = "faction_borders_overlay"
 )
 
 var (
-	colorRed   = color.RGBA{R: 255}
-	colorGreen = color.RGBA{G: 255}
-	colorBlue  = color.RGBA{B: 255}
+	colorRed   = color.RGBA{R: 255, A: 255}
+	colorGreen = color.RGBA{G: 255, A: 255}
+	colorBlue  = color.RGBA{B: 255, A: 255}
 
 	// uiState contains information needed for all components.
 	uiState *commonState
@@ -63,10 +68,11 @@ type commonState struct {
 
 // factionState contains state information about the game's factions.
 type factionState struct {
-	faction     *settlers.Faction
-	human       bool
-	displayName string
-	decider     settlers.Decider
+	faction      *settlers.Faction
+	human        bool
+	displayName  string
+	displayColor color.RGBA
+	decider      settlers.Decider
 }
 
 type activable interface {
@@ -107,6 +113,10 @@ type boardComponent struct {
 	pieceVtxs map[string][]*ebiten.Image
 	// pieceNums contains the image indices for each tile.
 	pieceNums map[triangles.TriPoint]map[string]int
+	// facColOverlay contains color overlay triangles for each faction.
+	facColOverlay map[dna.Sequence]*ebiten.Image
+	// overlays contains the active overlays.
+	overlays map[string]bool
 }
 
 // optsForTile translates the graphics matrix to the tile position.
@@ -272,12 +282,9 @@ func (bc *boardComponent) initTriangles() {
 	}
 }
 
-func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
-	fpath := filepath.Join(base, "gfx", fname)
-	img, _, err := ebitenutil.NewImageFromFile(fpath)
-	if err != nil {
-		return err
-	}
+// sliceToTriangle makes all pixels outside the standard triangle
+// fully transparent.
+func sliceToTriangle(img *ebiten.Image) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < edgeLength/2; x++ {
 			if float64(height-y) < root3*float64(x) {
@@ -287,13 +294,37 @@ func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
 			img.Set(edgeLength-x, y, color.Transparent)
 		}
 	}
+}
+
+func (bc *boardComponent) initOverlays(facs []*factionState) {
+	for _, fac := range facs {
+		dna := fac.faction.DNA()
+		colOverlay := ebiten.NewImage(edgeLength, height)
+		colOverlay.Fill(fac.displayColor)
+		sliceToTriangle(colOverlay)
+		bc.facColOverlay[dna] = colOverlay
+	}
+}
+
+// loadImg loads an ebiten Image.
+func loadImg(base, fname string) (*ebiten.Image, error) {
+	fpath := filepath.Join(base, "gfx", fname)
+	img, _, err := ebitenutil.NewImageFromFile(fpath)
+	return img, err
+}
+
+func (bc *boardComponent) loadTriangleImage(key, base, fname string) error {
+	img, err := loadImg(base, fname)
+	if err != nil {
+		return err
+	}
+	sliceToTriangle(img)
 	bc.pieceTris[key] = append(bc.pieceTris[key], img)
 	return nil
 }
 
 func (bc *boardComponent) loadVertexImage(key, base, fname string) error {
-	fpath := filepath.Join(base, "gfx", fname)
-	img, _, err := ebitenutil.NewImageFromFile(fpath)
+	img, err := loadImg(base, fname)
 	if err != nil {
 		return err
 	}
@@ -339,6 +370,7 @@ func (bc *boardComponent) initTemplates() error {
 	return nil
 }
 
+// tilesComponent displays buttons showing the different templates.
 type tilesComponent struct {
 	component
 	// shapes contains thumbnails for the known templates.
@@ -347,6 +379,7 @@ type tilesComponent struct {
 	subs []image.Rectangle
 }
 
+// draw draws the template buttons.
 func (tc *tilesComponent) draw(screen *ebiten.Image) {
 	drawRectangle(screen, tc.Rectangle, color.Black, color.White, 1)
 	for i, tmpl := range uiState.game.Templates {
@@ -416,10 +449,89 @@ func (tc *tilesComponent) initThumbs() {
 	}
 }
 
+// stateButton is a button whose state changes upon clicking.
+type stateButton struct {
+	idx    int
+	states []string
+	loc    *image.Rectangle
+	images []*ebiten.Image
+}
+
+func (sb *stateButton) increment() {
+	if sb == nil {
+		return
+	}
+	sb.idx++
+	if sb.idx >= len(sb.states) {
+		sb.idx = 0
+	}
+}
+
+// displayComponent contains buttons controlling the board display.
+type displayComponent struct {
+	component
+	// factions controls the faction colour overlays.
+	factions *stateButton
+}
+
+// draw draws the display-control buttons.
+func (dc *displayComponent) draw(screen *ebiten.Image) {
+	drawRectangle(screen, dc.Rectangle, color.Black, color.White, 1)
+	for _, sb := range []*stateButton{dc.factions} {
+		drawRectangle(screen, sb.loc, color.Black, color.White, 1)
+		if img := sb.images[sb.idx]; img != nil {
+			dc.gopts.GeoM.Reset()
+			dc.gopts.GeoM.Translate(float64(sb.loc.Min.X), float64(sb.loc.Min.Y))
+			screen.DrawImage(img, dc.gopts)
+		}
+	}
+}
+
+// initButtons loads up the state images.
+func (dc *displayComponent) initButtons() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	terrain, err := loadImg(wd, "terrain.png")
+	if err != nil {
+		return err
+	}
+	dc.factions.images[0] = terrain
+	facCol, err := loadImg(wd, "factionColor.png")
+	if err != nil {
+		return err
+	}
+	dc.factions.images[1] = facCol
+	borders, err := loadImg(wd, "borders.png")
+	if err != nil {
+		return err
+	}
+	dc.factions.images[2] = borders
+
+	return nil
+}
+
+// handleLeftClick sets the overlays in response to clicks.
+func (dc *displayComponent) handleLeftClick() {
+	pos := image.Pt(ebiten.CursorPosition())
+	if !pos.In(dc.Bounds()) {
+		return
+	}
+	for _, sb := range []*stateButton{dc.factions} {
+		if !pos.In(*sb.loc) {
+			continue
+		}
+		sb.increment()
+		break
+	}
+}
+
 // layout packages the screen areas.
 type layout struct {
 	board    *boardComponent
 	tiles    *tilesComponent
+	display  *displayComponent
 	draws    []drawable
 	handlers []handler
 }
@@ -559,15 +671,19 @@ func (g *Game) initGraphics() error {
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.board.initTriangles()
+	g.areas.board.initOverlays(g.factions)
 	if err := g.areas.board.initTemplates(); err != nil {
+		return err
+	}
+	if err := g.areas.display.initButtons(); err != nil {
 		return err
 	}
 	g.areas.tiles.initThumbs()
 	return nil
 }
 
-func makeRect(x, y, w, h int) *image.Rectangle {
-	rect := image.Rect(x, y, w, h)
+func makeRect(x0, y0, x1, y1 int) *image.Rectangle {
+	rect := image.Rect(x0, y0, x1, y1)
 	return &rect
 }
 
@@ -581,14 +697,15 @@ func makeLayout() layout {
 					GeoM: ebiten.GeoM{},
 				},
 			},
-			offset:    vector2d.New(250, 180),
-			pieceTris: make(map[string][]*ebiten.Image),
-			pieceVtxs: make(map[string][]*ebiten.Image),
-			pieceNums: make(map[triangles.TriPoint]map[string]int),
+			offset:        vector2d.New(250, 180),
+			pieceTris:     make(map[string][]*ebiten.Image),
+			pieceVtxs:     make(map[string][]*ebiten.Image),
+			pieceNums:     make(map[triangles.TriPoint]map[string]int),
+			facColOverlay: make(map[dna.Sequence]*ebiten.Image),
 		},
 		tiles: &tilesComponent{
 			component: component{
-				Rectangle: makeRect(0, 0, 110, 480),
+				Rectangle: makeRect(0, 0, 110, 400),
 				active:    true,
 				gopts: &ebiten.DrawImageOptions{
 					GeoM: ebiten.GeoM{},
@@ -596,14 +713,30 @@ func makeLayout() layout {
 			},
 			shapes: make(map[string]*ebiten.Image),
 		},
-		draws:    make([]drawable, 2),
-		handlers: make([]handler, 2),
+		display: &displayComponent{
+			component: component{
+				Rectangle: makeRect(0, 400, 110, 480),
+				active:    true,
+				gopts: &ebiten.DrawImageOptions{
+					GeoM: ebiten.GeoM{},
+				},
+			},
+			factions: &stateButton{
+				states: []string{kTerrainOnly, kFactionColor, kFactionBorders},
+				images: make([]*ebiten.Image, 3),
+				loc:    makeRect(5, 405, 25, 425),
+			},
+		},
+		draws:    make([]drawable, 3),
+		handlers: make([]handler, 3),
 	}
 	l.draws[0] = l.board
 	l.draws[1] = l.tiles
+	l.draws[2] = l.display
 	// Note that handle order differs.
 	l.handlers[0] = l.tiles
-	l.handlers[1] = l.board
+	l.handlers[1] = l.display
+	l.handlers[2] = l.board
 	return l
 }
 
@@ -619,14 +752,16 @@ func main() {
 		areas: makeLayout(),
 		factions: []*factionState{
 			&factionState{
-				faction:     settlers.NewFaction("player01"),
-				human:       true,
-				displayName: "Red",
+				faction:      settlers.NewFaction("player01"),
+				human:        true,
+				displayColor: color.RGBA{R: 135, G: 51, B: 55, A: 255},
+				displayName:  "Red",
 			},
 			&factionState{
-				faction:     settlers.NewFaction("abcd1234"),
-				displayName: "Blue",
-				decider:     cog.NewRandom(),
+				faction:      settlers.NewFaction("abcd1234"),
+				displayName:  "Blue",
+				displayColor: color.RGBA{R: 65, G: 105, B: 225, A: 255},
+				decider:      cog.NewRandom(),
 			},
 		},
 	}

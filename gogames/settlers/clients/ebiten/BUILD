@@ -16,6 +16,7 @@ go_library(
         "//gogames/settlers/ai:cog",
         "//gogames/settlers/engine:settlers",
       	"//gogames/tiles/triangles:triangles",
+        "//gogames/util:dna",
         "//gogames/util:vector2d",
         "@com_github_hajimehoshi_ebiten_v2//ebitenutil:go_default_library",
         "@com_github_hajimehoshi_ebiten_v2//inpututil:go_default_library",
