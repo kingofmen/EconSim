@@ -95,6 +95,27 @@ func (t *Tile) Pieces() []*Piece {
 	return t.pieces
 }
 
+// Controller returns the controlling faction.
+func (t *Tile) Controller() *Faction {
+	if t == nil {
+		return nil
+	}
+	if len(t.pieces) < 1 {
+		return nil
+	}
+	count := make(map[*Faction]int)
+	best := t.pieces[0].GetFaction()
+	count[best] = t.pieces[0].getWeight()
+	for _, piece := range t.pieces[1:] {
+		fac := piece.GetFaction()
+		count[fac] += piece.getWeight()
+		if count[fac] > count[best] {
+			best = fac
+		}
+	}
+	return best
+}
+
 // Pieces returns the pieces on the vertex.
 func (v *Point) Pieces() []*Piece {
 	if v == nil {

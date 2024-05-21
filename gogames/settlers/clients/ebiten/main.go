@@ -64,6 +64,19 @@ type commonState struct {
 	playerIndex int
 	// turnSignal receives end-of-turn notifications.
 	turnSignal chan int
+	// overlayButton points to the state button for overlays.
+	// TODO: This should probably be a listener for state changes instead.
+	overlayButton *stateButton
+	// factions contains the players, human and AI.
+	factions []*factionState
+}
+
+// currFaction returns the faction whose turn it is.
+func (cs *commonState) currFaction() *factionState {
+	if cs == nil {
+		return nil
+	}
+	return cs.factions[cs.playerIndex]
 }
 
 // factionState contains state information about the game's factions.
@@ -115,8 +128,6 @@ type boardComponent struct {
 	pieceNums map[triangles.TriPoint]map[string]int
 	// facColOverlay contains color overlay triangles for each faction.
 	facColOverlay map[dna.Sequence]*ebiten.Image
-	// overlays contains the active overlays.
-	overlays map[string]bool
 }
 
 // optsForTile translates the graphics matrix to the tile position.
@@ -142,22 +153,48 @@ func (bc *boardComponent) optsForVertex(tp triangles.TriPoint) {
 	bc.gopts.GeoM.Translate(float64(bc.Min.X)+x+bc.offset.X()-10, y+bc.offset.Y()-10)
 }
 
-func (bc *boardComponent) draw(screen *ebiten.Image) {
-	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
+type tileDrawFunc func(*ebiten.Image, *settlers.Tile)
+
+// drawTilePieces draws the placed pieces on the tile.
+func (bc *boardComponent) drawTilePieces(screen *ebiten.Image, tile *settlers.Tile) {
+	pnums := bc.pieceNums[tile.GetTriPoint()]
+	for _, p := range tile.Pieces() {
+		idx := pnums[p.GetKey()]
+		imgs := bc.pieceTris[p.GetKey()]
+		if idx >= len(imgs) {
+			continue
+		}
+		if img := imgs[idx]; img != nil {
+			screen.DrawImage(img, bc.gopts)
+		}
+	}
+}
+
+// drawFactionColor fills the tile with the owning faction's color.
+func (bc *boardComponent) drawFactionColor(screen *ebiten.Image, tile *settlers.Tile) {
+	fac := tile.Controller()
+	if fac == nil {
+		return
+	}
+	if img := bc.facColOverlay[fac.DNA()]; img != nil {
+		screen.DrawImage(img, bc.gopts)
+	}
+}
+
+// drawFactionBorders draws the pieces and then overlays the faction color at the
+// borders with other factions.
+// TODO: Better composition of these operations.
+func (bc *boardComponent) drawFactionBorders(screen *ebiten.Image, tile *settlers.Tile) {
+	bc.drawTilePieces(screen, tile)
+	// TODO: Implement me
+}
+
+// drawTiles draws each tile using the provided function.
+func (bc *boardComponent) drawTiles(screen *ebiten.Image, tf tileDrawFunc) {
 	for _, tile := range uiState.game.Board.Tiles {
 		bc.optsForTile(tile.GetTriPoint())
 		screen.DrawImage(bc.baseTri, bc.gopts)
-		pnums := bc.pieceNums[tile.GetTriPoint()]
-		for _, p := range tile.Pieces() {
-			idx := pnums[p.GetKey()]
-			imgs := bc.pieceTris[p.GetKey()]
-			if idx >= len(imgs) {
-				continue
-			}
-			if img := imgs[idx]; img != nil {
-				screen.DrawImage(img, bc.gopts)
-			}
-		}
+		tf(screen, tile)
 	}
 
 	for _, pt := range uiState.game.Board.Points {
@@ -178,7 +215,23 @@ func (bc *boardComponent) draw(screen *ebiten.Image) {
 			}
 		}
 	}
+}
 
+// draw draws the game board.
+func (bc *boardComponent) draw(screen *ebiten.Image) {
+	drawRectangle(screen, bc.Rectangle, color.Black, color.White, 1)
+	switch uiState.overlayButton.getState() {
+	case kFactionColor:
+		bc.drawTiles(screen, bc.drawFactionColor)
+	case kFactionBorders:
+		bc.drawTiles(screen, bc.drawFactionBorders)
+	case kTerrainOnly:
+		bc.drawTiles(screen, bc.drawTilePieces)
+	default:
+		// Do nothing.
+	}
+
+	// Now draw transparent candidate piece.
 	ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 	pos := image.Pt(ebiten.CursorPosition())
 	if !pos.In(bc.Bounds()) {
@@ -237,7 +290,7 @@ func (bc *boardComponent) handleLeftClick() {
 	if uiState.currTmpl == nil {
 		return
 	}
-	place := settlers.NewPlacement(target.GetTriPoint(), uiState.currTmpl).WithRotation(settlers.Turns(uiState.rotation))
+	place := settlers.NewPlacement(target.GetTriPoint(), uiState.currTmpl).WithRotation(settlers.Turns(uiState.rotation)).WithFaction(uiState.factions[uiState.playerIndex].faction)
 	if errs := uiState.game.Board.Place(place); len(errs) > 0 {
 		for _, err := range errs {
 			fmt.Printf("%s/%s: %v\n", target.GetTriPoint(), uiState.currTmpl.Key(), err)
@@ -296,8 +349,10 @@ func sliceToTriangle(img *ebiten.Image) {
 	}
 }
 
-func (bc *boardComponent) initOverlays(facs []*factionState) {
-	for _, fac := range facs {
+// initOverlays creates faction-color images.
+// TODO: Use DrawTriangles method of ebiten.Image instead.
+func (bc *boardComponent) initOverlays() {
+	for _, fac := range uiState.factions {
 		dna := fac.faction.DNA()
 		colOverlay := ebiten.NewImage(edgeLength, height)
 		colOverlay.Fill(fac.displayColor)
@@ -457,6 +512,10 @@ type stateButton struct {
 	images []*ebiten.Image
 }
 
+func (sb *stateButton) getState() string {
+	return sb.states[sb.idx]
+}
+
 func (sb *stateButton) increment() {
 	if sb == nil {
 		return
@@ -541,8 +600,6 @@ type Game struct {
 	opts *ebiten.DrawImageOptions
 	// areas contains the rectangles used to divide up the screen for displays.
 	areas layout
-	// factions contains the players, human and AI.
-	factions []*factionState
 }
 
 func (g *Game) handleLeftClick() {
@@ -578,7 +635,7 @@ func (g *Game) Update() error {
 	}
 
 	// Otherwise ignore player input if it's not the player's turn.
-	if !g.factions[uiState.playerIndex].human {
+	if !uiState.currFaction().human {
 		// We're waiting for AI processing.
 		return nil
 	}
@@ -612,13 +669,13 @@ func (g *Game) Update() error {
 func (g *Game) trackTurns() {
 	for pidx := range uiState.turnSignal {
 		uiState.playerIndex = pidx + 1
-		if uiState.playerIndex >= len(g.factions) {
+		if uiState.playerIndex >= len(uiState.factions) {
 			if err := uiState.game.Board.Tick(); err != nil {
 				fmt.Printf("Board tick error: %v\n", err)
 			}
 			uiState.playerIndex = 0
 		}
-		go aiProcessing(uiState.game, g.factions[uiState.playerIndex])
+		go aiProcessing(uiState.game, uiState.currFaction())
 	}
 }
 
@@ -671,7 +728,7 @@ func (g *Game) initGraphics() error {
 		GeoM: ebiten.GeoM{},
 	}
 	g.areas.board.initTriangles()
-	g.areas.board.initOverlays(g.factions)
+	g.areas.board.initOverlays()
 	if err := g.areas.board.initTemplates(); err != nil {
 		return err
 	}
@@ -740,6 +797,24 @@ func makeLayout() layout {
 	return l
 }
 
+// devFactions returns default factions for development.
+func devFactions() []*factionState {
+	return []*factionState{
+		&factionState{
+			faction:      settlers.NewFaction("player01"),
+			human:        true,
+			displayColor: color.RGBA{R: 135, G: 51, B: 55, A: 255},
+			displayName:  "Red",
+		},
+		&factionState{
+			faction:      settlers.NewFaction("abcd1234"),
+			displayName:  "Blue",
+			displayColor: color.RGBA{R: 65, G: 105, B: 225, A: 255},
+			decider:      cog.NewRandom(),
+		},
+	}
+}
+
 func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Settlers Dev Client")
@@ -750,36 +825,25 @@ func main() {
 	}
 	game := &Game{
 		areas: makeLayout(),
-		factions: []*factionState{
-			&factionState{
-				faction:      settlers.NewFaction("player01"),
-				human:        true,
-				displayColor: color.RGBA{R: 135, G: 51, B: 55, A: 255},
-				displayName:  "Red",
-			},
-			&factionState{
-				faction:      settlers.NewFaction("abcd1234"),
-				displayName:  "Blue",
-				displayColor: color.RGBA{R: 65, G: 105, B: 225, A: 255},
-				decider:      cog.NewRandom(),
-			},
-		},
 	}
 
+	facStates := devFactions()
 	uiState = &commonState{
 		game: &settlers.GameState{
-			Factions:  make([]*settlers.Faction, len(game.factions)),
+			Factions:  make([]*settlers.Faction, len(facStates)),
 			Board:     board,
 			Templates: settlers.DevTemplates(),
 		},
-		mouseDn:     image.Pt(0, 0),
-		rotation:    0,
-		keys:        make(map[ebiten.Key]bool),
-		playerIndex: 0,
-		turnSignal:  make(chan int),
+		mouseDn:       image.Pt(0, 0),
+		rotation:      0,
+		keys:          make(map[ebiten.Key]bool),
+		playerIndex:   0,
+		turnSignal:    make(chan int),
+		overlayButton: game.areas.display.factions,
+		factions:      facStates,
 	}
-	for i, f := range game.factions {
-		uiState.game.Factions[i] = f.faction
+	for i, fs := range uiState.factions {
+		uiState.game.Factions[i] = fs.faction
 	}
 
 	if err := game.initGraphics(); err != nil {

@@ -191,6 +191,9 @@ func (p *Piece) GetKey() string {
 
 // GetWorkers returns the currently-available skills of the piece.
 func (p *Piece) GetWorkers() map[string]int32 {
+	if p == nil {
+		return map[string]int32{}
+	}
 	// TODO: This is a placeholder.
 	return map[string]int32{"labour": int32(100)}
 }
@@ -223,10 +226,27 @@ func (s *Piece) Prioritize() {
 	s.priorities[MILITIA] = 250
 }
 
-func (s *Piece) Produce() {
-	if s == nil {
+func (p *Piece) Produce() {
+	if p == nil {
 		return
 	}
+}
+
+// GetFaction returns the controlling faction.
+func (p *Piece) GetFaction() *Faction {
+	if p == nil {
+		return nil
+	}
+	return p.faction
+}
+
+// getWeight returns the weight of the piece for faction control.
+func (p *Piece) getWeight() int {
+	if p == nil {
+		return 0
+	}
+	// TODO: This is a placeholder.
+	return 1
 }
 
 // DevTemplates returns some trivial templates for dev work.
