@@ -387,6 +387,20 @@ func (t *Surface) GetNeighbour(d Direction) *Surface {
 	return t.neighbours[d]
 }
 
+// Neighbours returns the non-nil neighbouring triangles and their directions.
+func (t *Surface) Neighbours() map[Direction]*Surface {
+	if t == nil {
+		return nil
+	}
+	nbs := make(map[Direction]*Surface)
+	for dir, nb := range t.neighbours {
+		if nb != nil {
+			nbs[dir] = nb
+		}
+	}
+	return nbs
+}
+
 // GetTriPoint returns a copy of the triangle's coordinates.
 func (t *Surface) GetTriPoint() TriPoint {
 	return t.tripoint.Copy()

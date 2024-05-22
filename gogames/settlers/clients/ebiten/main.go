@@ -28,6 +28,7 @@ const (
 
 	edgeLength    = 100
 	invEdgeLength = 0.01
+	bdrWidth      = edgeLength / 4
 	height        = 87
 
 	kTerrainOnly    = "terrain_display"
@@ -128,6 +129,8 @@ type boardComponent struct {
 	pieceNums map[triangles.TriPoint]map[string]int
 	// facColOverlay contains color overlay triangles for each faction.
 	facColOverlay map[dna.Sequence]*ebiten.Image
+	// facBdrOverlay contains color overlay edges for each faction.
+	facBdrOverlay map[dna.Sequence]*ebiten.Image
 }
 
 // optsForTile translates the graphics matrix to the tile position.
@@ -186,7 +189,36 @@ func (bc *boardComponent) drawFactionColor(screen *ebiten.Image, tile *settlers.
 // TODO: Better composition of these operations.
 func (bc *boardComponent) drawFactionBorders(screen *ebiten.Image, tile *settlers.Tile) {
 	bc.drawTilePieces(screen, tile)
-	// TODO: Implement me
+	fac := tile.Controller()
+	if fac == nil {
+		return
+	}
+	img := bc.facBdrOverlay[fac.DNA()]
+	if img == nil {
+		return
+	}
+	geom := bc.gopts.GeoM
+	for dir, nbs := range tile.Neighbours() {
+		nbt := uiState.game.Board.GetTile(nbs.GetTriPoint())
+		if nbt == nil {
+			continue
+		}
+		if f := nbt.Controller(); f.DNA() != fac.DNA() {
+			rotate := ebiten.GeoM{}
+			switch dir {
+			case triangles.NorthEast, triangles.SouthWest:
+				rotate.Rotate(-2 * SixtyD)
+				rotate.Translate(bdrWidth, 3*height/2)
+			case triangles.NorthWest, triangles.SouthEast:
+				rotate.Rotate(2 * SixtyD)
+				rotate.Translate(edgeLength+bdrWidth, height/2)
+			}
+			rotate.Concat(geom)
+			bc.gopts.GeoM = rotate
+			screen.DrawImage(img, bc.gopts)
+		}
+	}
+	bc.gopts.GeoM = geom
 }
 
 // drawTiles draws each tile using the provided function.
@@ -349,15 +381,37 @@ func sliceToTriangle(img *ebiten.Image) {
 	}
 }
 
+// alphaScale returns the input color multiplied by the given factor.
+// TODO: Safetyize this and put it in a separate color-utility library.
+func alphaScale(col color.RGBA, alpha float64) color.RGBA {
+	return color.RGBA{
+		R: uint8(alpha * float64(col.R)),
+		G: uint8(alpha * float64(col.G)),
+		B: uint8(alpha * float64(col.B)),
+		A: uint8(alpha * float64(col.A)),
+	}
+}
+
 // initOverlays creates faction-color images.
 // TODO: Use DrawTriangles method of ebiten.Image instead.
 func (bc *boardComponent) initOverlays() {
+	step := float64(1.0)
+	step /= float64(bdrWidth)
+
 	for _, fac := range uiState.factions {
 		dna := fac.faction.DNA()
 		colOverlay := ebiten.NewImage(edgeLength, height)
 		colOverlay.Fill(fac.displayColor)
 		sliceToTriangle(colOverlay)
 		bc.facColOverlay[dna] = colOverlay
+
+		bdrOverlay := ebiten.NewImage(edgeLength, height)
+		for i := 0; i < bdrWidth; i++ {
+			col := alphaScale(fac.displayColor, 1.0-step*float64(i))
+			ebitenutil.DrawLine(bdrOverlay, 0, float64(height-i), edgeLength, float64(height-i), col)
+		}
+		sliceToTriangle(bdrOverlay)
+		bc.facBdrOverlay[dna] = bdrOverlay
 	}
 }
 
@@ -759,6 +813,7 @@ func makeLayout() layout {
 			pieceVtxs:     make(map[string][]*ebiten.Image),
 			pieceNums:     make(map[triangles.TriPoint]map[string]int),
 			facColOverlay: make(map[dna.Sequence]*ebiten.Image),
+			facBdrOverlay: make(map[dna.Sequence]*ebiten.Image),
 		},
 		tiles: &tilesComponent{
 			component: component{
