@@ -2,6 +2,16 @@ package(default_visibility = ["//visibility:public"])
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
+    name = "counts",
+    srcs = [
+      "counts.go",
+    ],
+    importpath = "gogames/util/counts",
+    deps = [
+    ],
+)
+
+go_library(
     name = "flags",
     srcs = [
       "flags.go",
