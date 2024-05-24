@@ -49,6 +49,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
       ":chain_go_proto",
+      "//gogames/util:counts",
       "@org_golang_google_protobuf//proto:proto",
     ],
 )

@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"gogames/util/counts"
 	"google.golang.org/protobuf/proto"
 
 	cpb "gogames/settlers/economy/chain_proto"
@@ -118,7 +119,7 @@ func (l *Location) MakeAvailable(work map[string]int32) {
 		}
 		b.active = -1
 		for idx, lvl := range b.assigned {
-			if !super(work, lvl.GetWorkers()) {
+			if !counts.SuperInt32(work, lvl.GetWorkers()) {
 				continue
 			}
 			sub(work, lvl.GetWorkers())
@@ -142,16 +143,6 @@ func (l *Location) Work() {
 			}
 		}
 	}
-}
-
-// super returns true if p1 is a superset of p2.
-func super(avail, want map[string]int32) bool {
-	for skill, amount := range want {
-		if avail[skill] < amount {
-			return false
-		}
-	}
-	return true
 }
 
 // sub subtracts the subtrahend from the minuend.
@@ -238,7 +229,7 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 			continue
 		}
 		need := p.GetLevels()[lvl]
-		if !super(avail, need.GetWorkers()) {
+		if !counts.SuperInt32(avail, need.GetWorkers()) {
 			loc.reject(p, "insufficient workers")
 			continue
 		}
@@ -253,7 +244,7 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 	}
 
 	if len(loc.boxen)+filled-open < loc.maxBox {
-		if super(avail, p.GetLevels()[0].GetWorkers()) {
+		if counts.SuperInt32(avail, p.GetLevels()[0].GetWorkers()) {
 			places = append(places, &placement{
 				loc: loc,
 				prc: p,
