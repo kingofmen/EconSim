@@ -21,3 +21,17 @@ func SuperInt32(avail, want map[string]int32) bool {
 	}
 	return true
 }
+
+// Subtract subtracts the subtrahend from the minuend.
+func Subtract(minuend, subtrahend map[string]int) {
+	for k, v := range subtrahend {
+		minuend[k] -= v
+	}
+}
+
+// SubtractInt32 subtracts the subtrahend from the minuend.
+func SubtractInt32(minuend, subtrahend map[string]int32) {
+	for k, v := range subtrahend {
+		minuend[k] -= v
+	}
+}

@@ -122,7 +122,7 @@ func (l *Location) MakeAvailable(work map[string]int32) {
 			if !counts.SuperInt32(work, lvl.GetWorkers()) {
 				continue
 			}
-			sub(work, lvl.GetWorkers())
+			counts.SubtractInt32(work, lvl.GetWorkers())
 			b.active = idx
 		}
 	}
@@ -142,13 +142,6 @@ func (l *Location) Work() {
 				l.Goods[k] += v
 			}
 		}
-	}
-}
-
-// sub subtracts the subtrahend from the minuend.
-func sub(minuend, subtrahend map[string]int32) {
-	for k, v := range subtrahend {
-		minuend[k] -= v
 	}
 }
 
