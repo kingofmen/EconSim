@@ -5,8 +5,10 @@ import (
 
 	"gogames/settlers/economy/chain"
 	"gogames/tiles/triangles"
+	"gogames/util/counts"
 
 	cpb "gogames/settlers/economy/chain_proto"
+	conpb "gogames/settlers/economy/consumption_proto"
 )
 
 type Tile struct {
@@ -93,6 +95,56 @@ func (t *Tile) Pieces() []*Piece {
 		return nil
 	}
 	return t.pieces
+}
+
+// prioritise returns the best candidate to consume.
+func (t *Tile) prioritise(buckets []*conpb.Bucket) *conpb.Bucket {
+	if len(buckets) == 0 {
+		return nil
+	}
+	// TODO: Implement me.
+	return buckets[0]
+}
+
+// Consume uses resources and scores points.
+func (t *Tile) Consume(buckets []*conpb.Bucket) {
+	if t == nil {
+		return
+	}
+	filled := map[string]bool{}
+	discard := map[string]bool{}
+	for {
+		cands := make([]*conpb.Bucket, 0, len(buckets))
+		for _, bucket := range buckets {
+			if filled[bucket.GetKey()] {
+				continue
+			}
+			if discard[bucket.GetKey()] {
+				continue
+			}
+			for _, req := range bucket.GetPrereqs() {
+				if discard[req] {
+					discard[bucket.GetKey()] = true
+					continue
+				}
+				if !filled[req] {
+					continue
+				}
+			}
+			// TODO: Scale by population!
+			if !counts.SuperInt32(t.Location.Goods, bucket.GetStuff()) {
+				discard[bucket.GetKey()] = true
+				continue
+			}
+			cands = append(cands, bucket)
+		}
+		if len(cands) == 0 {
+			break
+		}
+		bucket := t.prioritise(cands)
+		counts.SubtractInt32(t.Location.Goods, bucket.GetStuff())
+		filled[bucket.GetKey()] = true
+	}
 }
 
 // Controller returns the controlling faction.
@@ -278,6 +330,13 @@ func (m *Board) Tick() error {
 	}
 	for _, tile := range m.Tiles {
 		tile.Location.Work()
+	}
+
+	// TODO: Trade goes here.
+
+	for _, tile := range m.Tiles {
+		// TODO: Actually specify the buckets!
+		tile.Consume(nil)
 	}
 
 	return nil

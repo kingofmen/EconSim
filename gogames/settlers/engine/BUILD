@@ -13,8 +13,10 @@ go_library(
     deps = [
       "//gogames/settlers/economy:chain",
       "//gogames/settlers/economy:chain_go_proto",
+      "//gogames/settlers/economy:consumption_go_proto",
       "//gogames/tiles/triangles:triangles",
       "//gogames/util:coords",
+      "//gogames/util:counts",
       "//gogames/util:dna",
     ],
 )
