@@ -1,0 +1,13 @@
+syntax = "proto3";
+package settlers.economy.proto;
+
+// Bucket is a per-capita consumption amount.
+message Bucket {
+  // Lookup key.
+  string key = 1;
+  // Goods required.
+  map<string, int32> stuff = 2;
+  // Prerequisites.
+  repeated string prereqs = 3;
+  // TODO: Substitutions.
+}

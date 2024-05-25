@@ -79,3 +79,17 @@ go_proto_library(
     visibility = ["//visibility:public"],
     protos = [":chain_proto"],
 )
+
+proto_library(
+    name = "consumption_proto",
+    srcs = [
+    	 "consumption.proto",
+    ],
+)
+
+go_proto_library(
+    name = "consumption_go_proto",
+    importpath = "gogames/settlers/economy/consumption_proto",
+    visibility = ["//visibility:public"],
+    protos = [":consumption_proto"],
+)
