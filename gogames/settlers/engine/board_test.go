@@ -56,7 +56,6 @@ func TestTickWork(t *testing.T) {
 
 	for _, cc := range cases {
 		board, err := NewHex(cc.size)
-		board.Webs = cc.webs
 		if err != nil {
 			t.Fatalf("%s: Could not create board: %v", cc.desc, err)
 		}
@@ -65,7 +64,7 @@ func TestTickWork(t *testing.T) {
 				t.Fatalf("Could not place worker template: %v", errs)
 			}
 		}
-		if err := board.Tick(); err != nil {
+		if err := board.Tick(NewTick().WithWebs(cc.webs)); err != nil {
 			t.Errorf("%s: Tick() => %v, want nil", cc.desc, err)
 		}
 

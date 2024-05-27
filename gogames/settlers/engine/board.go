@@ -29,7 +29,6 @@ type Board struct {
 	tileMap map[triangles.TriPoint]*Tile
 	vtxMap  map[triangles.TriPoint]*Point
 	pieces  []*Piece
-	Webs    []*cpb.Web
 }
 
 // NewHex returns a six-sided board of radius r.
@@ -304,8 +303,34 @@ func (bd *Board) Place(pp *PlaceParams) []error {
 	return nil
 }
 
+// TickParams contains non-Board information needed to run a turn.
+type TickParams struct {
+	Webs    []*cpb.Web
+	Buckets []*conpb.Bucket
+}
+
+func NewTick() *TickParams {
+	return &TickParams{}
+}
+
+func (tp *TickParams) WithWebs(w []*cpb.Web) *TickParams {
+	if tp == nil {
+		tp = NewTick()
+	}
+	tp.Webs = w
+	return tp
+}
+
+func (tp *TickParams) WithBuckets(b []*conpb.Bucket) *TickParams {
+	if tp == nil {
+		tp = NewTick()
+	}
+	tp.Buckets = b
+	return tp
+}
+
 // Tick runs all economic and military logic for one timestep.
-func (m *Board) Tick() error {
+func (m *Board) Tick(params *TickParams) error {
 	if m == nil {
 		return fmt.Errorf("Tick called on nil Board")
 	}
@@ -322,7 +347,7 @@ func (m *Board) Tick() error {
 	}
 
 	for {
-		if cmb := chain.Place(m.Webs, asLocs); cmb != nil {
+		if cmb := chain.Place(params.Webs, asLocs); cmb != nil {
 			cmb.Activate()
 			continue
 		}
@@ -335,8 +360,7 @@ func (m *Board) Tick() error {
 	// TODO: Trade goes here.
 
 	for _, tile := range m.Tiles {
-		// TODO: Actually specify the buckets!
-		tile.Consume(nil)
+		tile.Consume(params.Buckets)
 	}
 
 	return nil

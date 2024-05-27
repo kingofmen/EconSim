@@ -2,7 +2,12 @@
 package settlers
 
 import (
+	"fmt"
+
 	"gogames/util/dna"
+
+	cpb "gogames/settlers/economy/chain_proto"
+	conpb "gogames/settlers/economy/consumption_proto"
 )
 
 // DeciderFunc makes a move on the board as the given faction.
@@ -40,6 +45,16 @@ type GameState struct {
 	Factions  []*Faction
 	Templates []*Template
 	Board     *Board
+	Webs      []*cpb.Web
+	Buckets   []*conpb.Bucket
+}
+
+func (gs *GameState) RunTick() error {
+	if gs == nil {
+		return fmt.Errorf("RunTick: Game state is not initialised.")
+	}
+	tp := NewTick().WithWebs(gs.Webs).WithBuckets(gs.Buckets)
+	return gs.Board.Tick(tp)
 }
 
 // Decider is the AI interface.

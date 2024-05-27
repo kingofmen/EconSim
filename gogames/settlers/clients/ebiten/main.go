@@ -724,7 +724,7 @@ func (g *Game) trackTurns() {
 	for pidx := range uiState.turnSignal {
 		uiState.playerIndex = pidx + 1
 		if uiState.playerIndex >= len(uiState.factions) {
-			if err := uiState.game.Board.Tick(); err != nil {
+			if err := uiState.game.RunTick(); err != nil {
 				fmt.Printf("Board tick error: %v\n", err)
 			}
 			uiState.playerIndex = 0
@@ -888,6 +888,9 @@ func main() {
 			Factions:  make([]*settlers.Faction, len(facStates)),
 			Board:     board,
 			Templates: settlers.DevTemplates(),
+			// TODO: Make some dev versions.
+			Webs:    nil,
+			Buckets: nil,
 		},
 		mouseDn:       image.Pt(0, 0),
 		rotation:      0,
