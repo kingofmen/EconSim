@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"gogames/settlers/ai/cog"
+	"gogames/settlers/content/loader"
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
 	"gogames/util/dna"
@@ -882,15 +883,29 @@ func main() {
 		areas: makeLayout(),
 	}
 
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	webs, err := loader.Webs(filepath.Join(wd, "data", "webs", "*.pb.txt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	buckets, err := loader.Buckets(filepath.Join(wd, "data", "buckets", "*.pb.txt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Loaded %d webs, %d buckets.\n", len(webs), len(buckets))
+
 	facStates := devFactions()
 	uiState = &commonState{
 		game: &settlers.GameState{
 			Factions:  make([]*settlers.Faction, len(facStates)),
 			Board:     board,
 			Templates: settlers.DevTemplates(),
-			// TODO: Make some dev versions.
-			Webs:    nil,
-			Buckets: nil,
+			Webs:      webs,
+			Buckets:   buckets,
 		},
 		mouseDn:       image.Pt(0, 0),
 		rotation:      0,

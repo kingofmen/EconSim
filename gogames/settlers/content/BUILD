@@ -5,7 +5,7 @@ go_library(
     srcs = [
       "loader.go",
     ],
-    importpath = "gogames/settlers/engine/loader",
+    importpath = "gogames/settlers/content/loader",
     visibility = ["//visibility:public"],
     deps = [
       "//gogames/settlers/economy:chain",

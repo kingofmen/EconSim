@@ -14,6 +14,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//gogames/settlers/ai:cog",
+        "//gogames/settlers/content:loader",
         "//gogames/settlers/engine:settlers",
       	"//gogames/tiles/triangles:triangles",
         "//gogames/util:dna",
