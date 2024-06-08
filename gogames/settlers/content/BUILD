@@ -17,6 +17,7 @@ go_library(
       "//gogames/util:counts",
       "//gogames/util:dna",
       "@org_golang_google_protobuf//encoding/prototext:prototext",
+      "@org_golang_google_protobuf//proto:proto",
     ],
 )
 

@@ -8,33 +8,43 @@ import (
 
 	"gogames/settlers/engine/settlers"
 	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 
 	cpb "gogames/settlers/economy/chain_proto"
 	conpb "gogames/settlers/economy/consumption_proto"
 )
 
-func Webs(path string) ([]*cpb.Web, error) {
-	webFiles, err := filepath.Glob(filepath.FromSlash(path))
+func loadProtos(path string, make func() proto.Message) error {
+	files, err := filepath.Glob(filepath.FromSlash(path))
 	if err != nil {
-		return nil, fmt.Errorf("error reading webs from %s: %w", path, err)
+		return fmt.Errorf("error reading files from %s: %w", path, err)
 	}
 
-	if len(webFiles) == 0 {
-		return nil, fmt.Errorf("no web files found in %q", path)
+	if len(files) == 0 {
+		return fmt.Errorf("no proto files found in %q", path)
 	}
 
-	webs := make([]*cpb.Web, 0, len(webFiles))
-	for _, wf := range webFiles {
+	for _, wf := range files {
 		text, err := os.ReadFile(wf)
 		if err != nil {
-			return nil, fmt.Errorf("error reading web file %s: %w", wf, err)
+			return fmt.Errorf("error reading file %s: %w", wf, err)
 		}
-		web := &cpb.Web{}
-		if err := prototext.Unmarshal(text, web); err != nil {
-			return nil, fmt.Errorf("error reading web in %s: %w", wf, err)
+		target := make()
+		if err := prototext.Unmarshal(text, target); err != nil {
+			return fmt.Errorf("error reading text proto in %s: %w", wf, err)
 		}
+	}
+	return nil
+}
 
+func Webs(path string) ([]*cpb.Web, error) {
+	webs := make([]*cpb.Web, 0, 16)
+	if err := loadProtos(path, func() proto.Message {
+		web := &cpb.Web{}
 		webs = append(webs, web)
+		return web
+	}); err != nil {
+		return nil, err
 	}
 	return webs, nil
 }
