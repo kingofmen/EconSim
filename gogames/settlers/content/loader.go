@@ -14,6 +14,8 @@ import (
 	conpb "gogames/settlers/economy/consumption_proto"
 )
 
+// loadProtos globs all files in the path and attempts to parse them
+// as the protos provided by make.
 func loadProtos(path string, make func() proto.Message) error {
 	files, err := filepath.Glob(filepath.FromSlash(path))
 	if err != nil {
@@ -37,6 +39,7 @@ func loadProtos(path string, make func() proto.Message) error {
 	return nil
 }
 
+// Webs loads text proto files from path and parses them as Web objects.
 func Webs(path string) ([]*cpb.Web, error) {
 	webs := make([]*cpb.Web, 0, 16)
 	if err := loadProtos(path, func() proto.Message {
@@ -49,8 +52,17 @@ func Webs(path string) ([]*cpb.Web, error) {
 	return webs, nil
 }
 
+// Buckets loads text proto files from path and parses them as Bucket objects.
 func Buckets(path string) ([]*conpb.Bucket, error) {
-	return nil, nil
+	buckets := make([]*conpb.Bucket, 0, 16)
+	if err := loadProtos(path, func() proto.Message {
+		bucket := &conpb.Bucket{}
+		buckets = append(buckets, bucket)
+		return bucket
+	}); err != nil {
+		return nil, err
+	}
+	return buckets, nil
 }
 
 func Templates(path string) ([]*settlers.Template, error) {

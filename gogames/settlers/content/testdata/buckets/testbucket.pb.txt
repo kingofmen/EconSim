@@ -1,0 +1,8 @@
+key: "testbucket"
+stuff { key: "cloth" value: 100 }
+stuff { key: "house" value: 10 }
+stuff { key: "grain" value: 100 }
+prereqs: "life"
+prereqs: "air"
+prereqs: "water"
+

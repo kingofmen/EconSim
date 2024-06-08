@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 
 	cpb "gogames/settlers/economy/chain_proto"
+	conpb "gogames/settlers/economy/consumption_proto"
 )
 
 func testDataDir(sub string, t *testing.T) string {
@@ -82,6 +83,41 @@ func TestWeb(t *testing.T) {
 		got := webMap[exp.GetKey()]
 		if got == nil {
 			t.Errorf("Did not find web %q", exp.GetKey())
+			continue
+		}
+		if diff := cmp.Diff(got, exp, protocmp.Transform()); len(diff) > 0 {
+			t.Errorf("%s: Got %s, want %s, diff %s", exp.GetKey(), prototext.Format(got), prototext.Format(exp), diff)
+		}
+	}
+}
+
+func TestBucket(t *testing.T) {
+	path := testDataDir("buckets/test*pb.txt", t)
+	buckets, err := Buckets(path)
+	if err != nil {
+		t.Errorf("Error loading buckets: %v", err)
+	}
+	bucketMap := make(map[string]*conpb.Bucket)
+	for _, bucket := range buckets {
+		bucketMap[bucket.GetKey()] = bucket
+	}
+
+	want := []*conpb.Bucket{
+		&conpb.Bucket{
+			Key: "testbucket",
+			Stuff: map[string]int32{
+				"cloth": 100,
+				"grain": 100,
+				"house": 10,
+			},
+			Prereqs: []string{"life", "air", "water"},
+		},
+	}
+
+	for _, exp := range want {
+		got := bucketMap[exp.GetKey()]
+		if got == nil {
+			t.Errorf("Did not find bucket %q", exp.GetKey())
 			continue
 		}
 		if diff := cmp.Diff(got, exp, protocmp.Transform()); len(diff) > 0 {
