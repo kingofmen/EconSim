@@ -78,6 +78,10 @@ func (cs *commonState) currFaction() *factionState {
 	if cs == nil {
 		return nil
 	}
+	if cs.playerIndex >= len(cs.factions) {
+		// Indicates we are running a tick.
+		return nil
+	}
 	return cs.factions[cs.playerIndex]
 }
 
@@ -88,6 +92,13 @@ type factionState struct {
 	displayName  string
 	displayColor color.RGBA
 	decider      settlers.Decider
+}
+
+func (f *factionState) isHuman() bool {
+	if f == nil {
+		return false
+	}
+	return f.human
 }
 
 type activable interface {
@@ -690,7 +701,7 @@ func (g *Game) Update() error {
 	}
 
 	// Otherwise ignore player input if it's not the player's turn.
-	if !uiState.currFaction().human {
+	if !uiState.currFaction().isHuman() {
 		// We're waiting for AI processing.
 		return nil
 	}
@@ -744,7 +755,7 @@ func getDeadBrain(n string) settlers.DeciderFunc {
 // aiProcessing runs the player-input calculation. It is a placeholder.
 // TODO: Write an actual AI library and call out to it.
 func aiProcessing(state *settlers.GameState, fac *factionState) {
-	if fac.human {
+	if fac.isHuman() {
 		fmt.Printf("Starting turn of human player %q\n", fac.displayName)
 		return
 	}
