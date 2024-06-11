@@ -7,6 +7,7 @@ import (
 	"gogames/tiles/triangles"
 
 	cpb "gogames/settlers/economy/chain_proto"
+	conpb "gogames/settlers/economy/consumption_proto"
 )
 
 func TestTickWork(t *testing.T) {
@@ -22,11 +23,13 @@ func TestTickWork(t *testing.T) {
 		},
 	}
 	cases := []struct {
-		desc  string
-		size  int
-		place []triangles.TriPoint
-		want  map[string]int32
-		webs  []*cpb.Web
+		desc    string
+		size    int
+		place   []triangles.TriPoint
+		want    map[string]int32
+		cons    map[string]int32
+		webs    []*cpb.Web
+		buckets []*conpb.Bucket
 	}{
 		{
 			desc:  "Work gets done at all",
@@ -48,8 +51,19 @@ func TestTickWork(t *testing.T) {
 					},
 				},
 			},
+			buckets: []*conpb.Bucket{
+				&conpb.Bucket{
+					Key: "trivial",
+					Stuff: map[string]int32{
+						"result": 50,
+					},
+				},
+			},
 			want: map[string]int32{
 				"result": int32(100),
+			},
+			cons: map[string]int32{
+				"result": int32(50),
 			},
 		},
 	}
@@ -64,7 +78,7 @@ func TestTickWork(t *testing.T) {
 				t.Fatalf("Could not place worker template: %v", errs)
 			}
 		}
-		if err := board.Tick(NewTick().WithWebs(cc.webs)); err != nil {
+		if err := board.Tick(NewTick().WithWebs(cc.webs).WithBuckets(cc.buckets)); err != nil {
 			t.Errorf("%s: Tick() => %v, want nil", cc.desc, err)
 		}
 
@@ -73,8 +87,11 @@ func TestTickWork(t *testing.T) {
 			if tile == nil {
 				t.Fatalf("%s: No tile at %s", cc.desc, pos)
 			}
-			if !maps.Equal(cc.want, tile.Location.Goods) {
-				t.Errorf("%s: Tick() => %v, want %v (%v)", cc.desc, tile.Location.Goods, cc.want, tile.Location.Reasons)
+			if !maps.Equal(cc.want, tile.Location.Produced) {
+				t.Errorf("%s: Tick() produced => %v, want %v (%v)", cc.desc, tile.Location.Produced, cc.want, tile.Location.Reasons)
+			}
+			if !maps.Equal(cc.cons, tile.Location.Consumed) {
+				t.Errorf("%s: Tick() consumed => %v, want %v (%v)", cc.desc, tile.Location.Consumed, cc.cons, tile.Location.Reasons)
 			}
 		}
 	}

@@ -14,7 +14,8 @@ import (
 type Tile struct {
 	*triangles.Surface
 	*chain.Location
-	pieces []*Piece
+	pieces   []*Piece
+	Consumed map[string]int32
 }
 
 type Point struct {
@@ -59,6 +60,7 @@ func NewHex(r int) (*Board, error) {
 					Surface:  s,
 					Location: chain.NewLocation(),
 					pieces:   make([]*Piece, 0, 3),
+					Consumed: map[string]int32{},
 				}
 				b.Tiles = append(b.Tiles, tile)
 				b.tileMap[s.GetTriPoint()] = tile
@@ -112,6 +114,7 @@ func (t *Tile) Consume(buckets []*conpb.Bucket) {
 	}
 	filled := map[string]bool{}
 	discard := map[string]bool{}
+	t.Location.Consumed = map[string]int32{}
 	for {
 		cands := make([]*conpb.Bucket, 0, len(buckets))
 		for _, bucket := range buckets {
@@ -142,6 +145,7 @@ func (t *Tile) Consume(buckets []*conpb.Bucket) {
 		}
 		bucket := t.prioritise(cands)
 		counts.SubtractInt32(t.Location.Goods, bucket.GetStuff())
+		counts.AddInt32(t.Location.Consumed, bucket.GetStuff())
 		filled[bucket.GetKey()] = true
 	}
 }
@@ -334,6 +338,12 @@ func (m *Board) Tick(params *TickParams) error {
 	if m == nil {
 		return fmt.Errorf("Tick called on nil Board")
 	}
+	if len(params.Buckets) == 0 {
+		return fmt.Errorf("Tick called without buckets")
+	}
+	if len(params.Webs) == 0 {
+		return fmt.Errorf("Tick called without webs")
+	}
 
 	asLocs := make([]*chain.Location, 0, len(m.Tiles))
 	for _, tile := range m.Tiles {
@@ -349,6 +359,7 @@ func (m *Board) Tick(params *TickParams) error {
 	for {
 		if cmb := chain.Place(params.Webs, asLocs); cmb != nil {
 			cmb.Activate()
+			fmt.Printf("Placed %v\n", cmb)
 			continue
 		}
 		break

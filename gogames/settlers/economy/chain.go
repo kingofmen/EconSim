@@ -75,13 +75,18 @@ type Location struct {
 	maxBox int
 	// Rejection reasons.
 	Reasons map[string]string
+	// Statistics.
+	Produced map[string]int32
+	Consumed map[string]int32
 }
 
 func NewLocation() *Location {
 	return &Location{
-		pool:   make(map[string]int32),
-		Goods:  make(map[string]int32),
-		maxBox: 10,
+		pool:     make(map[string]int32),
+		Goods:    make(map[string]int32),
+		Produced: make(map[string]int32),
+		Consumed: make(map[string]int32),
+		maxBox:   10,
 	}
 }
 
@@ -133,6 +138,7 @@ func (l *Location) Work() {
 	if l == nil {
 		return
 	}
+	l.Produced = map[string]int32{}
 	for _, b := range l.boxen {
 		if b == nil {
 			continue
@@ -140,6 +146,7 @@ func (l *Location) Work() {
 		for _, lvl := range b.assigned[:b.active+1] {
 			for k, v := range lvl.GetOutputs() {
 				l.Goods[k] += v
+				l.Produced[k] += v
 			}
 		}
 	}
@@ -333,8 +340,10 @@ func generate(web *cpb.Web, locs []*Location) []*Combo {
 	nodes := web.GetNodes()
 	fnode := nodes[0]
 	combos := make([]*Combo, 0, len(locs))
-	for _, loc := range locs {
-		for _, cand := range loc.Allowed(fnode) {
+	for i, loc := range locs {
+		fmt.Printf("Location %d\n", i)
+		for j, cand := range loc.Allowed(fnode) {
+			fmt.Printf("Candidate %d: %v\n", j, web.GetKey())
 			combos = append(combos, &Combo{
 				key:   web.GetKey(),
 				procs: []*placement{cand},

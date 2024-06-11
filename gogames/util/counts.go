@@ -35,3 +35,17 @@ func SubtractInt32(minuend, subtrahend map[string]int32) {
 		minuend[k] -= v
 	}
 }
+
+// Add adds the second argument to the first in-place.
+func Add(first, addend map[string]int) {
+	for k, v := range addend {
+		first[k] += v
+	}
+}
+
+// AddInt32 adds the second argument to the first in-place.
+func AddInt32(first, addend map[string]int32) {
+	for k, v := range addend {
+		first[k] += v
+	}
+}
