@@ -359,7 +359,6 @@ func (m *Board) Tick(params *TickParams) error {
 	for {
 		if cmb := chain.Place(params.Webs, asLocs); cmb != nil {
 			cmb.Activate()
-			fmt.Printf("Placed %v\n", cmb)
 			continue
 		}
 		break

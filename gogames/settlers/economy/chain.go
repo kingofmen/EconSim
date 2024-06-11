@@ -86,6 +86,7 @@ func NewLocation() *Location {
 		Goods:    make(map[string]int32),
 		Produced: make(map[string]int32),
 		Consumed: make(map[string]int32),
+		Reasons:  make(map[string]string),
 		maxBox:   10,
 	}
 }
@@ -251,7 +252,11 @@ func (loc *Location) Allowed(p *cpb.Process, prev ...*placement) []*placement {
 				pos: kNewBox,
 				lvl: 0,
 			})
+		} else {
+			loc.reject(p, fmt.Sprintf("not enough workers (%v vs %v)", avail, p.GetLevels()[0].GetWorkers()))
 		}
+	} else {
+		loc.reject(p, "no room")
 	}
 	return places
 }
@@ -341,9 +346,7 @@ func generate(web *cpb.Web, locs []*Location) []*Combo {
 	fnode := nodes[0]
 	combos := make([]*Combo, 0, len(locs))
 	for i, loc := range locs {
-		fmt.Printf("Location %d\n", i)
 		for j, cand := range loc.Allowed(fnode) {
-			fmt.Printf("Candidate %d: %v\n", j, web.GetKey())
 			combos = append(combos, &Combo{
 				key:   web.GetKey(),
 				procs: []*placement{cand},

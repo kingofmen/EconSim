@@ -1,31 +1,8 @@
-key: "testweb"
+key: "subsist_grain"
 nodes {
-  key: "testweb_1"
+  key: "subsist"
   levels {
-    workers { key: "labor" value: 100 }
-    workers { key: "skilled" value: 10 }
+    workers { key: "labour" value: 100 }
     outputs { key: "grain" value: 100 }
   }
-  levels {
-    workers { key: "labor" value: 50 }
-    workers { key: "skilled" value: 50 }
-    outputs { key: "grain" value: 250 }
-  }
-}
-nodes {
-  key: "testweb_2"
-  levels {
-    workers { key: "admin" value: 10 }
-    outputs { key: "grain" value: 100 }
-  }
-  levels {
-    workers { key: "clerks" value: 50 }
-    outputs { key: "grain" value: 250 }
-  }
-}
-transport {
-  workers { key: "trucks" value: 10 }
-}
-transport {
-  workers { key: "rail" value: 10 }
 }
