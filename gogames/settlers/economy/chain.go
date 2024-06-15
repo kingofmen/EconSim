@@ -345,8 +345,8 @@ func generate(web *cpb.Web, locs []*Location) []*Combo {
 	nodes := web.GetNodes()
 	fnode := nodes[0]
 	combos := make([]*Combo, 0, len(locs))
-	for i, loc := range locs {
-		for j, cand := range loc.Allowed(fnode) {
+	for _, loc := range locs {
+		for _, cand := range loc.Allowed(fnode) {
 			combos = append(combos, &Combo{
 				key:   web.GetKey(),
 				procs: []*placement{cand},
