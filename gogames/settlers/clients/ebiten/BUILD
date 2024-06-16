@@ -9,7 +9,10 @@ go_binary(
 
 go_library(
     name = "ebiten_lib",
-    srcs = ["main.go"],
+    srcs = [
+        "main.go",
+	"components.go",
+    ],
     importpath = "gogames/settlers/clients/ebiten",
     visibility = ["//visibility:private"],
     deps = [
