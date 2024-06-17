@@ -87,6 +87,13 @@ go_repository(
     commit = "dab77e60781e3ee1254ff2f5025c9e369c21100e",
 )
 
+# golang.org/x/image, includes fonts. Note ebiten.text depends on this.
+go_repository(
+    name = "org_golang_x_image",
+    importpath = "golang.org/x/image",
+    commit = "6c5fa462eb87ac98bad9b09ea3b041dd770fa611",
+)
+
 new_local_repository(
     name = "gtest",
     path = "C:\\users\\rolfa\\base\\protobuf\\",
