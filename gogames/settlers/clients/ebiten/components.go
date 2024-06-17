@@ -13,6 +13,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font/basicfont"
 )
 
 // component is a part of the UI.
@@ -496,3 +498,24 @@ func (dc *displayComponent) handleLeftClick() {
 		break
 	}
 }
+
+// infoComponent displays the current state of a selected tile.
+type infoComponent struct {
+	component
+	curr *settlers.Tile
+}
+
+// draw displays the tile state.
+func (ic *infoComponent) draw(screen *ebiten.Image) {
+	if ic == nil {
+		return
+	}
+	drawRectangle(screen, ic.Rectangle, color.Black, color.White, 1)
+	text.Draw(screen, "Test", basicfont.Face7x13, 5, 315, color.White)
+	if ic.curr == nil {
+		return
+	}
+}
+
+// handleLeftClick does nothing.
+func (ic *infoComponent) handleLeftClick() {}

@@ -178,6 +178,7 @@ type layout struct {
 	board    *boardComponent
 	tiles    *tilesComponent
 	display  *displayComponent
+	info     *infoComponent
 	draws    []drawable
 	handlers []handler
 }
@@ -350,7 +351,7 @@ func makeLayout() layout {
 		},
 		tiles: &tilesComponent{
 			component: component{
-				Rectangle: makeRect(0, 0, 110, 400),
+				Rectangle: makeRect(0, 0, 110, 300),
 				active:    true,
 				gopts: &ebiten.DrawImageOptions{
 					GeoM: ebiten.GeoM{},
@@ -372,16 +373,27 @@ func makeLayout() layout {
 				loc:    makeRect(5, 405, 25, 425),
 			},
 		},
-		draws:    make([]drawable, 3),
-		handlers: make([]handler, 3),
+		info: &infoComponent{
+			component: component{
+				Rectangle: makeRect(0, 300, 110, 400),
+				active:    true,
+				gopts: &ebiten.DrawImageOptions{
+					GeoM: ebiten.GeoM{},
+				},
+			},
+		},
+		draws:    make([]drawable, 4),
+		handlers: make([]handler, 4),
 	}
 	l.draws[0] = l.board
 	l.draws[1] = l.tiles
 	l.draws[2] = l.display
+	l.draws[3] = l.info
 	// Note that handle order differs.
 	l.handlers[0] = l.tiles
 	l.handlers[1] = l.display
 	l.handlers[2] = l.board
+	l.handlers[3] = l.info
 	return l
 }
 
