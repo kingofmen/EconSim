@@ -102,6 +102,22 @@ func (cs *commonState) setCurrTile(target *settlers.Tile) {
 	cs.infoDirty = true
 }
 
+// factionString returns the display string of the faction.
+func (cs *commonState) factionString(fac *settlers.Faction) string {
+	if cs == nil {
+		return ""
+	}
+	if fac == nil {
+		return "None"
+	}
+	for _, fs := range cs.factions {
+		if fs.faction == fac {
+			return fs.displayName
+		}
+	}
+	return fac.DNA().String()
+}
+
 // factionState contains state information about the game's factions.
 type factionState struct {
 	faction      *settlers.Faction

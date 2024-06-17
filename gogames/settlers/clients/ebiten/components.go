@@ -527,5 +527,5 @@ func (ic *infoComponent) calculate(tile *settlers.Tile) {
 		ic.info = ""
 		return
 	}
-	ic.info = "Some tile"
+	ic.info = fmt.Sprintf("%s %s", tile.Surface.String(), uiState.factionString(tile.Controller()))
 }
