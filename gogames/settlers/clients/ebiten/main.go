@@ -72,6 +72,10 @@ type commonState struct {
 	overlayButton *stateButton
 	// factions contains the players, human and AI.
 	factions []*factionState
+	// currTile is the selected Tile.
+	currTile *settlers.Tile
+	// infoDirty is true if the tile-info needs calculating.
+	infoDirty bool
 }
 
 // currFaction returns the faction whose turn it is.
@@ -84,6 +88,18 @@ func (cs *commonState) currFaction() *factionState {
 		return nil
 	}
 	return cs.factions[cs.playerIndex]
+}
+
+// setCurrTile selects the provided tile.
+func (cs *commonState) setCurrTile(target *settlers.Tile) {
+	if cs == nil {
+		return
+	}
+	if cs.currTile == target {
+		return
+	}
+	cs.currTile = target
+	cs.infoDirty = true
 }
 
 // factionState contains state information about the game's factions.
@@ -299,6 +315,10 @@ func drawRectangle(target *ebiten.Image, r *image.Rectangle, fill, edge color.Co
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	if uiState.infoDirty {
+		g.areas.info.calculate(uiState.currTile)
+		uiState.infoDirty = false
+	}
 	for _, d := range g.areas.draws {
 		if !d.isActive() {
 			continue
@@ -394,6 +414,7 @@ func makeLayout() layout {
 	l.handlers[1] = l.display
 	l.handlers[2] = l.board
 	l.handlers[3] = l.info
+	l.info.calculate(nil)
 	return l
 }
 
@@ -458,6 +479,8 @@ func main() {
 		turnSignal:    make(chan int),
 		overlayButton: game.areas.display.factions,
 		factions:      facStates,
+		currTile:      nil,
+		infoDirty:     false,
 	}
 	for i, fs := range uiState.factions {
 		uiState.game.Factions[i] = fs.faction

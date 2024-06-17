@@ -229,6 +229,7 @@ func (bc *boardComponent) handleLeftClick() {
 	}
 
 	target := bc.getTileAt(pos)
+	uiState.setCurrTile(target)
 	if target == nil {
 		return
 	}
@@ -502,7 +503,7 @@ func (dc *displayComponent) handleLeftClick() {
 // infoComponent displays the current state of a selected tile.
 type infoComponent struct {
 	component
-	curr *settlers.Tile
+	info string
 }
 
 // draw displays the tile state.
@@ -511,11 +512,20 @@ func (ic *infoComponent) draw(screen *ebiten.Image) {
 		return
 	}
 	drawRectangle(screen, ic.Rectangle, color.Black, color.White, 1)
-	text.Draw(screen, "Test", basicfont.Face7x13, 5, 315, color.White)
-	if ic.curr == nil {
-		return
-	}
+	text.Draw(screen, ic.info, basicfont.Face7x13, 5, 315, color.White)
 }
 
 // handleLeftClick does nothing.
 func (ic *infoComponent) handleLeftClick() {}
+
+// calculate sets the display string.
+func (ic *infoComponent) calculate(tile *settlers.Tile) {
+	if ic == nil {
+		return
+	}
+	if tile == nil {
+		ic.info = ""
+		return
+	}
+	ic.info = "Some tile"
+}
