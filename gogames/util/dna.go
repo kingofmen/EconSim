@@ -64,3 +64,8 @@ func (s1 Sequence) RGBA() color.NRGBA64 {
 		A: uint16(s1[6])<<8 | uint16(s1[7]),
 	}
 }
+
+// String converts a Sequence to a string for human readability.
+func (seq Sequence) String() string {
+	return string(seq[:])
+}
