@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"strings"
 
 	"gogames/settlers/engine/settlers"
 	"gogames/tiles/triangles"
@@ -527,5 +528,24 @@ func (ic *infoComponent) calculate(tile *settlers.Tile) {
 		ic.info = ""
 		return
 	}
-	ic.info = fmt.Sprintf("%s %s", tile.Surface.String(), uiState.factionString(tile.Controller()))
+	lines := []string{
+		tile.Surface.String(),
+		uiState.factionString(tile.Controller()),
+	}
+	defer func() {
+		ic.info = strings.Join(lines, "\n")
+	}()
+
+	pcs := tile.Pieces()
+	np := len(pcs)
+	if np == 0 {
+		return
+	}
+	lines = append(lines, pcs[np-1].GetKey())
+	for k, v := range tile.Location.Produced {
+		lines = append(lines, fmt.Sprintf("P: %d %s", v, k))
+	}
+	for k, v := range tile.Location.Consumed {
+		lines = append(lines, fmt.Sprintf("C: %d %s", v, k))
+	}
 }
