@@ -19,6 +19,7 @@ const (
 	apiToken    = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
 	aggURL      = "https://api.polygon.io/v2/aggs/ticker/%s/range/1/day/%s/%s"
 	contractURL = "https://api.polygon.io/v3/reference/options/contracts"
+	quoteURL    = "https://api.polygon.io/v3/quotes/"
 	cacheFile   = "C:\\Users\\Rolf\\base\\bazel-out\\tradingCache"
 )
 
@@ -43,9 +44,9 @@ type polyAggregate struct {
 	results []map[string]float64 `json:"results"`
 }
 
-// contracts is a model of the JSON returned by Polygon's "options/contracts/ticker" endpoint.
+// Ticker is a model of the JSON returned by Polygon's "options/contracts/ticker" endpoint.
 // Note that the 'additional_underlyings' field is ignored.
-type contract struct {
+type Ticker struct {
 	Cfi          string  `json:"cfi"`
 	ContractType string  `json:"contract_type"`
 	Style        string  `json:"exercise_style"`
@@ -59,8 +60,8 @@ type contract struct {
 
 // optionContracts is a model of the JSON returned by Polygon's "options/contracts" endpoint.
 type optionContracts struct {
-	RequestID string     `json:"request_id"`
-	Results   []contract `json:"results"`
+	RequestID string    `json:"request_id"`
+	Results   []*Ticker `json:"results"`
 }
 
 func handleResponse(res *http.Response) (*polyAggregate, error) {
@@ -135,6 +136,46 @@ func (p *Client) LookupOption(opt *tools.Option, date string) (*tools.TickerPric
 	return convertAggregate(agg), nil
 }
 
+type Quote struct {
+	AskPrice float64 `json:"ask_price"`
+	AskSize  float64 `json:"ask_size"`
+	BidPrice float64 `json:"bid_price"`
+	BidSize  float64 `json:"bid_size"`
+}
+
+type OptionQuotes struct {
+	RequestID string   `json:"request_id"`
+	Results   []*Quote `json:"results"`
+}
+
+func (p *Client) GetOptionQuotes(ticker string) (*OptionQuotes, error) {
+	url := fmt.Sprintf("%s%s", quoteURL, ticker)
+	fmt.Printf("URL: %s\n", url)
+	req, err := makeRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't create quotes request %s: %v", url, err)
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Bad response: %v", err)
+	}
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't read response body: %v", err)
+	}
+	if !json.Valid(b) {
+		return nil, fmt.Errorf("Invalid JSON object")
+	}
+	fmt.Printf("JSON: %s\n", string(b))
+
+	quotes := &OptionQuotes{}
+	if err := json.Unmarshal(b, quotes); err != nil {
+		return nil, fmt.Errorf("Couldn't unmarshal response: %v", err)
+	}
+	return quotes, nil
+}
+
 func tickerURL(ticker, date string) string {
 	if len(date) == 0 {
 		year, month, day := time.Now().Date()
@@ -195,7 +236,7 @@ type ListParams struct {
 }
 
 // ListOptions returns a slice of the option contracts for the ticker.
-func (p *Client) ListOptions(opt *ListParams) ([]*tools.Option, error) {
+func (p *Client) ListOptions(opt *ListParams) ([]*Ticker, error) {
 	if opt == nil {
 		return nil, fmt.Errorf("Received nil ListParams")
 	}
@@ -239,11 +280,7 @@ func (p *Client) ListOptions(opt *ListParams) ([]*tools.Option, error) {
 		return nil, fmt.Errorf("Couldn't unmarshal response: %v", err)
 	}
 
-	fmt.Printf("Found %d results for %s\n", len(contracts.Results), url)
-	for _, rslt := range contracts.Results {
-		fmt.Printf("Ticker: %s\n", rslt.Ticker)
-	}
-	return nil, nil
+	return contracts.Results, nil
 }
 
 // Lookup prints aggregate information about the provided option.
