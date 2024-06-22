@@ -3,6 +3,7 @@ package misprice
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"trading/marketdata"
@@ -19,6 +20,13 @@ type price struct {
 	size  float64
 }
 
+func (p price) String() string {
+	if p.size == 0 {
+		return "N/A"
+	}
+	return fmt.Sprintf("%v @ %v", p.size, p.money)
+}
+
 type pair struct {
 	strike  float64
 	expire  time.Time
@@ -26,6 +34,13 @@ type pair struct {
 	putBid  price
 	callAsk price
 	callBid price
+}
+
+func (p *pair) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("{Strike %v on %s, put %s / %s, call %s / %s}", p.strike, p.expire.Format(time.DateOnly), p.putBid, p.putAsk, p.callBid, p.callAsk)
 }
 
 // longPremium returns the revenue from buying the call and selling the put.
@@ -71,6 +86,28 @@ func createPairs(quotes map[*polygon.Ticker]*marketdata.OptionQuote) []*pair {
 	for _, p := range pairMap {
 		pairs = append(pairs, p)
 	}
+	sort.Slice(pairs, func(i, j int) bool {
+		one, two := pairs[i], pairs[j]
+		if one.expire.Before(two.expire) {
+			return true
+		}
+		if two.expire.Before(one.expire) {
+			return false
+		}
+		if one.strike < two.strike {
+			return true
+		}
+		if two.strike < one.strike {
+			return false
+		}
+		if one.putAsk.money < two.putAsk.money {
+			return true
+		}
+		if one.callAsk.money < two.callAsk.money {
+			return true
+		}
+		return false
+	})
 	return pairs
 }
 
