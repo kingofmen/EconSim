@@ -10,6 +10,17 @@ go_binary(
     ],
 )
 
+go_binary(
+    name = "misprice",
+    srcs = ["misprice.go"],
+    deps = [
+	":marketdata",
+	":mispricelib",
+        ":polygon",
+        ":tools",
+    ],
+)
+
 go_library(
     name = "fund",
     srcs = ["fund.go"],
@@ -20,11 +31,29 @@ go_library(
 )
 
 go_library(
+    name = "mispricelib",
+    srcs = ["misprice_lib.go"],
+    importpath = "trading/misprice",
+    deps = [
+	":marketdata",
+        ":polygon",
+    ],
+)
+
+go_library(
     name = "polygon",
     srcs = ["polygon.go"],
     importpath = "trading/polygon",
     deps = [
         ":tools",
+    ],
+)
+
+go_library(
+    name = "marketdata",
+    srcs = ["marketdata.go"],
+    importpath = "trading/marketdata",
+    deps = [
     ],
 )
 

@@ -58,6 +58,16 @@ type Ticker struct {
 	Underlying   string  `json:"underlying_ticker"`
 }
 
+func (t *Ticker) IsCall() bool {
+	if t == nil {
+		return false
+	}
+	if t.ContractType == "call" {
+		return true
+	}
+	return false
+}
+
 // optionContracts is a model of the JSON returned by Polygon's "options/contracts" endpoint.
 type optionContracts struct {
 	RequestID string    `json:"request_id"`
@@ -233,6 +243,7 @@ type ListParams struct {
 	Ticker    string
 	MinStrike float64
 	MaxStrike float64
+	Limit     int
 }
 
 // ListOptions returns a slice of the option contracts for the ticker.
@@ -252,6 +263,9 @@ func (p *Client) ListOptions(opt *ListParams) ([]*Ticker, error) {
 	}
 	if opt.MinStrike > 0 {
 		url = fmt.Sprintf("%s&strike_price.gt=%v", url, opt.MinStrike)
+	}
+	if opt.Limit != 10 {
+		url = fmt.Sprintf("%s&limit=%d", url, opt.Limit)
 	}
 	req, err := makeRequest(url)
 	if err != nil {
