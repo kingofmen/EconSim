@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
 go_binary(
     name = "trading",
@@ -37,6 +37,19 @@ go_library(
     deps = [
 	":marketdata",
         ":polygon",
+    ],
+)
+
+go_test(
+    name = "misprice_test",
+    srcs = ["misprice_test.go"],
+    deps = [
+	":marketdata",
+        ":polygon",
+        "@com_github_google_go_cmp//cmp:cmp",
+    ],
+    embed = [
+      ":mispricelib",
     ],
 )
 
