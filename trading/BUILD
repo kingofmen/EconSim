@@ -47,6 +47,7 @@ go_test(
 	":marketdata",
         ":polygon",
         "@com_github_google_go_cmp//cmp:cmp",
+        "@com_github_google_go_cmp//cmp/cmpopts:cmpopts",
     ],
     embed = [
       ":mispricelib",
