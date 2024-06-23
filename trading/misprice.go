@@ -19,6 +19,7 @@ var (
 	priceMax   = flag.Float64("price_max", -1.0, "Maximum strike price.")
 	loadCache  = flag.Bool("load_cache", false, "If set, read existing API responses from file.")
 	writeCache = flag.Bool("write_cache", false, "If set, save new API results to cache file.")
+	limit      = flag.Int("limit", 100, "Number of options to list.")
 )
 
 func main() {
@@ -34,7 +35,7 @@ func main() {
 		Ticker:    *tickerF,
 		MinStrike: *priceMin,
 		MaxStrike: *priceMax,
-		Limit:     1,
+		Limit:     *limit,
 	}
 	poly := polygon.Client{}
 	options, err := poly.ListOptions(params)
