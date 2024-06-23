@@ -1,7 +1,7 @@
 package misprice
 
 import (
-	//"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -162,6 +162,125 @@ func TestCreatePairs(t *testing.T) {
 			got := createPairs(cc.input)
 			if diff := cmp.Diff(cc.want, got, cmpOpts...); diff != "" {
 				t.Errorf("%s: createPairs() => %+v,\nwant %+v,\ndiff %s", cc.desc, got, cc.want, diff)
+			}
+		})
+	}
+}
+
+func TestHighShortSearch(t *testing.T) {
+	cases := []struct {
+		desc   string
+		input  []*pair
+		want   []*suggestion
+		profit map[float64]float64
+	}{
+		{
+			desc:  "Empty input",
+			input: []*pair{},
+			want:  []*suggestion{},
+		},
+		{
+			desc: "Short too expensive",
+			input: []*pair{
+				&pair{
+					strike:  10.0,
+					expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{1, 100},
+					putBid:  price{0.8, 100},
+					callAsk: price{0.75, 100},
+					callBid: price{0.5, 100},
+				},
+				&pair{
+					strike:  12.5,
+					expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{2.6, 100},
+					putBid:  price{0.8, 100},
+					callAsk: price{2.5, 100},
+					callBid: price{0.75, 100},
+				},
+			},
+			want: []*suggestion{
+				&suggestion{
+					long: &pair{
+						strike:  10.0,
+						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+						putAsk:  price{1, 100},
+						putBid:  price{0.8, 100},
+						callAsk: price{0.75, 100},
+						callBid: price{0.5, 100},
+					},
+				},
+			},
+			profit: map[float64]float64{
+				9.0:  -0.95,
+				10.0: 0.05,
+				11.0: 1.05,
+			},
+		},
+		{
+			desc: "Finds short",
+			input: []*pair{
+				&pair{
+					strike:  10.0,
+					expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{3.00, 100},
+					putBid:  price{2.80, 100},
+					callAsk: price{1.20, 100},
+					callBid: price{1.00, 100},
+				},
+				&pair{
+					strike:  12.5,
+					expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{1.05, 100},
+					putBid:  price{0.95, 100},
+					callAsk: price{1.00, 100},
+					callBid: price{0.90, 100},
+				},
+			},
+			want: []*suggestion{
+				&suggestion{
+					long: &pair{
+						strike:  10.0,
+						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+						putAsk:  price{3.00, 100},
+						putBid:  price{2.80, 100},
+						callAsk: price{1.20, 100},
+						callBid: price{1.00, 100},
+					},
+					short: &pair{
+						strike:  12.5,
+						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+						putAsk:  price{1.05, 100},
+						putBid:  price{0.95, 100},
+						callAsk: price{1.00, 100},
+						callBid: price{0.90, 100},
+					},
+				},
+			},
+			profit: map[float64]float64{
+				9.0:  3.05,
+				10.0: 3.05,
+				11.0: 3.05,
+			},
+		},
+	}
+
+	cmpOpts := []cmp.Option{
+		cmp.AllowUnexported(suggestion{}, pair{}, price{}),
+	}
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			got := search(cc.input)
+			if diff := cmp.Diff(cc.want, got, cmpOpts...); diff != "" {
+				t.Errorf("%s: search() => %+v,\nwant %+v,\ndiff %s", cc.desc, got, cc.want, diff)
+			}
+			if len(got) > 0 {
+				first := got[0]
+				for f, p := range cc.profit {
+					if calc := first.profit(f); math.Abs(calc-p) > 0.01 {
+						t.Errorf("%s: profit(%v) => %.2f, want %.2f", cc.desc, f, calc, p)
+					}
+				}
 			}
 		})
 	}

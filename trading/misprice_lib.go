@@ -130,6 +130,36 @@ func (s *suggestion) String() string {
 	return ret
 }
 
+// profit returns the profit per option at the given
+// expiry price.
+func (s *suggestion) profit(final float64) float64 {
+	ret := 0.0
+	if s == nil {
+		return ret
+	}
+	if s.long != nil {
+		ret += s.long.putBid.money
+		ret -= s.long.callAsk.money
+		// Either put or call will be exercised;
+		// pay strike, receive stock.
+		ret -= s.long.strike
+	}
+	if s.short != nil {
+		ret -= s.short.putAsk.money
+		// Exercise put if below strike, otherwise
+		// sell at market.
+		if final < s.short.strike {
+			ret += s.short.strike
+		} else {
+			ret += final
+		}
+	} else {
+		// Receive the stock.
+		ret += final
+	}
+	return ret
+}
+
 // search looks through the pairs for those where selling the put
 // more than pays for buying the call.
 func search(pairs []*pair) []*suggestion {
