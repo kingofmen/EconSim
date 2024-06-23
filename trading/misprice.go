@@ -20,6 +20,8 @@ var (
 	loadCache  = flag.Bool("load_cache", false, "If set, read existing API responses from file.")
 	writeCache = flag.Bool("write_cache", false, "If set, save new API results to cache file.")
 	limit      = flag.Int("limit", 100, "Number of options to list.")
+	start      = flag.String("start", "", "Start date (inclusive) in YYYY-MM-DD format.")
+	end        = flag.String("end", "", "End date (inclusive) in YYYY-MM-DD format.")
 )
 
 func main() {
@@ -36,6 +38,8 @@ func main() {
 		MinStrike: *priceMin,
 		MaxStrike: *priceMax,
 		Limit:     *limit,
+		StartDate: *start,
+		EndDate:   *end,
 	}
 	poly := polygon.Client{}
 	options, err := poly.ListOptions(params)

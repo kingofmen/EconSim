@@ -60,7 +60,7 @@ func (p *pair) longPremium() float64 {
 func createPairs(quotes map[*polygon.Ticker]*marketdata.OptionQuote) []*pair {
 	pairMap := make(map[string]*pair)
 	for tck, quo := range quotes {
-		exp, err := time.Parse("2006-01-02", tck.ExpDate)
+		exp, err := time.Parse(time.DateOnly, tck.ExpDate)
 		if err != nil {
 			fmt.Printf("Could not parse time string %q: %v", tck.ExpDate, err)
 			continue
@@ -195,7 +195,7 @@ func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	pairs := createPairs(quotes)
 	fmt.Printf("Created %d pairs.\n", len(pairs))
 	suggest := search(pairs)
-	fmt.Printf("Found %d suggestions.\n", len(suggest))
+	fmt.Printf("Found %d candidates.\n", len(suggest))
 	for _, s := range suggest {
 		if s.short != nil {
 			fmt.Printf("%s\n", s)

@@ -244,6 +244,8 @@ type ListParams struct {
 	MinStrike float64
 	MaxStrike float64
 	Limit     int
+	StartDate string
+	EndDate   string
 }
 
 // ListOptions returns a slice of the option contracts for the ticker.
@@ -266,6 +268,18 @@ func (p *Client) ListOptions(opt *ListParams) ([]*Ticker, error) {
 	}
 	if opt.Limit != 10 {
 		url = fmt.Sprintf("%s&limit=%d", url, opt.Limit)
+	}
+	if len(opt.StartDate) > 0 {
+		if _, err := time.Parse(time.DateOnly, opt.StartDate); err != nil {
+			return nil, fmt.Errorf("Start date must be in format YYYY-MM-DD, received %q: %v", opt.StartDate, err)
+		}
+		url = fmt.Sprintf("%s&expiration_date.gte=%s", url, opt.StartDate)
+	}
+	if len(opt.EndDate) > 0 {
+		if _, err := time.Parse(time.DateOnly, opt.EndDate); err != nil {
+			return nil, fmt.Errorf("End date must be in format YYYY-MM-DD, received %q: %v", opt.EndDate, err)
+		}
+		url = fmt.Sprintf("%s&expiration_date.lte=%s", url, opt.EndDate)
 	}
 	req, err := makeRequest(url)
 	if err != nil {
