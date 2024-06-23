@@ -38,6 +38,17 @@ type OptionQuote struct {
 	UnderPrice []float64 `json:"underlyingPrice"`
 }
 
+func (q *OptionQuote) String() string {
+	asize, bsize := q.AskSize[0], q.BidSize[0]
+	if asize > 999 {
+		asize = 999
+	}
+	if bsize > 999 {
+		bsize = 999
+	}
+	return fmt.Sprintf("Ask %3.2f / %3.0f Bid %3.2f / %3.0f Volume %f Under %f", q.AskPrice[0], q.AskSize[0], q.BidPrice[0], q.BidSize[0], q.Volume[0], q.UnderPrice[0])
+}
+
 func GetOptionQuote(ticker string) (*OptionQuote, error) {
 	if ticker != "AAPL" && len(apiToken) == 0 {
 		tk, err := os.ReadFile("C:\\Users\\rolfa\\base\\trading\\mdtoken.txt")

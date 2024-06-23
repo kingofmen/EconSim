@@ -20,8 +20,12 @@ type price struct {
 	size  float64
 }
 
+func (p price) valid() bool {
+	return p.size > 0.99
+}
+
 func (p price) String() string {
-	if p.size == 0 {
+	if !p.valid() {
 		return "N/A"
 	}
 	return fmt.Sprintf("%v @ %v", p.size, p.money)
@@ -48,10 +52,10 @@ func (p *pair) longPremium() float64 {
 	if p == nil {
 		return 0
 	}
-	if p.callAsk.size < 1 {
+	if !p.callAsk.valid() {
 		return 0
 	}
-	if p.putBid.size < 1 {
+	if !p.putBid.valid() {
 		return 0
 	}
 	return p.putBid.money - p.callAsk.money
@@ -123,9 +127,13 @@ func (s *suggestion) String() string {
 	if s.long == nil {
 		return "no long"
 	}
-	ret := fmt.Sprintf("Date %s strike %v\n  sell put %v\n  buy call %v", s.long.expire, s.long.strike, s.long.putBid.money, s.long.callAsk.money)
+	ret := fmt.Sprintf("Date %s strike %v\n  sell put %v\n  buy call %v", s.long.expire.Format(time.DateOnly), s.long.strike, s.long.putBid.money, s.long.callAsk.money)
 	if s.short != nil {
-		ret = fmt.Sprintf("%s\n  buy put %v at %v", ret, s.short.strike, s.short.putAsk.money)
+		dstr := ""
+		if s.short.expire.After(s.long.expire) {
+			dstr = fmt.Sprintf(" (%s)", s.short.expire.Format(time.DateOnly))
+		}
+		ret = fmt.Sprintf("%s\n  buy put %v at %v%s", ret, s.short.strike, s.short.putAsk.money, dstr)
 	}
 	return ret
 }
@@ -180,7 +188,13 @@ func search(pairs []*pair) []*suggestion {
 			if p2.expire.Before(p.expire) {
 				continue
 			}
-			if lp-p2.putAsk.money < minPremium {
+			if !p2.putAsk.valid() {
+				continue
+			}
+			// Use break-even here as that prints if the price
+			// goes over the high strike. Being 99% break-even and
+			// 1% profit is valuable.
+			if lp-p2.putAsk.money < 0 {
 				continue
 			}
 			cand.short = p2
