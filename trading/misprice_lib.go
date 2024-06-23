@@ -204,10 +204,33 @@ func search(pairs []*pair) []*suggestion {
 	return found
 }
 
+// plainArb looks for put-call pairs such that the premium
+// is less than the strike difference.
+func plainArb(pairs []*pair) {
+	for _, p1 := range pairs {
+		if !p1.putAsk.valid() {
+			continue
+		}
+		premium := p1.putAsk.money
+		for _, p2 := range pairs {
+			if !p2.callAsk.valid() {
+				continue
+			}
+			premium += p2.callAsk.money
+			strikeDiff := p1.strike - p2.strike
+			if premium > strikeDiff {
+				continue
+			}
+			fmt.Printf("Found arb: Buy %s put %v at %.2f, %s call %v at %.2f, combine for %.2f\n", p1.expire.Format(time.DateOnly), p1.strike, p1.putAsk.money, p2.expire.Format(time.DateOnly), p2.strike, p2.callAsk.money, strikeDiff)
+		}
+	}
+}
+
 func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Received %d quotes.\n", len(quotes))
 	pairs := createPairs(quotes)
 	fmt.Printf("Created %d pairs.\n", len(pairs))
+	plainArb(pairs)
 	suggest := search(pairs)
 	fmt.Printf("Found %d candidates.\n", len(suggest))
 	count := 0
