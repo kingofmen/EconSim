@@ -34,7 +34,7 @@ func main() {
 		Ticker:    *tickerF,
 		MinStrike: *priceMin,
 		MaxStrike: *priceMax,
-		Limit:     100,
+		Limit:     1,
 	}
 	poly := polygon.Client{}
 	options, err := poly.ListOptions(params)

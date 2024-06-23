@@ -6,11 +6,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
-const (
+var (
 	apiToken = ""
+)
+
+const (
 	quoteURL = "https://api.marketdata.app/v1/options/quotes/"
 )
 
@@ -35,6 +39,14 @@ type OptionQuote struct {
 }
 
 func GetOptionQuote(ticker string) (*OptionQuote, error) {
+	if ticker != "AAPL" && len(apiToken) == 0 {
+		tk, err := os.ReadFile("C:\\Users\\rolfa\\base\\trading\\mdtoken.txt")
+		if err != nil {
+			return nil, fmt.Errorf("Could not read API token: %v", err)
+		}
+		apiToken = string(tk)
+		apiToken = strings.TrimSpace(apiToken)
+	}
 	ticker, _ = strings.CutPrefix(ticker, "O:")
 	url := fmt.Sprintf("%s%s", quoteURL, ticker)
 	req, err := makeRequest(url)
