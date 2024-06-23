@@ -177,7 +177,7 @@ func search(pairs []*pair) []*suggestion {
 			if p2.strike <= p.strike {
 				continue
 			}
-			if p2.expire != p.expire {
+			if p2.expire.Before(p.expire) {
 				continue
 			}
 			if lp-p2.putAsk.money < minPremium {
@@ -196,8 +196,16 @@ func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Created %d pairs.\n", len(pairs))
 	suggest := search(pairs)
 	fmt.Printf("Found %d candidates.\n", len(suggest))
+	count := 0
 	for _, s := range suggest {
 		if s.short != nil {
+			fmt.Printf("%s\n", s)
+			count++
+		}
+	}
+	if count == 0 {
+		fmt.Printf("Backup print:\n")
+		for _, s := range suggest {
 			fmt.Printf("%s\n", s)
 		}
 	}
