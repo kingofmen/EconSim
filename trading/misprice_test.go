@@ -263,6 +263,60 @@ func TestHighShortSearch(t *testing.T) {
 				11.0: 3.05,
 			},
 		},
+		{
+			desc: "Only future date",
+			input: []*pair{
+				&pair{
+					strike:  10.0,
+					expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{3.00, 100},
+					putBid:  price{2.80, 100},
+					callAsk: price{1.20, 100},
+					callBid: price{1.00, 100},
+				},
+				&pair{
+					strike:  12.5,
+					expire:  time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{1.05, 100},
+					putBid:  price{0.95, 100},
+					callAsk: price{1.00, 100},
+					callBid: price{0.90, 100},
+				},
+				&pair{
+					strike:  12.5,
+					expire:  time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC),
+					putAsk:  price{1.05, 100},
+					putBid:  price{0.95, 100},
+					callAsk: price{1.00, 100},
+					callBid: price{0.90, 100},
+				},
+			},
+			want: []*suggestion{
+				&suggestion{
+					long: &pair{
+						strike:  10.0,
+						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+						putAsk:  price{3.00, 100},
+						putBid:  price{2.80, 100},
+						callAsk: price{1.20, 100},
+						callBid: price{1.00, 100},
+					},
+					short: &pair{
+						strike:  12.5,
+						expire:  time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC),
+						putAsk:  price{1.05, 100},
+						putBid:  price{0.95, 100},
+						callAsk: price{1.00, 100},
+						callBid: price{0.90, 100},
+					},
+				},
+			},
+			profit: map[float64]float64{
+				9.0:  3.05,
+				10.0: 3.05,
+				11.0: 3.05,
+			},
+		},
 	}
 
 	cmpOpts := []cmp.Option{
