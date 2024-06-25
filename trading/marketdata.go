@@ -39,6 +39,27 @@ type OptionQuote struct {
 }
 
 func (q *OptionQuote) String() string {
+	if q == nil {
+		return "<nil>"
+	}
+	if len(q.AskSize) == 0 {
+		q.AskSize = []float64{0}
+	}
+	if len(q.AskPrice) == 0 {
+		q.AskPrice = []float64{0}
+	}
+	if len(q.BidSize) == 0 {
+		q.BidSize = []float64{0}
+	}
+	if len(q.BidPrice) == 0 {
+		q.BidPrice = []float64{0}
+	}
+	if len(q.Volume) == 0 {
+		q.Volume = []float64{0}
+	}
+	if len(q.UnderPrice) == 0 {
+		q.UnderPrice = []float64{0}
+	}
 	asize, bsize := q.AskSize[0], q.BidSize[0]
 	if asize > 999 {
 		asize = 999
