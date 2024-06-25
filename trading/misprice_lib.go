@@ -3,6 +3,7 @@ package misprice
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -250,9 +251,9 @@ func search(pairs []*pair) []*suggestion {
 	return found
 }
 
-// plainArb looks for put-call pairs such that the premium
+// premiumArb looks for put-call pairs such that the premium
 // is less than the strike difference.
-func plainArb(pairs []*pair) {
+func premiumArb(pairs []*pair) {
 	for _, p1 := range pairs {
 		if !p1.putAsk.valid() {
 			continue
@@ -294,24 +295,33 @@ func pairFilter(pairs []*pair, filters []func(*pair, *pair) bool) []*suggestion 
 	return results
 }
 
+// equalStrike returns true if the pairs have equal strike prices.
+func equalStrike(one, two *pair) bool {
+	return math.Abs(one.strike-two.strike) < 0.01
+}
+
+// after returns true if two is after one.
+func after(one, two *pair) bool {
+	return two.expire.After(one.expire)
+}
+
+// distinct returns true if the pairs are not the same.
+func distinct(one, two *pair) bool {
+	return one != two
+}
+
 // timeArb looks for pairs of puts with equal strikes,
 // different expiration dates, and same premium.
 func timeArb(pairs []*pair) []*strategy {
 	cands := pairFilter(pairs, []func(*pair, *pair) bool{
+		equalStrike,
+		after,
+		distinct,
 		func(one, two *pair) bool {
 			if !one.putBid.valid() {
 				return false
 			}
 			if !two.putAsk.valid() {
-				return false
-			}
-			if one.strike != two.strike {
-				return false
-			}
-			if one.expire.After(two.expire) {
-				return false
-			}
-			if one == two {
 				return false
 			}
 			if one.putBid.money < two.putAsk.money {
@@ -348,7 +358,7 @@ func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Received %d quotes.\n", len(quotes))
 	pairs := createPairs(quotes)
 	fmt.Printf("Created %d pairs.\n", len(pairs))
-	plainArb(pairs)
+	premiumArb(pairs)
 	strats := timeArb(pairs)
 	for _, st := range strats {
 		fmt.Printf("%s\n", st)
