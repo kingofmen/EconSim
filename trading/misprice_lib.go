@@ -4,6 +4,7 @@ package misprice
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"trading/marketdata"
@@ -38,6 +39,21 @@ type pair struct {
 	putBid  price
 	callAsk price
 	callBid price
+}
+
+type action struct {
+	ticker string
+	strike float64
+	expire time.Time
+	price  float64
+	kind   string
+}
+
+func (a *action) String() string {
+	if a == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("%s %s %.2f %s @ %.2f", a.kind, a.ticker, a.strike, a.expire.Format(time.DateOnly), a.price)
 }
 
 func (p *pair) String() string {
@@ -113,6 +129,36 @@ func createPairs(quotes map[*polygon.Ticker]*marketdata.OptionQuote) []*pair {
 		return false
 	})
 	return pairs
+}
+
+type strategy struct {
+	buys []*action
+	sell []*action
+}
+
+func (s *strategy) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	buyStr := "Buy: Nothing\n"
+	sellStr := "Sell: Nothing"
+
+	acts := make([]string, 0, len(s.buys))
+	for _, b := range s.buys {
+		acts = append(acts, b.String())
+	}
+	if len(acts) > 0 {
+		buyStr = fmt.Sprintf("Buy:\n  %s", strings.Join(acts, "  \n"))
+	}
+	acts = make([]string, 0, len(s.sell))
+	for _, s := range s.sell {
+		acts = append(acts, s.String())
+	}
+	if len(acts) > 0 {
+		sellStr = fmt.Sprintf("Sell:\n  %s", strings.Join(acts, "  \n"))
+	}
+
+	return fmt.Sprintf("%s\n%s", buyStr, sellStr)
 }
 
 type suggestion struct {
@@ -226,11 +272,87 @@ func plainArb(pairs []*pair) {
 	}
 }
 
+// pairFilter finds pairs of pairs such that every filter returns
+// true for that pair.
+func pairFilter(pairs []*pair, filters []func(*pair, *pair) bool) []*suggestion {
+	results := make([]*suggestion, 0, len(pairs))
+	for _, p1 := range pairs {
+		for _, p2 := range pairs {
+			good := true
+			for _, f := range filters {
+				if !f(p1, p2) {
+					good = false
+					break
+				}
+			}
+			if !good {
+				continue
+			}
+			results = append(results, &suggestion{p1, p2})
+		}
+	}
+	return results
+}
+
+// timeArb looks for pairs of puts with equal strikes,
+// different expiration dates, and same premium.
+func timeArb(pairs []*pair) []*strategy {
+	cands := pairFilter(pairs, []func(*pair, *pair) bool{
+		func(one, two *pair) bool {
+			if !one.putBid.valid() {
+				return false
+			}
+			if !two.putAsk.valid() {
+				return false
+			}
+			if one.strike != two.strike {
+				return false
+			}
+			if one.expire.After(two.expire) {
+				return false
+			}
+			if one == two {
+				return false
+			}
+			if one.putBid.money < two.putAsk.money {
+				return false
+			}
+			return true
+		},
+	})
+	results := make([]*strategy, 0, len(cands))
+	for _, cand := range cands {
+		results = append(results, &strategy{
+			buys: []*action{
+				&action{
+					strike: cand.short.strike,
+					expire: cand.short.expire,
+					price:  cand.short.putAsk.money,
+					kind:   "put",
+				},
+			},
+			sell: []*action{
+				&action{
+					strike: cand.long.strike,
+					expire: cand.long.expire,
+					price:  cand.long.putBid.money,
+					kind:   "put",
+				},
+			},
+		})
+	}
+	return results
+}
+
 func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Received %d quotes.\n", len(quotes))
 	pairs := createPairs(quotes)
 	fmt.Printf("Created %d pairs.\n", len(pairs))
 	plainArb(pairs)
+	strats := timeArb(pairs)
+	for _, st := range strats {
+		fmt.Printf("%s\n", st)
+	}
 	suggest := search(pairs)
 	fmt.Printf("Found %d candidates.\n", len(suggest))
 	count := 0
