@@ -253,24 +253,42 @@ func search(pairs []*pair) []*suggestion {
 
 // premiumArb looks for put-call pairs such that the premium
 // is less than the strike difference.
-func premiumArb(pairs []*pair) {
-	for _, p1 := range pairs {
-		if !p1.putAsk.valid() {
-			continue
-		}
-		premium := p1.putAsk.money
-		for _, p2 := range pairs {
-			if !p2.callAsk.valid() {
-				continue
+func premiumArb(pairs []*pair) []*strategy {
+	cands := pairFilter(pairs, []func(*pair, *pair) bool{
+		func(one, two *pair) bool {
+			if !one.putAsk.valid() {
+				return false
 			}
-			premium += p2.callAsk.money
-			strikeDiff := p1.strike - p2.strike
-			if premium > strikeDiff {
-				continue
+			if !two.callAsk.valid() {
+				return false
 			}
-			fmt.Printf("Found arb: Buy %s put %v at %.2f, %s call %v at %.2f, combine for %.2f\n", p1.expire.Format(time.DateOnly), p1.strike, p1.putAsk.money, p2.expire.Format(time.DateOnly), p2.strike, p2.callAsk.money, strikeDiff)
-		}
+
+			premium := one.putAsk.money + two.callAsk.money
+			strikeDiff := one.strike - two.strike
+			return premium <= strikeDiff
+		},
+	})
+	strats := make([]*strategy, 0, len(cands))
+	for _, cand := range cands {
+		strats = append(strats, &strategy{
+			buys: []*action{
+				&action{
+					strike: cand.long.strike,
+					expire: cand.long.expire,
+					price:  cand.long.putAsk.money,
+					kind:   "put",
+				},
+				&action{
+					strike: cand.short.strike,
+					expire: cand.short.expire,
+					price:  cand.short.callAsk.money,
+					kind:   "call",
+				},
+			},
+		})
 	}
+
+	return strats
 }
 
 // pairFilter finds pairs of pairs such that every filter returns
