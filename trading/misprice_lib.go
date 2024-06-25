@@ -187,66 +187,96 @@ func (s *suggestion) String() string {
 
 // profit returns the profit per option at the given
 // expiry price.
-func (s *suggestion) profit(final float64) float64 {
+func (s *strategy) profit(final float64) float64 {
 	ret := 0.0
 	if s == nil {
 		return ret
 	}
-	if s.long != nil {
-		ret += s.long.putBid.money
-		ret -= s.long.callAsk.money
-		// Either put or call will be exercised;
-		// pay strike, receive stock.
-		ret -= s.long.strike
-	}
-	if s.short != nil {
-		ret -= s.short.putAsk.money
-		// Exercise put if below strike, otherwise
-		// sell at market.
-		if final < s.short.strike {
-			ret += s.short.strike
-		} else {
-			ret += final
+	for _, buy := range s.buys {
+		ret -= buy.price
+		if buy.kind == "put" {
+			if v := buy.strike - final; v > 0 {
+				ret += v
+			}
 		}
-	} else {
-		// Receive the stock.
-		ret += final
+		if buy.kind == "call" {
+			if v := final - buy.strike; v > 0 {
+				ret += v
+			}
+		}
+	}
+	for _, sell := range s.sell {
+		ret += sell.price
+		if sell.kind == "put" {
+			if v := sell.strike - final; v > 0 {
+				ret -= v
+			}
+		}
+		if sell.kind == "call" {
+			if v := final - sell.strike; v > 0 {
+				ret -= v
+			}
+		}
 	}
 	return ret
 }
 
-// search looks through the pairs for those where selling the put
-// more than pays for buying the call.
-func search(pairs []*pair) []*suggestion {
-	found := make([]*suggestion, 0, len(pairs))
-	for _, p := range pairs {
-		lp := p.longPremium()
-		if lp <= minPremium {
-			continue
-		}
-		cand := &suggestion{
-			long: p,
-		}
-		found = append(found, cand)
-		for _, p2 := range pairs {
-			if p2.strike <= p.strike {
-				continue
+// spreadArb looks through the pairs for combinations such that
+// buying a call and selling a put leaves enough money to buy
+// a put at a higher strike, covering the difference.
+func spreadArb(pairs []*pair) []*strategy {
+	cands := pairFilter(pairs, []func(*pair, *pair) bool{
+		distinct,
+		func(one, two *pair) bool {
+			lp := one.longPremium()
+			if lp <= minPremium {
+				return false
 			}
-			if p2.expire.Before(p.expire) {
-				continue
+			if two.strike <= one.strike {
+				return false
 			}
-			if !p2.putAsk.valid() {
-				continue
+			if two.expire.Before(one.expire) {
+				return false
+			}
+			if !two.putAsk.valid() {
+				return false
 			}
 			// Use break-even here as that prints if the price
 			// goes over the high strike. Being 99% break-even and
 			// 1% profit is valuable.
-			if lp-p2.putAsk.money < 0 {
-				continue
+			if lp-two.putAsk.money < 0 {
+				return false
 			}
-			cand.short = p2
-			break
-		}
+			return true
+		},
+	})
+
+	found := make([]*strategy, 0, len(cands))
+	for _, cand := range cands {
+		found = append(found, &strategy{
+			buys: []*action{
+				&action{
+					kind:   "call",
+					strike: cand.long.strike,
+					expire: cand.long.expire,
+					price:  cand.long.callAsk.money,
+				},
+				&action{
+					kind:   "put",
+					strike: cand.short.strike,
+					expire: cand.short.expire,
+					price:  cand.short.putAsk.money,
+				},
+			},
+			sell: []*action{
+				&action{
+					kind:   "put",
+					strike: cand.long.strike,
+					expire: cand.long.expire,
+					price:  cand.long.putBid.money,
+				},
+			},
+		})
 	}
 	return found
 }
@@ -376,24 +406,12 @@ func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Received %d quotes.\n", len(quotes))
 	pairs := createPairs(quotes)
 	fmt.Printf("Created %d pairs.\n", len(pairs))
-	premiumArb(pairs)
-	strats := timeArb(pairs)
+
+	strats := premiumArb(pairs)
+	strats = append(strats, spreadArb(pairs)...)
+	strats = append(strats, timeArb(pairs)...)
+	fmt.Printf("Found %d strategies.\n", len(strats))
 	for _, st := range strats {
 		fmt.Printf("%s\n", st)
-	}
-	suggest := search(pairs)
-	fmt.Printf("Found %d candidates.\n", len(suggest))
-	count := 0
-	for _, s := range suggest {
-		if s.short != nil {
-			fmt.Printf("%s\n", s)
-			count++
-		}
-	}
-	if count == 0 {
-		fmt.Printf("Backup print:\n")
-		for _, s := range suggest {
-			fmt.Printf("%s\n", s)
-		}
 	}
 }

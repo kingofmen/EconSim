@@ -167,17 +167,17 @@ func TestCreatePairs(t *testing.T) {
 	}
 }
 
-func TestHighShortSearch(t *testing.T) {
+func TestSpreadArb(t *testing.T) {
 	cases := []struct {
 		desc   string
 		input  []*pair
-		want   []*suggestion
+		want   []*strategy
 		profit map[float64]float64
 	}{
 		{
 			desc:  "Empty input",
 			input: []*pair{},
-			want:  []*suggestion{},
+			want:  []*strategy{},
 		},
 		{
 			desc: "Short too expensive",
@@ -199,23 +199,7 @@ func TestHighShortSearch(t *testing.T) {
 					callBid: price{0.75, 100},
 				},
 			},
-			want: []*suggestion{
-				&suggestion{
-					long: &pair{
-						strike:  10.0,
-						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-						putAsk:  price{1, 100},
-						putBid:  price{0.8, 100},
-						callAsk: price{0.75, 100},
-						callBid: price{0.5, 100},
-					},
-				},
-			},
-			profit: map[float64]float64{
-				9.0:  -0.95,
-				10.0: 0.05,
-				11.0: 1.05,
-			},
+			want: []*strategy{},
 		},
 		{
 			desc: "Finds short",
@@ -237,23 +221,29 @@ func TestHighShortSearch(t *testing.T) {
 					callBid: price{0.90, 100},
 				},
 			},
-			want: []*suggestion{
-				&suggestion{
-					long: &pair{
-						strike:  10.0,
-						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-						putAsk:  price{3.00, 100},
-						putBid:  price{2.80, 100},
-						callAsk: price{1.20, 100},
-						callBid: price{1.00, 100},
+			want: []*strategy{
+				&strategy{
+					buys: []*action{
+						&action{
+							strike: 10.0,
+							kind:   "call",
+							expire: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  1.20,
+						},
+						&action{
+							strike: 12.5,
+							kind:   "put",
+							expire: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  1.05,
+						},
 					},
-					short: &pair{
-						strike:  12.5,
-						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-						putAsk:  price{1.05, 100},
-						putBid:  price{0.95, 100},
-						callAsk: price{1.00, 100},
-						callBid: price{0.90, 100},
+					sell: []*action{
+						&action{
+							strike: 10.0,
+							kind:   "put",
+							expire: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  2.80,
+						},
 					},
 				},
 			},
@@ -291,23 +281,29 @@ func TestHighShortSearch(t *testing.T) {
 					callBid: price{0.90, 100},
 				},
 			},
-			want: []*suggestion{
-				&suggestion{
-					long: &pair{
-						strike:  10.0,
-						expire:  time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-						putAsk:  price{3.00, 100},
-						putBid:  price{2.80, 100},
-						callAsk: price{1.20, 100},
-						callBid: price{1.00, 100},
+			want: []*strategy{
+				&strategy{
+					buys: []*action{
+						&action{
+							strike: 10.0,
+							kind:   "call",
+							expire: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  1.20,
+						},
+						&action{
+							strike: 12.5,
+							kind:   "put",
+							expire: time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  1.05,
+						},
 					},
-					short: &pair{
-						strike:  12.5,
-						expire:  time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC),
-						putAsk:  price{1.05, 100},
-						putBid:  price{0.95, 100},
-						callAsk: price{1.00, 100},
-						callBid: price{0.90, 100},
+					sell: []*action{
+						&action{
+							strike: 10.0,
+							kind:   "put",
+							expire: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+							price:  2.80,
+						},
 					},
 				},
 			},
@@ -320,13 +316,13 @@ func TestHighShortSearch(t *testing.T) {
 	}
 
 	cmpOpts := []cmp.Option{
-		cmp.AllowUnexported(suggestion{}, pair{}, price{}),
+		cmp.AllowUnexported(strategy{}, action{}),
 	}
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			got := search(cc.input)
+			got := spreadArb(cc.input)
 			if diff := cmp.Diff(cc.want, got, cmpOpts...); diff != "" {
-				t.Errorf("%s: search() => %+v,\nwant %+v,\ndiff %s", cc.desc, got, cc.want, diff)
+				t.Errorf("%s: spreadArb() => %+v,\nwant %+v,\ndiff %s", cc.desc, got, cc.want, diff)
 			}
 			if len(got) > 0 {
 				first := got[0]
