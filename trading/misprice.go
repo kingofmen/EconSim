@@ -24,17 +24,9 @@ var (
 	end        = flag.String("end", "", "End date (inclusive) in YYYY-MM-DD format.")
 )
 
-func main() {
-	flag.Parse()
-
-	if *loadCache {
-		if err := polygon.LoadCache(); err != nil {
-			log.Fatalf("Could not read cache: %v", err)
-		}
-	}
-
+func analyseTicker(ticker string) {
 	params := &polygon.ListParams{
-		Ticker:    *tickerF,
+		Ticker:    ticker,
 		MinStrike: *priceMin,
 		MaxStrike: *priceMax,
 		Limit:     *limit,
@@ -67,6 +59,36 @@ func main() {
 	}
 
 	misprice.Search(quotes)
+}
+
+func listTickers() {
+	poly := polygon.Client{}
+	params := &polygon.ListParams{
+		Limit: *limit,
+	}
+	tickers, err := poly.ListTickers(params)
+	if err != nil {
+		log.Fatalf("Error listing tickers: %v", err)
+	}
+	for _, t := range tickers {
+		fmt.Printf("%s\n", t)
+	}
+}
+
+func main() {
+	flag.Parse()
+
+	if *loadCache {
+		if err := polygon.LoadCache(); err != nil {
+			log.Fatalf("Could not read cache: %v", err)
+		}
+	}
+
+	if *tickerF == "random" {
+		listTickers()
+	} else {
+		analyseTicker(*tickerF)
+	}
 
 	if *writeCache {
 		if err := polygon.SaveCache(); err != nil {

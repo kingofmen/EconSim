@@ -19,6 +19,7 @@ const (
 	apiToken    = "lEKU4KMzBOJWda2UaVN7TeOsskQSMBs2"
 	aggURL      = "https://api.polygon.io/v2/aggs/ticker/%s/range/1/day/%s/%s"
 	contractURL = "https://api.polygon.io/v3/reference/options/contracts"
+	tickerURL   = "https://api.polygon.io/v3/reference/tickers"
 	quoteURL    = "https://api.polygon.io/v3/quotes/"
 	cacheFile   = "C:\\Users\\Rolf\\base\\bazel-out\\tradingCache"
 )
@@ -72,6 +73,7 @@ func (t *Ticker) IsCall() bool {
 type optionContracts struct {
 	RequestID string    `json:"request_id"`
 	Results   []*Ticker `json:"results"`
+	NextUrl   string    `json:"next_url"`
 }
 
 func handleResponse(res *http.Response) (*polyAggregate, error) {
@@ -87,8 +89,16 @@ func handleResponse(res *http.Response) (*polyAggregate, error) {
 	return agg, nil
 }
 
+func makeTickerURL(ticker, date string) string {
+	if len(date) == 0 {
+		year, month, day := time.Now().Date()
+		date = fmt.Sprintf("%d-%02d-%d", year, int(month), day)
+	}
+	return fmt.Sprintf(aggURL, ticker, date, date)
+}
+
 func getAgg(ticker, date string) (*polyAggregate, error) {
-	url := tickerURL(ticker, date)
+	url := makeTickerURL(ticker, date)
 	if cached, ok := cacheMap[url]; ok {
 		return cached, nil
 	}
@@ -186,14 +196,6 @@ func (p *Client) GetOptionQuotes(ticker string) (*OptionQuotes, error) {
 	return quotes, nil
 }
 
-func tickerURL(ticker, date string) string {
-	if len(date) == 0 {
-		year, month, day := time.Now().Date()
-		date = fmt.Sprintf("%d-%02d-%d", year, int(month), day)
-	}
-	return fmt.Sprintf(aggURL, ticker, date, date)
-}
-
 func makeRequest(url string) (*http.Request, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -246,6 +248,39 @@ type ListParams struct {
 	Limit     int
 	StartDate string
 	EndDate   string
+}
+
+func (p *Client) ListTickers(opt *ListParams) ([]string, error) {
+	if opt == nil {
+		return nil, fmt.Errorf("Received nil ListParams")
+	}
+	url := fmt.Sprintf("%s?limit=%d", tickerURL, opt.Limit)
+	req, err := makeRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't create tickers request %s: %v", url, err)
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Bad response: %v", err)
+	}
+
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't read response body: %v", err)
+	}
+	if !json.Valid(b) {
+		return nil, fmt.Errorf("Invalid JSON object")
+	}
+	contracts := &optionContracts{}
+	if err := json.Unmarshal(b, contracts); err != nil {
+		return nil, fmt.Errorf("Couldn't unmarshal response: %v", err)
+	}
+	results := make([]string, 0, len(contracts.Results))
+	for _, oc := range contracts.Results {
+		results = append(results, oc.Ticker)
+	}
+	return results, nil
 }
 
 // ListOptions returns a slice of the option contracts for the ticker.
