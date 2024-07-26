@@ -4,6 +4,7 @@ package misprice
 import (
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -15,6 +16,16 @@ import (
 const (
 	// minPremium is the minimum required premium for the suggestion filter.
 	minPremium = 0.01
+	// callStr denotes a call.
+	callStr = "call"
+	// putStr denotes a put.
+	putStr = "put"
+	// minBoxSpread is the minimum difference in strike prices to consider a box spread.
+	minBoxSpread = 5.1
+	// maxBorrowRate is the maximum rate at which we'll borrow.
+	maxBorrowRate = 0.05
+	// minLendRate is the minimum rate of return for a loan to be of interest.
+	minLendRate = 0.03
 )
 
 type price struct {
@@ -62,6 +73,98 @@ func (p *pair) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("{Strike %v on %s, put %s / %s, call %s / %s}", p.strike, p.expire.Format(time.DateOnly), p.putBid, p.putAsk, p.callBid, p.callAsk)
+}
+
+// boxSpreads constructs box spreads, with no filtering.
+func boxSpreads(pairs []*pair) []*strategy {
+	cands := pairFilter(pairs, []func(*pair, *pair) bool{
+		sameDate,
+		distinct,
+		func(one, two *pair) bool {
+			if !two.callAsk.valid() {
+				return false
+			}
+			if !one.putBid.valid() {
+				return false
+			}
+			if !two.callBid.valid() {
+				return false
+			}
+			if !two.putAsk.valid() {
+				return false
+			}
+			if strikeDiff := two.strike - one.strike; strikeDiff <= minBoxSpread {
+				return false
+			}
+			return true
+		}})
+
+	strats := make([]*strategy, 0, len(cands))
+	for _, cand := range cands {
+		buyCall := &action{
+			strike: cand.long.strike,
+			expire: cand.long.expire,
+			price:  cand.long.callAsk.money,
+			kind:   callStr,
+		}
+		sellCall := &action{
+			strike: cand.short.strike,
+			expire: cand.short.expire,
+			price:  cand.short.callBid.money,
+			kind:   callStr,
+		}
+		buyPut := &action{
+			strike: cand.short.strike,
+			expire: cand.short.expire,
+			price:  cand.short.putAsk.money,
+			kind:   putStr,
+		}
+		sellPut := &action{
+			strike: cand.long.strike,
+			expire: cand.long.expire,
+			price:  cand.long.putBid.money,
+			kind:   putStr,
+		}
+		str := &strategy{
+			buys: []*action{buyCall, buyPut},
+			sell: []*action{sellCall, sellPut},
+		}
+		if str.profit(0) > 0 {
+			strats = append(strats, str)
+		}
+
+		// Flip everything to make the short version.
+		buyCall = &action{
+			strike: cand.short.strike,
+			expire: cand.short.expire,
+			price:  cand.short.callAsk.money,
+			kind:   callStr,
+		}
+		sellCall = &action{
+			strike: cand.long.strike,
+			expire: cand.long.expire,
+			price:  cand.long.callBid.money,
+			kind:   callStr,
+		}
+		buyPut = &action{
+			strike: cand.long.strike,
+			expire: cand.long.expire,
+			price:  cand.long.putAsk.money,
+			kind:   putStr,
+		}
+		sellPut = &action{
+			strike: cand.short.strike,
+			expire: cand.short.expire,
+			price:  cand.short.putBid.money,
+			kind:   putStr,
+		}
+		str = &strategy{
+			buys: []*action{buyCall, buyPut},
+			sell: []*action{sellCall, sellPut},
+		}
+		strats = append(strats, str)
+	}
+	return strats
 }
 
 // longPremium returns the revenue from buying the call and selling the put.
@@ -149,17 +252,17 @@ func (s *strategy) String() string {
 		acts = append(acts, b.String())
 	}
 	if len(acts) > 0 {
-		buyStr = fmt.Sprintf("Buy:\n  %s", strings.Join(acts, "  \n"))
+		buyStr = fmt.Sprintf("Buy:\n  %s", strings.Join(acts, "\n  "))
 	}
 	acts = make([]string, 0, len(s.sell))
 	for _, s := range s.sell {
 		acts = append(acts, s.String())
 	}
 	if len(acts) > 0 {
-		sellStr = fmt.Sprintf("Sell:\n  %s", strings.Join(acts, "  \n"))
+		sellStr = fmt.Sprintf("Sell:\n  %s", strings.Join(acts, "\n  "))
 	}
 
-	return fmt.Sprintf("%s\n%s", buyStr, sellStr)
+	return fmt.Sprintf("%s\n%s\n", buyStr, sellStr)
 }
 
 type suggestion struct {
@@ -185,40 +288,98 @@ func (s *suggestion) String() string {
 	return ret
 }
 
-// profit returns the profit per option at the given
-// expiry price.
-func (s *strategy) profit(final float64) float64 {
+// price returns the cost of the options, which may be negative.
+func (s *strategy) price() float64 {
 	ret := 0.0
 	if s == nil {
 		return ret
 	}
 	for _, buy := range s.buys {
-		ret -= buy.price
-		if buy.kind == "put" {
+		ret += buy.price
+	}
+	for _, sell := range s.sell {
+		ret -= sell.price
+	}
+	return ret
+}
+
+// expiry returns the first expiry date among the options.
+func (s *strategy) expiry() time.Time {
+	var bkup time.Time
+	if s == nil {
+		return bkup
+	}
+	for _, buy := range s.buys {
+		if buy.expire.IsZero() {
+			continue
+		}
+		return buy.expire
+	}
+	for _, sell := range s.sell {
+		if sell.expire.IsZero() {
+			continue
+		}
+		return sell.expire
+	}
+	return bkup
+}
+
+// periods returns the fraction of a year until the option expires.
+func (s *strategy) periods() float64 {
+	duration := time.Until(s.expiry()).Truncate(24 * time.Hour)
+	return float64(duration) / float64(365*24*time.Hour)
+}
+
+// yield returns the percentage return of the strategy, normalised
+// to a year by linear approximation.
+func (s *strategy) yield(final float64) float64 {
+	if s == nil {
+		return 0.0
+	}
+	percent := s.profit(final) / s.price()
+	return percent / s.periods()
+}
+
+// value returns the expiry value of the options at the given price.
+func (s *strategy) value(final float64) float64 {
+	ret := 0.0
+	if s == nil {
+		return ret
+	}
+	for _, buy := range s.buys {
+		if buy.kind == putStr {
 			if v := buy.strike - final; v > 0 {
 				ret += v
 			}
 		}
-		if buy.kind == "call" {
+		if buy.kind == callStr {
 			if v := final - buy.strike; v > 0 {
 				ret += v
 			}
 		}
 	}
 	for _, sell := range s.sell {
-		ret += sell.price
-		if sell.kind == "put" {
+		if sell.kind == putStr {
 			if v := sell.strike - final; v > 0 {
 				ret -= v
 			}
 		}
-		if sell.kind == "call" {
+		if sell.kind == callStr {
 			if v := final - sell.strike; v > 0 {
 				ret -= v
 			}
 		}
 	}
 	return ret
+}
+
+// profit returns the profit per option at the given
+// expiry price.
+func (s *strategy) profit(final float64) float64 {
+	if s == nil {
+		return 0.0
+	}
+	return s.value(final) - s.price()
 }
 
 // spreadArb looks through the pairs for combinations such that
@@ -256,13 +417,13 @@ func spreadArb(pairs []*pair) []*strategy {
 		found = append(found, &strategy{
 			buys: []*action{
 				&action{
-					kind:   "call",
+					kind:   callStr,
 					strike: cand.long.strike,
 					expire: cand.long.expire,
 					price:  cand.long.callAsk.money,
 				},
 				&action{
-					kind:   "put",
+					kind:   putStr,
 					strike: cand.short.strike,
 					expire: cand.short.expire,
 					price:  cand.short.putAsk.money,
@@ -270,7 +431,7 @@ func spreadArb(pairs []*pair) []*strategy {
 			},
 			sell: []*action{
 				&action{
-					kind:   "put",
+					kind:   putStr,
 					strike: cand.long.strike,
 					expire: cand.long.expire,
 					price:  cand.long.putBid.money,
@@ -306,13 +467,13 @@ func premiumArb(pairs []*pair) []*strategy {
 					strike: cand.long.strike,
 					expire: cand.long.expire,
 					price:  cand.long.putAsk.money,
-					kind:   "put",
+					kind:   putStr,
 				},
 				&action{
 					strike: cand.short.strike,
 					expire: cand.short.expire,
 					price:  cand.short.callAsk.money,
-					kind:   "call",
+					kind:   callStr,
 				},
 			},
 		})
@@ -353,6 +514,11 @@ func after(one, two *pair) bool {
 	return two.expire.After(one.expire)
 }
 
+// sameDate returns true if the expiry dates are the same.
+func sameDate(one, two *pair) bool {
+	return two.expire.Year() == one.expire.Year() && two.expire.YearDay() == one.expire.YearDay()
+}
+
 // distinct returns true if the pairs are not the same.
 func distinct(one, two *pair) bool {
 	return one != two
@@ -386,7 +552,7 @@ func timeArb(pairs []*pair) []*strategy {
 					strike: cand.short.strike,
 					expire: cand.short.expire,
 					price:  cand.short.putAsk.money,
-					kind:   "put",
+					kind:   putStr,
 				},
 			},
 			sell: []*action{
@@ -394,7 +560,7 @@ func timeArb(pairs []*pair) []*strategy {
 					strike: cand.long.strike,
 					expire: cand.long.expire,
 					price:  cand.long.putBid.money,
-					kind:   "put",
+					kind:   putStr,
 				},
 			},
 		})
@@ -413,5 +579,30 @@ func Search(quotes map[*polygon.Ticker]*marketdata.OptionQuote) {
 	fmt.Printf("Found %d strategies.\n", len(strats))
 	for _, st := range strats {
 		fmt.Printf("%s\n", st)
+	}
+
+	spreads := boxSpreads(pairs)
+	slices.SortFunc(spreads, func(one, two *strategy) int {
+		oney, twoy := one.yield(0), two.yield(0)
+		if oney < twoy {
+			return -1
+		} else if oney > twoy {
+			return 1
+		}
+		return 0
+	})
+	for _, sp := range spreads {
+		dir := "Lend"
+		val := sp.value(0)
+		yield := sp.yield(0)
+		if val < 0 {
+			if yield > maxBorrowRate {
+				continue
+			}
+			dir = "Borrow"
+		} else if yield < minLendRate {
+			continue
+		}
+		fmt.Printf("%s %.2f, return %.2f, profit %.2f for yield %.2f%%:\n%s\n", dir, math.Abs(sp.price()), math.Abs(val), sp.profit(0), yield*100, sp)
 	}
 }

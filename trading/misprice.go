@@ -58,8 +58,8 @@ func analyseTicker(ticker string) error {
 			if err != nil {
 				return fmt.Errorf("Could not get quote for %s: %w", opt.Ticker, err)
 			}
-			quotes[opt] = quote
 		}
+		quotes[opt] = quote
 		fmt.Printf("%s: %+v (%v) \n", opt.Ticker, quote, read)
 		cached[opt.Ticker] = quote
 	}
