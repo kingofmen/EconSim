@@ -1,0 +1,16 @@
+syntax = "proto3";
+package settlers.population.proto;
+
+// Household defines a template for population units.
+message Household {
+  // Lookup key.
+  string key = 1;
+  // Produced labour types.
+  map<string, uint32> outputs = 2;
+  // Number of consumers.
+  int32 size = 3;
+  // Men of fighting age.
+  int32 military = 4;
+  // Time to produce a copy.
+  int32 double_time = 5;
+}
