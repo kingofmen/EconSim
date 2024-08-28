@@ -226,29 +226,6 @@ func (s *Piece) Prioritize() {
 	s.priorities[MILITIA] = 250
 }
 
-func (p *Piece) Produce() {
-	if p == nil {
-		return
-	}
-}
-
-// GetFaction returns the controlling faction.
-func (p *Piece) GetFaction() *Faction {
-	if p == nil {
-		return nil
-	}
-	return p.faction
-}
-
-// getWeight returns the weight of the piece for faction control.
-func (p *Piece) getWeight() int {
-	if p == nil {
-		return 0
-	}
-	// TODO: This is a placeholder.
-	return 1
-}
-
 // DevTemplates returns some trivial templates for dev work.
 func DevTemplates() []*Template {
 	return []*Template{

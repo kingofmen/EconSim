@@ -89,11 +89,8 @@ func (bc *boardComponent) drawTilePieces(screen *ebiten.Image, tile *settlers.Ti
 
 // drawFactionColor fills the tile with the owning faction's color.
 func (bc *boardComponent) drawFactionColor(screen *ebiten.Image, tile *settlers.Tile) {
-	fac := tile.Controller()
-	if fac == nil {
-		return
-	}
-	if img := bc.facColOverlay[fac.DNA()]; img != nil {
+	cdna := tile.Controller()
+	if img := bc.facColOverlay[cdna]; img != nil {
 		screen.DrawImage(img, bc.gopts)
 	}
 }
@@ -103,11 +100,8 @@ func (bc *boardComponent) drawFactionColor(screen *ebiten.Image, tile *settlers.
 // TODO: Better composition of these operations.
 func (bc *boardComponent) drawFactionBorders(screen *ebiten.Image, tile *settlers.Tile) {
 	bc.drawTilePieces(screen, tile)
-	fac := tile.Controller()
-	if fac == nil {
-		return
-	}
-	img := bc.facBdrOverlay[fac.DNA()]
+	cdna := tile.Controller()
+	img := bc.facBdrOverlay[cdna]
 	if img == nil {
 		return
 	}
@@ -117,7 +111,7 @@ func (bc *boardComponent) drawFactionBorders(screen *ebiten.Image, tile *settler
 		if nbt == nil {
 			continue
 		}
-		if f := nbt.Controller(); f.DNA() != fac.DNA() {
+		if fdna := nbt.Controller(); fdna != cdna {
 			rotate := ebiten.GeoM{}
 			switch dir {
 			case triangles.NorthEast, triangles.SouthWest:
@@ -530,7 +524,7 @@ func (ic *infoComponent) calculate(tile *settlers.Tile) {
 	}
 	lines := []string{
 		tile.Surface.String(),
-		uiState.factionString(tile.Controller()),
+		uiState.factionString(uiState.factionFromDNA(tile.Controller())),
 	}
 	defer func() {
 		ic.info = strings.Join(lines, "\n")

@@ -14,6 +14,7 @@ go_library(
       "//gogames/settlers/economy:chain",
       "//gogames/settlers/economy:chain_go_proto",
       "//gogames/settlers/economy:consumption_go_proto",
+      "//gogames/settlers/population:population_go_proto",
       "//gogames/tiles/triangles:triangles",
       "//gogames/util:coords",
       "//gogames/util:counts",

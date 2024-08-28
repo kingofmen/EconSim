@@ -69,3 +69,8 @@ func (s1 Sequence) RGBA() color.NRGBA64 {
 func (seq Sequence) String() string {
 	return string(seq[:])
 }
+
+// Zero returns a Sequence of all zeroes.
+func Zero() Sequence {
+	return FromString("00000000")
+}

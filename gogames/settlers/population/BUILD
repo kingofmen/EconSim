@@ -38,5 +38,6 @@ proto_library(
 go_proto_library(
     name = "population_go_proto",
     importpath = "gogames/settlers/population/population_proto",
+    visibility = ["//visibility:public"],
     protos = [":population_proto"],
 )

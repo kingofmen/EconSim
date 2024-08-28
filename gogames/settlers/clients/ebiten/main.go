@@ -110,12 +110,27 @@ func (cs *commonState) factionString(fac *settlers.Faction) string {
 	if fac == nil {
 		return "None"
 	}
+	// TODO: Improve the lookup.
 	for _, fs := range cs.factions {
 		if fs.faction == fac {
 			return fs.displayName
 		}
 	}
 	return fac.DNA().String()
+}
+
+// factionFromDNA returns the faction with the given DNA, if it exists.
+func (cs *commonState) factionFromDNA(seq dna.Sequence) *settlers.Faction {
+	if cs == nil {
+		return nil
+	}
+	// TODO: Improve the lookup.
+	for _, fs := range cs.factions {
+		if fs.faction.DNA() == seq {
+			return fs.faction
+		}
+	}
+	return nil
 }
 
 // factionState contains state information about the game's factions.

@@ -6,16 +6,19 @@ import (
 	"gogames/settlers/economy/chain"
 	"gogames/tiles/triangles"
 	"gogames/util/counts"
+	"gogames/util/dna"
 
 	cpb "gogames/settlers/economy/chain_proto"
 	conpb "gogames/settlers/economy/consumption_proto"
+	poppb "gogames/settlers/population/population_proto"
 )
 
 type Tile struct {
 	*triangles.Surface
 	*chain.Location
-	pieces   []*Piece
-	Consumed map[string]int32
+	pieces     []*Piece
+	Consumed   map[string]int32
+	Households map[dna.Sequence]map[*poppb.Household]int32
 }
 
 type Point struct {
@@ -150,22 +153,21 @@ func (t *Tile) Consume(buckets []*conpb.Bucket) {
 	}
 }
 
-// Controller returns the controlling faction.
-func (t *Tile) Controller() *Faction {
+// Controller returns the DNA with the strongest presence.
+func (t *Tile) Controller() dna.Sequence {
+	best := dna.Zero()
 	if t == nil {
-		return nil
+		return best
 	}
-	if len(t.pieces) < 1 {
-		return nil
+	if len(t.Households) < 1 {
+		return best
 	}
-	count := make(map[*Faction]int)
-	best := t.pieces[0].GetFaction()
-	count[best] = t.pieces[0].getWeight()
-	for _, piece := range t.pieces[1:] {
-		fac := piece.GetFaction()
-		count[fac] += piece.getWeight()
-		if count[fac] > count[best] {
-			best = fac
+	count := make(map[dna.Sequence]int32)
+	for seq, hhc := range t.Households {
+		for hh, cc := range hhc {
+			if count[seq] += hh.GetSize() * cc; count[seq] > count[best] {
+				best = seq
+			}
 		}
 	}
 	return best
@@ -351,9 +353,14 @@ func (m *Board) Tick(params *TickParams) error {
 			continue
 		}
 		asLocs = append(asLocs, tile.Location)
-		for _, piece := range tile.pieces {
-			tile.Location.MakeAvailable(piece.GetWorkers())
+		workers := make(map[string]int32)
+		for _, hhc := range tile.Households {
+			for hh, count := range hhc {
+				// TODO: Account for mobilisation.
+				counts.AddInt32(workers, counts.ScaleInt32(hh.GetOutputs(), count))
+			}
 		}
+		tile.Location.MakeAvailable(workers)
 	}
 
 	for {

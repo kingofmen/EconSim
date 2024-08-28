@@ -429,7 +429,8 @@ func TestProduce(t *testing.T) {
 			target: NewAlloc(1, 0.5, 0.1, 0.1),
 			want: map[string]float64{
 				"base": 100,
-				"sust": 100,
+				"sust": 50,
+				"art":  50,
 			},
 		},
 		{

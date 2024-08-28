@@ -49,3 +49,12 @@ func AddInt32(first, addend map[string]int32) {
 		first[k] += v
 	}
 }
+
+// ScaleInt32 returns the first argument scaled by the second.
+func ScaleInt32(cc map[string]int32, scale int32) map[string]int32 {
+	ret := make(map[string]int32)
+	for k, v := range cc {
+		ret[k] = v * scale
+	}
+	return ret
+}
