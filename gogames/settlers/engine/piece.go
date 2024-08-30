@@ -129,9 +129,8 @@ type Shape struct {
 // Template contains information shared across a class of game pieces,
 // such as shape and production capability.
 type Template struct {
-	key    string
-	people int64
-	shape  Shape
+	key   string
+	shape Shape
 }
 
 // Key returns the template's lookup key.
@@ -169,7 +168,6 @@ type Piece struct {
 	kind       *Template
 	faction    *Faction
 	priorities [4]int16
-	people     int64
 }
 
 func NewPiece(tmp *Template, fac *Faction) *Piece {
@@ -177,7 +175,6 @@ func NewPiece(tmp *Template, fac *Faction) *Piece {
 		kind:       tmp,
 		faction:    fac,
 		priorities: [4]int16{250, 250, 250, 250},
-		people:     0,
 	}
 }
 
@@ -196,22 +193,6 @@ func (p *Piece) GetWorkers() map[string]int32 {
 	}
 	// TODO: This is a placeholder.
 	return map[string]int32{"labour": int32(100)}
-}
-
-func (s *Piece) Populate() {
-	if s == nil {
-		return
-	}
-	if s.faction == nil {
-		return
-	}
-
-	want := s.kind.people - s.people
-	if s.faction.Freemen < want {
-		want = s.faction.Freemen
-	}
-	s.people += want
-	s.faction.Freemen -= want
 }
 
 // Prioritize calculates the production fractions.
