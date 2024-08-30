@@ -1,0 +1,9 @@
+syntax = "proto3";
+package tiles.triangles.proto;
+
+// TriPoint models a triangular coordinate.
+message TriPoint {
+  sint32 a = 1;
+  sint32 b = 2;
+  sint32 c = 3;
+}

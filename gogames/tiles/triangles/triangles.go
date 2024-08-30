@@ -3,6 +3,8 @@ package triangles
 import (
 	"fmt"
 	"math"
+
+	tripb "gogames/settlers/triangles/triangles_proto"
 )
 
 // Coordinate system from https://www.boristhebrave.com/2021/05/23/triangle-grids/.
@@ -155,6 +157,18 @@ func (d Direction) Opposite() Direction {
 // Zero returns a zero-initialised TriPoint.
 func Zero() TriPoint {
 	return TriPoint{0, 0, 0}
+}
+
+func FromProto(p *tripb.TriPoint) TriPoint {
+	return TriPoint{int(p.GetA()), int(p.GetB()), int(p.GetC())}
+}
+
+func (tp TriPoint) Proto() *tripb.TriPoint {
+	return &tripb.TriPoint{
+		A: int32(tp.A()),
+		B: int32(tp.B()),
+		C: int32(tp.C()),
+	}
 }
 
 // FromXY returns the tri-coordinates of the triangle
