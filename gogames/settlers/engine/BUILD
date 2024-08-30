@@ -1,4 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 go_library(
     name = "settlers",
@@ -36,3 +37,42 @@ go_test(
     ],
 )
 
+proto_library(
+    name = "piece_proto",
+    srcs = [
+    	 "piece.proto",
+    ],
+    deps = [
+      "//gogames/tiles/triangles:triangles_proto",
+      ":rule_proto",
+    ],
+)
+
+go_proto_library(
+    name = "piece_go_proto",
+    importpath = "gogames/settlers/engine/piece_go_proto",
+    visibility = ["//visibility:public"],
+    protos = [":piece_proto"],
+    deps = [
+      "//gogames/tiles/triangles:triangles_go_proto",
+      ":rule_go_proto",
+    ],
+)
+
+proto_library(
+    name = "rule_proto",
+    srcs = [
+    	 "rule.proto",
+    ],
+    deps = [
+    ],
+)
+
+go_proto_library(
+    name = "rule_go_proto",
+    importpath = "gogames/settlers/engine/rule_go_proto",
+    visibility = ["//visibility:public"],
+    protos = [":rule_proto"],
+    deps = [
+    ],
+)

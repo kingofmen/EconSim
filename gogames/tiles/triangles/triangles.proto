@@ -1,5 +1,6 @@
 syntax = "proto3";
 package tiles.triangles.proto;
+option go_package = "gogames/tiles/triangles/triangles_proto";
 
 // TriPoint models a triangular coordinate.
 message TriPoint {

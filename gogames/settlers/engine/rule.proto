@@ -1,0 +1,7 @@
+syntax = "proto3";
+package settlers.rule.proto;
+option go_package = "gogames/settlers/rule_proto";
+
+message Rule {
+  string key = 1;
+}

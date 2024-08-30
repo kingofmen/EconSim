@@ -1,0 +1,12 @@
+syntax = "proto3";
+package settlers.piece.proto;
+option go_package = "gogames/settlers/piece_proto";
+
+import "gogames/tiles/triangles/triangles.proto";
+import "gogames/settlers/engine/rule.proto";
+
+message Position {
+  tiles.triangles.proto.TriPoint pos = 1;
+  repeated settlers.rule.proto.Rule rules = 2;
+  bool occupied = 3;
+}

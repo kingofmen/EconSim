@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	tripb "gogames/settlers/triangles/triangles_proto"
+	tripb "gogames/settlers/triangles/triangles_go_proto"
 )
 
 // Coordinate system from https://www.boristhebrave.com/2021/05/23/triangle-grids/.
