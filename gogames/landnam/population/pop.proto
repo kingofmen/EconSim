@@ -1,0 +1,12 @@
+syntax = "proto3";
+package landnam.pop.proto;
+option go_package = "gogames/landnam/population/pop_proto";
+
+message PopType {
+  string key = 1;
+}
+
+message Pop {
+  string kind = 1;
+  repeated uint32 ages = 2;
+}
