@@ -32,6 +32,9 @@ go_test(
     ],
     deps = [
       ":pop_go_proto",
+      "@org_golang_google_protobuf//testing/protocmp:protocmp",
+      "@com_github_google_go_cmp//cmp:cmp",
+      "@org_golang_google_protobuf//encoding/prototext:prototext",
     ],
 )
 
