@@ -7,7 +7,7 @@ import (
 	poppb "gogames/landnam/population/pop_go_proto"
 )
 
-func TestValidate(t *testing.T) {
+func TestValidation(t *testing.T) {
 	cases := []struct {
 		desc string
 		tmps []*poppb.PopType
@@ -57,7 +57,9 @@ func TestValidate(t *testing.T) {
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			got := Validate(cc.tmps, cc.pops)
+			mgr := &Manager{}
+			got := mgr.WithTypes(cc.tmps)
+			got = append(got, mgr.Validate(cc.pops)...)
 			if len(got) != len(cc.want) {
 				t.Errorf("%s: Received %d errors %v, want %d: %v", cc.desc, len(got), got, len(cc.want), cc.want)
 				return
