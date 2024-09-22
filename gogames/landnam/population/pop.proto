@@ -5,10 +5,19 @@ option go_package = "gogames/landnam/population/pop_proto";
 message PopType {
   string key = 1;
   int32 production = 2;
+  int32 consume = 3;
+  int32 capital = 4;
+  int32 militia = 5;
+  int32 meaning = 6;
+  int32 min_consume = 7;
 }
 
 message Pop {
   string kind = 1;
   repeated uint32 ages = 2;
   int32 prods = 3;
+  int32 consume = 4;
+  int32 capital = 5;
+  int32 militia = 6;
+  int32 meaning = 7;
 }

@@ -106,7 +106,7 @@ func TestProduction(t *testing.T) {
 				&poppb.Pop{Kind: "peasant", Prods: 1000},
 				&poppb.Pop{Kind: "tenantry", Prods: 2000},
 			},
-			err: "bad type \"peasant\"",
+			err: "unknown key \"peasant\"",
 		},
 	}
 
@@ -133,6 +133,104 @@ func TestProduction(t *testing.T) {
 			for idx, wp := range cc.want {
 				if diff := cmp.Diff(wp, cc.pops[idx], protocmp.Transform()); len(diff) > 0 {
 					t.Errorf("%s: Produce(%d) => %s, want %s, diff %s", cc.desc, idx, prototext.Format(cc.pops[idx]), prototext.Format(wp), diff)
+				}
+			}
+		})
+	}
+}
+
+func TestConsumption(t *testing.T) {
+	cases := []struct {
+		desc string
+		tmps []*poppb.PopType
+		pops []*poppb.Pop
+		want []*poppb.Pop
+		err  string
+	}{
+		{
+			desc: "Minimum consumption",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{Key: "peasant", MinConsume: 1000, Capital: 1000},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 1000},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Consume: 1000},
+			},
+		},
+		{
+			desc: "Priorities respected",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key:        "peasant",
+					MinConsume: 1000,
+					Consume:    1000,
+					Capital:    750,
+					Militia:    500,
+					Meaning:    250,
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 7000},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Consume: 4000, Capital: 1500, Militia: 1000, Meaning: 500},
+			},
+		},
+		{
+			desc: "No priorities handled",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key: "peasant",
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 1000},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 1000},
+			},
+		},
+		{
+			desc: "Error is no-op",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{Key: "peasant", MinConsume: 1000, Consume: 1000},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 2000},
+				&poppb.Pop{Kind: "tenantry", Prods: 2000},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{Kind: "peasant", Prods: 2000},
+				&poppb.Pop{Kind: "tenantry", Prods: 2000},
+			},
+			err: "unknown key \"tenan",
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			mgr := NewManager()
+			if errs := mgr.WithTypes(cc.tmps); len(errs) > 0 {
+				t.Fatalf("%s: Error setting up templates: %v", cc.desc, errs)
+			}
+
+			err := mgr.Consume(cc.pops)
+			if len(cc.err) > 0 {
+				if err == nil {
+					t.Errorf("%s: Consume() => nil, want %q", cc.desc, cc.err)
+				} else if !strings.Contains(err.Error(), cc.err) {
+					t.Errorf("%s: Consume() => %v, want %q", cc.desc, err, cc.err)
+				}
+			}
+			if len(cc.want) != len(cc.pops) {
+				t.Fatalf("%s: Bad setup - %d input pops, %d outputs.", cc.desc, len(cc.pops), len(cc.want))
+			}
+
+			for idx, wp := range cc.want {
+				if diff := cmp.Diff(wp, cc.pops[idx], protocmp.Transform()); len(diff) > 0 {
+					t.Errorf("%s: Consume(%d) => %s, want %s, diff %s", cc.desc, idx, prototext.Format(cc.pops[idx]), prototext.Format(wp), diff)
 				}
 			}
 		})
