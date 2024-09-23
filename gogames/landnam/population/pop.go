@@ -103,7 +103,16 @@ func minimumFood(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 // sizeModifier returns the additional cost of a level of
 // consumption due to POP size.
 func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
-	return 0
+	size := tmp.GetSizConsume()
+	if size < 1 {
+		return 0
+	}
+	total := int32(0)
+	for _, age := range pop.GetAges() {
+		total += int32(age)
+	}
+	total /= size
+	return total * tmp.GetIncConsume()
 }
 
 // use consumes the amount of prods given by the want function

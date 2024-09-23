@@ -10,6 +10,8 @@ message PopType {
   int32 militia = 5;
   int32 meaning = 6;
   int32 min_consume = 7;
+  int32 siz_consume = 8;
+  int32 inc_consume = 9;
 }
 
 message Pop {

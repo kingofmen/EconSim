@@ -181,15 +181,40 @@ func TestConsumption(t *testing.T) {
 		{
 			desc: "No priorities handled",
 			tmps: []*poppb.PopType{
-				&poppb.PopType{
-					Key: "peasant",
-				},
+				&poppb.PopType{Key: "peasant"},
 			},
 			pops: []*poppb.Pop{
 				&poppb.Pop{Kind: "peasant", Prods: 1000},
 			},
 			want: []*poppb.Pop{
 				&poppb.Pop{Kind: "peasant", Prods: 1000},
+			},
+		},
+		{
+			desc: "Size increments consumption",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key:        "peasant",
+					Consume:    1000,
+					Capital:    1000,
+					SizConsume: 1000,
+					IncConsume: 100,
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind:  "peasant",
+					Prods: 1200,
+					Ages:  []uint32{1001},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind:    "peasant",
+					Ages:    []uint32{1001},
+					Consume: 1100,
+					Capital: 100,
+				},
 			},
 		},
 		{
