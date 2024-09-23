@@ -8,16 +8,19 @@ import (
 	poppb "gogames/landnam/population/pop_go_proto"
 )
 
+// Manager contains methods for POP dynamics.
 type Manager struct {
 	types map[string]*poppb.PopType
 }
 
+// NewManager returns a Manager.
 func NewManager() *Manager {
 	return &Manager{
 		types: map[string]*poppb.PopType{},
 	}
 }
 
+// check ensures that the Manager is initialised.
 func (mgr *Manager) check(method string) error {
 	if mgr == nil {
 		return fmt.Errorf("%q called on nil Manager")
@@ -49,6 +52,8 @@ func (mgr *Manager) WithTypes(types []*poppb.PopType) []error {
 	return errs
 }
 
+// popsExist returns a slice containing an error for each
+// POP whose type the manager does not know about.
 func (mgr *Manager) popsExist(pops []*poppb.Pop) []error {
 	errs := make([]error, 0, len(pops))
 	for idx, pop := range pops {
@@ -70,6 +75,8 @@ func (mgr *Manager) Validate(pops []*poppb.Pop) []error {
 	return errs
 }
 
+// Produce creates prods in accordance with the POP templates.
+// TODO: Add modifiers.
 func (mgr *Manager) Produce(pops []*poppb.Pop) error {
 	if err := mgr.check("Produce"); err != nil {
 		return err
