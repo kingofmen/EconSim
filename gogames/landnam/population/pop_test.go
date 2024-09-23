@@ -88,8 +88,8 @@ func TestProduction(t *testing.T) {
 		{
 			desc: "Happy case",
 			tmps: []*poppb.PopType{
-				&poppb.PopType{Key: "peasant", Production: 1000},
-				&poppb.PopType{Key: "tenantry", Production: 2000},
+				&poppb.PopType{Key: "peasant", Produce: 1000},
+				&poppb.PopType{Key: "tenantry", Produce: 2000},
 			},
 			pops: []*poppb.Pop{
 				&poppb.Pop{Kind: "peasant"},

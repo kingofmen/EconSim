@@ -79,7 +79,7 @@ func (mgr *Manager) Produce(pops []*poppb.Pop) error {
 	}
 
 	for _, pop := range pops {
-		pop.Prods += mgr.types[pop.GetKind()].GetProduction()
+		pop.Prods += mgr.types[pop.GetKind()].GetProduce()
 	}
 	return nil
 }
@@ -100,11 +100,20 @@ func minimumFood(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 	return pop.GetProds()
 }
 
+// sizeModifier returns the additional cost of a level of
+// consumption due to POP size.
+func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
+	return 0
+}
+
 // use consumes the amount of prods given by the want function
 // (if they exist, otherwise the amount available), and stores
 // them in the target field. It returns the amount consumed.
-func use(tmp *poppb.PopType, pop *poppb.Pop, want func() int32, target *int32) int32 {
+func use(tmp *poppb.PopType, pop *poppb.Pop, want func() int32, target *int32, mods ...func(*poppb.PopType, *poppb.Pop) int32) int32 {
 	req := want()
+	for _, m := range mods {
+		req += m(tmp, pop)
+	}
 	avail := pop.GetProds()
 	if avail > req {
 		avail = req
@@ -116,7 +125,6 @@ func use(tmp *poppb.PopType, pop *poppb.Pop, want func() int32, target *int32) i
 
 // Consume iterates over the POPs and distributes their available
 // production to their priorities.
-// TODO: Add modifiers.
 func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 	if err := mgr.check("Consume"); err != nil {
 		return err
@@ -132,7 +140,7 @@ func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 		}
 
 		for pop.GetProds() > 0 {
-			used := use(tmp, pop, tmp.GetConsume, &(pop.Consume))
+			used := use(tmp, pop, tmp.GetConsume, &(pop.Consume), sizeModifier)
 			used += use(tmp, pop, tmp.GetCapital, &(pop.Capital))
 			used += use(tmp, pop, tmp.GetMilitia, &(pop.Militia))
 			used += use(tmp, pop, tmp.GetMeaning, &(pop.Meaning))
