@@ -203,17 +203,17 @@ func TestConsumption(t *testing.T) {
 			},
 			pops: []*poppb.Pop{
 				&poppb.Pop{
-					Kind:  "peasant",
-					Prods: 1200,
-					Ages:  []uint32{1001},
+					Kind:   "peasant",
+					Prods:  1200,
+					People: &poppb.Demographics{Adults: 1001},
 				},
 			},
 			want: []*poppb.Pop{
 				&poppb.Pop{
 					Kind:    "peasant",
-					Ages:    []uint32{1001},
 					Consume: 1100,
 					Capital: 100,
+					People:  &poppb.Demographics{Adults: 1001},
 				},
 			},
 		},
@@ -260,4 +260,174 @@ func TestConsumption(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestBirthsAndDeaths(t *testing.T) {
+	cases := []struct {
+		desc string
+		tmps []*poppb.PopType
+		pops []*poppb.Pop
+		want []*poppb.Pop
+	}{
+		{
+			desc: "Births",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key: "peasant",
+					BirthsPerThousand: &poppb.Demographics{
+						Youths: 500,
+						Adults: 1000,
+					},
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Youths: 2,
+						Adults: 1,
+					},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants: 2,
+						Youths:  2,
+						Adults:  1,
+					},
+				},
+			},
+		},
+		{
+			desc: "Aging",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key: "peasant",
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants:  5,
+						Children: 5,
+						Youths:   5,
+						Adults:   40,
+					},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants:  4,
+						Children: 5,
+						Youths:   5,
+						Adults:   40,
+						Elders:   1,
+					},
+				},
+			},
+		},
+		{
+			desc: "Deaths",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key: "peasant",
+					DeathsPerThousand: &poppb.Demographics{
+						Infants:  1000,
+						Children: 1000,
+						Youths:   1000,
+						Adults:   1000,
+						Elders:   1000,
+					},
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants:  1,
+						Children: 1,
+						Youths:   1,
+						Adults:   1,
+						Elders:   1,
+					},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind:   "peasant",
+					People: &poppb.Demographics{},
+				},
+			},
+		},
+		{
+			desc: "Steady state",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key: "peasant",
+					BirthsPerThousand: &poppb.Demographics{
+						Adults: 26,
+					},
+					DeathsPerThousand: &poppb.Demographics{
+						Infants:  3,
+						Children: 2,
+						Youths:   1,
+						Adults:   1,
+						Elders:   10,
+					},
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants:  1318,
+						Children: 1307,
+						Youths:   1301,
+						Adults:   10000,
+						Elders:   25000,
+					},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind: "peasant",
+					People: &poppb.Demographics{
+						Infants:  1312,
+						Children: 1307,
+						Youths:   1301,
+						Adults:   10000,
+						Elders:   25000,
+					},
+				},
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			mgr := NewManager()
+			if errs := mgr.WithTypes(cc.tmps); len(errs) > 0 {
+				t.Fatalf("%s: Error setting up templates: %v", cc.desc, errs)
+			}
+
+			if err := mgr.Demographics(cc.pops); err != nil {
+				t.Fatalf("%s: Demographics() => %v, want nil", cc.desc, err)
+			}
+			if len(cc.want) != len(cc.pops) {
+				t.Fatalf("%s: Bad setup - %d input pops, %d outputs.", cc.desc, len(cc.pops), len(cc.want))
+			}
+
+			for idx, wp := range cc.want {
+				if diff := cmp.Diff(wp, cc.pops[idx], protocmp.Transform()); len(diff) > 0 {
+					t.Errorf("%s: Demographics(%d) => %s, want %s, diff %s", cc.desc, idx, prototext.Format(cc.pops[idx]), prototext.Format(wp), diff)
+				}
+			}
+		})
+	}
+
 }

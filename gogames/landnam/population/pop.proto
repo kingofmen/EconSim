@@ -2,6 +2,14 @@ syntax = "proto3";
 package landnam.pop.proto;
 option go_package = "gogames/landnam/population/pop_proto";
 
+message Demographics {
+  int32 infants = 1;
+  int32 children = 2;
+  int32 youths = 3;
+  int32 adults = 4;
+  int32 elders = 5;
+}
+
 message PopType {
   string key = 1;
   int32 produce = 2;
@@ -12,11 +20,13 @@ message PopType {
   int32 min_consume = 7;
   int32 siz_consume = 8;
   int32 inc_consume = 9;
+  Demographics births_per_thousand = 10;
+  Demographics deaths_per_thousand = 11;
 }
 
 message Pop {
   string kind = 1;
-  repeated uint32 ages = 2;
+  Demographics people = 2;
   int32 prods = 3;
   int32 consume = 4;
   int32 capital = 5;

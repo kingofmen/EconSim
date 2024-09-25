@@ -114,10 +114,11 @@ func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 	if size < 1 {
 		return 0
 	}
-	total := int32(0)
-	for _, age := range pop.GetAges() {
-		total += int32(age)
-	}
+	total := pop.GetPeople().GetInfants()
+	total += pop.GetPeople().GetChildren()
+	total += pop.GetPeople().GetYouths()
+	total += pop.GetPeople().GetAdults()
+	total += pop.GetPeople().GetElders()
 	total /= size
 	return total * tmp.GetIncConsume()
 }
@@ -163,6 +164,61 @@ func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 			if used < 1 {
 				break
 			}
+		}
+	}
+	return nil
+}
+
+// Demographics does births and deaths.
+// TODO: Modifiers.
+func (mgr *Manager) Demographics(pops []*poppb.Pop) error {
+	if err := mgr.check("Demographics"); err != nil {
+		return err
+	}
+	if errs := mgr.popsExist(pops); len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	for _, pop := range pops {
+		tmp := mgr.types[pop.GetKind()]
+		demo := pop.GetPeople()
+		change := &poppb.Demographics{}
+		// Aging.
+		change.Infants = -demo.GetInfants() / 5
+		change.Children = demo.GetInfants()/5 - demo.GetChildren()/5
+		change.Youths = demo.GetChildren()/5 - demo.GetYouths()/5
+		change.Adults = demo.GetYouths()/5 - demo.GetAdults()/40
+		change.Elders = demo.GetAdults() / 40
+		// Births.
+		change.Infants += demo.GetYouths() * tmp.GetBirthsPerThousand().GetYouths() / 1000
+		change.Infants += demo.GetAdults() * tmp.GetBirthsPerThousand().GetAdults() / 1000
+		change.Infants += demo.GetElders() * tmp.GetBirthsPerThousand().GetElders() / 1000
+		// Deaths.
+		change.Infants -= demo.GetInfants() * tmp.GetDeathsPerThousand().GetInfants() / 1000
+		change.Children -= demo.GetChildren() * tmp.GetDeathsPerThousand().GetChildren() / 1000
+		change.Youths -= demo.GetYouths() * tmp.GetDeathsPerThousand().GetYouths() / 1000
+		change.Adults -= demo.GetAdults() * tmp.GetDeathsPerThousand().GetAdults() / 1000
+		change.Elders -= demo.GetElders() * tmp.GetDeathsPerThousand().GetElders() / 1000
+		// Apply changes.
+		demo.Infants += change.GetInfants()
+		demo.Children += change.GetChildren()
+		demo.Youths += change.GetYouths()
+		demo.Adults += change.GetAdults()
+		demo.Elders += change.GetElders()
+		// Lower bound.
+		if demo.Infants < 0 {
+			demo.Infants = 0
+		}
+		if demo.Children < 0 {
+			demo.Children = 0
+		}
+		if demo.Youths < 0 {
+			demo.Youths = 0
+		}
+		if demo.Adults < 0 {
+			demo.Adults = 0
+		}
+		if demo.Elders < 0 {
+			demo.Elders = 0
 		}
 	}
 	return nil
