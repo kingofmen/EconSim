@@ -117,7 +117,8 @@ func TestProduction(t *testing.T) {
 				t.Fatalf("%s: Error setting up templates: %v", cc.desc, errs)
 			}
 
-			err := mgr.Produce(cc.pops)
+			trades := make(map[*poppb.Pop][]*poppb.Pop)
+			err := mgr.Produce(cc.pops, trades)
 			if len(cc.err) > 0 {
 				if err == nil {
 					t.Errorf("%s: Produce() => nil, want %q", cc.desc, cc.err)
@@ -429,5 +430,183 @@ func TestBirthsAndDeaths(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestGainsFromTrade(t *testing.T) {
+	cases := []struct {
+		desc   string
+		pop    *poppb.Pop
+		others []*poppb.Pop
+		want   int32
+	}{
+		{
+			desc: "No trades, no specialization",
+			pop:  &poppb.Pop{},
+		},
+		{
+			desc: "No trades, bad result",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 1,
+				},
+			},
+			want: -1,
+		},
+		{
+			desc: "One trade",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 1,
+				},
+			},
+			others: []*poppb.Pop{
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+			},
+			want: 1,
+		},
+		{
+			desc: "Scales with level",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 7,
+				},
+			},
+			others: []*poppb.Pop{
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+			},
+			want: 7,
+		},
+		{
+			desc: "Two trades",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 1,
+				},
+			},
+			others: []*poppb.Pop{
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "salt",
+						Level: 1,
+					},
+				},
+			},
+			want: 3,
+		},
+		{
+			desc: "Duplicates don't matter",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 1,
+				},
+			},
+			others: []*poppb.Pop{
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "salt",
+						Level: 1,
+					},
+				},
+			},
+			want: 3,
+		},
+		{
+			desc: "Unspecialized is a small gain",
+			pop: &poppb.Pop{
+				Specialize: &poppb.Pop_Specialization{
+					Good:  "wool",
+					Level: 1,
+				},
+			},
+			others: []*poppb.Pop{
+				&poppb.Pop{},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "salt",
+						Level: 1,
+					},
+				},
+			},
+			want: 4,
+		},
+		{
+			desc: "Unspecialized does not gain from trade",
+			pop:  &poppb.Pop{},
+			others: []*poppb.Pop{
+				&poppb.Pop{},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "grain",
+						Level: 1,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "salt",
+						Level: 1,
+					},
+				},
+			},
+			want: 0,
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			if got := gainsFromTrade(cc.pop, cc.others); got != cc.want {
+				t.Errorf("%s: gainsFromTrade() => %v, want %v", cc.desc, got, cc.want)
+			}
+		})
+	}
 }

@@ -32,4 +32,9 @@ message Pop {
   int32 capital = 5;
   int32 militia = 6;
   int32 meaning = 7;
+  message Specialization {
+    string good = 1;
+    int32 level = 2;
+  }
+  Specialization specialize = 8;
 }

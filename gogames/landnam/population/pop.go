@@ -75,9 +75,44 @@ func (mgr *Manager) Validate(pops []*poppb.Pop) []error {
 	return errs
 }
 
+// getGood returns the good the POP specializes in, or "none".
+func getGood(pop *poppb.Pop) string {
+	good := pop.GetSpecialize().GetGood()
+	if len(good) == 0 {
+		return "none"
+	}
+	return good
+}
+
+// gainsFromTrade calculates the additional production the POP
+// gains from trading with others.
+func gainsFromTrade(pop *poppb.Pop, others []*poppb.Pop) int32 {
+	spec := pop.GetSpecialize()
+	good := getGood(pop)
+	seen := make(map[string]bool)
+	count := int32(-1)
+	for _, ot := range others {
+		ospec := getGood(ot)
+		if ospec == good {
+			continue
+		}
+		if seen[ospec] {
+			continue
+		}
+		seen[ospec] = true
+		if ospec == "none" {
+			count += 1
+		} else {
+			count += 2
+		}
+	}
+
+	return spec.GetLevel() * count
+}
+
 // Produce creates prods in accordance with the POP templates.
 // TODO: Add modifiers.
-func (mgr *Manager) Produce(pops []*poppb.Pop) error {
+func (mgr *Manager) Produce(pops []*poppb.Pop, trades map[*poppb.Pop][]*poppb.Pop) error {
 	if err := mgr.check("Produce"); err != nil {
 		return err
 	}
@@ -86,7 +121,11 @@ func (mgr *Manager) Produce(pops []*poppb.Pop) error {
 	}
 
 	for _, pop := range pops {
-		pop.Prods += mgr.types[pop.GetKind()].GetProduce()
+		production := mgr.types[pop.GetKind()].GetProduce()
+		production += gainsFromTrade(pop, trades[pop])
+		if production > 0 {
+			pop.Prods += production
+		}
 	}
 	return nil
 }
