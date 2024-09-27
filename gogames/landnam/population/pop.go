@@ -100,6 +100,7 @@ func gainsFromTrade(pop *poppb.Pop, others []*poppb.Pop) int32 {
 			continue
 		}
 		seen[ospec] = true
+		// TODO: Scale with trade partner's level?
 		if ospec == "none" {
 			count += 1
 		} else {
@@ -165,8 +166,16 @@ func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 // use consumes the amount of prods given by the want function
 // (if they exist, otherwise the amount available), and stores
 // them in the target field. It returns the amount consumed.
-func use(tmp *poppb.PopType, pop *poppb.Pop, want func() int32, target *int32, mods ...func(*poppb.PopType, *poppb.Pop) int32) int32 {
-	req := want()
+func use(count int, tmp *poppb.PopType, pop *poppb.Pop, want func() []int32, target *int32, mods ...func(*poppb.PopType, *poppb.Pop) int32) int32 {
+	reqs := want()
+	nr := len(reqs)
+	if nr < 1 {
+		return 0
+	}
+	req := reqs[nr-1]
+	if count < nr {
+		req = reqs[count]
+	}
 	for _, m := range mods {
 		req += m(tmp, pop)
 	}
@@ -195,14 +204,16 @@ func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 			continue
 		}
 
+		count := 0
 		for pop.GetProds() > 0 {
-			used := use(tmp, pop, tmp.GetConsume, &(pop.Consume), sizeModifier)
-			used += use(tmp, pop, tmp.GetCapital, &(pop.Capital))
-			used += use(tmp, pop, tmp.GetMilitia, &(pop.Militia))
-			used += use(tmp, pop, tmp.GetMeaning, &(pop.Meaning))
+			used := use(count, tmp, pop, tmp.GetConsume, &(pop.Consume), sizeModifier)
+			used += use(count, tmp, pop, tmp.GetCapital, &(pop.Capital))
+			used += use(count, tmp, pop, tmp.GetMilitia, &(pop.Militia))
+			used += use(count, tmp, pop, tmp.GetMeaning, &(pop.Meaning))
 			if used < 1 {
 				break
 			}
+			count++
 		}
 	}
 	return nil

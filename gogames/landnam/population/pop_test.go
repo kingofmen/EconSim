@@ -151,7 +151,7 @@ func TestConsumption(t *testing.T) {
 		{
 			desc: "Minimum consumption",
 			tmps: []*poppb.PopType{
-				&poppb.PopType{Key: "peasant", MinConsume: 1000, Capital: 1000},
+				&poppb.PopType{Key: "peasant", MinConsume: 1000, Capital: []int32{1000}},
 			},
 			pops: []*poppb.Pop{
 				&poppb.Pop{Kind: "peasant", Prods: 1000},
@@ -166,10 +166,10 @@ func TestConsumption(t *testing.T) {
 				&poppb.PopType{
 					Key:        "peasant",
 					MinConsume: 1000,
-					Consume:    1000,
-					Capital:    750,
-					Militia:    500,
-					Meaning:    250,
+					Consume:    []int32{1000},
+					Capital:    []int32{750},
+					Militia:    []int32{500},
+					Meaning:    []int32{250},
 				},
 			},
 			pops: []*poppb.Pop{
@@ -196,8 +196,8 @@ func TestConsumption(t *testing.T) {
 			tmps: []*poppb.PopType{
 				&poppb.PopType{
 					Key:        "peasant",
-					Consume:    1000,
-					Capital:    1000,
+					Consume:    []int32{1000},
+					Capital:    []int32{1000},
 					SizConsume: 1000,
 					IncConsume: 100,
 				},
@@ -219,9 +219,36 @@ func TestConsumption(t *testing.T) {
 			},
 		},
 		{
+			desc: "Marginal use",
+			tmps: []*poppb.PopType{
+				&poppb.PopType{
+					Key:     "peasant",
+					Consume: []int32{1000, 1000, 0},
+					Capital: []int32{1000, 500},
+					Militia: []int32{100},
+				},
+			},
+			pops: []*poppb.Pop{
+				&poppb.Pop{
+					Kind:   "peasant",
+					Prods:  4900,
+					People: &poppb.Demographics{Adults: 1001},
+				},
+			},
+			want: []*poppb.Pop{
+				&poppb.Pop{
+					Kind:    "peasant",
+					Consume: 2000,
+					Capital: 2500,
+					Militia: 400,
+					People:  &poppb.Demographics{Adults: 1001},
+				},
+			},
+		},
+		{
 			desc: "Error is no-op",
 			tmps: []*poppb.PopType{
-				&poppb.PopType{Key: "peasant", MinConsume: 1000, Consume: 1000},
+				&poppb.PopType{Key: "peasant", MinConsume: 1000, Consume: []int32{1000}},
 			},
 			pops: []*poppb.Pop{
 				&poppb.Pop{Kind: "peasant", Prods: 2000},

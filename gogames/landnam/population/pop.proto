@@ -13,10 +13,10 @@ message Demographics {
 message PopType {
   string key = 1;
   int32 produce = 2;
-  int32 consume = 3;
-  int32 capital = 4;
-  int32 militia = 5;
-  int32 meaning = 6;
+  repeated int32 consume = 3;
+  repeated int32 capital = 4;
+  repeated int32 militia = 5;
+  repeated int32 meaning = 6;
   int32 min_consume = 7;
   int32 siz_consume = 8;
   int32 inc_consume = 9;
