@@ -8,6 +8,10 @@ import (
 	poppb "gogames/landnam/population/pop_go_proto"
 )
 
+const (
+	kNoTradeGood = "no_trade_good"
+)
+
 // Manager contains methods for POP dynamics.
 type Manager struct {
 	types map[string]*poppb.PopType
@@ -75,40 +79,46 @@ func (mgr *Manager) Validate(pops []*poppb.Pop) []error {
 	return errs
 }
 
-// getGood returns the good the POP specializes in, or "none".
-func getGood(pop *poppb.Pop) string {
+// getGood returns the good the POP specializes in, or kNoTradeGood,
+// and the level.
+func getGood(pop *poppb.Pop) (string, int32) {
 	good := pop.GetSpecialize().GetGood()
 	if len(good) == 0 {
-		return "none"
+		return kNoTradeGood, int32(1)
 	}
-	return good
+	return good, pop.GetSpecialize().GetLevel()
+}
+
+// countTrades returns a map from goods to the number of levels
+// the POP has traded with in that good.
+func countTrades(pop *poppb.Pop, others []*poppb.Pop) map[string]int32 {
+	counts := make(map[string]int32)
+	good, level := getGood(pop)
+	if good == kNoTradeGood {
+		return counts
+	}
+	for _, ot := range others {
+		ogood, olvl := getGood(ot)
+		if ogood == good {
+			continue
+		}
+		if nlvl := counts[ogood] + olvl; nlvl <= level {
+			counts[ogood] = nlvl
+		}
+	}
+	counts[kNoTradeGood] /= 2
+	return counts
 }
 
 // gainsFromTrade calculates the additional production the POP
 // gains from trading with others.
-func gainsFromTrade(pop *poppb.Pop, others []*poppb.Pop) int32 {
-	spec := pop.GetSpecialize()
-	good := getGood(pop)
-	seen := make(map[string]bool)
-	count := int32(-1)
-	for _, ot := range others {
-		ospec := getGood(ot)
-		if ospec == good {
-			continue
-		}
-		if seen[ospec] {
-			continue
-		}
-		seen[ospec] = true
-		// TODO: Scale with trade partner's level?
-		if ospec == "none" {
-			count += 1
-		} else {
-			count += 2
-		}
+func gainsFromTrade(gainPerLevel int32, pop *poppb.Pop, others []*poppb.Pop) int32 {
+	counts := countTrades(pop, others)
+	total := -gainPerLevel * pop.GetSpecialize().GetLevel()
+	for _, c := range counts {
+		total += c * gainPerLevel * 2
 	}
-
-	return spec.GetLevel() * count
+	return total
 }
 
 // Produce creates prods in accordance with the POP templates.
@@ -122,8 +132,9 @@ func (mgr *Manager) Produce(pops []*poppb.Pop, trades map[*poppb.Pop][]*poppb.Po
 	}
 
 	for _, pop := range pops {
-		production := mgr.types[pop.GetKind()].GetProduce()
-		production += gainsFromTrade(pop, trades[pop])
+		tmp := mgr.types[pop.GetKind()]
+		production := tmp.GetProduce()
+		production += gainsFromTrade(tmp.GetTradeGainPerLevel(), pop, trades[pop])
 		if production > 0 {
 			pop.Prods += production
 		}

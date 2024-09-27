@@ -22,6 +22,7 @@ message PopType {
   int32 inc_consume = 9;
   Demographics births_per_thousand = 10;
   Demographics deaths_per_thousand = 11;
+  int32 trade_gain_per_level = 12;
 }
 
 message Pop {

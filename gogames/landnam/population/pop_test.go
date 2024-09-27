@@ -510,7 +510,7 @@ func TestGainsFromTrade(t *testing.T) {
 				&poppb.Pop{
 					Specialize: &poppb.Pop_Specialization{
 						Good:  "grain",
-						Level: 1,
+						Level: 7,
 					},
 				},
 			},
@@ -575,10 +575,11 @@ func TestGainsFromTrade(t *testing.T) {
 			pop: &poppb.Pop{
 				Specialize: &poppb.Pop_Specialization{
 					Good:  "wool",
-					Level: 1,
+					Level: 2,
 				},
 			},
 			others: []*poppb.Pop{
+				&poppb.Pop{},
 				&poppb.Pop{},
 				&poppb.Pop{
 					Specialize: &poppb.Pop_Specialization{
@@ -595,11 +596,17 @@ func TestGainsFromTrade(t *testing.T) {
 				&poppb.Pop{
 					Specialize: &poppb.Pop_Specialization{
 						Good:  "salt",
-						Level: 1,
+						Level: 2,
+					},
+				},
+				&poppb.Pop{
+					Specialize: &poppb.Pop_Specialization{
+						Good:  "salt",
+						Level: 2,
 					},
 				},
 			},
-			want: 4,
+			want: 8,
 		},
 		{
 			desc: "Unspecialized does not gain from trade",
@@ -631,7 +638,7 @@ func TestGainsFromTrade(t *testing.T) {
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			if got := gainsFromTrade(cc.pop, cc.others); got != cc.want {
+			if got := gainsFromTrade(1, cc.pop, cc.others); got != cc.want {
 				t.Errorf("%s: gainsFromTrade() => %v, want %v", cc.desc, got, cc.want)
 			}
 		})
