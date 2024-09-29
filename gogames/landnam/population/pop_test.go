@@ -644,3 +644,56 @@ func TestGainsFromTrade(t *testing.T) {
 		})
 	}
 }
+
+func TestChangeMatch(t *testing.T) {
+	cases := []struct {
+		desc   string
+		pop    *poppb.Pop
+		evolve *poppb.PopChange
+		want   bool
+	}{
+		{
+			desc:   "Unallowed type",
+			pop:    &poppb.Pop{Kind: "peasant"},
+			evolve: &poppb.PopChange{AllowedTypes: []string{"merchant", "noble"}},
+			want:   false,
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			if got := match(cc.pop, cc.evolve); got != cc.want {
+				t.Errorf("%s: match() => %v, want %v", cc.desc, got, cc.want)
+			}
+		})
+	}
+}
+
+func TestApplyChange(t *testing.T) {
+	cases := []struct {
+		desc   string
+		pop    *poppb.Pop
+		evolve *poppb.PopChange
+		want   *poppb.Pop
+	}{
+		{
+			desc: "Base case",
+			pop: &poppb.Pop{
+				Kind: "peasant",
+			},
+			evolve: &poppb.PopChange{
+				NewKey: "merchant",
+			},
+			want: &poppb.Pop{
+				Kind: "merchant",
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		apply(cc.pop, cc.evolve)
+		if diff := cmp.Diff(cc.pop, cc.want, protocmp.Transform()); len(diff) > 0 {
+			t.Errorf("%s: apply() => %s, want %s, diff %s", cc.desc, prototext.Format(cc.pop), prototext.Format(cc.want), diff)
+		}
+	}
+}

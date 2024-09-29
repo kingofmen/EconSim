@@ -53,6 +53,16 @@ func (mgr *Manager) WithTypes(types []*poppb.PopType) []error {
 		}
 		mgr.types[key] = tp
 	}
+
+	for key, tmp := range mgr.types {
+		for idx, ev := range tmp.GetEvolves() {
+			nk := ev.GetNewKey()
+			if _, ok := mgr.types[nk]; !ok {
+				errs = append(errs, fmt.Errorf("PopType %q evolution %d has unknown new key %q", key, idx, nk))
+			}
+		}
+	}
+
 	return errs
 }
 
@@ -281,6 +291,51 @@ func (mgr *Manager) Demographics(pops []*poppb.Pop) error {
 		if demo.Elders < 0 {
 			demo.Elders = 0
 		}
+	}
+	return nil
+}
+
+// match returns true if the POP fits the change requirements.
+func match(pop *poppb.Pop, evolve *poppb.PopChange) bool {
+	found := false
+	for _, at := range evolve.GetAllowedTypes() {
+		if pop.GetKind() != at {
+			continue
+		}
+		found = true
+		break
+	}
+	if !found {
+		return false
+	}
+	return true
+}
+
+// apply changes the POP's type in accordance with the template.
+func apply(pop *poppb.Pop, tmp *poppb.PopChange) {
+	pop.Kind = tmp.GetNewKey()
+	// TODO: Side effects, e.g. specialisation, capital loss/gain.
+}
+
+// Evolve updates the POP types and specialisations.
+func (mgr *Manager) Evolve(pops []*poppb.Pop) error {
+	if err := mgr.check("Evolve"); err != nil {
+		return err
+	}
+	if errs := mgr.popsExist(pops); len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+popLoop:
+	for _, pop := range pops {
+		tmp := mgr.types[pop.GetKind()]
+		for _, ev := range tmp.GetEvolves() {
+			if match(pop, ev) {
+				apply(pop, ev)
+				continue popLoop
+			}
+		}
+
+		// TODO: Specialisation up/downgrades.
 	}
 	return nil
 }
