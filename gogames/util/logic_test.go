@@ -49,11 +49,22 @@ func (tl *TestLookup) WithInt(key string, val int32) *TestLookup {
 	return tl
 }
 
+func (tl *TestLookup) WithStr(key string, val string) *TestLookup {
+	if tl == nil {
+		tl = testLookup()
+	}
+	tl.strs[key] = val
+	return tl
+}
+
 func TestBasics(t *testing.T) {
 	defaults := testLookup().
 		WithInt("one", 1).
 		WithInt("en", 1).
-		WithInt("two", 2)
+		WithInt("two", 2).
+		WithStr("string1", "yohoho").
+		WithStr("string2", "yohoho").
+		WithStr("string3", "bwahaha")
 
 	cases := []struct {
 		desc   string
@@ -256,6 +267,34 @@ func TestBasics(t *testing.T) {
 			},
 			lookup: defaults,
 			want:   false,
+		},
+		{
+			desc: "String equals (false)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "string1",
+						KeyTwo:    "string3",
+						Operation: lpb.Compare_CMP_STREQ,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   false,
+		},
+		{
+			desc: "String equals (true)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "string1",
+						KeyTwo:    "string2",
+						Operation: lpb.Compare_CMP_STREQ,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   true,
 		},
 	}
 

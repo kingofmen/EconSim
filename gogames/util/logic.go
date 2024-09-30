@@ -51,7 +51,7 @@ func evalCombination(comb *lpb.Combine, lookup Lookup) (bool, error) {
 	return false, nil
 }
 
-func evalComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
+func evalIntComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
 	one, err := lookup.GetInt(comp.GetKeyOne())
 	if err != nil {
 		return false, err
@@ -74,7 +74,33 @@ func evalComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
 	case lpb.Compare_CMP_NEQ:
 		return one != two, nil
 	}
-	return false, fmt.Errorf("cannot evaluate unknown operator %d %v %d", one, comp.GetOperation(), two)
+	return false, fmt.Errorf("cannot evaluate unknown (int) operator %d %v %d", one, comp.GetOperation(), two)
+}
+
+func evalStrComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
+	one, err := lookup.GetStr(comp.GetKeyOne())
+	if err != nil {
+		return false, err
+	}
+	two, err := lookup.GetStr(comp.GetKeyTwo())
+	if err != nil {
+		return false, err
+	}
+	switch comp.GetOperation() {
+	case lpb.Compare_CMP_STREQ:
+		return one == two, nil
+	}
+	return false, fmt.Errorf("cannot evaluate unknown (string) operator %q %v %q", one, comp.GetOperation(), two)
+}
+
+func evalComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
+	op := comp.GetOperation()
+	// Check for string operations.
+	if op == lpb.Compare_CMP_STREQ {
+		return evalStrComparison(comp, lookup)
+	}
+
+	return evalIntComparison(comp, lookup)
 }
 
 // Eval returns the truth value of the predicate.

@@ -12,6 +12,7 @@ message Compare {
     CMP_GTE = 3;
     CMP_LTE = 4;
     CMP_NEQ = 5;
+    CMP_STREQ = 6;
   }
   Op operation = 3;
 }
