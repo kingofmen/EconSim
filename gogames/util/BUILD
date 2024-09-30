@@ -1,5 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 go_library(
     name = "counts",
@@ -81,8 +82,44 @@ go_library(
 go_test(
     name = "vector2d_test",
     srcs = ["vector2d_test.go"],
-    importpath = "gogames/util/vector2d",
     embed = [
       ":vector2d",
+    ],
+)
+
+proto_library(
+    name = "logic_proto",
+    srcs = [
+    	 "logic.proto",
+    ],
+    deps = [
+    ],
+)
+
+go_proto_library(
+    name = "logic_go_proto",
+    importpath = "gogames/util/logic_go_proto",
+    visibility = ["//visibility:public"],
+    protos = [":logic_proto"],
+    deps = [
+    ],
+)
+
+go_library(
+    name = "logic",
+    srcs = [
+      "logic.go",
+    ],
+    importpath = "gogames/util/logic",
+    deps = [
+      ":logic_go_proto",
+    ],
+)
+
+go_test(
+    name = "logic_test",
+    srcs = ["logic_test.go"],
+    embed = [
+      ":logic",
     ],
 )
