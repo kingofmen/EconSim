@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 
 	poppb "gogames/landnam/population/pop_go_proto"
+	lpb "gogames/util/logic_go_proto"
 )
 
 func TestValidation(t *testing.T) {
@@ -646,6 +647,14 @@ func TestGainsFromTrade(t *testing.T) {
 }
 
 func TestChangeMatch(t *testing.T) {
+	manager := NewManager()
+	if errs := manager.WithTypes([]*poppb.PopType{
+		&poppb.PopType{Key: "peasant"},
+		&poppb.PopType{Key: "merchant"},
+		&poppb.PopType{Key: "knight"},
+	}); len(errs) > 0 {
+		t.Fatalf("error setting up POP types: %v", errs)
+	}
 	cases := []struct {
 		desc   string
 		pop    *poppb.Pop
@@ -653,16 +662,86 @@ func TestChangeMatch(t *testing.T) {
 		want   bool
 	}{
 		{
-			desc:   "Unallowed type",
-			pop:    &poppb.Pop{Kind: "peasant"},
-			evolve: &poppb.PopChange{AllowedTypes: []string{"merchant", "noble"}},
-			want:   false,
+			desc: "Unallowed type",
+			pop:  &poppb.Pop{Kind: "peasant"},
+			evolve: &poppb.PopChange{
+				Requires: []*lpb.Predicate{
+					&lpb.Predicate{
+						Test: &lpb.Predicate_Comb{
+							Comb: &lpb.Combine{
+								Operation: lpb.Combine_IF_ANY,
+								Operands: []*lpb.Predicate{
+									&lpb.Predicate{
+										Test: &lpb.Predicate_Comp{
+											Comp: &lpb.Compare{
+												KeyOne:    "pop_kind",
+												KeyTwo:    "knight",
+												Operation: lpb.Compare_CMP_STREQ,
+											},
+										},
+									},
+									&lpb.Predicate{
+										Test: &lpb.Predicate_Comp{
+											Comp: &lpb.Compare{
+												KeyOne:    "pop_kind",
+												KeyTwo:    "merchant",
+												Operation: lpb.Compare_CMP_STREQ,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			desc: "Allowed type",
+			pop:  &poppb.Pop{Kind: "peasant"},
+			evolve: &poppb.PopChange{
+				Requires: []*lpb.Predicate{
+					&lpb.Predicate{
+						Test: &lpb.Predicate_Comb{
+							Comb: &lpb.Combine{
+								Operation: lpb.Combine_IF_ANY,
+								Operands: []*lpb.Predicate{
+									&lpb.Predicate{
+										Test: &lpb.Predicate_Comp{
+											Comp: &lpb.Compare{
+												KeyOne:    "pop_kind",
+												KeyTwo:    "peasant",
+												Operation: lpb.Compare_CMP_STREQ,
+											},
+										},
+									},
+									&lpb.Predicate{
+										Test: &lpb.Predicate_Comp{
+											Comp: &lpb.Compare{
+												KeyOne:    "pop_kind",
+												KeyTwo:    "merchant",
+												Operation: lpb.Compare_CMP_STREQ,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: true,
 		},
 	}
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			if got := match(cc.pop, cc.evolve); got != cc.want {
+			got, err := manager.match(cc.pop, cc.evolve)
+			if err != nil {
+				t.Errorf("%s: match() => %v, want nil", cc.desc, err)
+			}
+			if got != cc.want {
 				t.Errorf("%s: match() => %v, want %v", cc.desc, got, cc.want)
 			}
 		})

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"gogames/util/logic"
+
 	poppb "gogames/landnam/population/pop_go_proto"
 )
 
@@ -12,9 +14,11 @@ const (
 	kNoTradeGood = "no_trade_good"
 )
 
-// Manager contains methods for POP dynamics.
+// Manager contains methods for POP dynamics. It satisfies
+// the logic.Lookup interface.
 type Manager struct {
-	types map[string]*poppb.PopType
+	types        map[string]*poppb.PopType
+	lookupTarget *poppb.Pop
 }
 
 // NewManager returns a Manager.
@@ -22,6 +26,30 @@ func NewManager() *Manager {
 	return &Manager{
 		types: map[string]*poppb.PopType{},
 	}
+}
+
+// GetInt returns an integer value for the POP.
+func (mgr *Manager) GetInt(key string) (int32, error) {
+	if err := mgr.check("GetInt"); err != nil {
+		return 0, err
+	}
+	return 0, fmt.Errorf("GetInt not implemented.")
+}
+
+func (mgr *Manager) GetStr(key string) (string, error) {
+	if err := mgr.check("GetStr"); err != nil {
+		return "", err
+	}
+
+	// POP types are just the literal strings.
+	// TODO: Predicates should understand string literals.
+	if _, ok := mgr.types[key]; ok {
+		return key, nil
+	}
+	if key == "pop_kind" {
+		return mgr.lookupTarget.GetKind(), nil
+	}
+	return "", fmt.Errorf("unknown string key %q", key)
 }
 
 // check ensures that the Manager is initialised.
@@ -296,19 +324,18 @@ func (mgr *Manager) Demographics(pops []*poppb.Pop) error {
 }
 
 // match returns true if the POP fits the change requirements.
-func match(pop *poppb.Pop, evolve *poppb.PopChange) bool {
-	found := false
-	for _, at := range evolve.GetAllowedTypes() {
-		if pop.GetKind() != at {
-			continue
+func (mgr *Manager) match(pop *poppb.Pop, evolve *poppb.PopChange) (bool, error) {
+	mgr.lookupTarget = pop
+	for _, req := range evolve.GetRequires() {
+		pass, err := logic.Eval(req, mgr)
+		if err != nil {
+			return false, err
 		}
-		found = true
-		break
+		if !pass {
+			return false, nil
+		}
 	}
-	if !found {
-		return false
-	}
-	return true
+	return true, nil
 }
 
 // apply changes the POP's type in accordance with the template.
@@ -329,7 +356,11 @@ popLoop:
 	for _, pop := range pops {
 		tmp := mgr.types[pop.GetKind()]
 		for _, ev := range tmp.GetEvolves() {
-			if match(pop, ev) {
+			good, err := mgr.match(pop, ev)
+			if err != nil {
+				return err
+			}
+			if good {
 				apply(pop, ev)
 				continue popLoop
 			}

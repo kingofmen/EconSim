@@ -2,6 +2,8 @@ syntax = "proto3";
 package landnam.pop.proto;
 option go_package = "gogames/landnam/population/pop_proto";
 
+import "gogames/util/logic.proto";
+
 message Demographics {
   int32 infants = 1;
   int32 children = 2;
@@ -12,7 +14,7 @@ message Demographics {
 
 message PopChange {
   string new_key = 1;
-  repeated string allowed_types = 2;
+  repeated util.logic.proto.Predicate requires = 2;
 }
 
 message PopType {

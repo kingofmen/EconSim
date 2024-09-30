@@ -9,6 +9,8 @@ go_library(
     importpath = "gogames/landnam/population/pop",
     visibility = ["//visibility:public"],
     deps = [
+      "//gogames/util:logic",
+      "//gogames/util:logic_go_proto",
       "//gogames/landnam/population:pop_go_proto",
     ],
 )
@@ -19,6 +21,7 @@ proto_library(
     	 "pop.proto",
     ],
     deps = [
+      "//gogames/util:logic_proto",
     ],
 )
 
@@ -32,6 +35,7 @@ go_test(
     ],
     deps = [
       ":pop_go_proto",
+      "//gogames/util:logic_go_proto",
       "@org_golang_google_protobuf//testing/protocmp:protocmp",
       "@com_github_google_go_cmp//cmp:cmp",
       "@org_golang_google_protobuf//encoding/prototext:prototext",
@@ -45,5 +49,6 @@ go_proto_library(
     visibility = ["//visibility:public"],
     protos = [":pop_proto"],
     deps = [
+      "//gogames/util:logic_go_proto",
     ],
 )
