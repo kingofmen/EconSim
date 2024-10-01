@@ -296,6 +296,34 @@ func TestBasics(t *testing.T) {
 			lookup: defaults,
 			want:   true,
 		},
+		{
+			desc: "Integer literals",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "1",
+						KeyTwo:    "2",
+						Operation: lpb.Compare_CMP_GT,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   false,
+		},
+		{
+			desc: "Integer literal mixed with variable",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "two",
+						KeyTwo:    "1",
+						Operation: lpb.Compare_CMP_GT,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   true,
+		},
 	}
 
 	for _, cc := range cases {

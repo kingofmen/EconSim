@@ -3,6 +3,7 @@ package logic
 
 import (
 	"fmt"
+	"strconv"
 
 	lpb "gogames/util/logic_go_proto"
 )
@@ -51,12 +52,19 @@ func evalCombination(comb *lpb.Combine, lookup Lookup) (bool, error) {
 	return false, nil
 }
 
+func getInt(key string, lookup Lookup) (int32, error) {
+	if val, err := strconv.Atoi(key); err == nil {
+		return int32(val), nil
+	}
+	return lookup.GetInt(key)
+}
+
 func evalIntComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
-	one, err := lookup.GetInt(comp.GetKeyOne())
+	one, err := getInt(comp.GetKeyOne(), lookup)
 	if err != nil {
 		return false, err
 	}
-	two, err := lookup.GetInt(comp.GetKeyTwo())
+	two, err := getInt(comp.GetKeyTwo(), lookup)
 	if err != nil {
 		return false, err
 	}
