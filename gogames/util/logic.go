@@ -11,8 +11,10 @@ import (
 type Lookup interface {
 	GetInt(key string) (int32, error)
 	GetStr(key string) (string, error)
+	GetStrArr(key string) ([]string, error)
 }
 
+// evalCombination returns true if the logical expression is true.
 func evalCombination(comb *lpb.Combine, lookup Lookup) (bool, error) {
 	switch comb.GetOperation() {
 	case lpb.Combine_IF_ALL:
@@ -52,6 +54,8 @@ func evalCombination(comb *lpb.Combine, lookup Lookup) (bool, error) {
 	return false, nil
 }
 
+// getInt returns an integer either because key is a literal,
+// or from the lookup table.
 func getInt(key string, lookup Lookup) (int32, error) {
 	if val, err := strconv.Atoi(key); err == nil {
 		return int32(val), nil
@@ -59,6 +63,21 @@ func getInt(key string, lookup Lookup) (int32, error) {
 	return lookup.GetInt(key)
 }
 
+// getStr returns a string either because key is a literal,
+// or from the lookup table.
+func getStr(key string, lookup Lookup) (string, error) {
+	if len(key) > 0 && key[0] == byte('\'') {
+		return key[1:], nil
+	}
+	return lookup.GetStr(key)
+}
+
+// getStrArr returns a string array from the lookup table.
+func getStrArr(key string, lookup Lookup) ([]string, error) {
+	return lookup.GetStrArr(key)
+}
+
+// evalIntComparison returns the truth-value of the integer predicate.
 func evalIntComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
 	one, err := getInt(comp.GetKeyOne(), lookup)
 	if err != nil {
@@ -85,26 +104,46 @@ func evalIntComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
 	return false, fmt.Errorf("cannot evaluate unknown (int) operator %d %v %d", one, comp.GetOperation(), two)
 }
 
+// evalStrComparison returns the truth-value of the string predicate.
 func evalStrComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
-	one, err := lookup.GetStr(comp.GetKeyOne())
+	one, err := getStr(comp.GetKeyOne(), lookup)
 	if err != nil {
 		return false, err
 	}
-	two, err := lookup.GetStr(comp.GetKeyTwo())
+	op := comp.GetOperation()
+	key := comp.GetKeyTwo()
+	if op == lpb.Compare_CMP_STRIN {
+		return evalStrIn(one, key, lookup)
+	}
+	two, err := getStr(key, lookup)
 	if err != nil {
 		return false, err
 	}
-	switch comp.GetOperation() {
+	switch op {
 	case lpb.Compare_CMP_STREQ:
 		return one == two, nil
 	}
-	return false, fmt.Errorf("cannot evaluate unknown (string) operator %q %v %q", one, comp.GetOperation(), two)
+	return false, fmt.Errorf("cannot evaluate unknown (string) operator %q %v %q", one, op, two)
+}
+
+// evalStrIn returns whether key is in the array.
+func evalStrIn(key, arrKey string, lookup Lookup) (bool, error) {
+	arr, err := getStrArr(arrKey, lookup)
+	if err != nil {
+		return false, err
+	}
+	for _, val := range arr {
+		if key == val {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func evalComparison(comp *lpb.Compare, lookup Lookup) (bool, error) {
 	op := comp.GetOperation()
 	// Check for string operations.
-	if op == lpb.Compare_CMP_STREQ {
+	if op == lpb.Compare_CMP_STREQ || op == lpb.Compare_CMP_STRIN {
 		return evalStrComparison(comp, lookup)
 	}
 

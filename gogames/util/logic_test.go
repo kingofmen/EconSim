@@ -8,14 +8,16 @@ import (
 )
 
 type TestLookup struct {
-	ints map[string]int32
-	strs map[string]string
+	ints    map[string]int32
+	strs    map[string]string
+	strarrs map[string][]string
 }
 
 func testLookup() *TestLookup {
 	return &TestLookup{
-		ints: make(map[string]int32),
-		strs: make(map[string]string),
+		ints:    make(map[string]int32),
+		strs:    make(map[string]string),
+		strarrs: make(map[string][]string),
 	}
 }
 
@@ -41,6 +43,17 @@ func (tl *TestLookup) GetStr(key string) (string, error) {
 	return val, nil
 }
 
+func (tl *TestLookup) GetStrArr(key string) ([]string, error) {
+	if tl == nil {
+		return nil, fmt.Errorf("nil lookup object")
+	}
+	val, ok := tl.strarrs[key]
+	if !ok {
+		return nil, fmt.Errorf("unknown key %q", key)
+	}
+	return val, nil
+}
+
 func (tl *TestLookup) WithInt(key string, val int32) *TestLookup {
 	if tl == nil {
 		tl = testLookup()
@@ -57,6 +70,14 @@ func (tl *TestLookup) WithStr(key string, val string) *TestLookup {
 	return tl
 }
 
+func (tl *TestLookup) WithStrArr(key string, val []string) *TestLookup {
+	if tl == nil {
+		tl = testLookup()
+	}
+	tl.strarrs[key] = val
+	return tl
+}
+
 func TestBasics(t *testing.T) {
 	defaults := testLookup().
 		WithInt("one", 1).
@@ -64,7 +85,8 @@ func TestBasics(t *testing.T) {
 		WithInt("two", 2).
 		WithStr("string1", "yohoho").
 		WithStr("string2", "yohoho").
-		WithStr("string3", "bwahaha")
+		WithStr("string3", "bwahaha").
+		WithStrArr("strarr1", []string{"yohoho", "bwahaha"})
 
 	cases := []struct {
 		desc   string
@@ -318,6 +340,62 @@ func TestBasics(t *testing.T) {
 						KeyOne:    "two",
 						KeyTwo:    "1",
 						Operation: lpb.Compare_CMP_GT,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   true,
+		},
+		{
+			desc: "String literals",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'literal",
+						KeyTwo:    "'another literal",
+						Operation: lpb.Compare_CMP_STREQ,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   false,
+		},
+		{
+			desc: "String literal mixed with lookup",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'yohoho",
+						KeyTwo:    "string1",
+						Operation: lpb.Compare_CMP_STREQ,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   true,
+		},
+		{
+			desc: "String in array (false)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'banana",
+						KeyTwo:    "strarr1",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   false,
+		},
+		{
+			desc: "String in array (true)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "string1",
+						KeyTwo:    "strarr1",
+						Operation: lpb.Compare_CMP_STRIN,
 					},
 				},
 			},

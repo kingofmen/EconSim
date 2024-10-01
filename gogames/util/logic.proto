@@ -13,6 +13,7 @@ message Compare {
     CMP_LTE = 4;
     CMP_NEQ = 5;
     CMP_STREQ = 6;
+    CMP_STRIN = 7;
   }
   Op operation = 3;
 }
