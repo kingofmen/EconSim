@@ -33,7 +33,17 @@ func (mgr *Manager) GetInt(key string) (int32, error) {
 	if err := mgr.check("GetInt"); err != nil {
 		return 0, err
 	}
-	return 0, fmt.Errorf("GetInt not implemented.")
+
+	if key == "size" {
+		return popSize(mgr.lookupTarget), nil
+	}
+	if key == "adults" {
+		return adults(mgr.lookupTarget), nil
+	}
+	if key == "minors" {
+		return minors(mgr.lookupTarget), nil
+	}
+	return 0, fmt.Errorf("Unknown key %q for GetInt.", key)
 }
 
 func (mgr *Manager) GetStr(key string) (string, error) {
@@ -205,11 +215,32 @@ func minimumFood(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 	return pop.GetProds()
 }
 
-// sizeModifier returns the additional cost of a level of
-// consumption due to POP size.
-func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
-	size := tmp.GetSizConsume()
-	if size < 1 {
+// minors returns the number of minors (that is, the first two
+// demographic groups) in the POP.
+func minors(pop *poppb.Pop) int32 {
+	if pop == nil {
+		return 0
+	}
+	total := pop.GetPeople().GetInfants()
+	total += pop.GetPeople().GetChildren()
+	return total
+}
+
+// adults returns the number of non-minors (i.e. the three
+// last demographic groups) in the POP.
+func adults(pop *poppb.Pop) int32 {
+	if pop == nil {
+		return 0
+	}
+	total := pop.GetPeople().GetYouths()
+	total += pop.GetPeople().GetAdults()
+	total += pop.GetPeople().GetElders()
+	return total
+}
+
+// popSize returns the total number of people in the POP.
+func popSize(pop *poppb.Pop) int32 {
+	if pop == nil {
 		return 0
 	}
 	total := pop.GetPeople().GetInfants()
@@ -217,6 +248,17 @@ func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
 	total += pop.GetPeople().GetYouths()
 	total += pop.GetPeople().GetAdults()
 	total += pop.GetPeople().GetElders()
+	return total
+}
+
+// sizeModifier returns the additional cost of a level of
+// consumption due to POP size.
+func sizeModifier(tmp *poppb.PopType, pop *poppb.Pop) int32 {
+	size := tmp.GetSizConsume()
+	if size < 1 {
+		return 0
+	}
+	total := popSize(pop)
 	total /= size
 	return total * tmp.GetIncConsume()
 }

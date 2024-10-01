@@ -740,3 +740,45 @@ func TestApplyChange(t *testing.T) {
 		}
 	}
 }
+
+func TestIntLookups(t *testing.T) {
+	cases := []struct {
+		key  string
+		want int32
+	}{
+		{
+			key:  "size",
+			want: 38920,
+		},
+		{
+			key:  "minors",
+			want: 2619,
+		},
+		{
+			key:  "adults",
+			want: 36301,
+		},
+	}
+
+	mgr := NewManager()
+	mgr.lookupTarget = &poppb.Pop{
+		People: &poppb.Demographics{
+			Infants:  1312,
+			Children: 1307,
+			Youths:   1301,
+			Adults:   10000,
+			Elders:   25000,
+		},
+	}
+	for _, cc := range cases {
+		t.Run(cc.key, func(t *testing.T) {
+			got, err := mgr.GetInt(cc.key)
+			if err != nil {
+				t.Errorf("GetInt(%s) => %v, want nil", cc.key, err)
+			}
+			if got != cc.want {
+				t.Errorf("GetInt(%s) => %d, want %d", cc.key, cc.want, got)
+			}
+		})
+	}
+}
