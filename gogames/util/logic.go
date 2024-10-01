@@ -4,6 +4,7 @@ package logic
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	lpb "gogames/util/logic_go_proto"
 )
@@ -72,8 +73,22 @@ func getStr(key string, lookup Lookup) (string, error) {
 	return lookup.GetStr(key)
 }
 
-// getStrArr returns a string array from the lookup table.
+// getStrArr returns a string array, either from the lookup table
+// or from parsing an array literal.
 func getStrArr(key string, lookup Lookup) ([]string, error) {
+	if l, ok := strings.CutSuffix(key, "]"); ok {
+		if literal, ok := strings.CutPrefix(l, "["); ok {
+			entries := strings.Split(literal, ",")
+			for idx, entry := range entries {
+				val, err := getStr(strings.Trim(entry, " "), lookup)
+				if err != nil {
+					return nil, fmt.Errorf("error constructing array entry %q: %w", entry, err)
+				}
+				entries[idx] = val
+			}
+			return entries, nil
+		}
+	}
 	return lookup.GetStrArr(key)
 }
 

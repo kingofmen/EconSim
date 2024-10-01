@@ -402,6 +402,34 @@ func TestBasics(t *testing.T) {
 			lookup: defaults,
 			want:   true,
 		},
+		{
+			desc: "String in array literal (false)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'carrot",
+						KeyTwo:    "['apple, 'banana, string1]",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   false,
+		},
+		{
+			desc: "String in array literal (true)",
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'yohoho",
+						KeyTwo:    "['apple, 'banana, string1]",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			lookup: defaults,
+			want:   true,
+		},
 	}
 
 	for _, cc := range cases {
