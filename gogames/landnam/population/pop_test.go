@@ -667,29 +667,11 @@ func TestChangeMatch(t *testing.T) {
 			evolve: &poppb.PopChange{
 				Requires: []*lpb.Predicate{
 					&lpb.Predicate{
-						Test: &lpb.Predicate_Comb{
-							Comb: &lpb.Combine{
-								Operation: lpb.Combine_IF_ANY,
-								Operands: []*lpb.Predicate{
-									&lpb.Predicate{
-										Test: &lpb.Predicate_Comp{
-											Comp: &lpb.Compare{
-												KeyOne:    "pop_kind",
-												KeyTwo:    "knight",
-												Operation: lpb.Compare_CMP_STREQ,
-											},
-										},
-									},
-									&lpb.Predicate{
-										Test: &lpb.Predicate_Comp{
-											Comp: &lpb.Compare{
-												KeyOne:    "pop_kind",
-												KeyTwo:    "merchant",
-												Operation: lpb.Compare_CMP_STREQ,
-											},
-										},
-									},
-								},
+						Test: &lpb.Predicate_Comp{
+							Comp: &lpb.Compare{
+								KeyOne:    "pop_kind",
+								KeyTwo:    "['knight, 'merchant]",
+								Operation: lpb.Compare_CMP_STRIN,
 							},
 						},
 					},
@@ -703,29 +685,11 @@ func TestChangeMatch(t *testing.T) {
 			evolve: &poppb.PopChange{
 				Requires: []*lpb.Predicate{
 					&lpb.Predicate{
-						Test: &lpb.Predicate_Comb{
-							Comb: &lpb.Combine{
-								Operation: lpb.Combine_IF_ANY,
-								Operands: []*lpb.Predicate{
-									&lpb.Predicate{
-										Test: &lpb.Predicate_Comp{
-											Comp: &lpb.Compare{
-												KeyOne:    "pop_kind",
-												KeyTwo:    "peasant",
-												Operation: lpb.Compare_CMP_STREQ,
-											},
-										},
-									},
-									&lpb.Predicate{
-										Test: &lpb.Predicate_Comp{
-											Comp: &lpb.Compare{
-												KeyOne:    "pop_kind",
-												KeyTwo:    "merchant",
-												Operation: lpb.Compare_CMP_STREQ,
-											},
-										},
-									},
-								},
+						Test: &lpb.Predicate_Comp{
+							Comp: &lpb.Compare{
+								KeyOne:    "pop_kind",
+								KeyTwo:    "['peasant, 'bandit]",
+								Operation: lpb.Compare_CMP_STRIN,
 							},
 						},
 					},

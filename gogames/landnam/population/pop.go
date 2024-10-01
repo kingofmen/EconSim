@@ -41,15 +41,24 @@ func (mgr *Manager) GetStr(key string) (string, error) {
 		return "", err
 	}
 
-	// POP types are just the literal strings.
-	// TODO: Predicates should understand string literals.
-	if _, ok := mgr.types[key]; ok {
-		return key, nil
-	}
 	if key == "pop_kind" {
 		return mgr.lookupTarget.GetKind(), nil
 	}
 	return "", fmt.Errorf("unknown string key %q", key)
+}
+
+func (mgr *Manager) GetStrArr(key string) ([]string, error) {
+	if err := mgr.check("GetStrArr"); err != nil {
+		return nil, err
+	}
+	if key == "pop_types" {
+		pts := make([]string, 0, len(mgr.types))
+		for pt := range mgr.types {
+			pts = append(pts, pt)
+		}
+		return pts, nil
+	}
+	return nil, fmt.Errorf("GetStrArr unimplemented.")
 }
 
 // check ensures that the Manager is initialised.
