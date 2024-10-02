@@ -12,8 +12,18 @@ message Demographics {
   int32 elders = 5;
 }
 
+message Specialization {
+  string good = 1;
+  int32 level = 2;
+}
+
 message PopChange {
   string new_key = 1;
+  repeated util.logic.proto.Predicate requires = 2;
+}
+
+message SpecChange {
+  Specialization new_level = 1;
   repeated util.logic.proto.Predicate requires = 2;
 }
 
@@ -31,6 +41,7 @@ message PopType {
   Demographics deaths_per_thousand = 11;
   int32 trade_gain_per_level = 12;
   repeated PopChange evolves = 13;
+  repeated SpecChange specializations = 14;
 }
 
 message Pop {
@@ -41,9 +52,5 @@ message Pop {
   int32 capital = 5;
   int32 militia = 6;
   int32 meaning = 7;
-  message Specialization {
-    string good = 1;
-    int32 level = 2;
-  }
   Specialization specialize = 8;
 }

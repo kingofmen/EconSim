@@ -474,7 +474,7 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "No trades, bad result",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 1,
 				},
@@ -484,14 +484,14 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "One trade",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 1,
 				},
 			},
 			others: []*poppb.Pop{
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
@@ -502,14 +502,14 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "Scales with level",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 7,
 				},
 			},
 			others: []*poppb.Pop{
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 7,
 					},
@@ -520,20 +520,20 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "Two trades",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 1,
 				},
 			},
 			others: []*poppb.Pop{
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "salt",
 						Level: 1,
 					},
@@ -544,26 +544,26 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "Duplicates don't matter",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 1,
 				},
 			},
 			others: []*poppb.Pop{
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "salt",
 						Level: 1,
 					},
@@ -574,7 +574,7 @@ func TestGainsFromTrade(t *testing.T) {
 		{
 			desc: "Unspecialized is a small gain",
 			pop: &poppb.Pop{
-				Specialize: &poppb.Pop_Specialization{
+				Specialize: &poppb.Specialization{
 					Good:  "wool",
 					Level: 2,
 				},
@@ -583,25 +583,25 @@ func TestGainsFromTrade(t *testing.T) {
 				&poppb.Pop{},
 				&poppb.Pop{},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "salt",
 						Level: 2,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "salt",
 						Level: 2,
 					},
@@ -615,19 +615,19 @@ func TestGainsFromTrade(t *testing.T) {
 			others: []*poppb.Pop{
 				&poppb.Pop{},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "grain",
 						Level: 1,
 					},
 				},
 				&poppb.Pop{
-					Specialize: &poppb.Pop_Specialization{
+					Specialize: &poppb.Specialization{
 						Good:  "salt",
 						Level: 1,
 					},
@@ -701,7 +701,7 @@ func TestChangeMatch(t *testing.T) {
 
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
-			got, err := manager.match(cc.pop, cc.evolve)
+			got, err := manager.match(cc.pop, cc.evolve.GetRequires())
 			if err != nil {
 				t.Errorf("%s: match() => %v, want nil", cc.desc, err)
 			}
@@ -735,6 +735,42 @@ func TestApplyChange(t *testing.T) {
 
 	for _, cc := range cases {
 		apply(cc.pop, cc.evolve)
+		if diff := cmp.Diff(cc.pop, cc.want, protocmp.Transform()); len(diff) > 0 {
+			t.Errorf("%s: apply() => %s, want %s, diff %s", cc.desc, prototext.Format(cc.pop), prototext.Format(cc.want), diff)
+		}
+	}
+}
+
+func TestApplySpecChange(t *testing.T) {
+	cases := []struct {
+		desc   string
+		pop    *poppb.Pop
+		evolve *poppb.SpecChange
+		want   *poppb.Pop
+	}{
+		{
+			desc: "Base case",
+			pop: &poppb.Pop{
+				Kind: "peasant",
+			},
+			evolve: &poppb.SpecChange{
+				NewLevel: &poppb.Specialization{
+					Good:  "wool",
+					Level: 3,
+				},
+			},
+			want: &poppb.Pop{
+				Kind: "peasant",
+				Specialize: &poppb.Specialization{
+					Good:  "wool",
+					Level: 3,
+				},
+			},
+		},
+	}
+
+	for _, cc := range cases {
+		applySpec(cc.pop, cc.evolve)
 		if diff := cmp.Diff(cc.pop, cc.want, protocmp.Transform()); len(diff) > 0 {
 			t.Errorf("%s: apply() => %s, want %s, diff %s", cc.desc, prototext.Format(cc.pop), prototext.Format(cc.want), diff)
 		}

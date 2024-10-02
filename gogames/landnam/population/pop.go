@@ -6,8 +6,10 @@ import (
 	"fmt"
 
 	"gogames/util/logic"
+	"google.golang.org/protobuf/proto"
 
 	poppb "gogames/landnam/population/pop_go_proto"
+	lpb "gogames/util/logic_go_proto"
 )
 
 const (
@@ -375,9 +377,9 @@ func (mgr *Manager) Demographics(pops []*poppb.Pop) error {
 }
 
 // match returns true if the POP fits the change requirements.
-func (mgr *Manager) match(pop *poppb.Pop, evolve *poppb.PopChange) (bool, error) {
+func (mgr *Manager) match(pop *poppb.Pop, reqs []*lpb.Predicate) (bool, error) {
 	mgr.lookupTarget = pop
-	for _, req := range evolve.GetRequires() {
+	for _, req := range reqs {
 		pass, err := logic.Eval(req, mgr)
 		if err != nil {
 			return false, err
@@ -395,6 +397,11 @@ func apply(pop *poppb.Pop, tmp *poppb.PopChange) {
 	// TODO: Side effects, e.g. specialisation, capital loss/gain.
 }
 
+// applySpec changes the POP's specialization.
+func applySpec(pop *poppb.Pop, spec *poppb.SpecChange) {
+	pop.Specialize = proto.Clone(spec.GetNewLevel()).(*poppb.Specialization)
+}
+
 // Evolve updates the POP types and specialisations.
 func (mgr *Manager) Evolve(pops []*poppb.Pop) error {
 	if err := mgr.check("Evolve"); err != nil {
@@ -406,18 +413,27 @@ func (mgr *Manager) Evolve(pops []*poppb.Pop) error {
 popLoop:
 	for _, pop := range pops {
 		tmp := mgr.types[pop.GetKind()]
-		for _, ev := range tmp.GetEvolves() {
-			good, err := mgr.match(pop, ev)
+		for _, spec := range tmp.GetSpecializations() {
+			good, err := mgr.match(pop, spec.GetRequires())
 			if err != nil {
 				return err
 			}
 			if good {
-				apply(pop, ev)
-				continue popLoop
+				applySpec(pop, spec)
+				break
 			}
 		}
 
-		// TODO: Specialisation up/downgrades.
+		for _, evolve := range tmp.GetEvolves() {
+			good, err := mgr.match(pop, evolve.GetRequires())
+			if err != nil {
+				return err
+			}
+			if good {
+				apply(pop, evolve)
+				continue popLoop
+			}
+		}
 	}
 	return nil
 }

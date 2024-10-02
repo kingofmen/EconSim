@@ -12,6 +12,7 @@ go_library(
       "//gogames/util:logic",
       "//gogames/util:logic_go_proto",
       "//gogames/landnam/population:pop_go_proto",
+      "@org_golang_google_protobuf//proto:proto",
     ],
 )
 
