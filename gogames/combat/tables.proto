@@ -1,0 +1,17 @@
+syntax = "proto3";
+package combat.proto;
+option go_package = "gogames/combat/tables_proto";
+
+import "gogames/util/logic.proto";
+
+message Result {
+  string key = 1;
+  repeated util.logic.proto.Predicate requires = 2;
+  bool ends = 3;
+  string goto = 4;
+}
+
+message Phase {
+  string key = 1;
+  repeated Result results = 2;
+}
