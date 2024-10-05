@@ -109,6 +109,7 @@ go_library(
     name = "logic",
     srcs = [
       "logic.go",
+      "logic_utils.go",
     ],
     importpath = "gogames/util/logic",
     deps = [

@@ -1,85 +1,13 @@
 package logic
 
 import (
-	"fmt"
 	"testing"
 
 	lpb "gogames/util/logic_go_proto"
 )
 
-type TestLookup struct {
-	ints    map[string]int32
-	strs    map[string]string
-	strarrs map[string][]string
-}
-
-func testLookup() *TestLookup {
-	return &TestLookup{
-		ints:    make(map[string]int32),
-		strs:    make(map[string]string),
-		strarrs: make(map[string][]string),
-	}
-}
-
-func (tl *TestLookup) GetInt(key string) (int32, error) {
-	if tl == nil {
-		return 0, fmt.Errorf("nil lookup object")
-	}
-	val, ok := tl.ints[key]
-	if !ok {
-		return 0, fmt.Errorf("unknown key %q", key)
-	}
-	return val, nil
-}
-
-func (tl *TestLookup) GetStr(key string) (string, error) {
-	if tl == nil {
-		return "", fmt.Errorf("nil lookup object")
-	}
-	val, ok := tl.strs[key]
-	if !ok {
-		return "", fmt.Errorf("unknown key %q", key)
-	}
-	return val, nil
-}
-
-func (tl *TestLookup) GetStrArr(key string) ([]string, error) {
-	if tl == nil {
-		return nil, fmt.Errorf("nil lookup object")
-	}
-	val, ok := tl.strarrs[key]
-	if !ok {
-		return nil, fmt.Errorf("unknown key %q", key)
-	}
-	return val, nil
-}
-
-func (tl *TestLookup) WithInt(key string, val int32) *TestLookup {
-	if tl == nil {
-		tl = testLookup()
-	}
-	tl.ints[key] = val
-	return tl
-}
-
-func (tl *TestLookup) WithStr(key string, val string) *TestLookup {
-	if tl == nil {
-		tl = testLookup()
-	}
-	tl.strs[key] = val
-	return tl
-}
-
-func (tl *TestLookup) WithStrArr(key string, val []string) *TestLookup {
-	if tl == nil {
-		tl = testLookup()
-	}
-	tl.strarrs[key] = val
-	return tl
-}
-
 func TestBasics(t *testing.T) {
-	defaults := testLookup().
+	defaults := NewTestLookup().
 		WithInt("one", 1).
 		WithInt("en", 1).
 		WithInt("two", 2).
@@ -446,7 +374,7 @@ func TestBasics(t *testing.T) {
 }
 
 func TestCombinations(t *testing.T) {
-	defaults := testLookup().
+	defaults := NewTestLookup().
 		WithInt("one", 1).
 		WithInt("en", 1).
 		WithInt("two", 2)
