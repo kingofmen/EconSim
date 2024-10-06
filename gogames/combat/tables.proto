@@ -4,14 +4,34 @@ option go_package = "gogames/combat/tables_proto";
 
 import "gogames/util/logic.proto";
 
-message Result {
+// Modifier is a value that applies to rolls if the predicates hold.
+message Modifier {
   string key = 1;
-  repeated util.logic.proto.Predicate requires = 2;
-  bool ends = 3;
-  string goto = 4;
+  int32 value = 2;
+  repeated util.logic.proto.Predicate requires = 3;
 }
 
+// Result is a possible outcome of a single battle phase.
+message Result {
+  string key = 1;
+  bool ends = 2;
+  string goto = 3;
+  int32 pips = 4;
+  repeated util.logic.proto.Predicate requires = 5;
+  repeated Modifier flags = 6;
+}
+
+// Phase is a table of results.
 message Phase {
   string key = 1;
-  repeated Result results = 2;
+  repeated int32 rolls = 2;
+  repeated Modifier modifiers = 3;
+  repeated Result results = 4;
+}
+
+// Outcome is the overall result of an entire resolution,
+// including possibly multiple phase results.
+message Outcome {
+  map<string, int32> flags = 1;
+  repeated Phase phases = 2;
 }
