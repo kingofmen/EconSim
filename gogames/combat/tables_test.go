@@ -279,12 +279,20 @@ type testDice struct {
 	rolls []int32
 }
 
+// Roll returns the next pre-provided roll.
 func (td *testDice) Roll(face int32) int32 {
 	td.idx++
 	if nr := len(td.rolls) - 1; nr < td.idx {
 		return td.rolls[nr]
 	}
 	return td.rolls[td.idx-1]
+}
+
+// newTestDice returns a testDice object with the specified rolls.
+func newTestDice(rolls ...int32) *testDice {
+	ret := &testDice{rolls: []int32{}}
+	ret.rolls = append(ret.rolls, rolls...)
+	return ret
 }
 
 func TestResolve(t *testing.T) {
@@ -317,9 +325,7 @@ func TestResolve(t *testing.T) {
 	}{
 		{
 			desc: "Exercise all features",
-			dice: &testDice{
-				rolls: []int32{1, 2, 1, 2, 1, 2},
-			},
+			dice: newTestDice(1, 2, 1, 2, 1, 2),
 			phases: []*tpb.Phase{
 				&tpb.Phase{
 					Key:   "start",
@@ -492,5 +498,48 @@ func TestResolve(t *testing.T) {
 }
 
 func TestResolveErrors(t *testing.T) {
-	// TODO
+	cases := []struct {
+		desc    string
+		start   string
+		phases  []*tpb.Phase
+		dice    *testDice
+		llookup *logic.TestLookup
+		err     string
+	}{
+		{
+			desc:  "Unknown starting state",
+			start: "hahano",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:  "end",
+							Pips: int32(1),
+							Ends: true,
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1, 2),
+			llookup: logic.NewTestLookup(),
+			err:     "unknown starting state",
+		},
+	}
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			lookup := NewLookup()
+			if errs := lookup.AddPhases(cc.phases); len(errs) > 0 {
+				t.Fatalf("%s: AddPhases() => %v, want nil", cc.desc, errs)
+			}
+			_, err := lookup.Resolve(cc.start, cc.dice, cc.llookup)
+			if err == nil {
+				t.Errorf("%s: Resolve() => nil, want %q", cc.desc, cc.err)
+			}
+			if !strings.Contains(err.Error(), cc.err) {
+				t.Errorf("%s: Resolve() => %v, want %q", cc.desc, cc.err)
+			}
+		})
+	}
 }
