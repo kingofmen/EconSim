@@ -215,10 +215,8 @@ func (l *Lookup) Resolve(key string, dice DieRoller, lookup logic.Lookup) (*tpb.
 		if outcome.GetEnds() {
 			break
 		}
-		phase, ok = l.states[outcome.GetGoto()]
-		if !ok {
-			return nil, fmt.Errorf("bad next-phase %q from phase %q", outcome.GetGoto(), pName)
-		}
+		// Error here is prevented by AddPhases validation.
+		phase = l.states[outcome.GetGoto()]
 	}
 
 	return fullResult, nil

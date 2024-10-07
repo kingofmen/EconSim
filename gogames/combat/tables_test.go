@@ -498,6 +498,25 @@ func TestResolve(t *testing.T) {
 }
 
 func TestResolveErrors(t *testing.T) {
+	badPredicate := &lpb.Predicate{
+		Test: &lpb.Predicate_Comp{
+			Comp: &lpb.Compare{
+				KeyOne:    "nonesuch",
+				KeyTwo:    "paradox",
+				Operation: lpb.Compare_CMP_GT,
+			},
+		},
+	}
+	oneGTtwo := &lpb.Predicate{
+		Test: &lpb.Predicate_Comp{
+			Comp: &lpb.Compare{
+				KeyOne:    "1",
+				KeyTwo:    "2",
+				Operation: lpb.Compare_CMP_GT,
+			},
+		},
+	}
+
 	cases := []struct {
 		desc    string
 		start   string
@@ -526,6 +545,126 @@ func TestResolveErrors(t *testing.T) {
 			llookup: logic.NewTestLookup(),
 			err:     "unknown starting state",
 		},
+		{
+			desc:  "Infinite loop",
+			start: "start",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:  "loop",
+							Pips: int32(1),
+							Goto: "start",
+						},
+						&tpb.Result{
+							Key:  "end",
+							Pips: int32(1),
+							Ends: true,
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1),
+			llookup: logic.NewTestLookup(),
+			err:     "not resolved",
+		},
+		{
+			desc:  "Bad modifier",
+			start: "start",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:  "end",
+							Pips: int32(1),
+							Ends: true,
+						},
+					},
+					Modifiers: []*tpb.Modifier{
+						&tpb.Modifier{
+							Key:      "bad_variable_lookup",
+							Requires: []*lpb.Predicate{badPredicate},
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1),
+			llookup: logic.NewTestLookup(),
+			err:     "error evaluating requirement 0 of modifier",
+		},
+		{
+			desc:  "Bad result requirement",
+			start: "start",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:      "end",
+							Pips:     int32(1),
+							Ends:     true,
+							Requires: []*lpb.Predicate{badPredicate},
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1),
+			llookup: logic.NewTestLookup(),
+			err:     "error evaluating requirement 0 of result",
+		},
+		{
+			desc:  "No allowed results",
+			start: "start",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:      "end",
+							Pips:     int32(1),
+							Ends:     true,
+							Requires: []*lpb.Predicate{oneGTtwo},
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1),
+			llookup: logic.NewTestLookup(),
+			err:     "1 results none of which",
+		},
+		{
+			desc:  "Bad flag requirement",
+			start: "start",
+			phases: []*tpb.Phase{
+				&tpb.Phase{
+					Key:   "start",
+					Rolls: []int32{6},
+					Results: []*tpb.Result{
+						&tpb.Result{
+							Key:  "end",
+							Pips: int32(1),
+							Ends: true,
+							Flags: []*tpb.Modifier{
+								&tpb.Modifier{
+									Key:      "bad_flag",
+									Value:    int32(1),
+									Requires: []*lpb.Predicate{badPredicate},
+								},
+							},
+						},
+					},
+				},
+			},
+			dice:    newTestDice(1),
+			llookup: logic.NewTestLookup(),
+			err:     "error evaluating flag 0 in outcome",
+		},
 	}
 	for _, cc := range cases {
 		t.Run(cc.desc, func(t *testing.T) {
@@ -538,7 +677,7 @@ func TestResolveErrors(t *testing.T) {
 				t.Errorf("%s: Resolve() => nil, want %q", cc.desc, cc.err)
 			}
 			if !strings.Contains(err.Error(), cc.err) {
-				t.Errorf("%s: Resolve() => %v, want %q", cc.desc, cc.err)
+				t.Errorf("%s: Resolve() => %v, want %q", cc.desc, err, cc.err)
 			}
 		})
 	}
