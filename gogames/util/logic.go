@@ -3,16 +3,63 @@ package logic
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
 	lpb "gogames/util/logic_go_proto"
 )
 
+const (
+	kScopeSeparator = "."
+)
+
 type Lookup interface {
 	GetInt(key string) (int32, error)
 	GetStr(key string) (string, error)
 	GetStrArr(key string) ([]string, error)
+	GetScope(key string) Lookup
+	SetScope(key string, scope Lookup)
+	ListScopes() []string
+}
+
+// Scoper provides a default in-memory scope-management object
+// which implementors of the Lookup interface can embed if they
+// don't want to roll their own.
+type Scoper struct {
+	scopes map[string]Lookup
+}
+
+// GetScope returns the given lookup scope.
+func (sc *Scoper) GetScope(key string) Lookup {
+	if sc == nil {
+		return nil
+	}
+	return sc.scopes[key]
+}
+
+// SetScope sets the key to point to the scope.
+func (sc *Scoper) SetScope(key string, scope Lookup) {
+	if sc == nil {
+		return
+	}
+	if sc.scopes == nil {
+		sc.scopes = make(map[string]Lookup)
+	}
+	sc.scopes[key] = scope
+}
+
+// ListScopes returns the keys of any existing scopes.
+func (sc *Scoper) ListScopes() []string {
+	if sc == nil {
+		return nil
+	}
+	ret := make([]string, 0, len(sc.scopes))
+	for key := range sc.scopes {
+		ret = append(ret, key)
+	}
+	sort.Strings(ret)
+	return ret
 }
 
 // evalCombination returns true if the logical expression is true.
@@ -61,6 +108,15 @@ func getInt(key string, lookup Lookup) (int32, error) {
 	if val, err := strconv.Atoi(key); err == nil {
 		return int32(val), nil
 	}
+	scope, skey, has := strings.Cut(key, kScopeSeparator)
+	if has {
+		slookup := lookup.GetScope(scope)
+		if slookup == nil {
+			return 0, fmt.Errorf("invalid scope lookup %q from integer key %q", scope, key)
+		}
+		return getInt(skey, slookup)
+	}
+
 	return lookup.GetInt(key)
 }
 
@@ -69,6 +125,14 @@ func getInt(key string, lookup Lookup) (int32, error) {
 func getStr(key string, lookup Lookup) (string, error) {
 	if len(key) > 0 && key[0] == byte('\'') {
 		return key[1:], nil
+	}
+	scope, skey, has := strings.Cut(key, kScopeSeparator)
+	if has {
+		slookup := lookup.GetScope(scope)
+		if slookup == nil {
+			return "", fmt.Errorf("invalid scope lookup %q from string key %q", scope, key)
+		}
+		return getStr(skey, slookup)
 	}
 	return lookup.GetStr(key)
 }
@@ -88,6 +152,14 @@ func getStrArr(key string, lookup Lookup) ([]string, error) {
 			}
 			return entries, nil
 		}
+	}
+	scope, skey, has := strings.Cut(key, kScopeSeparator)
+	if has {
+		slookup := lookup.GetScope(scope)
+		if slookup == nil {
+			return nil, fmt.Errorf("invalid scope lookup %q from string array key %q", scope, key)
+		}
+		return getStrArr(skey, slookup)
 	}
 	return lookup.GetStrArr(key)
 }

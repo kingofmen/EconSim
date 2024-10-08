@@ -19,6 +19,7 @@ const (
 // Manager contains methods for POP dynamics. It satisfies
 // the logic.Lookup interface.
 type Manager struct {
+	logic.Scoper
 	types        map[string]*poppb.PopType
 	lookupTarget *poppb.Pop
 }

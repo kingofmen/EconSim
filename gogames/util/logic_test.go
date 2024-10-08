@@ -645,3 +645,115 @@ func TestCombinations(t *testing.T) {
 		})
 	}
 }
+
+func TestScopes(t *testing.T) {
+	cases := []struct {
+		desc   string
+		base   *TestLookup
+		scopes map[string]*TestLookup
+		pred   *lpb.Predicate
+		want   bool
+	}{
+		{
+			desc: "Compare base and scope",
+			base: NewTestLookup().WithStr("something", "abc"),
+			scopes: map[string]*TestLookup{
+				"scope": NewTestLookup().WithStr("another", "abc"),
+			},
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "something",
+						KeyTwo:    "scope.another",
+						Operation: lpb.Compare_CMP_STREQ,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			desc: "Base string in scope array",
+			base: NewTestLookup().WithStr("something", "abc"),
+			scopes: map[string]*TestLookup{
+				"scope": NewTestLookup().WithStrArr("another", []string{"abc", "def"}),
+			},
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "something",
+						KeyTwo:    "scope.another",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			desc: "String literal in scope array",
+			base: NewTestLookup(),
+			scopes: map[string]*TestLookup{
+				"scope": NewTestLookup().WithStrArr("another", []string{"abc", "def"}),
+			},
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "'def",
+						KeyTwo:    "scope.another",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			desc: "String from one scope in array from another",
+			base: NewTestLookup(),
+			scopes: map[string]*TestLookup{
+				"tele":  NewTestLookup().WithStr("foo", "abc"),
+				"scope": NewTestLookup().WithStrArr("another", []string{"abc", "def"}),
+			},
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "tele.foo",
+						KeyTwo:    "scope.another",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			desc: "String from scope in array literal",
+			base: NewTestLookup(),
+			scopes: map[string]*TestLookup{
+				"tele": NewTestLookup().WithStr("foo", "abc"),
+			},
+			pred: &lpb.Predicate{
+				Test: &lpb.Predicate_Comp{
+					Comp: &lpb.Compare{
+						KeyOne:    "tele.foo",
+						KeyTwo:    "['abc, 'def]",
+						Operation: lpb.Compare_CMP_STRIN,
+					},
+				},
+			},
+			want: true,
+		},
+	}
+
+	for _, cc := range cases {
+		t.Run(cc.desc, func(t *testing.T) {
+			for key, scope := range cc.scopes {
+				cc.base.SetScope(key, scope)
+			}
+			got, err := Eval(cc.pred, cc.base)
+			if err != nil {
+				t.Fatalf("%s: Eval() => %v, want nil", cc.desc, err)
+			}
+			if got != cc.want {
+				t.Errorf("%s: Eval() => %v, want %v", cc.desc, got, cc.want)
+			}
+		})
+	}
+}

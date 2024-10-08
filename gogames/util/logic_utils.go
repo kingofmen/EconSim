@@ -6,6 +6,7 @@ import (
 
 // TestLookup implements Lookup in memory, for easy testing.
 type TestLookup struct {
+	Scoper
 	ints    map[string]int32
 	strs    map[string]string
 	strarrs map[string][]string
