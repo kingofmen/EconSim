@@ -182,7 +182,7 @@ func gainsFromTrade(gainPerLevel int32, pop *poppb.Pop, others []*poppb.Pop) int
 }
 
 // Produce creates prods in accordance with the POP templates.
-// TODO: Add modifiers.
+// TODO: Add modifiers - use predicates.
 func (mgr *Manager) Produce(pops []*poppb.Pop, trades map[*poppb.Pop][]*poppb.Pop) error {
 	if err := mgr.check("Produce"); err != nil {
 		return err
@@ -293,6 +293,7 @@ func use(count int, tmp *poppb.PopType, pop *poppb.Pop, want func() []int32, tar
 
 // Consume iterates over the POPs and distributes their available
 // production to their priorities.
+// TODO: Write modifiers in terms of logic.Predicate.
 func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 	if err := mgr.check("Consume"); err != nil {
 		return err
@@ -323,7 +324,7 @@ func (mgr *Manager) Consume(pops []*poppb.Pop) error {
 }
 
 // Demographics does births and deaths.
-// TODO: Modifiers.
+// TODO: Modifiers in the templates.
 func (mgr *Manager) Demographics(pops []*poppb.Pop) error {
 	if err := mgr.check("Demographics"); err != nil {
 		return err
@@ -404,6 +405,7 @@ func applySpec(pop *poppb.Pop, spec *poppb.SpecChange) {
 }
 
 // Evolve updates the POP types and specialisations.
+// TODO: Predicate modifiers in the templates.
 func (mgr *Manager) Evolve(pops []*poppb.Pop) error {
 	if err := mgr.check("Evolve"); err != nil {
 		return err
