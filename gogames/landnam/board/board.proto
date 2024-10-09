@@ -1,0 +1,15 @@
+syntax = "proto3";
+package landnam.board.proto;
+option go_package = "gogames/landnam/board/board_proto";
+
+import "gogames/tiles/triangles/triangles.proto";
+import "gogames/util/logic.proto";
+
+message Tile {
+  // Tri-coordinates.
+  tiles.triangles.proto.TriPoint coords = 1;
+}
+
+message Board {
+  repeated Tile tiles = 1;
+}
