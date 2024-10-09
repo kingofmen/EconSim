@@ -35,7 +35,7 @@ proto_library(
 
 go_proto_library(
     name = "triangles_go_proto",
-    importpath = "gogames/settlers/triangles/triangles_go_proto",
+    importpath = "gogames/tiles/triangles/triangles_go_proto",
     visibility = ["//visibility:public"],
     protos = [":triangles_proto"],
 )

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	tripb "gogames/settlers/triangles/triangles_go_proto"
+	tripb "gogames/tiles/triangles/triangles_go_proto"
 )
 
 // Coordinate system from https://www.boristhebrave.com/2021/05/23/triangle-grids/.
@@ -159,16 +159,39 @@ func Zero() TriPoint {
 	return TriPoint{0, 0, 0}
 }
 
+// FromProto returns a TriPoint with the same coordinates
+// as the protobuf.
 func FromProto(p *tripb.TriPoint) TriPoint {
 	return TriPoint{int(p.GetA()), int(p.GetB()), int(p.GetC())}
 }
 
+// Proto initialises a protobuf with the tri-coordinates.
 func (tp TriPoint) Proto() *tripb.TriPoint {
 	return &tripb.TriPoint{
 		A: int32(tp.A()),
 		B: int32(tp.B()),
 		C: int32(tp.C()),
 	}
+}
+
+// ProtoString returns a human-readable one-line string
+// with the proto coordinates.
+func ProtoString(pt *tripb.TriPoint) string {
+	return fmt.Sprintf("{A: %d, B: %d, C: %d}", pt.GetA(), pt.GetB(), pt.GetC())
+}
+
+// ProtoValid returns an error if the proto coordinates
+// have an incorrect checksum.
+func ProtoValid(pt *tripb.TriPoint) error {
+	// a+b+c must add to one or two.
+	switch pt.GetA() + pt.GetB() + pt.GetC() {
+	case 1:
+		return nil
+	case 2:
+		return nil
+	}
+	return fmt.Errorf("invalid triangle coordinates %s", ProtoString(pt))
+
 }
 
 // FromXY returns the tri-coordinates of the triangle
