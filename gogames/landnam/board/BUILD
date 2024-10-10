@@ -10,10 +10,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
       "//gogames/landnam/board:board_go_proto",
-      "//gogames/util:logic",
-      "//gogames/util:logic_go_proto",
       "//gogames/tiles/triangles:triangles",
-      "@org_golang_google_protobuf//proto:proto",
     ],
 )
 
@@ -23,7 +20,7 @@ proto_library(
     	 "board.proto",
     ],
     deps = [
-      "//gogames/util:logic_proto",
+      "//gogames/landnam/population:pop_proto",
       "//gogames/tiles/triangles:triangles_proto",
     ],
 )
@@ -38,7 +35,7 @@ go_test(
     ],
     deps = [
       ":board_go_proto",
-      "//gogames/util:logic_go_proto",
+      "//gogames/landnam/population:pop_go_proto",
       "//gogames/tiles/triangles:triangles_go_proto",
       "@org_golang_google_protobuf//testing/protocmp:protocmp",
       "@com_github_google_go_cmp//cmp:cmp",
@@ -46,14 +43,13 @@ go_test(
     ],
 )
 
-
 go_proto_library(
     name = "board_go_proto",
     importpath = "gogames/landnam/board/board_go_proto",
     visibility = ["//visibility:public"],
     protos = [":board_proto"],
     deps = [
-      "//gogames/util:logic_go_proto",
+      "//gogames/landnam/population:pop_go_proto",
       "//gogames/tiles/triangles:triangles_go_proto",
     ],
 )

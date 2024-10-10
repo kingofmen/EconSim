@@ -24,6 +24,7 @@ proto_library(
     deps = [
       "//gogames/util:logic_proto",
     ],
+    visibility = ["//visibility:public"],
 )
 
 go_test(
