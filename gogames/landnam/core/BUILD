@@ -10,6 +10,8 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
       "//gogames/landnam/core:game_go_proto",
+      "//gogames/landnam/population:pop_go_proto",
+      "//gogames/landnam/population:pop",
       "@org_golang_google_protobuf//proto:proto",
     ],
 )
@@ -20,6 +22,7 @@ proto_library(
     	 "game.proto",
     ],
     deps = [
+      "//gogames/landnam/board:board_proto",
     ],
     visibility = ["//visibility:public"],
 )
@@ -44,5 +47,6 @@ go_proto_library(
     visibility = ["//visibility:public"],
     protos = [":game_proto"],
     deps = [
+      "//gogames/landnam/board:board_go_proto",
     ],
 )

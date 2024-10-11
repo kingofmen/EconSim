@@ -2,6 +2,8 @@ syntax = "proto3";
 package landnam.core.proto;
 option go_package = "gogames/landnam/core/game_proto";
 
-message GameState {
+import "gogames/landnam/board/board.proto";
 
+message GameState {
+  landnam.board.proto.Board board = 1;
 }

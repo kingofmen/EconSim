@@ -23,6 +23,7 @@ proto_library(
       "//gogames/landnam/population:pop_proto",
       "//gogames/tiles/triangles:triangles_proto",
     ],
+    visibility = ["//visibility:public"],
 )
 
 go_test(
