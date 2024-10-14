@@ -46,7 +46,7 @@ func (mgr *Manager) GetInt(key string) (int32, error) {
 	if key == "minors" {
 		return minors(mgr.lookupTarget), nil
 	}
-	return 0, fmt.Errorf("Unknown key %q for GetInt.", key)
+	return 0, fmt.Errorf("unknown key %q for GetInt.", key)
 }
 
 func (mgr *Manager) GetStr(key string) (string, error) {
@@ -71,7 +71,7 @@ func (mgr *Manager) GetStrArr(key string) ([]string, error) {
 		}
 		return pts, nil
 	}
-	return nil, fmt.Errorf("GetStrArr unimplemented.")
+	return nil, fmt.Errorf("unknown string array key %q", key)
 }
 
 // check ensures that the Manager is initialised.
