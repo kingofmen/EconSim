@@ -9,9 +9,11 @@ go_library(
     importpath = "gogames/landnam/core/game",
     visibility = ["//visibility:public"],
     deps = [
+      "//gogames/combat:tables",
       "//gogames/landnam/core:game_go_proto",
       "//gogames/landnam/population:pop_go_proto",
       "//gogames/landnam/population:pop",
+      "//gogames/util:logic",
       "@org_golang_google_protobuf//proto:proto",
     ],
 )

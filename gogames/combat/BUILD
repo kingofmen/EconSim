@@ -50,6 +50,7 @@ go_library(
       "//gogames/util:logic",
       "//gogames/combat:tables_go_proto",
     ],
+    visibility = ["//visibility:public"],
 )
 
 go_test(
