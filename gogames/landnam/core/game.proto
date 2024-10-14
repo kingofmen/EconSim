@@ -4,6 +4,13 @@ option go_package = "gogames/landnam/core/game_proto";
 
 import "gogames/landnam/board/board.proto";
 
+message Campaign {
+  repeated string attacker_ids = 1;
+  repeated string target_ids = 2;
+  string start_key = 3;
+}
+
 message GameState {
   landnam.board.proto.Board board = 1;
+  repeated Campaign campaigns = 2;
 }

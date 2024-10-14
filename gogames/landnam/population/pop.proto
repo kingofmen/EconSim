@@ -45,12 +45,13 @@ message PopType {
 }
 
 message Pop {
-  string kind = 1;
-  Demographics people = 2;
-  int32 prods = 3;
-  int32 consume = 4;
-  int32 capital = 5;
-  int32 militia = 6;
-  int32 meaning = 7;
-  Specialization specialize = 8;
+  string key = 1;
+  string kind = 2;
+  Demographics people = 3;
+  int32 prods = 4;
+  int32 consume = 5;
+  int32 capital = 6;
+  int32 militia = 7;
+  int32 meaning = 8;
+  Specialization specialize = 9;
 }
